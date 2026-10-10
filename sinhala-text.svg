@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200">
+  <style>
+    .red { fill: #c62828; font-family: 'Noto Sans Sinhala', Arial, sans-serif; font-weight: 700; font-size: 64px; }
+    .blue { fill: #1e40af; font-family: 'Noto Sans Sinhala', Arial, sans-serif; font-weight: 700; font-size: 64px; }
+  </style>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
+    <tspan class="red" dx="0">විද්වත</tspan>
+    <tspan class="blue" dx="20">සරවනු</tspan>
+    <tspan class="red" dx="20">පූජපොතේ</tspan>
+  </text>
+</svg>
