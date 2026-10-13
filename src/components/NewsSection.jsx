@@ -1,43 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./NewsSection.css";
 
-const dummyPosts = [
-  {
-    id: 1,
-    category: "Announcements",
-    title: "G.D. Sarath Bandu Gunasekara Appointed As Principal",
-    excerpt:
-      "We are proud to announce the appointment of G.D. Sarath Bandu Gunasekara as the new Principal of Bandaranayake College, Gampaha.",
-    date: "April 28, 2025",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHFi2ydNxZmDXQRwWkqIV998md4xNiODOXw6bgfDAvvw_Hf2bBJbfhlFs&s=10",
-    tag: "Leadership",
-  },
-  {
-    id: 2,
-    category: "News",
-    title: "Annual Prize Giving Ceremony 2024 - A Night to Remember",
-    excerpt:
-      "The annual Prize Giving Ceremony celebrated academic excellence, sporting achievements, and cultural contributions of our students.",
-    date: "March 15, 2025",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHFi2ydNxZmDXQRwWkqIV998md4xNiODOXw6bgfDAvvw_Hf2bBJbfhlFs&s=10",
-    tag: "Events",
-  },
-  {
-    id: 3,
-    category: "News",
-    title: "BCG Wins Provincial Schools Football Championship",
-    excerpt:
-      "Our football team has brought glory to the college by winning the Western Province Schools Football Championship for the third consecutive year.",
-    date: "February 10, 2025",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHFi2ydNxZmDXQRwWkqIV998md4xNiODOXw6bgfDAvvw_Hf2bBJbfhlFs&s=10",
-    tag: "Sports",
-  },
-];
+import { subscribePublishedNews } from "../lib/newsService";
+
+// Adapt published Firestore news records to the existing card data shape.
+// All visible markup, filters, classes, animations, and styles remain unchanged.
+function toNewsCard(post) {
+  const date = (post.publishedAt ?? post.createdAt)?.toDate?.();
+  const formattedDate = date instanceof Date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    : "";
+
+  return {
+    id: post.id,
+    category: post.category === "Announcements" ? "Announcements" : "News",
+    title: post.title || "",
+    excerpt: post.excerpt || "",
+    date: formattedDate,
+    image: post.imageUrl || "",
+    tag: post.tag || "",
+  };
+}
 
 const NewsSection = () => {
   const sectionRef = useRef(null);
   const [activeFilter, setActiveFilter] = useState("All");
   const [visible, setVisible] = useState(false);
+  const [dummyPosts, setDummyPosts] = useState([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -48,6 +37,19 @@ const NewsSection = () => {
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = subscribePublishedNews(
+        (posts) => setDummyPosts(posts.map(toNewsCard)),
+        (error) => console.error("Unable to load published news:", error),
+      );
+    } catch (error) {
+      console.error("Unable to subscribe to published news:", error);
+    }
+    return () => unsubscribe();
   }, []);
 
   const filters = ["All", "Announcements", "News"];
