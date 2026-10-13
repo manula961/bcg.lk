@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import './AdminTheme.css';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -25,13 +26,49 @@ export default function AdminLogin() {
       setError(messages[err?.code] || err?.message || 'Unable to sign in.');
     } finally { setBusy(false); }
   }
-  return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-    <form onSubmit={login} className="w-full max-w-md rounded-xl border border-[#C9A84C]/40 p-8 space-y-5">
-      <h1 className="text-3xl font-bold text-[#C9A84C]">BCG.LK Admin</h1>
-      <label className="block">Email<input type="email" required autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
-      <label className="block">Password<input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
-      {error && <p role="alert" className="text-red-300 break-words">{error}</p>}
-      <button type="submit" disabled={busy} className="w-full rounded bg-[#C9A84C] p-3 text-black font-bold disabled:opacity-50">{busy ? 'Signing in…' : 'Sign in'}</button>
-    </form>
-  </main>;
+  return (
+    <main className="bcg-admin admin-auth">
+      <div className="admin-login-card">
+        <div className="admin-login-mark" aria-hidden="true">B</div>
+        <p className="admin-eyebrow">Bandaranayake College • Gampaha</p>
+        <h1 className="admin-display admin-auth-title">ADMIN CONSOLE</h1>
+        <div className="admin-divider" aria-hidden="true"><span /><span /></div>
+        <p className="admin-auth-hint mt-5">
+          Secure content administration. Sign in using your authorized college administrator account.
+        </p>
+
+        <form onSubmit={login} className="mt-8 space-y-5">
+          <label className="block">
+            <span className="admin-field-label">Email address</span>
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="admin-input mt-2"
+              placeholder="name@school.lk"
+            />
+          </label>
+          <label className="block">
+            <span className="admin-field-label">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="admin-input mt-2"
+              placeholder="Enter your password"
+            />
+          </label>
+          {error && <p role="alert" className="break-words text-sm text-red-300">{error}</p>}
+          <button type="submit" disabled={busy} className="admin-primary-button w-full">
+            {busy ? 'Signing in…' : 'Sign in to dashboard'}
+          </button>
+        </form>
+        <p className="admin-footer">BCG.LK • Official Administration</p>
+      </div>
+    </main>
+  );
 }

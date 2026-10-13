@@ -58,9 +58,9 @@ const collections = {
   },
 };
 
-const fieldStyle = 'mt-2 block w-full rounded-lg border border-white/15 bg-[#101318] px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/20 disabled:cursor-not-allowed disabled:opacity-50';
-const secondaryButton = 'inline-flex items-center justify-center rounded-lg border border-white/20 px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:border-[#C9A84C]/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-40';
-const primaryButton = 'inline-flex items-center justify-center rounded-lg bg-[#C9A84C] px-5 py-2.5 text-sm font-bold text-[#111111] transition hover:bg-[#e1bf63] disabled:cursor-not-allowed disabled:opacity-50';
+const fieldStyle = 'admin-input mt-2';
+const secondaryButton = 'admin-secondary-button';
+const primaryButton = 'admin-primary-button';
 
 function displayDate(record) {
   const timestamp = record.updatedAt || record.createdAt;
@@ -257,12 +257,12 @@ export default function ContentManager({ kind, onDirtyChange }) {
     .slice(0, 120);
 
   return (
-    <section aria-label={config.title} className="space-y-6">
+    <section aria-label={config.title} className="admin-content space-y-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A84C]">Content management</p>
-          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{config.title}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">{config.description}</p>
+          <p className="admin-eyebrow mb-2">Content management</p>
+          <h2 className="admin-display admin-content-heading">{config.title}</h2>
+          <p className="admin-content-description">{config.description}</p>
         </div>
         {!editorOpen && (
           <button type="button" onClick={openNew} className={primaryButton}>
@@ -291,19 +291,18 @@ export default function ContentManager({ kind, onDirtyChange }) {
               { label: 'Published', value: totals.published },
               { label: 'Drafts', value: totals.drafts },
             ].map((item, index) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-[#111318] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/45">{item.label}</p>
+              <div key={item.label} className="admin-stat">
+                <p className="admin-eyebrow">{item.label}</p>
                 <div className="mt-3 flex items-end justify-between">
-                  <span className="text-3xl font-semibold text-white">{loading ? '—' : item.value}</span>
-                  <span className={'h-2.5 w-2.5 rounded-full ' +
-                    (index === 1 ? 'bg-emerald-400' : index === 2 ? 'bg-amber-400' : 'bg-[#C9A84C]')} />
+                  <span className="admin-stat-value">{loading ? '—' : item.value}</span>
+                  <span className="admin-stat-marker" data-kind={index === 1 ? 'published' : index === 2 ? 'drafts' : 'all'} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#111318]">
-            <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4 sm:p-5">
+          <div className="admin-panel">
+            <div className="admin-toolbar">
               <label className="min-w-[180px] flex-1">
                 <span className="sr-only">Search {config.title}</span>
                 <input
@@ -311,7 +310,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                   value={search}
                   onChange={event => setSearch(event.target.value)}
                   placeholder={'Search ' + kind + '...'}
-                  className="w-full rounded-lg border border-white/15 bg-[#0a0c0f] px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#C9A84C]"
+                  className="admin-input"
                 />
               </label>
               <label>
@@ -319,7 +318,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <select
                   value={status}
                   onChange={event => setStatus(event.target.value)}
-                  className="rounded-lg border border-white/15 bg-[#0a0c0f] px-4 py-2.5 text-sm text-white outline-none focus:border-[#C9A84C]"
+                  className="admin-input"
                 >
                   <option value="all">All statuses</option>
                   <option value="published">Published</option>
@@ -344,17 +343,17 @@ export default function ContentManager({ kind, onDirtyChange }) {
             ) : (
               <div className="divide-y divide-white/10">
                 {visible.map(item => (
-                  <article key={item.id} className="flex flex-col gap-4 px-4 py-5 transition hover:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                  <article key={item.id} className="admin-list-row">
                     <div className="flex min-w-0 items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#262018] text-xl font-bold text-[#C9A84C]">
+                      <div className="admin-item-thumb">
                         {item.imageUrl && item.imageUrl.startsWith('https://')
                           ? <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
                           : config.singular.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="break-words text-sm font-semibold text-white sm:text-base">{item.title || 'Untitled'}</h3>
-                        <p className="mt-1 line-clamp-2 text-sm text-white/50">{getSnippet(item, kind) || 'No description'}</p>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/40">
+                        <h3 className="admin-list-title">{item.title || 'Untitled'}</h3>
+                        <p className="admin-list-desc mt-1 line-clamp-2">{getSnippet(item, kind) || 'No description'}</p>
+                        <div className="admin-list-meta">
                           <span>{displayDate(item)}</span>
                           {item.eventDate && <span>Event: {item.eventDate}</span>}
                           {item.category && <span>{item.category}</span>}
@@ -363,16 +362,14 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
-                      <span className={item.published
-                        ? 'mr-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300'
-                        : 'mr-1 rounded-full border border-amber-400/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-200'}>
+                      <span className="admin-badge" data-published={item.published === true}>
                         {item.published ? 'Published' : 'Draft'}
                       </span>
                       <button type="button" disabled={actionId !== null} onClick={() => openExisting(item)} className={secondaryButton}>Edit</button>
                       <button type="button" disabled={actionId !== null} onClick={() => togglePublished(item)} className={secondaryButton}>
                         {actionId === item.id ? 'Working…' : item.published ? 'Unpublish' : 'Publish'}
                       </button>
-                      <button type="button" disabled={actionId !== null} onClick={() => remove(item)} className="rounded-lg border border-red-400/20 px-3 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-950/40 disabled:opacity-40">
+                      <button type="button" disabled={actionId !== null} onClick={() => remove(item)} className="admin-danger-button">
                         Delete
                       </button>
                     </div>
@@ -382,15 +379,15 @@ export default function ContentManager({ kind, onDirtyChange }) {
             )}
           </div>
           <p className="text-xs leading-5 text-white/40">
-            Publishing updates Firestore. The public website will keep its existing design and static sections until a separately approved data integration.
+            Published News and Events update the existing public sections via Firestore. Pages remain stored until their public routes are integrated.
           </p>
         </>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#111318]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-5 sm:px-7">
+        <div className="admin-panel">
+          <div className="admin-panel-header flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A84C]">{editingId ? 'Edit content' : 'New content'}</p>
-              <h3 className="mt-1 text-xl font-semibold text-white">{editingId ? 'Update ' : 'Create '}{config.singular}</h3>
+              <p className="admin-eyebrow">{editingId ? 'Edit content' : 'New content'}</p>
+              <h3 className="admin-display mt-2 text-xl">{editingId ? 'Update ' : 'Create '}{config.singular}</h3>
             </div>
             <button type="button" onClick={leaveEditor} disabled={busy} className={secondaryButton}>Back to list</button>
           </div>
@@ -398,7 +395,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {config.fields.map(field => (
                 <label key={field.key} className={'block min-w-0 ' + (field.wide ? 'md:col-span-2' : '')}>
-                  <span className="text-sm font-semibold text-white/85">
+                  <span className="admin-field-label">
                     {field.label}{field.required && <span className="ml-1 text-[#C9A84C]">*</span>}
                   </span>
                   {field.type === 'textarea' ? (
@@ -428,7 +425,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       placeholder={field.placeholder}
                     />
                   )}
-                  {field.help && <span className="mt-2 block text-xs leading-5 text-white/45">{field.help}</span>}
+                  {field.help && <span className="admin-field-help">{field.help}</span>}
                   {kind === 'pages' && field.key === 'slug' && !editingId && (
                     <button type="button" disabled={!slugSuggestion} onClick={() => updateField('slug', slugSuggestion)}
                       className="mt-2 text-xs font-semibold text-[#C9A84C] hover:underline disabled:opacity-40">
@@ -446,7 +443,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
               </div>
             )}
 
-            <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-[#0b0d11] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="admin-publish-area">
               <div>
                 <h4 className="text-sm font-bold text-white">Publication status</h4>
                 <p className="mt-1 text-xs leading-5 text-white/50">
@@ -455,7 +452,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
               </div>
               <label className="flex shrink-0 cursor-pointer items-center gap-3 text-sm font-semibold text-white">
                 <input type="checkbox" checked={form.published} onChange={event => updateField('published', event.target.checked)}
-                  className="h-5 w-5 accent-[#C9A84C]" />
+                  className="admin-publish-check" />
                 Publish
               </label>
             </div>

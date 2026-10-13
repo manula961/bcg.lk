@@ -4,6 +4,7 @@ import { doc, getDocFromServer } from 'firebase/firestore';
 import { auth, db, firebaseConfigured } from '../lib/firebase';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
+import './AdminTheme.css';
 
 const CHECK_TIMEOUT_MS = 12000;
 
@@ -62,19 +63,23 @@ export default function AdminApp() {
   }, [verifyAdmin]);
 
   if (!firebaseConfigured || !auth || !db) {
-    return <main className="min-h-screen bg-black text-white p-8" role="alert">Firebase web configuration is incomplete. Check all six VITE_FIREBASE_* variables in Vercel and redeploy.</main>;
+    return <main className="bcg-admin admin-auth" role="alert"><section className="admin-login-card"><p className="admin-eyebrow">Configuration required</p><h1 className="admin-display admin-auth-title">ADMIN CONSOLE</h1><p className="admin-auth-hint">Firebase web configuration is incomplete. Check all six VITE_FIREBASE_* variables in Vercel and redeploy.</p></section></main>;
   }
   if (session.status === 'checking') {
-    return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6"><p role="status">Checking administrator access…</p></main>;
+    return <main className="bcg-admin admin-auth"><section className="admin-login-card" role="status"><p className="admin-eyebrow">Secure administrator access</p><h1 className="admin-display admin-auth-title">VERIFYING ACCESS</h1><div className="admin-divider" aria-hidden="true"><span /><span /></div><p className="admin-auth-hint mt-5">Checking administrator access…</p></section></main>;
   }
   if (session.status === 'authorized') return <AdminDashboard user={session.user} />;
   if (session.status === 'denied' || session.status === 'error') {
-    return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-      <section className="w-full max-w-md rounded-xl border border-[#C9A84C]/40 p-8 space-y-4">
-        <h1 className="text-2xl font-bold text-[#C9A84C]">Administrator access</h1>
-        <p role="alert" className="text-red-200">{session.message}</p>
-        <button className="rounded bg-[#C9A84C] px-4 py-2 text-black font-semibold" onClick={() => verifyAdmin(auth.currentUser)}>Retry verification</button>
-        <button className="ml-3 rounded border border-white/40 px-4 py-2" onClick={() => signOut(auth)}>Sign out</button>
+    return <main className="bcg-admin admin-auth">
+      <section className="admin-login-card">
+        <p className="admin-eyebrow">Account verification</p>
+        <h1 className="admin-display admin-auth-title">ADMIN ACCESS</h1>
+        <div className="admin-divider" aria-hidden="true"><span /><span /></div>
+        <p role="alert" className="mt-5 text-sm leading-7 text-red-200">{session.message}</p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <button type="button" className="admin-primary-button" onClick={() => verifyAdmin(auth.currentUser)}>Retry verification</button>
+          <button type="button" className="admin-secondary-button" onClick={() => signOut(auth)}>Sign out</button>
+        </div>
       </section>
     </main>;
   }
