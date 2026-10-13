@@ -205,13 +205,21 @@
   border-radius: 16px;
   background: rgba(247, 245, 240, 0.5);
   transition: 0.3s ease;
+<<<<<<< Updated upstream
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.0);
+=======
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.0);
+>>>>>>> Stashed changes
 }
 
 .stat-card:hover {
   background: #f7f5f0;
   transform: translateY(-3px);
+<<<<<<< Updated upstream
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+=======
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+>>>>>>> Stashed changes
 }
 
 .stat-card.maroon {
@@ -252,15 +260,27 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto;
   }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   .bento-card.card-1,
   .bento-card.card-2 {
     grid-column: 1;
     grid-row: auto;
     height: 240px;
   }
+<<<<<<< Updated upstream
   .bento-card {
     height: 200px;
   }
+=======
+
+  .bento-card {
+    height: 200px;
+  }
+
+>>>>>>> Stashed changes
   .life-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }

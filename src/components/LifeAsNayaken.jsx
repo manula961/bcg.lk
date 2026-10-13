@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import './LifeAsNayaken.css';
 
 const stats = [
+<<<<<<< Updated upstream
   { value: '108+', label: 'Years of Excellence', color: 'maroon' },
+=======
+  { value: '107+', label: 'Years of Excellence', color: 'maroon' },
+>>>>>>> Stashed changes
   { value: '5000+', label: 'Students Enrolled', color: 'blue' },
   { value: '120+', label: 'Sports Titles', color: 'maroon' },
   { value: '98%', label: 'Pass Rate', color: 'blue' },

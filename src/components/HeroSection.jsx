@@ -92,9 +92,17 @@ const HeroSection = () => {
           className="hero-fade-init flex items-center justify-center gap-3 my-1"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
+<<<<<<< Updated upstream
           <span className="text-xl font-black tracking-[0.3em] text-yellow-400 uppercase">
             SINCE 1918
           </span>
+=======
+
+          <span className="text-xl font-black tracking-[0.3em] text-yellow-400 uppercase">
+            SINCE 1918
+          </span>
+
+>>>>>>> Stashed changes
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
         </div>
       </div>
@@ -105,9 +113,15 @@ const HeroSection = () => {
         className="hero-fade-init absolute bottom-6 z-20 w-full px-4 flex justify-center"
       >
         <div className="motto-container">
+<<<<<<< Updated upstream
           <span className="motto-maroon">1 </span>
           <span className="motto-blue">1 </span>
           <span className="motto-maroon"> 1</span>
+=======
+          <span className="motto-maroon">විද්වාත්</span>
+          <span className="motto-blue">සර්වත්‍ර</span>
+          <span className="motto-maroon">පූජ්‍යතේ</span>
+>>>>>>> Stashed changes
         </div>
       </div>
 

@@ -57,7 +57,7 @@ h1, h2, h3 {
 }
 
 .noto_sinhala {
-  font-family: 'noto-sinhala', serif;
+  font-family: 'Noto Sans Sinhala', serif;
 }
 
 /* Standardized Global Layout Container */
@@ -79,9 +79,11 @@ h1, h2, h3 {
 ::-webkit-scrollbar {
   width: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--dark);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--maroon);
   border-radius: 2px;

@@ -5,6 +5,10 @@ const Footer = () => {
   return (
     <footer className="footer-wrapper">
       <div className="footer-gradient-bar" />
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
       <div className="section-container footer-content">
         <br/><br/>
         {/* Main Grid */}
@@ -26,6 +30,10 @@ const Footer = () => {
               Nurturing young minds since 1918. A legacy of academic brilliance,
               sportsmanship, and cultural harmony in the heart of Gampaha.
             </p>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             {/* Social Media SVG Buttons */}
             <div className="footer-socials">
               {/* Facebook */}
@@ -34,12 +42,20 @@ const Footer = () => {
                   <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7.5v-3H10V9.5C10 7.01 11.49 5.65 13.75 5.65c1.08 0 2.21.19 2.21.19v2.43h-1.25c-1.23 0-1.61.77-1.61 1.56V12h2.74l-.44 3h-2.3v6.8c4.56-.93 8-4.96 8-9.8z" />
                 </svg>
               </a>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
               {/* LinkedIn */}
               <a href="#" className="footer-social-btn" aria-label="LinkedIn">
                 <svg className="footer-social-icon" viewBox="0 0 24 24">
                   <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.7a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z" />
                 </svg>
               </a>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
               {/* YouTube */}
               <a href="#" className="footer-social-btn" aria-label="YouTube">
                 <svg className="footer-social-icon" viewBox="0 0 24 24">
@@ -52,6 +68,7 @@ const Footer = () => {
           {/* Col 2: Navigation Links */}
           <div>
             <h4 className="footer-col-title">Navigate</h4>
+<<<<<<< Updated upstream
             {['Home', 'Explore', 'Academics', 'Extra Curricular', 'News'].map((link) => (
               <a
                 key={link}
@@ -61,6 +78,19 @@ const Footer = () => {
                 {link}
               </a>
             ))}
+=======
+            {['Home', 'Explore', 'Academics', 'Extra Curricular', 'News'].map(
+              (link) => (
+                <a
+                  key={link}
+                  href={`#${link.toLowerCase().replace(/\s+/g, '')}`}
+                  className="footer-link"
+                >
+                  {link}
+                </a>
+              )
+            )}
+>>>>>>> Stashed changes
           </div>
 
           {/* Col 3: Academic Sections */}
@@ -83,6 +113,10 @@ const Footer = () => {
           {/* Col 4: Contact Info */}
           <div>
             <h4 className="footer-col-title">Contact Us</h4>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             {/* Location */}
             <div className="footer-contact-item">
               <svg
@@ -101,6 +135,10 @@ const Footer = () => {
                 Bandaranayake College, Gampaha, Sri Lanka
               </span>
             </div>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             {/* Phone */}
             <div className="footer-contact-item">
               <svg
@@ -116,6 +154,10 @@ const Footer = () => {
               </svg>
               <span className="footer-contact-text">+94 33 222 2XXX</span>
             </div>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             {/* Email */}
             <div className="footer-contact-item">
               <svg
@@ -138,10 +180,17 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="footer-bottom-bar">
           <div className="footer-copyright">
+<<<<<<< Updated upstream
             2025 Bandaranayake College, Gampaha. All Rights Reserved.
           </div>
           <div className="footer-tagline">
             bcg.lk   Excellence Since 1918
+=======
+            © 2025 Bandaranayake College, Gampaha. All Rights Reserved.
+          </div>
+          <div className="footer-tagline">
+            bcg.lk • Excellence Since 1918
+>>>>>>> Stashed changes
           </div>
         </div>
       </div>

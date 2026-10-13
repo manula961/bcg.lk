@@ -53,6 +53,10 @@
   letter-spacing: 0.02em;
 }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 .footer-brand-desc {
   font-family: 'Geologica', sans-serif;
   font-size: 0.875rem;
@@ -100,7 +104,11 @@
   transform: scale(1.1);
 }
 
+<<<<<<< Updated upstream
 /* Column Headings */
+=======
+/* Column Headings - Prominent & Bold */
+>>>>>>> Stashed changes
 .footer-col-title {
   font-family: 'Geologica', sans-serif !important;
   font-size: 1.05rem;

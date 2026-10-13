@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./NewsSection.css";
 import { subscribePublishedNews } from "../lib/newsService";
 
+<<<<<<< Updated upstream
 function toNewsCard(post) {
   const date = (post.publishedAt ?? post.createdAt)?.toDate?.();
   const formattedDate =
@@ -22,6 +23,40 @@ function toNewsCard(post) {
     tag: post.tag || "",
   };
 }
+=======
+const dummyPosts = [
+  {
+    id: 1,
+    category: "Announcements",
+    title: "G.D. Sarath Bandu Gunasekara Appointed As Principal",
+    excerpt:
+      "We are proud to announce the appointment of G.D. Sarath Bandu Gunasekara as the new Principal of Bandaranayake College, Gampaha.",
+    date: "April 28, 2025",
+    image: "https://bcg.lk/img/banner1.jpg",
+    tag: "Leadership",
+  },
+  {
+    id: 2,
+    category: "News",
+    title: "Annual Prize Giving Ceremony 2024 - A Night to Remember",
+    excerpt:
+      "The annual Prize Giving Ceremony celebrated academic excellence, sporting achievements, and cultural contributions of our students.",
+    date: "March 15, 2025",
+    image: "https://bcg.lk/img/banner1.jpg",
+    tag: "Events",
+  },
+  {
+    id: 3,
+    category: "News",
+    title: "BCG Wins Provincial Schools Football Championship",
+    excerpt:
+      "Our football team has brought glory to the college by winning the Western Province Schools Football Championship for the third consecutive year.",
+    date: "February 10, 2025",
+    image: "https://bcg.lk/img/banner1.jpg",
+    tag: "Sports",
+  },
+];
+>>>>>>> Stashed changes
 
 const NewsSection = () => {
   const sectionRef = useRef(null);
