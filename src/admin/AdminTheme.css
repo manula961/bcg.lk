@@ -1,0 +1,445 @@
+/*
+ * BCG.LK Admin Console theme.
+ * All selectors are scoped under .bcg-admin so the public website's UI,
+ * styles, typography, animations, and responsive layout are untouched.
+ * Uses the same existing font families and palette as the public website.
+ */
+.bcg-admin {
+  --admin-dark: #0a0a0a;
+  --admin-maroon: #7b1c1c;
+  --admin-maroon-light: #a02020;
+  --admin-gold: #c9a84c;
+  --admin-gold-light: #e8c97a;
+  --admin-navy: #1a3a6b;
+  --admin-cream: #f5f0e8;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 94% 0%, rgba(123, 28, 28, 0.18), transparent 36%),
+    linear-gradient(180deg, #0a0a0a 0%, #100607 100%);
+  color: #fff;
+  font-family: 'Geologica', sans-serif;
+  isolation: isolate;
+}
+
+.bcg-admin *,
+.bcg-admin *::before,
+.bcg-admin *::after { box-sizing: border-box; }
+
+.bcg-admin .admin-display {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 900;
+  letter-spacing: 0.015em;
+  line-height: 1.15;
+  color: var(--admin-cream);
+}
+
+.bcg-admin .admin-eyebrow {
+  font-family: 'Oswald', sans-serif;
+  color: var(--admin-gold);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.bcg-admin .admin-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 3px;
+}
+.bcg-admin .admin-divider span:first-child { width: 50px; height: 2px; background: var(--admin-maroon); }
+.bcg-admin .admin-divider span:last-child { width: 15px; height: 2px; background: var(--admin-navy); }
+
+.bcg-admin .admin-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  max-width: 1760px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.bcg-admin .admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid rgba(201, 168, 76, 0.16);
+  background: linear-gradient(180deg, rgba(28, 10, 12, 0.98), rgba(13, 7, 8, 0.98));
+  z-index: 2;
+}
+
+.bcg-admin .admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 28px 25px 27px;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+  text-decoration: none;
+}
+.bcg-admin .admin-brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 52px;
+  flex: none;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 29px;
+  font-weight: 900;
+  color: var(--admin-gold-light);
+  background: linear-gradient(135deg, #7b1c1c, #3d0b0b);
+  border: 1px solid rgba(201, 168, 76, 0.68);
+  border-radius: 12px 12px 16px 16px;
+  box-shadow: inset 0 0 0 3px rgba(10, 10, 10, 0.32);
+}
+.bcg-admin .admin-brand-name {
+  display: block;
+  font-family: 'Cinzel', Georgia, serif;
+  color: var(--admin-cream);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.bcg-admin .admin-brand-caption {
+  display: block;
+  margin-top: 4px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.29em;
+  color: var(--admin-gold);
+  text-transform: uppercase;
+}
+
+.bcg-admin .admin-sidebar-body { flex: 1; padding: 32px 15px 20px; }
+.bcg-admin .admin-nav-caption { padding: 0 14px 15px; }
+.bcg-admin .admin-nav { display: flex; flex-direction: column; gap: 8px; }
+.bcg-admin .admin-nav-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 14px 16px 18px;
+  min-height: 70px;
+  text-align: left;
+  border-radius: 0 14px 14px 0;
+  border-left: 3px solid transparent;
+  color: rgba(255,255,255,.56);
+  background: transparent;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+.bcg-admin .admin-nav-link:hover { background: rgba(123,28,28,.2); color: #fff; }
+.bcg-admin .admin-nav-link[aria-pressed="true"] {
+  border-left-color: var(--admin-maroon-light);
+  background: linear-gradient(90deg, rgba(123,28,28,.4), rgba(123,28,28,.17));
+  color: #fff;
+}
+.bcg-admin .admin-nav-index {
+  font-family: 'Oswald', sans-serif;
+  color: rgba(201,168,76,.52);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+.bcg-admin .admin-nav-link[aria-pressed="true"] .admin-nav-index { color: var(--admin-gold-light); }
+.bcg-admin .admin-nav-title { display: block; font-size: 14px; font-weight: 600; }
+.bcg-admin .admin-nav-meta { display: block; margin-top: 5px; font-size: 10px; color: rgba(255,255,255,.43); line-height: 1.5; }
+
+.bcg-admin .admin-account {
+  margin-top: auto;
+  padding: 24px 25px 26px;
+  border-top: 1px solid rgba(201,168,76,.13);
+  background: rgba(0,0,0,.13);
+}
+.bcg-admin .admin-account-email { margin-top: 9px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; color: rgba(255,255,255,.77); }
+
+.bcg-admin .admin-workspace { min-width: 0; }
+.bcg-admin .admin-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 36px clamp(24px, 4vw, 60px) 32px;
+  background: linear-gradient(180deg, rgba(24,7,9,.68), rgba(10,10,10,0));
+  border-bottom: 1px solid rgba(201,168,76,.12);
+}
+.bcg-admin .admin-main-heading {
+  margin: 10px 0 19px;
+  font-size: clamp(27px, 3vw, 43px);
+}
+.bcg-admin .admin-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 11px; }
+.bcg-admin .admin-page-content { padding: 34px clamp(20px, 4vw, 60px) 70px; }
+.bcg-admin .admin-crumb {
+  margin-bottom: 31px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: rgba(255,255,255,.45);
+}
+.bcg-admin .admin-crumb-current { color: var(--admin-gold-light); }
+
+.bcg-admin .admin-content-heading { font-size: clamp(25px, 3.2vw, 37px); }
+.bcg-admin .admin-content-description {
+  color: rgba(255,255,255,.59);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 13px;
+  max-width: 640px;
+}
+.bcg-admin .admin-primary-button,
+.bcg-admin .admin-secondary-button,
+.bcg-admin .admin-danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 11px 21px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color .2s, background .2s, color .2s, transform .2s;
+}
+.bcg-admin .admin-primary-button {
+  background: linear-gradient(135deg, #7b1c1c, #a02020);
+  color: #fff;
+  border: 1px solid rgba(201,168,76,.31);
+  box-shadow: 0 8px 30px rgba(123,28,28,.19);
+}
+.bcg-admin .admin-primary-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #962424, #b42b2b);
+  transform: translateY(-1px);
+  border-color: rgba(201,168,76,.62);
+}
+.bcg-admin .admin-secondary-button {
+  background: rgba(10,10,10,.28);
+  border: 1px solid rgba(201,168,76,.32);
+  color: var(--admin-gold-light);
+}
+.bcg-admin .admin-secondary-button:hover:not(:disabled) {
+  background: rgba(123,28,28,.27);
+  border-color: var(--admin-gold);
+  color: #fff;
+}
+.bcg-admin .admin-danger-button {
+  background: rgba(123,28,28,.07);
+  border: 1px solid rgba(179,71,71,.26);
+  color: #edb4b4;
+}
+.bcg-admin .admin-danger-button:hover:not(:disabled) { background: rgba(123,28,28,.3); color: #fff; }
+.bcg-admin button:disabled { opacity: .5; cursor: not-allowed; }
+.bcg-admin :is(button,input,textarea,select,a):focus-visible {
+  outline: 2px solid var(--admin-gold-light);
+  outline-offset: 3px;
+}
+
+.bcg-admin .admin-stat {
+  position: relative;
+  overflow: hidden;
+  min-height: 135px;
+  padding: 24px 25px;
+  border: 1px solid rgba(201,168,76,.14);
+  border-radius: 15px;
+  background: linear-gradient(155deg, #1b0b0d 0%, #120d0e 62%, #100d0e 100%);
+}
+.bcg-admin .admin-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  width: 42px;
+  height: 2px;
+  background: var(--admin-maroon-light);
+}
+.bcg-admin .admin-stat-value { color: var(--admin-cream); font-size: 33px; font-weight: 700; }
+.bcg-admin .admin-stat-marker { width: 7px; height: 7px; border-radius: 50%; background: var(--admin-gold); }
+.bcg-admin .admin-stat-marker[data-kind="published"] { background: #77bda1; }
+.bcg-admin .admin-stat-marker[data-kind="drafts"] { background: var(--admin-gold-light); }
+
+.bcg-admin .admin-panel {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(201,168,76,.16);
+  background: linear-gradient(160deg, rgba(31, 11, 13, .9), rgba(15, 12, 12, .98) 42%);
+  box-shadow: 0 14px 45px rgba(0,0,0,.12);
+}
+.bcg-admin .admin-panel-header {
+  border-bottom: 1px solid rgba(201,168,76,.14);
+  padding: 23px 26px;
+  background: rgba(123,28,28,.1);
+}
+.bcg-admin .admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 22px 23px;
+  border-bottom: 1px solid rgba(201,168,76,.13);
+}
+.bcg-admin .admin-input {
+  display: block;
+  width: 100%;
+  border: 1px solid rgba(201,168,76,.24);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-height: 44px;
+  outline: none;
+  background: rgba(9,9,9,.58);
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Geologica', sans-serif;
+  transition: border-color .2s, box-shadow .2s;
+}
+.bcg-admin .admin-input::placeholder { color: rgba(255,255,255,.32); }
+.bcg-admin .admin-input:focus { border-color: var(--admin-gold); box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+.bcg-admin .admin-input:disabled { opacity: .58; cursor: not-allowed; }
+.bcg-admin .admin-input option { background: #1d1011; color: #fff; }
+.bcg-admin .admin-input[type="color"] { height: 51px; padding: 7px; cursor: pointer; }
+.bcg-admin .admin-input[type="date"] { color-scheme: dark; }
+.bcg-admin .admin-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+}
+.bcg-admin .admin-field-help { display: block; margin-top: 7px; color: rgba(255,255,255,.46); font-size: 11px; line-height: 1.65; }
+.bcg-admin .admin-list-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 21px 23px;
+  border-bottom: 1px solid rgba(201,168,76,.1);
+  transition: background .2s;
+}
+.bcg-admin .admin-list-row:last-child { border-bottom: none; }
+.bcg-admin .admin-list-row:hover { background: rgba(123,28,28,.11); }
+.bcg-admin .admin-item-thumb {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  overflow: hidden;
+  border: 1px solid rgba(201,168,76,.28);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #502020, #1d1011);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 22px;
+  color: var(--admin-gold);
+}
+.bcg-admin .admin-list-title { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.bcg-admin .admin-list-desc { color: rgba(255,255,255,.56); font-size: 12px; line-height: 1.65; }
+.bcg-admin .admin-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 11px;
+  margin-top: 7px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: .04em;
+  font-size: 10px;
+  color: rgba(255,255,255,.42);
+}
+.bcg-admin .admin-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 100px;
+  border: 1px solid rgba(201,168,76,.25);
+  background: rgba(201,168,76,.08);
+  color: var(--admin-gold-light);
+  font: 500 10px 'Oswald',sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .11em;
+  padding: 7px 11px;
+}
+.bcg-admin .admin-badge[data-published="true"] {
+  color: #b9e0c7;
+  background: rgba(30,108,65,.15);
+  border-color: rgba(118,192,147,.25);
+}
+.bcg-admin .admin-publish-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px;
+  background: rgba(123,28,28,.11);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 12px;
+}
+.bcg-admin .admin-publish-check { accent-color: var(--admin-maroon-light); width: 19px; height: 19px; }
+.bcg-admin.admin-auth {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+}
+.bcg-admin .admin-login-card {
+  width: 100%;
+  max-width: 465px;
+  padding: clamp(27px, 5vw, 48px);
+  border: 1px solid rgba(201,168,76,.29);
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(50,13,17,.93), #130d0f 58%, #0d0b0c 100%);
+  box-shadow: 0 25px 90px rgba(0,0,0,.36);
+}
+.bcg-admin .admin-login-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 65px;
+  margin-bottom: 26px;
+  border: 1px solid rgba(201,168,76,.6);
+  border-radius: 13px 13px 18px 18px;
+  background: #7b1c1c;
+  color: var(--admin-gold-light);
+  font: 900 35px 'Cinzel',Georgia,serif;
+}
+.bcg-admin .admin-auth-title { margin: 9px 0 15px; font-size: clamp(28px, 4vw, 36px); }
+.bcg-admin .admin-auth-hint { color: rgba(255,255,255,.55); font-size: 12px; line-height: 1.7; }
+.bcg-admin .admin-footer { padding-top: 38px; text-align: center; color: rgba(201,168,76,.4); font: 400 10px 'Oswald',sans-serif; letter-spacing: .21em; text-transform: uppercase; }
+
+@media (max-width: 1023px) {
+  .bcg-admin .admin-layout { display: block; }
+  .bcg-admin .admin-sidebar { position: relative; height: auto; border-right: 0; border-bottom: 1px solid rgba(201,168,76,.15); }
+  .bcg-admin .admin-brand { padding: 18px 22px; }
+  .bcg-admin .admin-sidebar-body { padding: 10px 18px 14px; }
+  .bcg-admin .admin-nav { flex-direction: row; overflow-x: auto; gap: 7px; }
+  .bcg-admin .admin-nav-link { width: auto; min-width: 120px; min-height: 54px; padding: 10px 14px; border-radius: 9px; }
+  .bcg-admin .admin-nav-caption, .bcg-admin .admin-account, .bcg-admin .admin-nav-meta { display: none; }
+  .bcg-admin .admin-topbar { padding: 25px 22px; }
+  .bcg-admin .admin-page-content { padding: 25px 20px 60px; }
+}
+@media (max-width: 640px) {
+  .bcg-admin .admin-brand-mark { width: 42px; height: 46px; font-size: 25px; }
+  .bcg-admin .admin-brand-name { font-size: 17px; }
+  .bcg-admin .admin-main-heading { font-size: 27px; }
+  .bcg-admin .admin-toolbar { padding: 15px; }
+  .bcg-admin .admin-list-row { padding: 19px 15px; }
+  .bcg-admin .admin-panel-header { padding: 20px 17px; }
+  .bcg-admin .admin-nav-index { font-size: 10px; }
+  .bcg-admin .admin-nav-link { gap: 9px; }
+  .bcg-admin .admin-primary-button, .bcg-admin .admin-secondary-button, .bcg-admin .admin-danger-button { padding: 11px 13px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bcg-admin .admin-nav-link, .bcg-admin .admin-primary-button, .bcg-admin .admin-secondary-button,
+  .bcg-admin .admin-danger-button, .bcg-admin .admin-input, .bcg-admin .admin-list-row { transition: none; }
+}

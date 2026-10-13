@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import ContentManager from './ContentManager';
+<<<<<<< HEAD
 import './Admin.css';
 
 const sections = [
@@ -42,6 +43,14 @@ const sections = [
       </svg>
     ),
   },
+=======
+import './AdminTheme.css';
+
+const sections = [
+  { id: 'news', label: 'News', description: 'Articles & announcements' },
+  { id: 'events', label: 'Events', description: 'Calendar & occasions' },
+  { id: 'pages', label: 'Pages', description: 'Website content' },
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
 ];
 
 export default function AdminDashboard({ user }) {
@@ -55,7 +64,10 @@ export default function AdminDashboard({ user }) {
     setSection(next);
   }
 
+  const currentSection = sections.find(item => item.id === section);
+
   return (
+<<<<<<< HEAD
     <main className="admin-body">
       <div className="admin-layout-wrapper">
         {/* Sidebar */}
@@ -79,23 +91,47 @@ export default function AdminDashboard({ user }) {
             </p>
             <nav aria-label="Admin content sections" className="flex gap-2 overflow-x-auto lg:flex-col">
               {sections.map((item) => (
+=======
+    <main className="bcg-admin">
+      <div className="admin-layout">
+        <aside className="admin-sidebar" aria-label="Admin sidebar">
+          <a className="admin-brand" href="/" target="_blank" rel="noopener noreferrer" aria-label="BCG.LK public website">
+            <span className="admin-brand-mark" aria-hidden="true">B</span>
+            <span>
+              <span className="admin-brand-name">BCG.LK</span>
+              <span className="admin-brand-caption">Nayakenz Admin</span>
+            </span>
+          </a>
+
+          <div className="admin-sidebar-body">
+            <p className="admin-eyebrow admin-nav-caption">Manage Content</p>
+            <nav className="admin-nav" aria-label="Admin content sections">
+              {sections.map((item, index) => (
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => changeSection(item.id)}
                   aria-pressed={section === item.id}
+<<<<<<< HEAD
                   className={`admin-nav-item ${section === item.id ? 'active' : ''}`}
                 >
                   <span className="admin-nav-icon">{item.icon}</span>
+=======
+                  className="admin-nav-link"
+                >
+                  <span className="admin-nav-index" aria-hidden="true">0{index + 1}</span>
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
                   <span>
-                    <span className="block text-sm font-semibold">{item.label}</span>
-                    <span className="hidden text-xs text-white/40 lg:block">{item.description}</span>
+                    <span className="admin-nav-title">{item.label}</span>
+                    <span className="admin-nav-meta">{item.description}</span>
                   </span>
                 </button>
               ))}
             </nav>
           </div>
 
+<<<<<<< HEAD
           <div className="hidden border-t border-white/10 px-6 py-5 lg:block">
             <p className="admin-subtitle text-[10px] font-semibold uppercase tracking-widest text-white/35">
               Signed in as
@@ -117,10 +153,27 @@ export default function AdminDashboard({ user }) {
             </div>
 
             <div className="flex items-center gap-3">
+=======
+          <div className="admin-account">
+            <p className="admin-eyebrow">Signed in as</p>
+            <p className="admin-account-email">{user.email}</p>
+          </div>
+        </aside>
+
+        <div className="admin-workspace">
+          <header className="admin-topbar">
+            <div>
+              <p className="admin-eyebrow">Bandaranayake College • Gampaha</p>
+              <h1 className="admin-display admin-main-heading">ADMIN CONSOLE</h1>
+              <div className="admin-divider" aria-hidden="true"><span /><span /></div>
+            </div>
+            <div className="admin-header-actions">
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
               <a
                 href="/"
                 target="_blank"
                 rel="noopener noreferrer"
+<<<<<<< HEAD
                 className="admin-btn-secondary"
               >
                 View Website ↗
@@ -131,12 +184,28 @@ export default function AdminDashboard({ user }) {
                 className="admin-btn-danger"
               >
                 Sign Out
+=======
+                className="admin-secondary-button"
+              >View website <span aria-hidden="true">↗</span></a>
+              <button type="button" onClick={() => signOut(auth)} className="admin-primary-button">
+                Sign out
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
               </button>
             </div>
           </header>
 
+<<<<<<< HEAD
           <div className="admin-content-area">
+=======
+          <div className="admin-page-content">
+            <div className="admin-crumb" aria-label="Current section">
+              <span>Content management</span>
+              <span aria-hidden="true">/</span>
+              <span className="admin-crumb-current">{currentSection.label}</span>
+            </div>
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
             <ContentManager key={section} kind={section} onDirtyChange={setEditorDirty} />
+            <footer className="admin-footer">BCG.LK • Bandaranayake College Gampaha • Administration</footer>
           </div>
         </div>
       </div>

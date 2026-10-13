@@ -58,6 +58,13 @@ const collections = {
   },
 };
 
+<<<<<<< HEAD
+=======
+const fieldStyle = 'admin-input mt-2';
+const secondaryButton = 'admin-secondary-button';
+const primaryButton = 'admin-primary-button';
+
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
 function displayDate(record) {
   const timestamp = record.updatedAt || record.createdAt;
   if (!timestamp || typeof timestamp.toDate !== 'function') return 'Not available';
@@ -272,6 +279,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
     .slice(0, 120);
 
   return (
+<<<<<<< HEAD
     <section aria-label={config.title} className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -282,6 +290,14 @@ export default function ContentManager({ kind, onDirtyChange }) {
             {config.title}
           </h2>
           <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/55">{config.description}</p>
+=======
+    <section aria-label={config.title} className="admin-content space-y-7">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="admin-eyebrow mb-2">Content management</p>
+          <h2 className="admin-display admin-content-heading">{config.title}</h2>
+          <p className="admin-content-description">{config.description}</p>
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
         </div>
 
         {!editorOpen && (
@@ -309,6 +325,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
+<<<<<<< HEAD
               { label: 'Total Records', value: totals.all, accent: 'border-t-[#C9A84C]' },
               { label: 'Published Live', value: totals.published, accent: 'border-t-emerald-400' },
               { label: 'Draft Mode', value: totals.drafts, accent: 'border-t-amber-400' },
@@ -324,11 +341,23 @@ export default function ContentManager({ kind, onDirtyChange }) {
                   <span className="text-3xl font-extrabold text-white">
                     {loading ? '—' : item.value}
                   </span>
+=======
+              { label: 'Total records', value: totals.all },
+              { label: 'Published', value: totals.published },
+              { label: 'Drafts', value: totals.drafts },
+            ].map((item, index) => (
+              <div key={item.label} className="admin-stat">
+                <p className="admin-eyebrow">{item.label}</p>
+                <div className="mt-3 flex items-end justify-between">
+                  <span className="admin-stat-value">{loading ? '—' : item.value}</span>
+                  <span className="admin-stat-marker" data-kind={index === 1 ? 'published' : index === 2 ? 'drafts' : 'all'} />
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
                 </div>
               </div>
             ))}
           </div>
 
+<<<<<<< HEAD
           {/* List Table */}
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0f13] shadow-xl">
             <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4 sm:p-5">
@@ -349,6 +378,32 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <option value="published">Published</option>
                 <option value="drafts">Drafts</option>
               </select>
+=======
+          <div className="admin-panel">
+            <div className="admin-toolbar">
+              <label className="min-w-[180px] flex-1">
+                <span className="sr-only">Search {config.title}</span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={event => setSearch(event.target.value)}
+                  placeholder={'Search ' + kind + '...'}
+                  className="admin-input"
+                />
+              </label>
+              <label>
+                <span className="sr-only">Publication status</span>
+                <select
+                  value={status}
+                  onChange={event => setStatus(event.target.value)}
+                  className="admin-input"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="drafts">Drafts</option>
+                </select>
+              </label>
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
             </div>
 
             {loadError ? (
@@ -377,6 +432,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
               </div>
             ) : (
               <div className="divide-y divide-white/10">
+<<<<<<< HEAD
                 {visible.map((item, index) => {
                   // Display dynamic accent color badge for events
                   const eventNumber = index + 1;
@@ -466,6 +522,54 @@ export default function ContentManager({ kind, onDirtyChange }) {
               <h3 className="admin-title text-lg font-bold text-white">
                 {editingId ? 'Update ' : 'Create '}{config.singular}
               </h3>
+=======
+                {visible.map(item => (
+                  <article key={item.id} className="admin-list-row">
+                    <div className="flex min-w-0 items-start gap-4">
+                      <div className="admin-item-thumb">
+                        {item.imageUrl && item.imageUrl.startsWith('https://')
+                          ? <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                          : config.singular.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="admin-list-title">{item.title || 'Untitled'}</h3>
+                        <p className="admin-list-desc mt-1 line-clamp-2">{getSnippet(item, kind) || 'No description'}</p>
+                        <div className="admin-list-meta">
+                          <span>{displayDate(item)}</span>
+                          {item.eventDate && <span>Event: {item.eventDate}</span>}
+                          {item.category && <span>{item.category}</span>}
+                          {item.slug && <span>/{item.slug}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+                      <span className="admin-badge" data-published={item.published === true}>
+                        {item.published ? 'Published' : 'Draft'}
+                      </span>
+                      <button type="button" disabled={actionId !== null} onClick={() => openExisting(item)} className={secondaryButton}>Edit</button>
+                      <button type="button" disabled={actionId !== null} onClick={() => togglePublished(item)} className={secondaryButton}>
+                        {actionId === item.id ? 'Working…' : item.published ? 'Unpublish' : 'Publish'}
+                      </button>
+                      <button type="button" disabled={actionId !== null} onClick={() => remove(item)} className="admin-danger-button">
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="text-xs leading-5 text-white/40">
+            Published News and Events update the existing public sections via Firestore. Pages remain stored until their public routes are integrated.
+          </p>
+        </>
+      ) : (
+        <div className="admin-panel">
+          <div className="admin-panel-header flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="admin-eyebrow">{editingId ? 'Edit content' : 'New content'}</p>
+              <h3 className="admin-display mt-2 text-xl">{editingId ? 'Update ' : 'Create '}{config.singular}</h3>
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
             </div>
             <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
               ← Back to List
@@ -476,9 +580,14 @@ export default function ContentManager({ kind, onDirtyChange }) {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {config.fields.map((field) => (
                 <label key={field.key} className={'block min-w-0 ' + (field.wide ? 'md:col-span-2' : '')}>
+<<<<<<< HEAD
                   <span className="admin-input-label">
                     {field.label}
                     {field.required && <span className="ml-1 text-[#C9A84C]">*</span>}
+=======
+                  <span className="admin-field-label">
+                    {field.label}{field.required && <span className="ml-1 text-[#C9A84C]">*</span>}
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
                   </span>
 
                   {field.type === 'textarea' ? (
@@ -516,9 +625,13 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       placeholder={field.placeholder}
                     />
                   )}
+<<<<<<< HEAD
 
                   {field.help && <span className="mt-1 block text-[11px] text-white/45">{field.help}</span>}
 
+=======
+                  {field.help && <span className="admin-field-help">{field.help}</span>}
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
                   {kind === 'pages' && field.key === 'slug' && !editingId && (
                     <button
                       type="button"
@@ -546,7 +659,11 @@ export default function ContentManager({ kind, onDirtyChange }) {
               </div>
             )}
 
+<<<<<<< HEAD
             <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-[#07080a] p-4 sm:flex-row sm:items-center sm:justify-between">
+=======
+            <div className="admin-publish-area">
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
               <div>
                 <h4 className="admin-subtitle text-xs font-bold text-white uppercase tracking-wider">
                   Publication Status
@@ -557,6 +674,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     : 'This item will remain as a draft visible only to admins.'}
                 </p>
               </div>
+<<<<<<< HEAD
 
               <label className="flex shrink-0 cursor-pointer items-center gap-3 text-xs font-semibold text-white">
                 <input
@@ -566,6 +684,12 @@ export default function ContentManager({ kind, onDirtyChange }) {
                   className="h-5 w-5 rounded border-white/20 bg-black accent-[#C9A84C]"
                 />
                 Publish Item
+=======
+              <label className="flex shrink-0 cursor-pointer items-center gap-3 text-sm font-semibold text-white">
+                <input type="checkbox" checked={form.published} onChange={event => updateField('published', event.target.checked)}
+                  className="admin-publish-check" />
+                Publish
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
               </label>
             </div>
 

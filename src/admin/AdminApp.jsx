@@ -4,7 +4,11 @@ import { doc, getDocFromServer } from 'firebase/firestore';
 import { auth, db, firebaseConfigured } from '../lib/firebase';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
+<<<<<<< HEAD
 import './Admin.css';
+=======
+import './AdminTheme.css';
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
 
 const CHECK_TIMEOUT_MS = 12000;
 
@@ -78,6 +82,7 @@ export default function AdminApp() {
   }, [verifyAdmin]);
 
   if (!firebaseConfigured || !auth || !db) {
+<<<<<<< HEAD
     return (
       <main className="admin-center-screen" role="alert">
         <div className="admin-card-glass border-red-500/30">
@@ -88,9 +93,13 @@ export default function AdminApp() {
         </div>
       </main>
     );
+=======
+    return <main className="bcg-admin admin-auth" role="alert"><section className="admin-login-card"><p className="admin-eyebrow">Configuration required</p><h1 className="admin-display admin-auth-title">ADMIN CONSOLE</h1><p className="admin-auth-hint">Firebase web configuration is incomplete. Check all six VITE_FIREBASE_* variables in Vercel and redeploy.</p></section></main>;
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
   }
 
   if (session.status === 'checking') {
+<<<<<<< HEAD
     return (
       <main className="admin-center-screen">
         <div className="text-center">
@@ -101,11 +110,15 @@ export default function AdminApp() {
         </div>
       </main>
     );
+=======
+    return <main className="bcg-admin admin-auth"><section className="admin-login-card" role="status"><p className="admin-eyebrow">Secure administrator access</p><h1 className="admin-display admin-auth-title">VERIFYING ACCESS</h1><div className="admin-divider" aria-hidden="true"><span /><span /></div><p className="admin-auth-hint mt-5">Checking administrator access…</p></section></main>;
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
   }
 
   if (session.status === 'authorized') return <AdminDashboard user={session.user} />;
 
   if (session.status === 'denied' || session.status === 'error') {
+<<<<<<< HEAD
     return (
       <main className="admin-center-screen">
         <section className="admin-card-glass space-y-5">
@@ -132,6 +145,20 @@ export default function AdminApp() {
         </section>
       </main>
     );
+=======
+    return <main className="bcg-admin admin-auth">
+      <section className="admin-login-card">
+        <p className="admin-eyebrow">Account verification</p>
+        <h1 className="admin-display admin-auth-title">ADMIN ACCESS</h1>
+        <div className="admin-divider" aria-hidden="true"><span /><span /></div>
+        <p role="alert" className="mt-5 text-sm leading-7 text-red-200">{session.message}</p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <button type="button" className="admin-primary-button" onClick={() => verifyAdmin(auth.currentUser)}>Retry verification</button>
+          <button type="button" className="admin-secondary-button" onClick={() => signOut(auth)}>Sign out</button>
+        </div>
+      </section>
+    </main>;
+>>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
   }
 
   return <AdminLogin />;
