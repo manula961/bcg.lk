@@ -67,7 +67,7 @@ const HeroSection = () => {
         <div ref={titleRef} className="hero-fade-init">
           <h1 className="geologica mb-4 text-4xl font-extrabold tracking-normal text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text md:text-5xl lg:text-6xl whitespace-nowrap">
             BANDARANAYAKE COLLEGE <br />
-            <span className="block mt-1 text-3xl font-extrabold md:text-4xl lg:text-5xl">
+            <span className="block mt-1 text-4xl font-extrabold md:text-5xl lg:text-6xl">
               GAMPAHA
             </span>
           </h1>
