@@ -1,0 +1,74 @@
+/* Custom Keyframe Animations */
+@keyframes scrollPulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scaleY(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* Background & Main Section Styling */
+.hero-section {
+  background-image: url('https://i.ibb.co/C5GVQgsr/Image-jpg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Hidden Initial State for Stagger Fade-In Animations */
+.hero-fade-init {
+  opacity: 0;
+  letter-spacing: 5px;
+}
+
+/* Motto container styling with subtle shadow to match the look */
+.motto-container {
+  display: flex;
+  gap: .4rem;
+  font-family: 'Noto Sans Sinhala', 'noto-sinhala', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+  .motto-container {
+    font-size: 1.25rem;
+    gap: 0.5rem;
+  }
+}
+
+/* Specific colored styling matches exactly as seen in image_1.png */
+.motto-maroon {
+  color: #5F0010; /* Deep Maroon Red */
+}
+
+.motto-blue {
+  color: #0E2E5E; /* Navy Deep Blue */
+}
+
+/* Motto Container alignment override fallback */
+.hero-motto-container {
+  transform: translateX(-50%);
+}
+
+/* Scroll Indicator Text & Bar */
+.scroll-indicator-text {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.3em;
+  color: rgba(201, 168, 76, 0.5);
+  writing-mode: vertical-rl;
+  text-transform: uppercase;
+}
+
+.scroll-indicator-bar {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, #c9a84c, transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
