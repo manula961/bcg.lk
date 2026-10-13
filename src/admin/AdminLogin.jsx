@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-<<<<<<< HEAD
 import './Admin.css';
-=======
-import './AdminTheme.css';
->>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -33,7 +29,6 @@ export default function AdminLogin() {
       setBusy(false);
     }
   }
-<<<<<<< HEAD
 
   return (
     <main className="admin-center-screen">
@@ -52,28 +47,11 @@ export default function AdminLogin() {
         <div className="space-y-4">
           <label className="block">
             <span className="admin-input-label">Email Address</span>
-=======
-  return (
-    <main className="bcg-admin admin-auth">
-      <div className="admin-login-card">
-        <div className="admin-login-mark" aria-hidden="true">B</div>
-        <p className="admin-eyebrow">Bandaranayake College • Gampaha</p>
-        <h1 className="admin-display admin-auth-title">ADMIN CONSOLE</h1>
-        <div className="admin-divider" aria-hidden="true"><span /><span /></div>
-        <p className="admin-auth-hint mt-5">
-          Secure content administration. Sign in using your authorized college administrator account.
-        </p>
-
-        <form onSubmit={login} className="mt-8 space-y-5">
-          <label className="block">
-            <span className="admin-field-label">Email address</span>
->>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
             <input
               type="email"
               required
               autoComplete="username"
               value={email}
-<<<<<<< HEAD
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@bcg.lk"
               className="admin-input"
@@ -82,21 +60,11 @@ export default function AdminLogin() {
 
           <label className="block">
             <span className="admin-input-label">Password</span>
-=======
-              onChange={e => setEmail(e.target.value)}
-              className="admin-input mt-2"
-              placeholder="name@school.lk"
-            />
-          </label>
-          <label className="block">
-            <span className="admin-field-label">Password</span>
->>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e
             <input
               type="password"
               required
               autoComplete="current-password"
               value={password}
-<<<<<<< HEAD
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               className="admin-input"
@@ -117,20 +85,3 @@ export default function AdminLogin() {
     </main>
   );
 }
-=======
-              onChange={e => setPassword(e.target.value)}
-              className="admin-input mt-2"
-              placeholder="Enter your password"
-            />
-          </label>
-          {error && <p role="alert" className="break-words text-sm text-red-300">{error}</p>}
-          <button type="submit" disabled={busy} className="admin-primary-button w-full">
-            {busy ? 'Signing in…' : 'Sign in to dashboard'}
-          </button>
-        </form>
-        <p className="admin-footer">BCG.LK • Official Administration</p>
-      </div>
-    </main>
-  );
-}
->>>>>>> 7880c7a301272083bd90d03d453042a7db221c8e

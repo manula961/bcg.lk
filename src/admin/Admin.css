@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Geologica:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap');
+
 /* Base Reset & Typography */
 .admin-body {
   font-family: 'Geologica', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -9,13 +11,13 @@
 /* Headings Font Override */
 .admin-title,
 .admin-logo-text {
-  font-family: 'Geologica', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Cinzel', serif;
 }
 
 .admin-subtitle,
 .admin-badge,
 .admin-gold-tag {
-  font-family: 'Geologica', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Oswald', sans-serif;
 }
 
 /* Page Containers */
