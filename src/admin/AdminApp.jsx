@@ -12,43 +12,58 @@ export default function AdminApp() {
   useEffect(() => {
     if (!auth || !db) { setChecking(false); return; }
     let active = true;
-    let sequence = 0;
-    const timeout = setTimeout(() => {
-      if (active) { setChecking(false); setError('Firebase authentication timed out. Check your network, Firebase configuration and authorized domain, then reload.'); }
-    }, 12000);
+    let revision = 0;
+    let initialTimer = setTimeout(() => {
+      if (active) {
+        setChecking(false);
+        setError('Firebase did not finish checking your session. Check connectivity and reload.');
+      }
+    }, 15000);
     const unsubscribe = onAuthStateChanged(auth, async next => {
-      const current = ++sequence;
+      const current = ++revision;
       if (!active) return;
+      if (!next) {
+        clearTimeout(initialTimer);
+        setUser(null);
+        setChecking(false);
+        return;
+      }
       setChecking(true);
       setError('');
       try {
-        if (!next) { setUser(null); return; }
-        const admin = await getDoc(doc(db, 'admins', next.uid));
-        if (!active || current !== sequence) return;
-        if (admin.exists() && admin.data()?.role === 'admin') setUser(next);
-        else {
+        const admin = await Promise.race([
+          getDoc(doc(db, 'admins', next.uid)),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore admin check timed out.')), 12000))
+        ]);
+        if (!active || current !== revision) return;
+        if (admin.exists() && admin.data()?.role === 'admin') {
+          setUser(next);
+        } else {
           setUser(null);
-          setError('This account is not authorized as an administrator.');
+          setError('Access denied: your account needs an admins/{UID} document with role "admin".');
           await signOut(auth);
         }
       } catch (err) {
-        if (!active || current !== sequence) return;
+        if (!active || current !== revision) return;
         setUser(null);
-        setError(err?.message || 'Administrator access check failed.');
+        setError(err?.code ? `${err.code}: ${err.message}` : (err?.message || 'Unable to verify administrator access.'));
         await signOut(auth).catch(() => {});
       } finally {
-        if (active && current === sequence) { clearTimeout(timeout); setChecking(false); }
+        if (active && current === revision) {
+          clearTimeout(initialTimer);
+          setChecking(false);
+        }
       }
     }, err => {
       if (!active) return;
-      clearTimeout(timeout);
+      clearTimeout(initialTimer);
       setUser(null);
-      setError(err?.message || 'Firebase authentication failed.');
+      setError(err?.message || 'Firebase session error.');
       setChecking(false);
     });
-    return () => { active = false; clearTimeout(timeout); unsubscribe(); };
+    return () => { active = false; clearTimeout(initialTimer); unsubscribe(); };
   }, []);
-  if (!firebaseConfigured) return <main className="min-h-screen bg-black text-white p-8">Firebase is not configured. Check Vercel environment variables and redeploy.</main>;
+  if (!firebaseConfigured) return <main className="min-h-screen bg-black text-white p-8">Firebase configuration is missing. Check Vercel environment variables and redeploy.</main>;
   if (checking) return <main className="min-h-screen bg-black text-white p-8">Checking administrator access...</main>;
-  return <>{error && <p role="alert" className="bg-red-950 text-white p-4">{error}</p>}{user ? <AdminDashboard user={user} /> : <AdminLogin onAuthorized={setUser} />}</>;
+  return <>{error && <p role="alert" className="bg-red-950 text-white p-4">{error}</p>}{user ? <AdminDashboard user={user} /> : <AdminLogin />}</>;
 }
