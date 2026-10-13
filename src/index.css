@@ -59,7 +59,22 @@ h1, h2, h3 {
 .noto_sinhala {
   font-family: 'noto-sinhala', serif;
 }
-  
+
+/* Standardized Global Layout Container */
+.section-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .section-container {
+    padding: 0 40px;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

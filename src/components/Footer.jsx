@@ -17,8 +17,7 @@ const Footer = () => {
           background: 'linear-gradient(90deg, #7B1C1C, #C9A84C, #1a3a6b, #C9A84C, #7B1C1C)',
         }}
       />
-
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '64px 24px 40px' }}>
+      <div className="section-container" style={{ paddingTop: '64px', paddingBottom: '40px' }}>
         {/* Top section */}
         <div
           style={{
@@ -78,10 +77,9 @@ const Footer = () => {
             >
               Nurturing young minds since 1918. A legacy of academic brilliance, sportsmanship, and cultural harmony in the heart of Gampaha.
             </p>
-
             {/* Social icons */}
             <div style={{ display: 'flex', gap: '12px' }}>
-              {['f', 'in', 'yt', '✕'].map((social, i) => (
+              {['f', 'in', 'yt'].map((social, i) => (
                 <a
                   key={i}
                   href="#"
@@ -266,7 +264,7 @@ const Footer = () => {
               fontStyle: 'italic',
             }}
           >
-            bcg.lk — Excellence Since 1918
+            bcg.lk • Excellence Since 1918
           </div>
         </div>
       </div>

@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const gallery = [
-  { id: 1, label: 'Academics', emoji: '📚', span: 'wide', bg: '#7B1C1C' },
-  { id: 2, label: 'Sports', emoji: '🏃', span: 'tall', bg: '#1a3a6b' },
-  { id: 3, label: 'Arts & Culture', emoji: '🎭', span: 'normal', bg: '#5a1212' },
-  { id: 4, label: 'Prefect Council', emoji: '🏅', span: 'normal', bg: '#12285a' },
-  { id: 5, label: 'Community', emoji: '🤝', span: 'wide', bg: '#3d0b0b' },
-];
-
 const stats = [
   { value: '107+', label: 'Years of Excellence' },
   { value: '5000+', label: 'Students Enrolled' },
@@ -21,7 +13,9 @@ const LifeAsNayaken = () => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -39,11 +33,11 @@ const LifeAsNayaken = () => {
         overflow: 'hidden',
       }}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+      <div className="section-container">
         {/* Header */}
         <div
           style={{
-            marginBottom: '64px',
+            marginBottom: '56px',
             opacity: visible ? 1 : 0,
             transform: visible ? 'translateY(0)' : 'translateY(30px)',
             transition: 'all 0.8s ease',
@@ -54,10 +48,10 @@ const LifeAsNayaken = () => {
             style={{
               fontFamily: 'Oswald, sans-serif',
               fontSize: '0.7rem',
-              letterSpacing: '0.4em',
+              letterSpacing: '0.35em',
               color: '#7B1C1C',
               textTransform: 'uppercase',
-              marginBottom: '12px',
+              marginBottom: '8px',
             }}
           >
             Experience It
@@ -65,10 +59,11 @@ const LifeAsNayaken = () => {
           <h2
             style={{
               fontFamily: 'Cinzel, serif',
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontSize: 'clamp(2rem, 5vw, 3.2rem)',
               fontWeight: 900,
               color: '#1a1a1a',
               lineHeight: 1.1,
+              letterSpacing: '0.02em',
               marginBottom: '16px',
             }}
           >
@@ -85,7 +80,7 @@ const LifeAsNayaken = () => {
               margin: '0 auto',
             }}
           >
-            Every day at Bandaranayake College is a new chapter — shaped by learning, sport, art, and the unbreakable bond of brotherhood.
+            Every day at Bandaranayake College is a new chapter shaped by learning, sport, art, and the unbreakable bond of brotherhood.
           </p>
         </div>
 
@@ -101,7 +96,7 @@ const LifeAsNayaken = () => {
             transition: 'opacity 0.8s ease 0.3s',
           }}
         >
-          {/* Card 1 — wide */}
+          {/* Card 1 - Wide */}
           <div
             style={{
               gridColumn: '1 / 3',
@@ -119,7 +114,6 @@ const LifeAsNayaken = () => {
             onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(0.99)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
-            <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '4rem', opacity: 0.15 }}>📚</div>
             <div
               style={{
                 fontFamily: 'Oswald, sans-serif',
@@ -147,7 +141,7 @@ const LifeAsNayaken = () => {
             </p>
           </div>
 
-          {/* Card 2 — tall */}
+          {/* Card 2 - Tall */}
           <div
             style={{
               gridColumn: '3',
@@ -166,7 +160,6 @@ const LifeAsNayaken = () => {
             onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(0.99)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
-            <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', fontSize: '5rem', opacity: 0.12 }}>🏆</div>
             <div
               style={{
                 fontFamily: 'Oswald, sans-serif',
@@ -209,7 +202,6 @@ const LifeAsNayaken = () => {
               cursor: 'pointer',
             }}
           >
-            <div style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '2.5rem', opacity: 0.15 }}>🎭</div>
             <h3 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
               Arts & Culture
             </h3>
@@ -232,7 +224,6 @@ const LifeAsNayaken = () => {
               cursor: 'pointer',
             }}
           >
-            <div style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '2.5rem', opacity: 0.15 }}>🤝</div>
             <h3 style={{ fontFamily: 'Cinzel, serif', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
               Prefect Council
             </h3>

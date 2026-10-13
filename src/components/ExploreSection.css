@@ -1,0 +1,208 @@
+/* Main Section Container */
+.explore-section {
+  padding: 100px 0;
+  background: linear-gradient(180deg, #0a0a0a 0%, #0f0404 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Elements */
+.explore-header {
+  margin-bottom: 56px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.explore-header.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.explore-subtitle {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.explore-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.explore-divider-wrap {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.explore-divider-maroon {
+  width: 50px;
+  height: 2px;
+  background: #7B1C1C;
+}
+
+.explore-divider-blue {
+  width: 15px;
+  height: 2px;
+  background: #1a3a6b;
+}
+
+/* Content Grid Layout */
+.explore-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 48px;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.8s ease 0.3s;
+}
+
+.explore-grid.visible {
+  opacity: 1;
+}
+
+/* Tabs / Places Navigation */
+.explore-tabs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.explore-tab-btn {
+  padding: 20px 24px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  border-radius: 0 16px 16px 0;
+  margin-left: -24px; /* Pull back to align flush with header text */
+}
+
+.explore-tab-btn.active {
+  background: rgba(123, 28, 28, 0.25);
+  border-left-color: #7B1C1C;
+}
+
+.explore-tab-tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: rgba(201, 168, 76, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+
+.explore-tab-btn.active .explore-tab-tag {
+  color: #C9A84C;
+}
+
+.explore-tab-title {
+  font-family: 'Geologica', sans-serif !important;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.3s ease;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+.explore-tab-btn.active .explore-tab-title {
+  color: #ffffff;
+}
+
+/* Featured Card Showcase */
+.explore-display-card {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  height: 500px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.explore-display-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fadeIn 0.5s ease;
+}
+
+.explore-display-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(10, 5, 5, 0.95) 0%, rgba(10, 5, 5, 0.3) 60%, transparent 100%);
+}
+
+.explore-display-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 36px;
+}
+
+.explore-display-subtitle {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.explore-display-title {
+  font-family: 'Geologica', sans-serif !important;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+  line-height: 1.25;
+}
+
+.explore-display-desc {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.925rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.65;
+  font-style: italic;
+}
+
+/* Fade In Keyframe */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 868px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .explore-tab-btn {
+    margin-left: 0;
+  }
+
+  .explore-display-card {
+    height: 380px;
+  }
+}

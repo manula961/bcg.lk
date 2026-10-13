@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import './EventsSection.css';
 
 const events = [
   {
@@ -42,11 +43,12 @@ const events = [
 const EventsSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [hovered, setHovered] = useState(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -54,250 +56,93 @@ const EventsSection = () => {
   }, []);
 
   return (
-    <section
-      id="events"
-      ref={sectionRef}
-      style={{
-        padding: '100px 0',
-        background: '#ffffff',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          width: '35%',
-          height: '100%',
-          background: 'linear-gradient(135deg, #f5f0e8 0%, #ede5d0 100%)',
-          clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          right: '-2%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          fontFamily: 'Cinzel, serif',
-          fontSize: '16rem',
-          fontWeight: 900,
-          color: 'rgba(123,28,28,0.04)',
-          userSelect: 'none',
-          pointerEvents: 'none',
-          lineHeight: 1,
-        }}
-      >
-        1918
-      </div>
+    <section id="events" ref={sectionRef} className="events-section">
+      <div className="events-bg-overlay" />
+      <div className="events-watermark">1918</div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
+      <div className="events-container">
         {/* Header */}
-        <div
-          style={{
-            marginBottom: '64px',
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(30px)',
-            transition: 'all 0.8s ease',
-          }}
-        >
-          <div
-            style={{
-              fontFamily: 'Oswald, sans-serif',
-              fontSize: '0.7rem',
-              letterSpacing: '0.4em',
-              color: '#7B1C1C',
-              textTransform: 'uppercase',
-              marginBottom: '12px',
-            }}
-          >
-            Mark Your Calendar
-          </div>
-          <h2
-            style={{
-              fontFamily: 'Cinzel, serif',
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              fontWeight: 900,
-              color: '#1a1a1a',
-              lineHeight: 1.1,
-              letterSpacing: '0.03em',
-            }}
-          >
-            LATEST EVENTS
-          </h2>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              marginTop: '16px',
-            }}
-          >
-            <div style={{ width: '60px', height: '3px', background: '#7B1C1C' }} />
-            <div style={{ width: '10px', height: '3px', background: '#1a3a6b' }} />
+        <div className={`events-header ${visible ? 'visible' : ''}`}>
+          <div className="events-subtitle">Mark Your Calendar</div>
+          <h2 className="events-title">LATEST EVENTS</h2>
+          <div className="events-divider-wrap">
+            <div className="events-divider-maroon" />
+            <div className="events-divider-blue" />
           </div>
         </div>
 
         {/* Events list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        <div className="events-list">
           {events.map((event, i) => (
             <div
               key={event.id}
-              onMouseEnter={() => setHovered(event.id)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '120px 1fr auto',
-                gap: '32px',
-                alignItems: 'center',
-                padding: '32px 0',
-                borderBottom: '1px solid rgba(0,0,0,0.08)',
-                cursor: 'pointer',
-                opacity: visible ? 1 : 0,
-                transform: visible ? 'translateX(0)' : 'translateX(-40px)',
-                transition: `all 0.7s ease ${i * 0.1}s`,
-                position: 'relative',
-              }}
+              className={`event-row ${visible ? 'visible' : ''}`}
+              style={{ transitionDelay: `${i * 0.1}s` }}
             >
-              {/* Hover bg */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: '0 -24px',
-                  background: hovered === event.id ? 'rgba(123,28,28,0.04)' : 'transparent',
-                  transition: 'background 0.3s ease',
-                  borderRadius: '8px',
-                }}
-              />
-
-              {/* Date block */}
-              <div
-                style={{
-                  textAlign: 'center',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: 'Oswald, sans-serif',
-                    fontSize: '0.7rem',
-                    letterSpacing: '0.3em',
-                    color: event.color,
-                    textTransform: 'uppercase',
-                    marginBottom: '4px',
-                    opacity: 0.8,
-                  }}
-                >
+              {/* Date Badge */}
+              <div className="event-date-block">
+                <div className="event-month" style={{ color: event.color }}>
                   {event.month}
                 </div>
-                <div
-                  style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '3rem',
-                    fontWeight: 900,
-                    color: hovered === event.id ? event.color : '#1a1a1a',
-                    lineHeight: 1,
-                    transition: 'color 0.3s ease',
-                  }}
-                >
-                  {event.day}
-                </div>
+                <div className="event-day">{event.day}</div>
               </div>
 
               {/* Content */}
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <h3
-                  style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: 'clamp(1rem, 2vw, 1.4rem)',
-                    fontWeight: 700,
-                    color: '#1a1a1a',
-                    marginBottom: '8px',
-                    letterSpacing: '0.02em',
-                  }}
-                >
-                  {event.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: 'EB Garamond, serif',
-                    fontSize: '1rem',
-                    color: 'rgba(0,0,0,0.55)',
-                    lineHeight: 1.7,
-                    marginBottom: '8px',
-                  }}
-                >
-                  {event.desc}
-                </p>
-                <div
-                  style={{
-                    fontFamily: 'Oswald, sans-serif',
-                    fontSize: '0.7rem',
-                    letterSpacing: '0.15em',
-                    color: event.color,
-                    textTransform: 'uppercase',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
-                  <span>📍</span> {event.location}
+              <div className="event-content">
+                <h3 className="event-item-title">{event.title}</h3>
+                <p className="event-desc">{event.desc}</p>
+                <div className="event-location" style={{ color: event.color }}>
+                  <svg
+                    className="location-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  {event.location}
                 </div>
               </div>
 
-              {/* Arrow */}
-              <div
-                style={{
-                  fontFamily: 'Oswald, sans-serif',
-                  fontSize: '1.5rem',
-                  color: hovered === event.id ? event.color : 'rgba(0,0,0,0.2)',
-                  transition: 'all 0.3s ease',
-                  transform: hovered === event.id ? 'translateX(6px)' : 'translateX(0)',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                →
+              {/* Action SVG Arrow */}
+              <div className="event-arrow-circle">
+                <svg
+                  className="arrow-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
               </div>
             </div>
           ))}
         </div>
 
         {/* View all button */}
-        <div
-          style={{
-            marginTop: '48px',
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 1s ease 0.6s',
-          }}
-        >
-          <button
-            style={{
-              padding: '14px 40px',
-              border: '2px solid #7B1C1C',
-              borderRadius: '4px',
-              background: 'transparent',
-              color: '#7B1C1C',
-              fontFamily: 'Oswald, sans-serif',
-              fontSize: '0.85rem',
-              letterSpacing: '0.25em',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#7B1C1C';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#7B1C1C';
-            }}
-          >
+        <div className={`events-action ${visible ? 'visible' : ''}`}>
+          <button className="events-btn">
             View All Events
+            <svg
+              className="btn-arrow-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </button>
         </div>
       </div>
