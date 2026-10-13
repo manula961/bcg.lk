@@ -1,48 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './EventsSection.css';
+import { subscribePublishedEvents } from '../lib/eventsService';
 
-const events = [
-  {
-    id: 1,
-    month: 'JUN',
-    day: '14',
-    title: 'Annual Sports Meet 2025',
-    desc: 'The inter-house sports competition bringing together athletes from all grades in track, field, and team events.',
-    location: 'BCG Sports Grounds',
-    color: '#7B1C1C',
-  },
-  {
-    id: 2,
-    month: 'JUL',
-    day: '02',
-    title: 'Prize Giving Ceremony 2025',
-    desc: 'Celebrating academic, sporting, and cultural achievements of our outstanding students and staff.',
-    location: 'Main Hall, BCG',
-    color: '#1a3a6b',
-  },
-  {
-    id: 3,
-    month: 'AUG',
-    day: '19',
-    title: 'Founders Day Celebrations',
-    desc: 'Commemorating 107 years of excellence with a cultural showcase, alumni reunion, and ceremonial events.',
-    location: 'Bandaranayake College',
-    color: '#7B1C1C',
-  },
-  {
-    id: 4,
-    month: 'SEP',
-    day: '05',
-    title: 'Inter-School Debate Championship',
-    desc: 'BCG hosts the annual Western Province Inter-School Debate Championship in Sinhala and English.',
-    location: 'Main Auditorium',
-    color: '#1a3a6b',
-  },
-];
+// Adapt published Firestore events to the existing card props without UI changes.
+// YYYY-MM-DD is split directly to preserve the calendar date across timezones.
+function toEventCard(event) {
+  const date = /^\d{4}-(\d{2})-(\d{2})$/.exec(event.eventDate || "");
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const monthIndex = date ? Number(date[1]) - 1 : -1;
 
+  return {
+    id: event.id,
+    month: months[monthIndex] || "",
+    day: date ? date[2] : "",
+    title: event.title || "",
+    desc: event.description || "",
+    location: event.location || "",
+    color: event.color || "#7B1C1C",
+  };
+}
 const EventsSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -53,6 +33,19 @@ const EventsSection = () => {
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = subscribePublishedEvents(
+        (publishedEvents) => setEvents(publishedEvents.map(toEventCard)),
+        (error) => console.error('Unable to load published events:', error),
+      );
+    } catch (error) {
+      console.error('Unable to subscribe to published events:', error);
+    }
+    return () => unsubscribe();
   }, []);
 
   return (
