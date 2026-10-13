@@ -13,13 +13,16 @@ export default function AdminLogin() {
     setBusy(true);
     setError('');
     try {
-      await Promise.race([
-        signInWithEmailAndPassword(auth, email, password),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase sign-in timed out. Check your network and try again.')), 15000))
-      ]);
-      // AdminApp's single auth listener verifies Firestore role and opens the dashboard.
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      // AdminApp owns session restoration and authorization.
     } catch (err) {
-      setError(err?.code ? `${err.code}: ${err.message}` : (err?.message || 'Unable to sign in.'));
+      const messages = {
+        'auth/invalid-credential': 'Email or password is incorrect.',
+        'auth/too-many-requests': 'Too many attempts. Wait before trying again.',
+        'auth/network-request-failed': 'Network error. Check your connection and retry.',
+        'auth/operation-not-allowed': 'Email/password sign-in is disabled in Firebase Authentication.',
+      };
+      setError(messages[err?.code] || err?.message || 'Unable to sign in.');
     } finally { setBusy(false); }
   }
   return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
@@ -28,7 +31,7 @@ export default function AdminLogin() {
       <label className="block">Email<input type="email" required autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
       <label className="block">Password<input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
       {error && <p role="alert" className="text-red-300 break-words">{error}</p>}
-      <button disabled={busy} className="w-full rounded bg-[#C9A84C] p-3 text-black font-bold disabled:opacity-50">{busy ? 'Signing in...' : 'Sign in'}</button>
+      <button type="submit" disabled={busy} className="w-full rounded bg-[#C9A84C] p-3 text-black font-bold disabled:opacity-50">{busy ? 'Signing in…' : 'Sign in'}</button>
     </form>
   </main>;
 }
