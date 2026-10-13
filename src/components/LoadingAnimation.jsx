@@ -125,7 +125,7 @@ const LoadingAnimation = ({ onComplete }) => {
         <div className="logo-wrapper">
           <div ref={logoWrapperRef} className="logo-container">
             <img
-              src="./Public/Logo.jpg"
+              src="https://i.ibb.co/Wv1bGqbs/images.jpg"
               alt="BCG Logo"
               className="logo-image"
             />
