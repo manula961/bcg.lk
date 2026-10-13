@@ -1,0 +1,169 @@
+/* Menu Toggle Floating Button */
+.menu-toggle-btn {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.menu-toggle-btn.scrolled {
+  background: rgba(123, 28, 28, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.menu-toggle-btn.default {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.menu-toggle-btn.open {
+  background: transparent;
+  border-color: rgba(201, 168, 76, 0.6);
+}
+
+.menu-toggle-btn:hover {
+  border-color: #C9A84C;
+  transform: scale(1.05);
+}
+
+/* Hamburger Line Animations */
+.hamburger-line {
+  display: block;
+  width: 20px;
+  height: 1.5px;
+  background: #C9A84C;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.menu-toggle-btn.open .line-1 {
+  transform: translateY(6.5px) rotate(45deg);
+}
+
+.menu-toggle-btn.open .line-2 {
+  opacity: 0;
+}
+
+.menu-toggle-btn.open .line-3 {
+  transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* Overlay Window */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(10, 10, 10, 0.96);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.menu-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Inner Container */
+.menu-container {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 24px;
+}
+
+/* Nav Link List */
+.menu-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Individual Link Row */
+.menu-nav-item {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.menu-nav-item:hover {
+  border-bottom-color: #C9A84C;
+  padding-left: 16px;
+}
+
+.menu-num {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: #C9A84C;
+  font-weight: 500;
+  min-width: 32px;
+}
+
+.menu-text-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.menu-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+  font-weight: 700;
+  color: #ffffff;
+  transition: color 0.3s ease;
+  line-height: 1;
+}
+
+.menu-nav-item:hover .menu-title {
+  color: #C9A84C;
+}
+
+.menu-sub {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.3s ease;
+}
+
+.menu-nav-item:hover .menu-sub {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .menu-nav-item {
+    gap: 16px;
+    padding: 14px 4px;
+  }
+  .menu-text-wrap {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

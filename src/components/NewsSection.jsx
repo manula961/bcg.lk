@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./NewsSection.css";
-
 import { subscribePublishedNews } from "../lib/newsService";
 
-// Adapt published Firestore news records to the existing card data shape.
-// All visible markup, filters, classes, animations, and styles remain unchanged.
 function toNewsCard(post) {
   const date = (post.publishedAt ?? post.createdAt)?.toDate?.();
-  const formattedDate = date instanceof Date && !Number.isNaN(date.getTime())
-    ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-    : "";
-
+  const formattedDate =
+    date instanceof Date && !Number.isNaN(date.getTime())
+      ? date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "";
   return {
     id: post.id,
     category: post.category === "Announcements" ? "Announcements" : "News",
@@ -26,14 +27,14 @@ const NewsSection = () => {
   const sectionRef = useRef(null);
   const [activeFilter, setActiveFilter] = useState("All");
   const [visible, setVisible] = useState(false);
-  const [dummyPosts, setDummyPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -43,8 +44,8 @@ const NewsSection = () => {
     let unsubscribe = () => {};
     try {
       unsubscribe = subscribePublishedNews(
-        (posts) => setDummyPosts(posts.map(toNewsCard)),
-        (error) => console.error("Unable to load published news:", error),
+        (fetchedPosts) => setPosts(fetchedPosts.map(toNewsCard)),
+        (error) => console.error("Unable to load published news:", error)
       );
     } catch (error) {
       console.error("Unable to subscribe to published news:", error);
@@ -55,14 +56,13 @@ const NewsSection = () => {
   const filters = ["All", "Announcements", "News"];
   const filtered =
     activeFilter === "All"
-      ? dummyPosts
-      : dummyPosts.filter((p) => p.category === activeFilter);
+      ? posts
+      : posts.filter((p) => p.category === activeFilter);
 
   return (
     <section id="news" ref={sectionRef} className="news-section">
       {/* Background texture */}
       <div className="news-bg-texture" />
-
       <div className="news-container">
         {/* Top Header & Horizontal Filters Bar */}
         <div
@@ -78,9 +78,7 @@ const NewsSection = () => {
               <div className="news-divider-maroon" />
               <div className="news-divider-blue" />
             </div>
-            
           </div>
-
           {/* Horizontal Filter Buttons */}
           <div className="news-filters">
             {filters.map((f) => (
@@ -113,7 +111,6 @@ const NewsSection = () => {
                 <div className="news-card-image-overlay" />
                 <div className="news-card-tag">{post.tag}</div>
               </div>
-
               {/* Bottom Vertical Content */}
               <div className="news-card-content">
                 <div>
@@ -123,7 +120,6 @@ const NewsSection = () => {
                   <h3 className="news-card-title">{post.title}</h3>
                   <p className="news-card-excerpt">{post.excerpt}</p>
                 </div>
-
                 <span className="news-card-link">Read More →</span>
               </div>
             </div>

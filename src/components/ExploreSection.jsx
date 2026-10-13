@@ -7,7 +7,7 @@ const places = [
     title: 'The Main Building',
     subtitle: 'Heritage Architecture',
     desc: 'Built in the colonial era, the main building stands as a testament to the rich history and heritage of Bandaranayake College, Gampaha.',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd7XebAjxSca9XehdYlX41ru5rUDxezRs6WBVpex0HA7GgPvbDDy9AXKXK&s=10',
+    image: 'https://bcg.lk/img/banner1.jpg',
     tag: '1918',
   },
   {
@@ -15,7 +15,7 @@ const places = [
     title: 'Sports Grounds',
     subtitle: 'Where Champions Train',
     desc: 'World-class sporting facilities including a cricket ground, athletics track, and indoor courts that have produced provincial and national champions.',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd7XebAjxSca9XehdYlX41ru5rUDxezRs6WBVpex0HA7GgPvbDDy9AXKXK&s=10',
+    image: 'https://bcg.lk/img/banner1.jpg',
     tag: 'Sports',
   },
   {
@@ -23,7 +23,7 @@ const places = [
     title: 'Library & Resource Centre',
     subtitle: 'Knowledge Hub',
     desc: 'A modern library housing thousands of books, digital resources, and quiet study spaces to support academic excellence.',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd7XebAjxSca9XehdYlX41ru5rUDxezRs6WBVpex0HA7GgPvbDDy9AXKXK&s=10',
+    image: 'https://bcg.lk/img/banner1.jpg',
     tag: 'Academics',
   },
   {
@@ -31,7 +31,7 @@ const places = [
     title: 'Science Laboratories',
     subtitle: 'Innovation & Discovery',
     desc: 'Fully equipped laboratories for Biology, Chemistry, and Physics empowering students to explore, experiment, and excel.',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd7XebAjxSca9XehdYlX41ru5rUDxezRs6WBVpex0HA7GgPvbDDy9AXKXK&s=10',
+    image: 'https://bcg.lk/img/banner1.jpg',
     tag: 'Science',
   },
 ];
@@ -40,7 +40,9 @@ const ExploreSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
+  // Intersection observer to trigger visibility animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -52,8 +54,25 @@ const ExploreSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Automatic slide transition timer (every 4 seconds)
+  useEffect(() => {
+    if (!visible || isPaused) return;
+
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % places.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [visible, isPaused]);
+
   return (
-    <section id="explore" ref={sectionRef} className="explore-section">
+    <section
+      id="explore"
+      ref={sectionRef}
+      className="explore-section"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="section-container">
         {/* Header */}
         <div className={`explore-header ${visible ? 'visible' : ''}`}>

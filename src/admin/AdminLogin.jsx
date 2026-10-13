@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import './Admin.css';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
   async function login(event) {
     event.preventDefault();
     if (busy) return;
     setBusy(true);
     setError('');
+
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      // AdminApp owns session restoration and authorization.
     } catch (err) {
       const messages = {
         'auth/invalid-credential': 'Email or password is incorrect.',
@@ -23,15 +25,63 @@ export default function AdminLogin() {
         'auth/operation-not-allowed': 'Email/password sign-in is disabled in Firebase Authentication.',
       };
       setError(messages[err?.code] || err?.message || 'Unable to sign in.');
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
-  return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-    <form onSubmit={login} className="w-full max-w-md rounded-xl border border-[#C9A84C]/40 p-8 space-y-5">
-      <h1 className="text-3xl font-bold text-[#C9A84C]">BCG.LK Admin</h1>
-      <label className="block">Email<input type="email" required autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
-      <label className="block">Password<input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="mt-2 w-full rounded bg-white text-black p-3" /></label>
-      {error && <p role="alert" className="text-red-300 break-words">{error}</p>}
-      <button type="submit" disabled={busy} className="w-full rounded bg-[#C9A84C] p-3 text-black font-bold disabled:opacity-50">{busy ? 'Signing in…' : 'Sign in'}</button>
-    </form>
-  </main>;
+
+  return (
+    <main className="admin-center-screen">
+      <div className="admin-glow-maroon" />
+      <div className="admin-glow-gold" />
+
+      <form onSubmit={login} className="admin-card-glass relative z-10 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="admin-logo-box mx-auto mb-2">B</div>
+          <h1 className="admin-title text-2xl font-extrabold text-white">BCG.LK Admin</h1>
+          <p className="admin-subtitle text-xs font-semibold tracking-widest text-[#C9A84C] uppercase">
+            Sign in to access console
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block">
+            <span className="admin-input-label">Email Address</span>
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@bcg.lk"
+              className="admin-input"
+            />
+          </label>
+
+          <label className="block">
+            <span className="admin-input-label">Password</span>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              className="admin-input"
+            />
+          </label>
+        </div>
+
+        {error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-950/30 p-3 text-xs text-red-200">
+            {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={busy} className="admin-btn-primary w-full py-3.5">
+          {busy ? 'Signing in...' : 'Sign In to Admin Console'}
+        </button>
+      </form>
+    </main>
+  );
 }

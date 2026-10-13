@@ -2,13 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import './EventsSection.css';
 import { subscribePublishedEvents } from '../lib/eventsService';
 
-// Adapt published Firestore events to the existing card props without UI changes.
-// YYYY-MM-DD is split directly to preserve the calendar date across timezones.
 function toEventCard(event) {
   const date = /^\d{4}-(\d{2})-(\d{2})$/.exec(event.eventDate || "");
   const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   const monthIndex = date ? Number(date[1]) - 1 : -1;
-
   return {
     id: event.id,
     month: months[monthIndex] || "",
@@ -19,6 +16,7 @@ function toEventCard(event) {
     color: event.color || "#7B1C1C",
   };
 }
+
 const EventsSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -52,7 +50,6 @@ const EventsSection = () => {
     <section id="events" ref={sectionRef} className="events-section">
       <div className="events-bg-overlay" />
       <div className="events-watermark">1918</div>
-
       <div className="events-container">
         {/* Header */}
         <div className={`events-header ${visible ? 'visible' : ''}`}>
@@ -70,7 +67,10 @@ const EventsSection = () => {
             <div
               key={event.id}
               className={`event-row ${visible ? 'visible' : ''}`}
-              style={{ transitionDelay: `${i * 0.1}s` }}
+              style={{
+                transitionDelay: visible ? '0s' : `${i * 0.1}s`,
+                '--hover-color': event.color,
+              }}
             >
               {/* Date Badge */}
               <div className="event-date-block">

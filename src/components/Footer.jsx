@@ -1,270 +1,147 @@
 import React from 'react';
+import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer
-      style={{
-        background: 'linear-gradient(180deg, #0a0a0a 0%, #060202 100%)',
-        borderTop: '1px solid rgba(123,28,28,0.3)',
-        padding: '0',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          height: '3px',
-          background: 'linear-gradient(90deg, #7B1C1C, #C9A84C, #1a3a6b, #C9A84C, #7B1C1C)',
-        }}
-      />
-      <div className="section-container" style={{ paddingTop: '64px', paddingBottom: '40px' }}>
-        {/* Top section */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '2fr 1fr 1fr 1.5fr',
-            gap: '48px',
-            marginBottom: '56px',
-          }}
-        >
+    <footer className="footer-wrapper">
+      <div className="footer-gradient-bar" />
+      <div className="section-container footer-content">
+        <br/><br/>
+        {/* Main Grid */}
+        <div className="footer-grid">
+          {/* Col 1: Brand Info */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+            <div className="footer-brand-header">
               <img
                 src="https://i.ibb.co/Wv1bGqbs/images.jpg"
                 alt="BCG Logo"
-                style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '2px solid rgba(201,168,76,0.4)',
-                }}
+                className="footer-logo"
               />
               <div>
-                <div
-                  style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: '#fff',
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Bandaranayake College
-                </div>
-                <div
-                  style={{
-                    fontFamily: 'Oswald, sans-serif',
-                    fontSize: '0.65rem',
-                    letterSpacing: '0.3em',
-                    color: '#C9A84C',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Gampaha
-                </div>
+                <div className="footer-brand-title">Bandaranayake College</div>
+                <div className="footer-brand-title">Gampaha</div>
               </div>
             </div>
-            <p
-              style={{
-                fontFamily: 'EB Garamond, serif',
-                fontSize: '0.95rem',
-                color: 'rgba(255,255,255,0.4)',
-                lineHeight: 1.8,
-                fontStyle: 'italic',
-                marginBottom: '20px',
-              }}
-            >
-              Nurturing young minds since 1918. A legacy of academic brilliance, sportsmanship, and cultural harmony in the heart of Gampaha.
+            <p className="footer-brand-desc">
+              Nurturing young minds since 1918. A legacy of academic brilliance,
+              sportsmanship, and cultural harmony in the heart of Gampaha.
             </p>
-            {/* Social icons */}
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {['f', 'in', 'yt'].map((social, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    border: '1px solid rgba(201,168,76,0.2)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'rgba(201,168,76,0.5)',
-                    fontFamily: 'Oswald, sans-serif',
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#C9A84C';
-                    e.currentTarget.style.color = '#C9A84C';
-                    e.currentTarget.style.background = 'rgba(201,168,76,0.08)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)';
-                    e.currentTarget.style.color = 'rgba(201,168,76,0.5)';
-                    e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  {social}
-                </a>
-              ))}
+            {/* Social Media SVG Buttons */}
+            <div className="footer-socials">
+              {/* Facebook */}
+              <a href="#" className="footer-social-btn" aria-label="Facebook">
+                <svg className="footer-social-icon" viewBox="0 0 24 24">
+                  <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7.5v-3H10V9.5C10 7.01 11.49 5.65 13.75 5.65c1.08 0 2.21.19 2.21.19v2.43h-1.25c-1.23 0-1.61.77-1.61 1.56V12h2.74l-.44 3h-2.3v6.8c4.56-.93 8-4.96 8-9.8z" />
+                </svg>
+              </a>
+              {/* LinkedIn */}
+              <a href="#" className="footer-social-btn" aria-label="LinkedIn">
+                <svg className="footer-social-icon" viewBox="0 0 24 24">
+                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.7a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z" />
+                </svg>
+              </a>
+              {/* YouTube */}
+              <a href="#" className="footer-social-btn" aria-label="YouTube">
+                <svg className="footer-social-icon" viewBox="0 0 24 24">
+                  <path d="M21.58 7.19a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.68.49a2.7 2.7 0 0 0-1.9 1.9C2 8.88 2 12 2 12s0 3.12.42 4.81a2.7 2.7 0 0 0 1.9 1.9C6 19.2 12 19.2 12 19.2s6 0 7.68-.49a2.7 2.7 0 0 0 1.9-1.9C22 15.12 22 12 22 12s0-3.12-.42-4.81zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" />
+                </svg>
+              </a>
             </div>
           </div>
 
-          {/* Links */}
+          {/* Col 2: Navigation Links */}
           <div>
-            <h4
-              style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                color: '#fff',
-                letterSpacing: '0.08em',
-                marginBottom: '20px',
-              }}
-            >
-              Navigate
-            </h4>
+            <h4 className="footer-col-title">Navigate</h4>
             {['Home', 'Explore', 'Academics', 'Extra Curricular', 'News'].map((link) => (
               <a
                 key={link}
-                href={`#${link.toLowerCase().replace(' ', '')}`}
-                style={{
-                  display: 'block',
-                  fontFamily: 'Oswald, sans-serif',
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.12em',
-                  color: 'rgba(255,255,255,0.35)',
-                  textDecoration: 'none',
-                  textTransform: 'uppercase',
-                  marginBottom: '12px',
-                  transition: 'color 0.3s ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#C9A84C'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}
+                href={`#${link.toLowerCase().replace(/\s+/g, '')}`}
+                className="footer-link"
               >
                 {link}
               </a>
             ))}
           </div>
 
-          {/* Academics */}
+          {/* Col 3: Academic Sections */}
           <div>
-            <h4
-              style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                color: '#fff',
-                letterSpacing: '0.08em',
-                marginBottom: '20px',
-              }}
-            >
-              Academics
-            </h4>
-            {['Primary Section', 'Middle School', 'O/L Classes', 'A/L Classes', 'Science Stream', 'Arts Stream'].map((item) => (
-              <a
-                key={item}
-                href="#"
-                style={{
-                  display: 'block',
-                  fontFamily: 'Oswald, sans-serif',
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.12em',
-                  color: 'rgba(255,255,255,0.35)',
-                  textDecoration: 'none',
-                  textTransform: 'uppercase',
-                  marginBottom: '12px',
-                  transition: 'color 0.3s ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#C9A84C'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}
-              >
+            <h4 className="footer-col-title">Academics</h4>
+            {[
+              'Primary Section',
+              'Middle School',
+              'O/L Classes',
+              'A/L Classes',
+              'Science Stream',
+              'Arts Stream',
+            ].map((item) => (
+              <a key={item} href="#" className="footer-link">
                 {item}
               </a>
             ))}
           </div>
 
-          {/* Contact */}
+          {/* Col 4: Contact Info */}
           <div>
-            <h4
-              style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                color: '#fff',
-                letterSpacing: '0.08em',
-                marginBottom: '20px',
-              }}
-            >
-              Contact Us
-            </h4>
-            {[
-              { icon: '📍', text: 'Bandaranayake College, Gampaha, Sri Lanka' },
-              { icon: '📞', text: '+94 33 222 2XXX' },
-              { icon: '✉️', text: 'info@bcg.lk' },
-            ].map((item, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex',
-                  gap: '10px',
-                  marginBottom: '16px',
-                  alignItems: 'flex-start',
-                }}
+            <h4 className="footer-col-title">Contact Us</h4>
+            {/* Location */}
+            <div className="footer-contact-item">
+              <svg
+                className="footer-contact-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span style={{ fontSize: '0.9rem', marginTop: '2px' }}>{item.icon}</span>
-                <span
-                  style={{
-                    fontFamily: 'EB Garamond, serif',
-                    fontSize: '0.9rem',
-                    color: 'rgba(255,255,255,0.4)',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {item.text}
-                </span>
-              </div>
-            ))}
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span className="footer-contact-text">
+                Bandaranayake College, Gampaha, Sri Lanka
+              </span>
+            </div>
+            {/* Phone */}
+            <div className="footer-contact-item">
+              <svg
+                className="footer-contact-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span className="footer-contact-text">+94 33 222 2XXX</span>
+            </div>
+            {/* Email */}
+            <div className="footer-contact-item">
+              <svg
+                className="footer-contact-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <span className="footer-contact-text">info@bcg.lk</span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div
-          style={{
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            paddingTop: '28px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '16px',
-          }}
-        >
-          <div
-            style={{
-              fontFamily: 'Oswald, sans-serif',
-              fontSize: '0.7rem',
-              letterSpacing: '0.2em',
-              color: 'rgba(255,255,255,0.2)',
-              textTransform: 'uppercase',
-            }}
-          >
-            © 2025 Bandaranayake College, Gampaha. All Rights Reserved.
+        {/* Bottom Bar */}
+        <div className="footer-bottom-bar">
+          <div className="footer-copyright">
+            2025 Bandaranayake College, Gampaha. All Rights Reserved.
           </div>
-          <div
-            style={{
-              fontFamily: 'EB Garamond, serif',
-              fontSize: '0.8rem',
-              color: 'rgba(201,168,76,0.35)',
-              fontStyle: 'italic',
-            }}
-          >
-            bcg.lk • Excellence Since 1918
+          <div className="footer-tagline">
+            bcg.lk   Excellence Since 1918
           </div>
         </div>
       </div>

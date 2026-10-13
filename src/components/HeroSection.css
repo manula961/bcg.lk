@@ -24,7 +24,7 @@
   letter-spacing: 5px;
 }
 
-/* Motto container styling with subtle shadow to match the look */
+/* Motto container styling */
 .motto-container {
   display: flex;
   gap: .4rem;
@@ -42,7 +42,7 @@
   }
 }
 
-/* Specific colored styling matches exactly as seen in image_1.png */
+/* Specific colored styling */
 .motto-maroon {
   color: #5F0010; /* Deep Maroon Red */
 }

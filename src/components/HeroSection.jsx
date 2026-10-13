@@ -11,6 +11,7 @@ const HeroSection = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    const timers = [];
     const elements = [
       { el: logoRef.current, delay: 200 },
       { el: titleRef.current, delay: 500 },
@@ -25,26 +26,38 @@ const HeroSection = () => {
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
       el.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         el.style.opacity = '1';
         el.style.transform = 'translateY(0)';
       }, delay);
+      timers.push(timer);
     });
 
+    let ticking = false;
     const handleScroll = () => {
-      if (!heroRef.current) return;
-      const scrollY = window.scrollY;
-      const heroHeight = window.innerHeight;
-      if (scrollY <= heroHeight) {
-        const opacity = Math.max(0, 1 - scrollY / (heroHeight * 0.7));
-        const translateY = scrollY * 0.25;
-        heroRef.current.style.opacity = opacity;
-        heroRef.current.style.transform = `translateY(${translateY}px)`;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (heroRef.current) {
+            const scrollY = window.scrollY;
+            const heroHeight = window.innerHeight;
+            if (scrollY <= heroHeight) {
+              const opacity = Math.max(0, 1 - scrollY / (heroHeight * 0.7));
+              const translateY = scrollY * 0.25;
+              heroRef.current.style.opacity = opacity;
+              heroRef.current.style.transform = `translateY(${translateY}px)`;
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -67,7 +80,7 @@ const HeroSection = () => {
         <div ref={titleRef} className="hero-fade-init">
           <h1 className="geologica mb-4 text-4xl font-extrabold tracking-normal text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text md:text-5xl lg:text-6xl whitespace-nowrap">
             BANDARANAYAKE COLLEGE <br />
-            <span className="block mt-1 text-4xl font-extrabold md:text-5xl lg:text-6xl">
+            <span ref={subtitleRef} className="block mt-1 text-4xl font-extrabold md:text-5xl lg:text-6xl">
               GAMPAHA
             </span>
           </h1>
@@ -78,23 +91,23 @@ const HeroSection = () => {
           ref={dividerRef}
           className="hero-fade-init flex items-center justify-center gap-3 my-1"
         >
-          <span className="text-2xl text-yellow-400">•</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
           <span className="text-xl font-black tracking-[0.3em] text-yellow-400 uppercase">
             SINCE 1918
           </span>
-          <span className="text-2xl text-yellow-400">•</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
         </div>
       </div>
 
-      {/* Motto - Styled and colored exactly like the requested logo */}
+      {/* Motto */}
       <div
         ref={mottoRef}
         className="hero-fade-init absolute bottom-6 z-20 w-full px-4 flex justify-center"
       >
         <div className="motto-container">
-          <span className="motto-maroon">විද්වාත්</span>
-          <span className="motto-blue">සර්වත‍්‍ර</span>
-          <span className="motto-maroon">පූජ්‍යතේ</span>
+          <span className="motto-maroon">1 </span>
+          <span className="motto-blue">1 </span>
+          <span className="motto-maroon"> 1</span>
         </div>
       </div>
 

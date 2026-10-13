@@ -4,6 +4,7 @@ import { doc, getDocFromServer } from 'firebase/firestore';
 import { auth, db, firebaseConfigured } from '../lib/firebase';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
+import './Admin.css';
 
 const CHECK_TIMEOUT_MS = 12000;
 
@@ -16,32 +17,46 @@ export default function AdminApp() {
   const verifyAdmin = useCallback(async (user) => {
     const id = ++checkId.current;
     currentUser.current = user;
+
     if (!user) {
       if (mounted.current) setSession({ status: 'signedOut', user: null, message: '' });
       return;
     }
+
     setSession({ status: 'checking', user: null, message: '' });
     let timeout;
+
     try {
       const record = await Promise.race([
         getDocFromServer(doc(db, 'admins', user.uid)),
         new Promise((_, reject) => {
-          timeout = setTimeout(() => reject(new Error('Administrator verification timed out. Check your connection and try again.')), CHECK_TIMEOUT_MS);
+          timeout = setTimeout(
+            () => reject(new Error('Administrator verification timed out. Check your connection and try again.')),
+            CHECK_TIMEOUT_MS
+          );
         }),
       ]);
+
       if (!mounted.current || id !== checkId.current) return;
+
       if (record.exists() && record.data()?.role === 'admin') {
         setSession({ status: 'authorized', user, message: '' });
       } else {
-        setSession({ status: 'denied', user: null, message: 'This account is not an administrator. Confirm that admins/<your Firebase UID> exists with role set to admin.' });
+        setSession({
+          status: 'denied',
+          user: null,
+          message: 'This account is not an administrator. Confirm that admins/<your Firebase UID> exists with role set to admin.',
+        });
       }
     } catch (error) {
       if (!mounted.current || id !== checkId.current) return;
       setSession({
-        status: 'error', user: null,
-        message: error?.code === 'permission-denied'
-          ? 'Firestore denied access to your admin record. Check the deployed Firestore rules.'
-          : (error?.message || 'Could not verify administrator access.'),
+        status: 'error',
+        user: null,
+        message:
+          error?.code === 'permission-denied'
+            ? 'Firestore denied access to your admin record. Check the deployed Firestore rules.'
+            : error?.message || 'Could not verify administrator access.',
       });
     } finally {
       clearTimeout(timeout);
@@ -51,8 +66,9 @@ export default function AdminApp() {
   useEffect(() => {
     if (!firebaseConfigured || !auth || !db) return;
     mounted.current = true;
-    const unsubscribe = onAuthStateChanged(auth, verifyAdmin, error => {
-      if (mounted.current) setSession({ status: 'error', user: null, message: error?.message || 'Unable to restore your session.' });
+    const unsubscribe = onAuthStateChanged(auth, verifyAdmin, (error) => {
+      if (mounted.current)
+        setSession({ status: 'error', user: null, message: error?.message || 'Unable to restore your session.' });
     });
     return () => {
       mounted.current = false;
@@ -62,21 +78,61 @@ export default function AdminApp() {
   }, [verifyAdmin]);
 
   if (!firebaseConfigured || !auth || !db) {
-    return <main className="min-h-screen bg-black text-white p-8" role="alert">Firebase web configuration is incomplete. Check all six VITE_FIREBASE_* variables in Vercel and redeploy.</main>;
+    return (
+      <main className="admin-center-screen" role="alert">
+        <div className="admin-card-glass border-red-500/30">
+          <h1 className="text-lg font-bold text-red-400 mb-2">Firebase Configuration Incomplete</h1>
+          <p className="text-xs text-white/70 leading-relaxed">
+            Firebase web configuration is incomplete. Check all six VITE_FIREBASE_* variables in Vercel and redeploy.
+          </p>
+        </div>
+      </main>
+    );
   }
+
   if (session.status === 'checking') {
-    return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6"><p role="status">Checking administrator access…</p></main>;
+    return (
+      <main className="admin-center-screen">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-full border-2 border-[#C9A84C]/20 border-t-[#C9A84C] animate-spin" />
+          <p role="status" className="admin-subtitle text-xs font-semibold tracking-widest text-[#C9A84C] uppercase">
+            Verifying Administrator Access...
+          </p>
+        </div>
+      </main>
+    );
   }
+
   if (session.status === 'authorized') return <AdminDashboard user={session.user} />;
+
   if (session.status === 'denied' || session.status === 'error') {
-    return <main className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-      <section className="w-full max-w-md rounded-xl border border-[#C9A84C]/40 p-8 space-y-4">
-        <h1 className="text-2xl font-bold text-[#C9A84C]">Administrator access</h1>
-        <p role="alert" className="text-red-200">{session.message}</p>
-        <button className="rounded bg-[#C9A84C] px-4 py-2 text-black font-semibold" onClick={() => verifyAdmin(auth.currentUser)}>Retry verification</button>
-        <button className="ml-3 rounded border border-white/40 px-4 py-2" onClick={() => signOut(auth)}>Sign out</button>
-      </section>
-    </main>;
+    return (
+      <main className="admin-center-screen">
+        <section className="admin-card-glass space-y-5">
+          <h1 className="admin-title text-xl font-bold text-[#C9A84C]">Access Restricted</h1>
+          <p role="alert" className="text-xs leading-relaxed text-red-200">
+            {session.message}
+          </p>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              className="admin-btn-primary flex-1"
+              onClick={() => verifyAdmin(auth.currentUser)}
+            >
+              Retry
+            </button>
+            <button
+              type="button"
+              className="admin-btn-secondary"
+              onClick={() => signOut(auth)}
+            >
+              Sign Out
+            </button>
+          </div>
+        </section>
+      </main>
+    );
   }
+
   return <AdminLogin />;
 }
