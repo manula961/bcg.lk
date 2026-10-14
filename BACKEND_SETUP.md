@@ -96,3 +96,16 @@ Firestore collection: `societies`. Only records with `published == true` are pub
 Deploy the updated `firestore.rules` **to the correct Firebase project** after review, using `firebase deploy --only firestore:rules`. The new collection is unavailable until the rules are deployed. No production rules have been deployed by this branch.
 
 CI checks admin-only writes, draft confidentiality, public published-only reads, and Societies CRUD in the Firebase emulators. It does not populate production society records. Add profiles through the admin panel once reviewed.
+
+## Sports, extracurricular and senior school administration CMS (2026-10-14)
+
+Three more content sections reuse the existing dark admin dashboard, list and editor components:
+- **Sports:** sport/team title, category, description, achievements, HTTPS image URL, draft/published state. Published entries are displayed under `/life/sports-athletics`.
+- **Extracurricular:** activity title, category, description, HTTPS image URL, draft/published state. Published activities are displayed on `/life/societies`, beneath the societies directory.
+- **Leadership:** verified staff member name, school position, display order 1–20, optional profile and HTTPS portrait URL, draft/published state. Published senior administrative staff are displayed in order on `/life/leadership`. This is a directory for the principal and other verified senior staff, not student prefect ranks; do not publish unverified staff identities.
+
+The role selections are Principal, Deputy Principal, Assistant Principal, Sectional Head and Other Senior Staff. Administrators are responsible for choosing the correct order, confirming appointments and setting publication status. Ranking is controlled by the administrator, not inferred from person names.
+
+Firestore collections are `sports`, `extracurricular`, `leadership`. Public queries require `published == true`; only verified administrators can write. Before enabling production content, deploy the reviewed `firestore.rules` to the *correct* Firebase project. GitHub/Vercel deployment alone does not publish Firestore rules.
+
+All existing homepage components, CSS and shared page design remain untouched. New public directories reuse the same existing scoped life-page card classes, without adding new styles. Run Firebase Emulator tests, browser CRUD checks and visual comparison before merging.

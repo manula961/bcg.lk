@@ -50,20 +50,21 @@ if (changed.includes('src/components/LifeAsNayaken.jsx')) {
 }
 
 
-// Societies may be added to existing admin configuration only; all original markup must remain byte-exact.
+// Only additive configurations for these three CMS sections are permitted;
+// normalize them away and compare the original admin markup byte-for-byte.
 for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.jsx']) {
   if (!changed.includes(path)) continue;
   const original = execFileSync('git', ['show', 'origin/' + base + ':' + path], { encoding: 'utf8' });
   let normalized = readFileSync(path, 'utf8');
   if (path.endsWith('AdminDashboard.jsx')) {
-    normalized = normalized.replace(/  \{\n    id: 'societies',[\s\S]*?\n  \},\n(?=  \{\n    id: 'pages')/, '');
+    normalized = normalized.replace(/  \{\n    id: 'sports',[\s\S]*?\n  \},\n(?=  \{\n    id: 'pages')/, '');
   } else {
-    normalized = normalized.replace("import {\n  subscribeAdminSocieties, createSociety, updateSociety, deleteSociety,\n} from '../lib/societiesService';\n", '');
-    normalized = normalized.replace(/  societies: \{\n[\s\S]*?\n  \},\n(?=  pages: \{)/, '');
-    normalized = normalized.replace("if (kind === 'events' || kind === 'societies')", "if (kind === 'events')");
-    normalized = normalized.replace('item.excerpt, item.description, item.websiteUrl,', 'item.excerpt, item.description,');
+    normalized = normalized.replace(/import \{\n  subscribeAdminSports,[\s\S]*?\} from '\.\.\/lib\/leadershipService';\n/, '');
+    normalized = normalized.replace(/  sports: \{\n[\s\S]*?\n  \},\n(?=  pages: \{)/, '');
+    normalized = normalized.replace("if (['events', 'societies', 'sports', 'extracurricular', 'leadership'].includes(kind))", "if (kind === 'events' || kind === 'societies')");
+    normalized = normalized.replace('item.excerpt, item.description, item.websiteUrl, item.role, item.achievements,', 'item.excerpt, item.description, item.websiteUrl,');
   }
-  if (normalized !== original) protectedPaths.push(path + ' (changes beyond the approved societies configuration)');
+  if (normalized !== original) protectedPaths.push(path + ' (unapproved change to original UI)');
 }
 
 if (protectedPaths.length) {

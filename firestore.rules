@@ -26,6 +26,18 @@ service cloud.firestore {
       allow get, list: if isAdmin() || resource.data.published == true;
       allow create, update, delete: if isAdmin();
     }
+    match /sports/{id} {
+      allow get, list: if isAdmin() || resource.data.published == true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /extracurricular/{id} {
+      allow get, list: if isAdmin() || resource.data.published == true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /leadership/{id} {
+      allow get, list: if isAdmin() || resource.data.published == true;
+      allow create, update, delete: if isAdmin();
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }

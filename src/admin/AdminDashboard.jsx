@@ -41,6 +41,24 @@ const sections = [
     ),
   },
   {
+    id: 'sports',
+    label: 'Sports',
+    description: 'Teams & achievements',
+    icon: (<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M4 8l6 2 2 6-4 4M17 5l-3 5 2 5 5 1" /></svg>),
+  },
+  {
+    id: 'extracurricular',
+    label: 'Extracurricular',
+    description: 'Activities & programmes',
+    icon: (<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 4h18v16H3zM7 9h10M7 13h8M7 17h6" /></svg>),
+  },
+  {
+    id: 'leadership',
+    label: 'Leadership',
+    description: 'Senior school administration',
+    icon: (<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></svg>),
+  },
+  {
     id: 'pages',
     label: 'Pages',
     description: 'Website content',
