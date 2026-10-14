@@ -11,6 +11,15 @@ import {
 import {
   subscribeAdminSocieties, createSociety, updateSociety, deleteSociety,
 } from '../lib/societiesService';
+import {
+  subscribeAdminSports, createSport, updateSport, deleteSport,
+} from '../lib/sportsService';
+import {
+  subscribeAdminExtracurricular, createActivity, updateActivity, deleteActivity,
+} from '../lib/extracurricularService';
+import {
+  subscribeAdminLeadership, createLeader, updateLeader, deleteLeader,
+} from '../lib/leadershipService';
 import './Admin.css';
 
 const collections = {
@@ -57,6 +66,47 @@ const collections = {
       { key: 'websiteUrl', label: 'Society website or social link', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com' },
     ],
   },
+  sports: {
+    title: 'College Sports',
+    singular: 'sport',
+    description: 'Manage school sports, teams and achievements.',
+    subscribe: subscribeAdminSports, create: createSport, update: updateSport, remove: deleteSport,
+    defaults: { title: '', category: '', description: '', achievements: '', imageUrl: '', published: false },
+    fields: [
+      { key: 'title', label: 'Sport or team name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Cricket' },
+      { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Team Sports' },
+      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 5, maxLength: 3000, wide: true },
+      { key: 'achievements', label: 'Achievements', type: 'textarea', rows: 4, maxLength: 2000, wide: true },
+      { key: 'imageUrl', label: 'Photo URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/photo.jpg' },
+    ],
+  },
+  extracurricular: {
+    title: 'Extracurricular Activities',
+    singular: 'activity',
+    description: 'Manage activities and programmes outside the classroom.',
+    subscribe: subscribeAdminExtracurricular, create: createActivity, update: updateActivity, remove: deleteActivity,
+    defaults: { title: '', category: '', description: '', imageUrl: '', published: false },
+    fields: [
+      { key: 'title', label: 'Activity name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Community Service' },
+      { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Cadets and Service' },
+      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 6, maxLength: 3000, wide: true },
+      { key: 'imageUrl', label: 'Activity image URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/photo.jpg' },
+    ],
+  },
+  leadership: {
+    title: 'School Leadership',
+    singular: 'leader',
+    description: 'Manage verified senior administrative staff and their display order. Do not publish unconfirmed appointments.',
+    subscribe: subscribeAdminLeadership, create: createLeader, update: updateLeader, remove: deleteLeader,
+    defaults: { title: '', role: 'Principal', rank: '1', description: '', imageUrl: '', published: false },
+    fields: [
+      { key: 'title', label: 'Staff member name', required: true, maxLength: 180, wide: true, placeholder: 'Enter the verified full name' },
+      { key: 'role', label: 'Position', type: 'select', options: ['Principal', 'Deputy Principal', 'Assistant Principal', 'Sectional Head', 'Other Senior Staff'] },
+      { key: 'rank', label: 'Display order (1 first)', type: 'select', options: Array.from({ length: 20 }, (_, i) => String(i + 1)) },
+      { key: 'description', label: 'Profile / responsibilities', type: 'textarea', rows: 5, maxLength: 1200, wide: true },
+      { key: 'imageUrl', label: 'Official portrait URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/portrait.jpg' },
+    ],
+  },
   pages: {
     title: 'Website Pages',
     singular: 'page',
@@ -89,7 +139,7 @@ function displayDate(record) {
 
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
-  if (kind === 'events' || kind === 'societies') return item.description || '';
+  if (['events', 'societies', 'sports', 'extracurricular', 'leadership'].includes(kind)) return item.description || '';
   return item.seoDescription || item.slug || '';
 }
 
@@ -176,7 +226,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
       if (!term) return true;
       return [
         item.title, item.slug, item.category, item.location, item.eventDate,
-        item.excerpt, item.description, item.websiteUrl,
+        item.excerpt, item.description, item.websiteUrl, item.role, item.achievements,
       ].some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term));
     });
   }, [items, search, status]);
