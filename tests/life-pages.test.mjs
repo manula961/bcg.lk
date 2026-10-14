@@ -6,10 +6,10 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 
 test('four Life as a Nayaken detail pages have stable paths and source-based titles', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
-  for (const slug of ['academic-excellence', 'sports-athletics', 'arts-culture', 'prefect-council']) {
+  for (const slug of ['academic-excellence', 'sports-athletics', 'societies', 'leadership']) {
     assert.ok(pages.includes("'" + slug + "':"), 'Missing page ' + slug);
   }
-  for (const heading of ['Academic Excellence', 'Sports & Athletics', 'Arts & Culture', 'Prefect Council']) {
+  for (const heading of ['Academic Excellence', 'Sports & Athletics', 'Societies', 'Leadership']) {
     assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
   }
   assert.match(pages, /href=\{'\/life\/' \+ key\}/);
@@ -53,12 +53,12 @@ test('each detail page contains three substantive editorial sections with source
     'Four houses, one college spirit',
     'A record across many sports',
     'Developing character through competition',
-    'The sound of tradition',
-    'Performance and artistic expression',
-    'Student creativity and communication',
-    'Leadership through service',
-    'A tradition of recognition',
-    'Growing together as Nayakenz',
+    'Science, technology and discovery',
+    'Creativity and communication',
+    'Citizenship and service',
+    'Values that guide leadership',
+    'Discipline and cadet tradition',
+    'Leadership beyond a title',
   ]) assert.ok(pages.includes("heading: '" + heading + "'"), 'Missing editorial section: ' + heading);
   assert.match(pages, /current\.sections\.map/);
   assert.match(pages, /current\.highlights\.map/);
@@ -71,8 +71,20 @@ test('college-specific claims link back to traceable sources', () => {
   for (const source of [
     'https://bcg.lk/about_us',
     'https://bcg.lk/sports_achievements',
-    'https://bcg.lk/cadet_band_eastern',
+    'https://bcg.lk/cadet_band_platoon',
     'https://bcg.lk/clubs_societies',
     'https://bcss.lk/',
   ]) assert.ok(pages.includes(source), 'Missing evidence: ' + source);
+});
+
+test('replacement cards lead to current routes, never retired pages', () => {
+  const source = read('src/components/LifeAsNayaken.jsx');
+  const pages = read('src/pages/LifeDetailPage.jsx');
+  for (const slug of ['academic-excellence','sports-athletics','societies','leadership']) {
+    assert.ok(source.includes("'/life/" + slug + "'"), 'Unlinked card: ' + slug);
+    assert.ok(pages.includes("'" + slug + "':"), 'Missing detail page: ' + slug);
+  }
+  assert.doesNotMatch(source, /Arts & Culture|Prefect Council/);
+  assert.doesNotMatch(pages, /'arts-culture':|'prefect-council':/);
+  assert.match(source, /role="link" tabIndex=\{0\}/);
 });
