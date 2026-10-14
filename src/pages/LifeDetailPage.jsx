@@ -127,80 +127,6 @@ export default function LifeDetailPage({ slug }) {
       <a className="life-detail-skip" href="#life-detail-main">Skip to content</a>
       <div onClickCapture={handleMenuNavigation}>
         <MenuBar />
-      <div onClickCapture={handleMenuNavigation}><MenuBar /></div>
-      <div className="section-container life-detail-return"><a href="/#extracurricular">← Back to Life as a Nayaken</a></div>
-
-      <section id="life-detail-main" className="life-detail-intro" aria-labelledby="life-detail-title">
-        <p className="life-detail-kicker">EXPERIENCE IT</p>
-        <p className="life-detail-eyebrow">{current.label}</p>
-        <h1 id="life-detail-title">{current.title}</h1>
-        <p className="life-detail-description">{current.description}</p>
-      </section>
-
-      <div className="section-container life-detail-container">
-        <section className={'life-detail-feature ' + current.accent} aria-label={current.title}>
-          <img className="life-detail-feature-image" src={image} alt="Bandaranayake College campus" />
-          <div className="life-detail-feature-shade" />
-          <div className="life-detail-feature-body">
-            <span className="life-detail-feature-label">{current.label}</span>
-            <h2>{current.subtitle}</h2>
-            <p>{current.description}</p>
-          </div>
-        </section>
-
-        <section className="life-detail-story" aria-labelledby="life-detail-story-title">
-          <div className="life-detail-section-heading">
-            <p className="life-detail-kicker">DISCOVER THE STORY</p>
-            <h2 id="life-detail-story-title">{current.title} at Bandaranayake</h2>
-            <p className="life-detail-description">{current.overview}</p>
-          </div>
-          <div className="life-detail-highlights">
-            {current.highlights.map((item) => (
-              <div className="life-detail-highlight" key={item.label}>
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </div>
-            ))}
-          </div>
-          <div className="life-detail-stories">
-            {current.sections.map((section, index) => (
-              <article className="life-detail-story-card" key={section.heading}>
-                <span className="life-detail-story-number">0{index + 1}</span>
-                <div>
-                  <h3>{section.heading}</h3>
-                  <p>{section.copy}</p>
-                  <a href={section.source} target="_blank" rel="noopener noreferrer">
-                    Read the source <span aria-hidden="true">↗</span>
-                    <span className="life-detail-visually-hidden">: {section.sourceLabel}</span>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {slug === 'societies' && <SocietiesListing />}
-
-        <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
-          <div className="life-detail-section-heading">
-            <p className="life-detail-kicker">EXPLORE MORE</p>
-            <h2 id="life-detail-explore-title">LIFE AS A NAYAKEN</h2>
-          </div>
-          <div className="life-detail-grid">
-            {labels.filter(([key]) => key !== slug).map(([key, page]) => (
-              <a key={key} className={'life-detail-card ' + page.accent} href={'/life/' + key}>
-                <img src={image} alt="" loading="lazy" />
-                <span className="life-detail-card-shade" />
-                <span className="life-detail-card-arrow" aria-hidden="true">↗</span>
-                <span className="life-detail-card-content">
-                  <span className="life-detail-card-label">{page.label}</span>
-                  <strong>{page.title}</strong>
-                  <span>{page.description}</span>
-                </span>
-              </a>
-            ))}
-          </div>
-        </section>
       </div>
 
       <div ref={pageRef} className="life-detail-top-wrapper">
@@ -223,7 +149,7 @@ export default function LifeDetailPage({ slug }) {
           </section>
 
           <div className="section-container life-detail-container">
-            {/* Feature Card */}
+            {/* Main Feature Card */}
             <section className={'life-detail-feature ' + current.accent} aria-label={current.title}>
               <img className="life-detail-feature-image" src={image} alt="Bandaranayake College campus" />
               <div className="life-detail-feature-shade" />
@@ -268,7 +194,10 @@ export default function LifeDetailPage({ slug }) {
               </div>
             </section>
 
-            {/* Explore More Section */}
+            {/* Render Societies Directory if active tab is societies */}
+            {slug === 'societies' && <SocietiesListing />}
+
+            {/* Explore More Cards Section */}
             <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
               <div className="life-detail-section-heading">
                 <p className="life-detail-kicker">EXPLORE MORE</p>
