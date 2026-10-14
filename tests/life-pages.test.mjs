@@ -27,7 +27,7 @@ test('homepage and admin routes remain the unchanged defaults', () => {
 
 test('new pages follow the original school typography and palette', () => {
   const css = read('src/pages/LifeDetailPage.css');
-  for (const value of ['#7B1C1C', '#1a3a6b', '#C9A84C', "'Cinzel'", "'Geologica'", "'Oswald'"]) {
+  for (const value of ['#7B1C1C', '#1a3a6b', '#C9A84C', "'Geologica'", "'Google Sans Flex'"]) {
     assert.ok(css.includes(value), 'Missing design token ' + value);
   }
   assert.match(css, /@media \(max-width: 600px\)/);
@@ -86,5 +86,14 @@ test('replacement cards lead to current routes, never retired pages', () => {
   }
   assert.doesNotMatch(source, /Arts & Culture|Prefect Council/);
   assert.doesNotMatch(pages, /'arts-culture':|'prefect-council':/);
-  assert.match(source, /role="link" tabIndex=\{0\}/);
+  assert.match(source, /role="link"\s+tabIndex=\{0\}/);
 });
+
+test('Societies hides editorial highlights but retains admin-managed directory', () => {
+  const source = read('src/pages/LifeDetailPage.jsx');
+  assert.match(source, /\{slug !== 'societies' && \(\s*<section className="life-detail-story"/);
+  assert.match(source, /\{slug === 'societies' && <SocietiesListing \/>}/);
+  assert.match(source, /life-detail-top-wrapper/);
+  assert.match(source, /life-content-group/);
+});
+

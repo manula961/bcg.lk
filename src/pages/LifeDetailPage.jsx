@@ -160,7 +160,8 @@ export default function LifeDetailPage({ slug }) {
               </div>
             </section>
 
-            {/* Editorial Story */}
+            {/* Editorial Story — hidden on Societies only */}
+            {slug !== 'societies' && (
             <section className="life-detail-story" aria-labelledby="life-detail-story-title">
               <div className="life-detail-section-heading">
                 <p className="life-detail-kicker">DISCOVER THE STORY</p>
@@ -193,6 +194,7 @@ export default function LifeDetailPage({ slug }) {
                 ))}
               </div>
             </section>
+            )}
 
             {/* Render Societies Directory if active tab is societies */}
             {slug === 'societies' && <SocietiesListing />}
