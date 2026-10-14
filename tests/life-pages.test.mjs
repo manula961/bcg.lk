@@ -88,3 +88,10 @@ test('replacement cards lead to current routes, never retired pages', () => {
   assert.doesNotMatch(pages, /'arts-culture':|'prefect-council':/);
   assert.match(source, /role="link" tabIndex=\{0\}/);
 });
+
+
+test('Societies skips editorial story and highlights but retains the admin-managed directory', () => {
+  const source = read('src/pages/LifeDetailPage.jsx');
+  assert.match(source, /\{slug !== 'societies' && \(\s*<section className="life-detail-story"/);
+  assert.match(source, /\{slug === 'societies' && <SocietiesListing \/>}/);
+});
