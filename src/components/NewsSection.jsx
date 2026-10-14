@@ -34,7 +34,10 @@ const NewsSection = () => {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.05,
+        rootMargin: '0px 0px -10% 0px' 
+      }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -63,70 +66,61 @@ const NewsSection = () => {
     <section id="news" ref={sectionRef} className="news-section">
       <div className="news-bg-texture" />
       <div className="news-container">
-        <div
-          className={`news-header-container ${
-            visible ? "news-header-visible" : "news-header-init"
-          }`}
-        >
-          <div>
-            <div className="news-subtitle">Nayakenz</div>
-            <h2 className="news-title">Latest Updates</h2>
-            <div className="events-divider-wrap">
-              <div className="news-divider-maroon" />
-              <div className="news-divider-blue" />
-            </div>
-          </div>
-          
-          <div className="news-filters">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`filter-btn ${activeFilter === f ? "active" : ""}`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="news-grid">
-          {filtered.map((post, i) => (
-            <div
-              key={post.id}
-              className={`news-card ${
-                visible ? "news-card-visible" : "news-card-init"
-              }`}
-              style={{ transitionDelay: `${i * 0.08}s` }}
-            >
-              {post.image ? (
-                <div
-                  className="news-card-image-wrap"
-                  style={{ backgroundImage: `url(${post.image})` }}
-                >
-                  <div className="news-card-image-overlay" />
-                  <div className="news-card-tag">{post.tag}</div>
-                </div>
-              ) : (
-                <div className="news-card-image-wrap" style={{ height: "70px" }}>
-                  <div className="news-card-tag">{post.tag}</div>
-                </div>
-              )}
-
-              <div className="news-card-content">
-                <div>
-                  <div className="news-card-meta">
-                    {post.category} {post.date ? `• ${post.date}` : ""}
-                  </div>
-                  <h3 className="news-card-title">{post.title}</h3>
-                  <p className="news-card-excerpt">{post.excerpt}</p>
-                </div>
-                <span className="news-card-link">
-                  Read More <span>→</span>
-                </span>
+        <div className={`news-content-group ${visible ? 'visible' : ''}`}>
+          <div className="news-header-container">
+            <div>
+              <div className="news-subtitle">Nayakenz</div>
+              <h2 className="news-title">Latest Updates</h2>
+              <div className="events-divider-wrap">
+                <div className="news-divider-maroon" />
+                <div className="news-divider-blue" />
               </div>
             </div>
-          ))}
+
+            <div className="news-filters">
+              {filters.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={`filter-btn ${activeFilter === f ? "active" : ""}`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="news-grid">
+            {filtered.map((post) => (
+              <div key={post.id} className="news-card">
+                {post.image ? (
+                  <div
+                    className="news-card-image-wrap"
+                    style={{ backgroundImage: `url(${post.image})` }}
+                  >
+                    <div className="news-card-image-overlay" />
+                    <div className="news-card-tag">{post.tag}</div>
+                  </div>
+                ) : (
+                  <div className="news-card-image-wrap" style={{ height: "70px" }}>
+                    <div className="news-card-tag">{post.tag}</div>
+                  </div>
+                )}
+                <div className="news-card-content">
+                  <div>
+                    <div className="news-card-meta">
+                      {post.category} {post.date ? ` • ${post.date}` : ""}
+                    </div>
+                    <h3 className="news-card-title">{post.title}</h3>
+                    <p className="news-card-excerpt">{post.excerpt}</p>
+                  </div>
+                  <span className="news-card-link">
+                    Read More <span>→</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

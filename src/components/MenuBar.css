@@ -1,12 +1,11 @@
-
-/* Menu Toggle Floating Button */
+/* Floating Menu Toggle Button */
 .menu-toggle-btn {
   position: fixed;
-  top: 24px;
+  top: 28px;
   right: 28px;
   z-index: 1000;
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 1px solid rgba(201, 168, 76, 0.3);
   cursor: pointer;
@@ -16,7 +15,7 @@
   justify-content: center;
   gap: 5px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 .menu-toggle-btn.scrolled {
@@ -25,16 +24,18 @@
 }
 
 .menu-toggle-btn.default {
-  background: rgba(10, 10, 10, 0.7);
+  background: rgba(12, 12, 14, 0.85);
   backdrop-filter: blur(10px);
 }
 
 .menu-toggle-btn.open {
   background: transparent;
-  border-color: rgba(201, 168, 76, 0.6);
+  border-color: rgba(201, 168, 76, 0.5);
+  box-shadow: none;
 }
 
 .menu-toggle-btn:hover {
+  transition-delay: 0s !important;
   border-color: #C9A84C;
   transform: scale(1.05);
 }
@@ -42,7 +43,7 @@
 /* Hamburger Line Animations */
 .hamburger-line {
   display: block;
-  width: 20px;
+  width: 18px;
   height: 1.5px;
   background: #C9A84C;
   border-radius: 2px;
@@ -62,19 +63,19 @@
   transform: translateY(-6.5px) rotate(-45deg);
 }
 
-/* Overlay Window */
+/* Minimal Fullscreen Overlay */
 .menu-overlay {
   position: fixed;
   inset: 0;
   z-index: 900;
-  background: rgba(10, 10, 10, 0.96);
+  background: rgba(12, 12, 14, 0.96);
   backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .menu-overlay.is-open {
@@ -85,47 +86,48 @@
 /* Inner Container */
 .menu-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 680px;
   padding: 0 24px;
 }
 
-/* Nav Link List */
+/* Clean Nav List */
 .menu-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
-/* Individual Link Row */
+/* Typography Nav Rows */
 .menu-nav-item {
   display: flex;
   align-items: baseline;
-  gap: 24px;
+  gap: 20px;
   background: transparent;
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 18px 8px;
+  padding: 20px 8px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   width: 100%;
 }
 
 .menu-nav-item:hover {
-  border-bottom-color: #C9A84C;
+  transition-delay: 0s !important;
+  border-bottom-color: rgba(201, 168, 76, 0.5);
   padding-left: 16px;
 }
 
 .menu-num {
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.2em;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
   color: #C9A84C;
-  font-weight: 500;
-  min-width: 32px;
+  font-weight: 600;
+  min-width: 28px;
 }
 
-.menu-text-wrap {
+.menu-text-group {
   display: flex;
   align-items: baseline;
   gap: 16px;
@@ -133,13 +135,12 @@
 }
 
 .menu-title {
-  font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(1.4rem, 3.2vw, 2.2rem);
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.5rem, 3.2vw, 2.2rem);
   font-weight: 700;
   color: #ffffff;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
   line-height: 1;
-  /* text-transform: uppercase; */
   letter-spacing: -0.01em;
 }
 
@@ -152,7 +153,7 @@
   font-size: 0.85rem;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.4);
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
 }
 
 .menu-nav-item:hover .menu-sub {
@@ -161,11 +162,15 @@
 
 /* Responsive Adjustments */
 @media (max-width: 640px) {
-  .menu-nav-item {
-    gap: 16px;
-    padding: 14px 4px;
+  .menu-toggle-btn {
+    top: 20px;
+    right: 20px;
   }
-  .menu-text-wrap {
+  .menu-nav-item {
+    padding: 16px 4px;
+    gap: 14px;
+  }
+  .menu-text-group {
     flex-direction: column;
     gap: 4px;
   }

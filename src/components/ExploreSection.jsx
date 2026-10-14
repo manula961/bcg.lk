@@ -47,7 +47,10 @@ const ExploreSection = () => {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.05,
+        rootMargin: '0px 0px -10% 0px' 
+      }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -55,11 +58,9 @@ const ExploreSection = () => {
 
   useEffect(() => {
     if (!visible || isPaused) return;
-
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [visible, isPaused]);
 
@@ -72,43 +73,43 @@ const ExploreSection = () => {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="section-container">
-        <div className={`explore-header ${visible ? 'visible' : ''}`}>
-          <div className="explore-subtitle">Discover BCG</div>
-          <h2 className="explore-title">Explore The School</h2>
-          <div className="explore-divider-wrap">
-            <div className="explore-divider-maroon" />
-            <div className="explore-divider-blue" />
+        <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
+          <div className="explore-header">
+            <div className="explore-subtitle">Discover BCG</div>
+            <h2 className="explore-title">Explore The School</h2>
+            <div className="explore-divider-wrap">
+              <div className="explore-divider-maroon" />
+              <div className="explore-divider-blue" />
+            </div>
           </div>
-        </div>
-
-        <div className={`explore-grid ${visible ? 'visible' : ''}`}>
-          <div className="explore-tabs-list">
-            {places.map((place, i) => (
-              <button
-                key={place.id}
-                onClick={() => setActive(i)}
-                className={`explore-tab-btn ${active === i ? 'active' : ''}`}
-              >
-                <div className="explore-tab-tag">{place.tag}</div>
-                <h3 className="explore-tab-title">{place.title}</h3>
-              </button>
-            ))}
-          </div>
-
-          <div className="explore-display-card">
-            <img
-              key={active}
-              src={places[active].image}
-              alt={places[active].title}
-              className="explore-display-img"
-            />
-            <div className="explore-display-overlay" />
-            <div className="explore-display-content">
-              <div className="explore-display-subtitle">
-                {places[active].subtitle}
+          <div className="explore-grid">
+            <div className="explore-tabs-list">
+              {places.map((place, i) => (
+                <button
+                  key={place.id}
+                  onClick={() => setActive(i)}
+                  className={`explore-tab-btn ${active === i ? 'active' : ''}`}
+                >
+                  <div className="explore-tab-tag">{place.tag}</div>
+                  <h3 className="explore-tab-title">{place.title}</h3>
+                </button>
+              ))}
+            </div>
+            <div className="explore-display-card">
+              <img
+                key={active}
+                src={places[active].image}
+                alt={places[active].title}
+                className="explore-display-img"
+              />
+              <div className="explore-display-overlay" />
+              <div className="explore-display-content">
+                <div className="explore-display-subtitle">
+                  {places[active].subtitle}
+                </div>
+                <h3 className="explore-display-title">{places[active].title}</h3>
+                <p className="explore-display-desc">{places[active].desc}</p>
               </div>
-              <h3 className="explore-display-title">{places[active].title}</h3>
-              <p className="explore-display-desc">{places[active].desc}</p>
             </div>
           </div>
         </div>

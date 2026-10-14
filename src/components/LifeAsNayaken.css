@@ -1,4 +1,3 @@
-/* Main Section Styling */
 .life-section {
   padding: 100px 0;
   background: #ffffff;
@@ -6,18 +5,21 @@
   overflow: hidden;
 }
 
-/* Header Styling */
-.life-header {
-  margin-bottom: 56px;
+.life-content-group {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-  text-align: center;
+  transform: translateY(50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
-.life-header.visible {
+.life-content-group.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) !important;
+}
+
+.life-header {
+  margin-bottom: 56px;
+  text-align: center;
 }
 
 .life-subtitle {
@@ -50,22 +52,14 @@
   margin: 0 auto;
 }
 
-/* Bento Grid Layout */
 .life-bento-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 230px);
   gap: 20px;
   margin-bottom: 80px;
-  opacity: 0;
-  transition: opacity 0.8s ease 0.3s;
 }
 
-.life-bento-grid.visible {
-  opacity: 1;
-}
-
-/* Individual Bento Cards */
 .bento-card {
   border-radius: 16px;
   padding: 32px;
@@ -81,10 +75,11 @@
 }
 
 .bento-card:hover {
+  transition-delay: 0s !important;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
 }
 
-/* Specific Bento Placements & Gradients */
 .bento-card.card-1 {
   grid-column: 1 / 3;
   background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
@@ -104,7 +99,6 @@
   background: linear-gradient(135deg, #12285a 0%, #0c1836 100%);
 }
 
-/* Image Backgrounds inside Cards */
 .bento-bg-img {
   position: absolute;
   inset: 0;
@@ -116,6 +110,7 @@
 }
 
 .bento-card:hover .bento-bg-img {
+  transition-delay: 0s !important;
   transform: scale(1.05);
   opacity: 0.35;
 }
@@ -159,7 +154,6 @@
   line-height: 1.6;
 }
 
-/* Floating Action Arrow */
 .bento-arrow {
   position: absolute;
   top: 24px;
@@ -173,10 +167,11 @@
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease;
 }
 
 .bento-card:hover .bento-arrow {
+  transition-delay: 0s !important;
   background: #C9A84C;
   color: #000000;
   transform: translate(2px, -2px);
@@ -187,17 +182,10 @@
   height: 18px;
 }
 
-/* Stats Section Below Bento */
 .life-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  opacity: 0;
-  transition: opacity 0.8s ease 0.5s;
-}
-
-.life-stats-grid.visible {
-  opacity: 1;
 }
 
 .stat-card {
@@ -206,14 +194,15 @@
   border-top: 3px solid;
   border-radius: 16px;
   background: rgba(247, 245, 240, 0.5);
-  transition: 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.0);
 }
 
 .stat-card:hover {
+  transition-delay: 0s !important;
   background: #f7f5f0;
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .stat-card.maroon {
@@ -250,7 +239,6 @@
   font-weight: 600;
 }
 
-/* Responsive Grid Adjustments */
 @media (max-width: 900px) {
   .life-bento-grid {
     grid-template-columns: 1fr;

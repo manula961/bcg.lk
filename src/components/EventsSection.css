@@ -44,16 +44,21 @@
   }
 }
 
-.events-header {
-  margin-bottom: 56px;
+/* Explicit Fade-Up Animation Group */
+.events-content-group {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transform: translateY(50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
-.events-header.visible {
+.events-content-group.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) !important;
+}
+
+.events-header {
+  margin-bottom: 56px;
 }
 
 .events-subtitle {
@@ -86,14 +91,14 @@
   width: 50px;
   height: 3px;
   background: #7b1c1c;
-    border-radius: 2px;
+  border-radius: 2px;
 }
 
 .events-divider-blue {
   width: 15px;
   height: 3px;
   background: #1a3a6b;
-    border-radius: 2px;
+  border-radius: 2px;
 }
 
 .events-list {
@@ -112,18 +117,13 @@
   border: 2px solid rgba(123, 28, 28, 0.1);
   border-radius: 16px;
   cursor: pointer;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, opacity 0.6s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.event-row.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* Instant hover response with transform shift */
 .event-row:hover {
+  transition-delay: 0s !important;
   background: #ffffffad;
   border-color: rgba(123, 28, 28, 0.25);
   transform: translateX(6px);
@@ -142,6 +142,7 @@
 }
 
 .event-row:hover .event-date-block {
+  transition-delay: 0s !important;
   background: var(--hover-color, #7b1c1c) !important;
 }
 
@@ -166,6 +167,7 @@
 
 .event-row:hover .event-month,
 .event-row:hover .event-day {
+  transition-delay: 0s !important;
   color: #ffffff !important;
 }
 
@@ -185,6 +187,7 @@ h3.event-item-title {
 }
 
 .event-row:hover h3.event-item-title {
+  transition-delay: 0s !important;
   color: #7b1c1c;
 }
 
@@ -232,23 +235,19 @@ h3.event-item-title {
 }
 
 .event-row:hover .event-arrow-circle {
+  transition-delay: 0s !important;
   background: rgba(123, 28, 28, 0.08);
   color: #7b1c1c;
 }
 
 .event-row:hover .arrow-icon {
+  transition-delay: 0s !important;
   transform: translateX(4px);
   stroke: #7b1c1c;
 }
 
 .events-action {
   margin-top: 48px;
-  opacity: 0;
-  transition: opacity 1s ease 0.6s;
-}
-
-.events-action.visible {
-  opacity: 1;
 }
 
 .events-btn {
@@ -276,11 +275,13 @@ h3.event-item-title {
 }
 
 .events-btn:hover {
+  transition-delay: 0s !important;
   background: #7b1c1c;
   color: #ffffff;
 }
 
 .events-btn:hover .btn-arrow-icon {
+  transition-delay: 0s !important;
   transform: translateX(4px);
   stroke: #ffffff;
 }
