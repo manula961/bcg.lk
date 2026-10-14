@@ -68,7 +68,7 @@ for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.js
     normalized = normalized.replace("import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';\n", '');
     normalized = normalized.replace("  const [uploadingImage, setUploadingImage] = useState(false);\n", '');
     normalized = normalized.replace(/  async function handleImageUpload\(event\) \{[\s\S]*?\n  \}\n\n(?=  async function save)/, '');
-    normalized = normalized.replace('if (busy || uploadingImage) return;', 'if (busy) return;');
+    normalized = normalized.replaceAll('if (busy || uploadingImage) return;', 'if (busy) return;');
     normalized = normalized.replaceAll('disabled={busy || uploadingImage}', 'disabled={busy}');
     normalized = normalized.replace('                <React.Fragment key={field.key}>\n                <label', '                <label key={field.key}');
     normalized = normalized.replace(/                \{field\.key === 'imageUrl' && cloudinaryUploadConfigured && \([\s\S]*?\n                \)\}\n                <\/React\.Fragment>\n/, '');
