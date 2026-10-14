@@ -33,3 +33,12 @@ test('new pages follow the original school typography and palette', () => {
   assert.match(css, /@media \(max-width: 600px\)/);
   assert.match(css, /prefers-reduced-motion/);
 });
+
+test('detail pages reuse the original homepage navigation, footer and layout container', () => {
+  const source = read('src/pages/LifeDetailPage.jsx');
+  assert.match(source, /import MenuBar from '\.\.\/components\/MenuBar'/);
+  assert.match(source, /import Footer from '\.\.\/components\/Footer'/);
+  assert.match(source, /<MenuBar \/>/);
+  assert.match(source, /<Footer \/>/);
+  assert.match(source, /section-container life-detail-container/);
+});
