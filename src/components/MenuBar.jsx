@@ -3,10 +3,10 @@ import './MenuBar.css';
 
 const menuItems = [
   { label: 'Home', href: '#home', sub: 'Welcome to BCG' },
-  { label: 'News', href: '#news', sub: 'Latest Updates & Events' },
-  { label: 'Academics', href: '#academics', sub: 'Excellence in Education' },
-  { label: 'Explore', href: '#explore', sub: 'Discover Our School' },
-  { label: 'Extra Curricular', href: '#extracurricular', sub: 'Beyond the Classroom' },
+  { label: 'News', href: '#news', sub: 'Latest Updates & Announcements' },
+  { label: 'Events', href: '#events', sub: 'Upcoming Events Calendar' },
+  { label: 'Explore', href: '#explore', sub: 'Discover Our Campus' },
+  { label: 'Extra Curricular', href: '#extracurricular', sub: 'Life As A Nayaken' },
 ];
 
 const MenuBar = () => {
@@ -33,7 +33,6 @@ const MenuBar = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
@@ -50,7 +49,6 @@ const MenuBar = () => {
 
   return (
     <>
-      {/* Menu Button */}
       <button
         onClick={() => setOpen(!open)}
         aria-label="Toggle Navigation Menu"
@@ -62,7 +60,6 @@ const MenuBar = () => {
         <span className="hamburger-line line-3" />
       </button>
 
-      {/* Clean Fullscreen Overlay */}
       <div className={`menu-overlay ${open ? 'is-open' : ''}`}>
         <div className="menu-container">
           <nav className="menu-nav-list" aria-label="Main Navigation">
