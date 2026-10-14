@@ -63,6 +63,16 @@ for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.js
     normalized = normalized.replace(/  sports: \{\n[\s\S]*?\n  \},\n(?=  pages: \{)/, '');
     normalized = normalized.replace("if (['events', 'societies', 'sports', 'extracurricular', 'leadership'].includes(kind))", "if (kind === 'events' || kind === 'societies')");
     normalized = normalized.replace('item.excerpt, item.description, item.websiteUrl, item.role, item.achievements,', 'item.excerpt, item.description, item.websiteUrl,');
+
+    // Undo only the approved Cloudinary upload control, then compare with main.
+    normalized = normalized.replace("import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';\n", '');
+    normalized = normalized.replace("  const [uploadingImage, setUploadingImage] = useState(false);\n", '');
+    normalized = normalized.replace(/  async function handleImageUpload\(event\) \{[\s\S]*?\n  \}\n\n(?=  async function save)/, '');
+    normalized = normalized.replace('if (busy || uploadingImage) return;', 'if (busy) return;');
+    normalized = normalized.replaceAll('disabled={busy || uploadingImage}', 'disabled={busy}');
+    normalized = normalized.replace('                <React.Fragment key={field.key}>\n                <label', '                <label key={field.key}');
+    normalized = normalized.replace(/                \{field\.key === 'imageUrl' && cloudinaryUploadConfigured && \([\s\S]*?\n                \)\}\n                <\/React\.Fragment>\n/, '');
+
   }
   if (normalized !== original) protectedPaths.push(path + ' (unapproved change to original UI)');
 }
