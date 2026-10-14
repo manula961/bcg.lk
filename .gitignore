@@ -4,3 +4,11 @@ build
 .env
 .env.local
 .env.*.local
+
+# Local tooling, generated reports, and editor files
+.vercel/
+.firebase/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
