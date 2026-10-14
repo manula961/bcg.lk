@@ -14,51 +14,10 @@
   color: #111;
 }
 .life-detail-skip:focus { top: 12px; }
-.life-detail-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 30px 40px 18px;
-}
-.life-detail-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 13px;
-  color: #1a1a1a;
-  font: 700 13px/1.4 'Geologica', sans-serif;
-  letter-spacing: .11em;
-}
-.life-detail-brand small {
-  display: block;
-  margin-top: 2px;
-  color: #7B1C1C;
-  font-size: 10px;
-  letter-spacing: .24em;
-}
-.life-detail-brand-mark {
-  display: grid;
-  place-items: center;
-  border: 2px solid #C9A84C;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  background: #7B1C1C;
-  color: #C9A84C;
-  font: 800 23px/1 'Cinzel', serif;
-}
-.life-detail-home {
-  color: #7B1C1C;
-  font: 600 12px/1.6 'Geologica', sans-serif;
-  transition: color .2s ease;
-}
-.life-detail-home:hover { color: #1a3a6b; }
-.life-detail-home:focus-visible, .life-detail a:focus-visible {
-  outline: 3px solid #C9A84C;
-  outline-offset: 5px;
-}
+.life-detail-return { padding-top: 34px; }
+.life-detail-return a { color: #7B1C1C; font: 600 12px/1.6 'Geologica', sans-serif; }
+.life-detail-return a:hover { color: #1a3a6b; }
+.life-detail a:focus-visible { outline: 3px solid #C9A84C; outline-offset: 5px; }
 .life-detail-intro {
   text-align: center;
   padding: 60px 24px 62px;
@@ -86,11 +45,7 @@
   color: #60636a;
   font: 300 clamp(.94rem, 1.5vw, 1.07rem)/1.85 'Geologica', sans-serif;
 }
-.life-detail-container {
-  max-width: 1280px;
-  padding: 0 40px 100px;
-  margin: 0 auto;
-}
+.life-detail-container { padding-bottom: 100px; }
 .life-detail-feature {
   position: relative;
   isolation: isolate;
@@ -179,30 +134,16 @@
   font: 20px/1 sans-serif;
 }
 .life-detail-card:hover .life-detail-card-arrow { background: #C9A84C; color: #111; }
-.life-detail-footer {
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 20px; padding: 28px max(40px, calc((100vw - 1200px) / 2));
-  background: #0a0a0a;
-  color: rgba(255,255,255,.65);
-  font: 400 12px/1.6 'Geologica', sans-serif;
-}
-.life-detail-footer a { color: #C9A84C; }
 @media (max-width: 900px) {
   .life-detail-grid { grid-template-columns: 1fr 1fr; }
-  .life-detail-container { padding: 0 24px 70px; }
-  .life-detail-topbar { padding: 20px 24px; }
+  .life-detail-container { padding-bottom: 70px; }
   .life-detail-explore { padding-top: 72px; }
 }
 @media (max-width: 600px) {
-  .life-detail-topbar { gap: 12px; }
-  .life-detail-brand { font-size: 10px; letter-spacing: .03em; }
-  .life-detail-brand-mark { width: 36px; height: 36px; flex: 0 0 36px; }
-  .life-detail-home { max-width: 120px; text-align: right; font-size: 10px; }
   .life-detail-intro { padding: 48px 22px; }
   .life-detail-feature { min-height: 350px; padding: 28px; }
   .life-detail-grid { grid-template-columns: 1fr; gap: 16px; }
   .life-detail-card { min-height: 240px; }
-  .life-detail-footer { padding: 26px 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .life-detail-card, .life-detail-card > img { transition: none; }
