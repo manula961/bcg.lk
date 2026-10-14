@@ -20,6 +20,7 @@ import {
 import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader,
 } from '../lib/leadershipService';
+import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';
 import './Admin.css';
 
 const collections = {
@@ -173,6 +174,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -248,7 +250,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   function leaveEditor() {
-    if (busy) return;
+    if (busy || uploadingImage) return;
     if (dirty && !window.confirm('Discard your unsaved changes?')) return;
     setEditorOpen(false);
     setEditingId(null);
@@ -260,9 +262,27 @@ export default function ContentManager({ kind, onDirtyChange }) {
     setDirty(true);
   }
 
+  async function handleImageUpload(event) {
+    const file = event.target.files?.[0];
+    // Permit selecting the same file again if an upload fails.
+    event.target.value = '';
+    if (!file || uploadingImage) return;
+    setUploadingImage(true);
+    setNotice(null);
+    try {
+      const url = await uploadAdminImage(file);
+      updateField('imageUrl', url);
+      setNotice({ type: 'success', text: 'Image uploaded. Save this record to keep the new image URL.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: formatError(error) });
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
   async function save(event) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || uploadingImage) return;
     setBusy(true);
     setNotice(null);
 
@@ -533,7 +553,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 {editingId ? 'Update ' : 'Create '}{config.singular}
               </h3>
             </div>
-            <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
+            <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
               ← Back to List
             </button>
           </div>
@@ -541,7 +561,8 @@ export default function ContentManager({ kind, onDirtyChange }) {
           <form onSubmit={save} className="space-y-6 p-5 sm:p-7">
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {config.fields.map((field) => (
-                <label key={field.key} className={'block min-w-0 ' + (field.wide ? 'md:col-span-2' : '')}>
+                <React.Fragment key={field.key}>
+                <label className={'block min-w-0 ' + (field.wide ? 'md:col-span-2' : '')}>
                   <span className="admin-input-label">
                     {field.label}
                     {field.required && <span className="ml-1 text-[#C9A84C]">*</span>}
@@ -596,6 +617,23 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     </button>
                   )}
                 </label>
+                {field.key === 'imageUrl' && cloudinaryUploadConfigured && (
+                  <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+                    <label className="admin-btn-secondary cursor-pointer">
+                      {uploadingImage ? 'Uploading image...' : 'Upload image'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        disabled={uploadingImage || busy}
+                        onChange={handleImageUpload}
+                        className="sr-only"
+                        aria-label="Upload an image to Cloudinary"
+                      />
+                    </label>
+                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • up to 5 MB</span>
+                  </div>
+                )}
+                </React.Fragment>
               ))}
             </div>
 
@@ -639,7 +677,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
               <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="admin-btn-primary">
+              <button type="submit" disabled={busy || uploadingImage} className="admin-btn-primary">
                 {busy ? 'Saving...' : editingId ? 'Save Changes' : 'Create ' + config.singular}
               </button>
             </div>
