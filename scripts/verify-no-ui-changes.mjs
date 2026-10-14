@@ -60,6 +60,13 @@ for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.js
     normalized = normalized.replace(/  \{\n    id: 'sports',[\s\S]*?\n  \},\n(?=  \{\n    id: 'pages')/, '');
   } else {
 
+    // Undo only the approved Drive connection controls. No original form markup may change.
+    normalized = normalized.replace("import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';\n", '');
+    normalized = normalized.replace("  const [drive, setDrive] = useState({ configured: false, connected: false });\n", '');
+    normalized = normalized.replace("  useEffect(() => {\n    let active = true;\n    getDriveStatus().then(status => { if (active) setDrive(status); }).catch(() => {});\n    return () => { active = false; };\n  }, []);\n\n", '');
+    normalized = normalized.replace(/  async function startDriveConnection\(\) \{[\s\S]*?\n  \}\n\n(?=  async function save)/, '');
+    normalized = normalized.replace(/                \{field\.key === 'imageUrl' && drive\.configured && \([\s\S]*?\n                \)\}\n/, '');
+
     // Undo only the approved Cloudinary upload control, then compare with main.
     normalized = normalized.replace("import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';\n", '');
     normalized = normalized.replace("  const [uploadingImage, setUploadingImage] = useState(false);\n", '');
