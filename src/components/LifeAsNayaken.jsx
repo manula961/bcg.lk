@@ -38,7 +38,7 @@ const LifeAsNayaken = () => {
         {/* Bento Grid Layout */}
         <div className={`life-bento-grid ${visible ? 'visible' : ''}`}>
           {/* Card 1 - Academic Excellence */}
-          <div className="bento-card card-1">
+          <div className="bento-card card-1" role="link" tabIndex={0} aria-label="Open academic excellence page" onClick={() => window.location.assign('/life/academic-excellence')} onKeyDown={(event) => { if (event.key === 'Enter') window.location.assign('/life/academic-excellence'); }}>
             <img
               src="https://bcg.lk/img/banner1.jpg"
               alt="Academic Excellence"
@@ -60,7 +60,7 @@ const LifeAsNayaken = () => {
           </div>
 
           {/* Card 2 - Sports & Athletics */}
-          <div className="bento-card card-2">
+          <div className="bento-card card-2" role="link" tabIndex={0} aria-label="Open sports athletics page" onClick={() => window.location.assign('/life/sports-athletics')} onKeyDown={(event) => { if (event.key === 'Enter') window.location.assign('/life/sports-athletics'); }}>
             <img
               src="https://bcg.lk/img/banner1.jpg"
               alt="Sports and Athletics"
@@ -81,11 +81,11 @@ const LifeAsNayaken = () => {
             </div>
           </div>
 
-          {/* Card 3 - Arts & Culture */}
-          <div className="bento-card card-3">
+          {/* Card 3 - Societies */}
+          <div className="bento-card card-3" role="link" tabIndex={0} aria-label="Open societies page" onClick={() => window.location.assign('/life/societies')} onKeyDown={(event) => { if (event.key === 'Enter') window.location.assign('/life/societies'); }}>
             <img
               src="https://bcg.lk/img/banner1.jpg"
-              alt="Arts & Culture"
+              alt="Societies"
               className="bento-bg-img"
             />
             <div className="bento-overlay" />
@@ -95,17 +95,17 @@ const LifeAsNayaken = () => {
               </svg>
             </div>
             <div className="bento-content">
-              <div className="bento-tag">Expression</div>
-              <h3 className="bento-title">Arts & Culture</h3>
-              <p className="bento-desc">Drama, music, and tradition.</p>
+              <div className="bento-tag">Discovery</div>
+              <h3 className="bento-title">Societies</h3>
+              <p className="bento-desc">Science, creativity, service and teamwork.</p>
             </div>
           </div>
 
-          {/* Card 4 - Prefect Council */}
-          <div className="bento-card card-4">
+          {/* Card 4 - Leadership */}
+          <div className="bento-card card-4" role="link" tabIndex={0} aria-label="Open leadership page" onClick={() => window.location.assign('/life/leadership')} onKeyDown={(event) => { if (event.key === 'Enter') window.location.assign('/life/leadership'); }}>
             <img
               src="https://bcg.lk/img/banner1.jpg"
-              alt="Prefect Council"
+              alt="Leadership"
               className="bento-bg-img"
             />
             <div className="bento-overlay" />
@@ -115,9 +115,9 @@ const LifeAsNayaken = () => {
               </svg>
             </div>
             <div className="bento-content">
-              <div className="bento-tag">Leadership</div>
-              <h3 className="bento-title">Prefect Council</h3>
-              <p className="bento-desc">Service and brotherhood.</p>
+              <div className="bento-tag">Lead by Example</div>
+              <h3 className="bento-title">Leadership</h3>
+              <p className="bento-desc">Responsibility, teamwork and service.</p>
             </div>
           </div>
         </div>
