@@ -241,7 +241,7 @@
 .life-detail-highlight span {
   font-family: 'Geologica', sans-serif;
   font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: rgba(0, 0, 0, 0.6);
   text-transform: uppercase;
   font-weight: 500;
@@ -586,6 +586,7 @@
   .life-detail-highlight {
     min-height: 110px;
     padding: 20px 16px;
+    letter-spacing: 0.06em;
   }
   .life-detail-story-card {
     grid-template-columns: 1fr;
@@ -598,6 +599,10 @@
   .life-detail-societies {
     padding-top: 62px;
   }
+
+  .life-detail-kicker{
+    letter-spacing: 0.1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -606,5 +611,6 @@
   .life-detail-story-card,
   .life-detail-highlight {
     transition: none;
+    letter-spacing: normal;
   }
 }

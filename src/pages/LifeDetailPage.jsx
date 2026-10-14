@@ -185,7 +185,7 @@ export default function LifeDetailPage({ slug }) {
                       <h3>{section.heading}</h3>
                       <p>{section.copy}</p>
                       <a href={section.source} target="_blank" rel="noopener noreferrer">
-                        Read the source <span aria-hidden="true">→</span>
+                        Read more <span aria-hidden="true">→</span>
                         <span className="life-detail-visually-hidden">: {section.sourceLabel}</span>
                       </a>
                     </div>

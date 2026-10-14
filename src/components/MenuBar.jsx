@@ -33,6 +33,7 @@ const MenuBar = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
@@ -49,7 +50,7 @@ const MenuBar = () => {
 
   return (
     <>
-      {/* Floating Menu Toggle Button */}
+      {/* Menu Button */}
       <button
         onClick={() => setOpen(!open)}
         aria-label="Toggle Navigation Menu"
@@ -61,7 +62,7 @@ const MenuBar = () => {
         <span className="hamburger-line line-3" />
       </button>
 
-      {/* Minimal Navigation Overlay */}
+      {/* Clean Fullscreen Overlay */}
       <div className={`menu-overlay ${open ? 'is-open' : ''}`}>
         <div className="menu-container">
           <nav className="menu-nav-list" aria-label="Main Navigation">
@@ -72,7 +73,7 @@ const MenuBar = () => {
                 className="menu-nav-item"
               >
                 <span className="menu-num">0{i + 1}</span>
-                <div className="menu-text-group">
+                <div className="menu-text-wrap">
                   <span className="menu-title">{item.label}</span>
                   <span className="menu-sub">{item.sub}</span>
                 </div>
