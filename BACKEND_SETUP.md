@@ -70,11 +70,11 @@ No additional tracked source or UI file met the evidence threshold for safe dele
 ### Automated Firebase and CMS integration tests
 `tests/integration/firebase-emulator.test.mjs` runs real Firestore and Storage rules in Firebase Local Emulator Suite. It tests anonymous, non-admin and admin access; denial of draft reads; published-only queries; CMS create/edit/publish/unpublish/delete; unauthorized writes; deny-by-default paths; storage size, MIME type and restricted uploads.
 
-CI uses Node 22, Java 21, `@firebase/rules-unit-testing@4.0.1` and `firebase-tools@13.35.1` with demo project `demo-bcg-verification`. There are **no production credentials or data writes**. The test dependencies are installed ephemerally without modifying the existing dependency lockfile.
+CI uses Node 22, Java 21, `@firebase/rules-unit-testing@5.0.2` and `firebase-tools@13.35.1` with demo project `demo-bcg-verification`. There are **no production credentials or data writes**. The test dependencies are installed ephemerally without modifying the existing dependency lockfile.
 
 For local execution after `npm ci`:
 ```bash
-npm install --no-save --package-lock=false @firebase/rules-unit-testing@4.0.1
+npm install --no-save --package-lock=false @firebase/rules-unit-testing@5.0.2
 npx --yes firebase-tools@13.35.1 emulators:exec --only firestore,storage --project demo-bcg-verification "node --test tests/integration/*.test.mjs"
 ```
 
