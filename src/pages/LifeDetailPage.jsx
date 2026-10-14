@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import './LifeDetailPage.css';
+import MenuBar from '../components/MenuBar';
+import Footer from '../components/Footer';
 
 const image = 'https://bcg.lk/img/banner1.jpg';
 
@@ -51,18 +53,22 @@ export default function LifeDetailPage({ slug }) {
 
   if (!current) return null;
 
+  const handleMenuNavigation = (event) => {
+    const item = event.target.closest?.(".menu-nav-item");
+    if (!item) return;
+    const label = item.querySelector(".menu-title")?.textContent;
+    const destinations = { Home: "#home", News: "#news", Academics: "#academics", Explore: "#explore", "Extra Curricular": "#extracurricular" };
+    if (destinations[label]) {
+      event.stopPropagation();
+      window.location.assign("/" + destinations[label]);
+    }
+  };
+
   return (
     <main className="life-detail">
       <a className="life-detail-skip" href="#life-detail-main">Skip to content</a>
-      <header className="life-detail-topbar">
-        <a href="/" className="life-detail-brand" aria-label="Bandaranayake College homepage">
-          <span className="life-detail-brand-mark">B</span>
-          <span>BANDARANAYAKE COLLEGE <small>GAMPAHA</small></span>
-        </a>
-        <a className="life-detail-home" href="/#extracurricular">
-          <span aria-hidden="true">←</span> Back to Life as a Nayaken
-        </a>
-      </header>
+      <div onClickCapture={handleMenuNavigation}><MenuBar /></div>
+      <div className="section-container life-detail-return"><a href="/#extracurricular">← Back to Life as a Nayaken</a></div>
 
       <section id="life-detail-main" className="life-detail-intro" aria-labelledby="life-detail-title">
         <p className="life-detail-kicker">EXPERIENCE IT</p>
@@ -71,7 +77,7 @@ export default function LifeDetailPage({ slug }) {
         <p className="life-detail-description">{current.description}</p>
       </section>
 
-      <div className="life-detail-container">
+      <div className="section-container life-detail-container">
         <section className={'life-detail-feature ' + current.accent} aria-label={current.title}>
           <img className="life-detail-feature-image" src={image} alt="Bandaranayake College campus" />
           <div className="life-detail-feature-shade" />
@@ -103,10 +109,7 @@ export default function LifeDetailPage({ slug }) {
           </div>
         </section>
       </div>
-      <footer className="life-detail-footer">
-        <span>Bandaranayake College, Gampaha</span>
-        <a href="/#extracurricular">Return to the College website ↑</a>
-      </footer>
+      <Footer />
     </main>
   );
 }
