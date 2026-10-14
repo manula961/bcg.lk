@@ -21,6 +21,7 @@ import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader,
 } from '../lib/leadershipService';
 import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';
+import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
 import './Admin.css';
 
 const collections = {
@@ -175,6 +176,13 @@ export default function ContentManager({ kind, onDirtyChange }) {
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [drive, setDrive] = useState({ configured: false, connected: false });
+
+  useEffect(() => {
+    let active = true;
+    getDriveStatus().then(status => { if (active) setDrive(status); }).catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -278,6 +286,37 @@ export default function ContentManager({ kind, onDirtyChange }) {
     } finally {
       setUploadingImage(false);
     }
+  }
+
+  async function startDriveConnection() {
+    if (dirty && !window.confirm('Connecting Google Drive reloads the editor. Continue without saving changes?')) return;
+    setNotice(null);
+    try { await connectDrive(); }
+    catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+  }
+
+  async function handleDriveUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || busy || uploadingImage) return;
+    setUploadingImage(true);
+    setNotice(null);
+    try {
+      const url = await uploadDriveImage(file);
+      updateField('imageUrl', url);
+      setNotice({ type: 'success', text: 'Uploaded to Google Drive. Save this record to keep the image URL. Confirm that the image preview loads.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: formatError(error) });
+    } finally { setUploadingImage(false); }
+  }
+
+  async function stopDriveConnection() {
+    if (uploadingImage) return;
+    try {
+      await disconnectDrive();
+      setDrive(previous => ({ ...previous, connected: false }));
+      setNotice({ type: 'success', text: 'Google Drive disconnected in this browser.' });
+    } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
   }
 
   async function save(event) {
@@ -617,6 +656,26 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     </button>
                   )}
                 </label>
+                {field.key === 'imageUrl' && drive.configured && (
+                  <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+                    {drive.connected ? (
+                      <>
+                        <label className="admin-btn-secondary cursor-pointer">
+                          {uploadingImage ? 'Uploading image...' : 'Upload to Google Drive'}
+                          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                            disabled={uploadingImage || busy} onChange={handleDriveUpload}
+                            className="sr-only" aria-label="Upload image to Google Drive" />
+                        </label>
+                        <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
+                          onClick={stopDriveConnection}>Disconnect Drive</button>
+                      </>
+                    ) : (
+                      <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
+                        onClick={startDriveConnection}>Connect Google Drive</button>
+                    )}
+                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • maximum 5 MB</span>
+                  </div>
+                )}
                 {field.key === 'imageUrl' && cloudinaryUploadConfigured && (
                   <div className="md:col-span-2 flex flex-wrap items-center gap-3">
                     <label className="admin-btn-secondary cursor-pointer">
