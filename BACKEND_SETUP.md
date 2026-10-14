@@ -86,3 +86,13 @@ Run the GitHub Actions workflow **BCG.LK Visual Regression** (workflow_dispatch)
 - A project owner still needs to perform staging admin login and full CMS flows against configured Firebase and verify user roles and deployment settings.
 - The visual workflow must be run with baseline and candidate URLs before Rule #1 can be independently signed off.
 - Do not merge into `main` until both automated checks and remaining staging/visual verification pass.
+
+## Societies CMS (2026-10-14)
+
+The existing admin dashboard now includes a Societies section. Admins can add, edit, delete, save drafts, publish, and unpublish a society with the following fields: society name, category, description, HTTPS logo URL, and optional HTTPS external website/social link.
+
+Firestore collection: `societies`. Only records with `published == true` are publicly queried and shown in the existing `/life/societies` page under "College Societies". The admin interface reuses its existing form and list components; no existing CSS was changed. Images are supplied as HTTPS URLs (the admin panel does not upload logo files directly).
+
+Deploy the updated `firestore.rules` **to the correct Firebase project** after review, using `firebase deploy --only firestore:rules`. The new collection is unavailable until the rules are deployed. No production rules have been deployed by this branch.
+
+CI checks admin-only writes, draft confidentiality, public published-only reads, and Societies CRUD in the Firebase emulators. It does not populate production society records. Add profiles through the admin panel once reviewed.

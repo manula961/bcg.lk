@@ -36,7 +36,7 @@ before(async () => {
     await setDoc(doc(context.firestore(), 'news/draft-news'), {
       title: 'Draft', excerpt: 'Private', category: 'News', published: false,
     });
-    for (const name of ['events', 'pages']) {
+    for (const name of ['events', 'pages', 'societies']) {
       await setDoc(doc(context.firestore(), name + '/public-item'), { title: 'Public', published: true });
       await setDoc(doc(context.firestore(), name + '/draft-item'), { title: 'Private', published: false });
     }
@@ -53,7 +53,7 @@ test('only owner can inspect their admin document; nobody can promote themselves
 });
 
 test('public reads are published-only, and unrestricted queries are rejected', async () => {
-  for (const name of ['news', 'events', 'pages']) {
+  for (const name of ['news', 'events', 'pages', 'societies']) {
     const publishedId = name === 'news' ? 'published-news' : 'public-item';
     const draftId = name === 'news' ? 'draft-news' : 'draft-item';
     await assertSucceeds(getDoc(doc(visitor.firestore(), name, publishedId)));

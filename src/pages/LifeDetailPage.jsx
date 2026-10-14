@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import './LifeDetailPage.css';
 import MenuBar from '../components/MenuBar';
 import Footer from '../components/Footer';
+import SocietiesListing from './SocietiesListing';
 
 const image = 'https://bcg.lk/img/banner1.jpg';
 
@@ -162,6 +163,8 @@ export default function LifeDetailPage({ slug }) {
             ))}
           </div>
         </section>
+
+        {slug === 'societies' && <SocietiesListing />}
 
         <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
           <div className="life-detail-section-heading">

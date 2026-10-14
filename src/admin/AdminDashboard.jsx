@@ -29,6 +29,18 @@ const sections = [
     ),
   },
   {
+    id: 'societies',
+    label: 'Societies',
+    description: 'Clubs & student societies',
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="8" cy="8" r="3" />
+        <circle cx="17" cy="9" r="2" />
+        <path d="M2 20v-2a6 6 0 0 1 12 0v2M15 15a5 5 0 0 1 7 5" />
+      </svg>
+    ),
+  },
+  {
     id: 'pages',
     label: 'Pages',
     description: 'Website content',
