@@ -174,3 +174,17 @@
   .life-detail-highlight { min-height: 110px; padding: 22px 16px; }
   .life-detail-story-card { grid-template-columns: 1fr; gap: 12px; }
 }
+
+
+/* Published societies directory: scoped to the new Societies detail page. */
+.life-detail-societies { padding-top: 88px; }
+.life-detail-society-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
+.life-detail-society-card { min-width: 0; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; background: #f7f5f0; padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.life-detail-society-logo { width: 100%; height: 160px; object-fit: contain; border-radius: 10px; background: #fff; }
+.life-detail-society-card h3 { font: 700 20px/1.35 'Geologica', sans-serif; color: #1a1a1a; }
+.life-detail-society-card p { font: 300 13px/1.8 'Geologica', sans-serif; color: #555; white-space: pre-wrap; }
+.life-detail-society-card > a { margin-top: auto; color: #7B1C1C; font: 600 12px/1.6 'Geologica', sans-serif; }
+.life-detail-society-card > a:hover { text-decoration: underline; }
+.life-detail-societies-message { text-align: center; padding: 20px; color: #60636a; font: 400 14px/1.7 'Geologica', sans-serif; }
+@media (max-width: 900px) { .life-detail-society-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .life-detail-societies { padding-top: 64px; } .life-detail-society-grid { grid-template-columns: 1fr; } }
