@@ -673,7 +673,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
                         onClick={startDriveConnection}>Connect Google Drive</button>
                     )}
-                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • maximum 5 MB</span>
+                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • maximum 4 MB</span>
                   </div>
                 )}
                 {field.key === 'imageUrl' && cloudinaryUploadConfigured && (
