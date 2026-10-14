@@ -148,10 +148,6 @@
 }
 
 .event-row:hover .event-date-block {
-<<<<<<< Updated upstream
-=======
-  /* Dynamically overridden via inline style --hover-color in JSX */
->>>>>>> Stashed changes
   background: var(--hover-color, #7b1c1c) !important;
   transition-delay: 0s !important;
 }
