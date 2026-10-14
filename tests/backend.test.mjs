@@ -13,7 +13,7 @@ test('Firestore denies unknown paths and protects administrator records', () => 
 
 test('Firestore content writes require administrator authorization', () => {
   const rules = read('firestore.rules');
-  for (const name of ['news', 'events', 'pages']) {
+  for (const name of ['news', 'events', 'pages', 'societies']) {
     assert.match(rules, new RegExp('match /' + name + '/\\{id\\} \\{[\\s\\S]*?allow create, update, delete: if isAdmin\\(\\);'));
   }
 });
