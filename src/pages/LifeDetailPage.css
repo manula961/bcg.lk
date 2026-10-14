@@ -347,57 +347,87 @@
 
 .life-detail-society-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
 }
 
 .life-detail-society-card {
   min-width: 0;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  background: #f7f5f0;
+  background: #ffffff;
   padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.life-detail-society-card:hover {
+  transition-delay: 0s !important;
+  border-color: rgba(123, 28, 28, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-6px);
+}
+
+.life-detail-society-logo-wrap {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #faf8f5;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  overflow: hidden;
 }
 
 .life-detail-society-logo {
-  width: 100%;
-  height: 160px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  border-radius: 10px;
-  background: #ffffff;
 }
 
 .life-detail-society-card h3 {
-  font-family: 'Google Sans Flex', sans-serif;
-  font-size: 1.25rem;
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #1a1a1a;
-  line-height: 1.35;
+  line-height: 1.3;
+  margin: 0;
 }
 
 .life-detail-society-card p {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.825rem;
+  font-size: 0.875rem;
   font-weight: 300;
   color: #555555;
-  line-height: 1.8;
+  line-height: 1.7;
   white-space: pre-wrap;
+  margin: 0;
 }
 
-.life-detail-society-card > a {
+.life-detail-society-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: auto;
+  padding-top: 8px;
   color: #7B1C1C;
   font-family: 'Geologica', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
-  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: gap 0.25s ease, color 0.25s ease;
 }
 
-.life-detail-society-card > a:hover {
-  text-decoration: underline;
+.life-detail-society-link:hover {
+  color: #1a3a6b;
+  gap: 10px;
 }
 
 .life-detail-societies-message {
@@ -553,8 +583,7 @@
   .life-detail-top-wrapper {
     padding-top: 20px;
   }
-  .life-detail-grid,
-  .life-detail-society-grid {
+  .life-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .life-detail-highlights {
@@ -581,7 +610,7 @@
   .life-detail-grid,
   .life-detail-society-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
   .life-detail-highlight {
     min-height: 110px;
@@ -599,7 +628,6 @@
   .life-detail-societies {
     padding-top: 62px;
   }
-
   .life-detail-kicker{
     letter-spacing: 0.1rem;
   }
@@ -609,7 +637,8 @@
   .life-detail-card,
   .life-detail-card > img,
   .life-detail-story-card,
-  .life-detail-highlight {
+  .life-detail-highlight,
+  .life-detail-society-card {
     transition: none;
     letter-spacing: normal;
   }

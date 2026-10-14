@@ -64,7 +64,6 @@ const NewsSection = () => {
     return () => unsubscribe();
   }, []);
 
-  // Handle document-level mouse up to release drag cleanly
   useEffect(() => {
     const handleGlobalMouseUp = () => {
       if (isMouseDown.current) {
@@ -252,13 +251,26 @@ const NewsSection = () => {
                 <div className="news-card-content">
                   <div>
                     <div className="news-card-meta">
-                      {post.category} {post.date ? `   ${post.date}` : ""}
+                      {post.category} {post.date ? ` • ${post.date}` : ""}
                     </div>
                     <h3 className="news-card-title">{post.title}</h3>
                     <p className="news-card-excerpt">{post.excerpt}</p>
                   </div>
                   <span className="news-card-link">
-                    Read Story <span aria-hidden="true"> </span>
+                    Read More
+                    <svg
+                      className="news-card-link-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
                   </span>
                 </div>
               </div>
@@ -276,6 +288,7 @@ const NewsSection = () => {
           </div>
         </div>
       </div>
+
       {/* Article Reader Modal */}
       {selectedPost && (
         <div
@@ -293,7 +306,7 @@ const NewsSection = () => {
               onClick={() => setSelectedPost(null)}
               aria-label="Close article"
             >
-              
+              ✕
             </button>
             {selectedPost.image && (
               <img

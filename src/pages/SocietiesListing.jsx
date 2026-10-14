@@ -26,20 +26,36 @@ export default function SocietiesListing() {
         <h2 id="societies-directory-title">COLLEGE SOCIETIES</h2>
         <p className="life-detail-description">Discover the societies published by the college administration.</p>
       </div>
+
       {error && <p role="alert" className="life-detail-societies-message">{error}</p>}
       {!error && items.length === 0 && (
         <p className="life-detail-societies-message">Society profiles will appear here when published.</p>
       )}
+
       <div className="life-detail-society-grid">
         {items.map(item => (
           <article key={item.id} className="life-detail-society-card">
-            {item.imageUrl && <img src={item.imageUrl} alt={item.title + ' logo'} loading="lazy" className="life-detail-society-logo" />}
+            {item.imageUrl && (
+              <div className="life-detail-society-logo-wrap">
+                <img src={item.imageUrl} alt={item.title + ' logo'} loading="lazy" className="life-detail-society-logo" />
+              </div>
+            )}
             {item.category && <span className="life-detail-feature-label">{item.category}</span>}
             <h3>{item.title}</h3>
-            <p>{item.description}</p>
+            {item.description && <p>{item.description}</p>}
             {item.websiteUrl && (
-              <a href={item.websiteUrl} target="_blank" rel="noopener noreferrer" aria-label={'Visit ' + item.title + ' website'}>
-                Visit society ↗
+              <a
+                href={item.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="life-detail-society-link"
+                aria-label={'Visit ' + item.title + ' website'}
+              >
+                <span>Visit society</span>
+                <svg className="return-arrow-icon" style={{ transform: 'rotate(135deg)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12 19 5 12 12 5" />
+                </svg>
               </a>
             )}
           </article>

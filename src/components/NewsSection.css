@@ -307,20 +307,30 @@ h3.news-card-title {
 
 .news-card-link {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.725rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: #c9a84c;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: gap 0.2s ease, color 0.2s ease;
+  transition: gap 0.25s ease, color 0.25s ease;
+}
+
+.news-card-link-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s ease;
 }
 
 .news-card:hover .news-card-link {
   gap: 10px;
   color: #ffffff;
+}
+
+.news-card:hover .news-card-link-icon {
+  transform: translateX(3px);
 }
 
 .news-dots-container {

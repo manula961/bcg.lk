@@ -13,6 +13,7 @@ export default function SchoolContentListing({ kind }) {
   const config = directory[kind];
   const [records, setRecords] = useState([]);
   const [error, setError] = useState('');
+
   useEffect(() => {
     let unsubscribe = () => {};
     try {
@@ -40,15 +41,19 @@ export default function SchoolContentListing({ kind }) {
         <h2 id={'directory-' + kind}>{config.title}</h2>
         <p className="life-detail-description">{config.intro}</p>
       </div>
+
       {error && <p role="alert" className="life-detail-societies-message">{error}</p>}
       {!error && sorted.length === 0 && (
         <p className="life-detail-societies-message">Profiles will appear here when published.</p>
       )}
+
       <div className="life-detail-society-grid">
         {sorted.map(item => (
           <article key={item.id} className="life-detail-society-card">
             {item.imageUrl && (
-              <img src={item.imageUrl} alt={kind === 'leadership' ? item.title : ''} loading="lazy" className="life-detail-society-logo" />
+              <div className="life-detail-society-logo-wrap">
+                <img src={item.imageUrl} alt={kind === 'leadership' ? item.title : ''} loading="lazy" className="life-detail-society-logo" />
+              </div>
             )}
             {(kind === 'leadership' ? item.role : item.category) && (
               <span className="life-detail-feature-label">{kind === 'leadership' ? item.role : item.category}</span>
