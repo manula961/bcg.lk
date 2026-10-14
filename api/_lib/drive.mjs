@@ -136,9 +136,17 @@ export async function readImage(req) {
     bytes.push(chunk);
   }
   if(size===0) throw Object.assign(new Error('Empty image'),{status:400});
+  const data=Buffer.concat(bytes);
+  const isJpeg=data.length>=3 && data[0]===0xff && data[1]===0xd8 && data[2]===0xff;
+  const isPng=data.length>=8 && data.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
+  const isGif=data.length>=6 && ['GIF87a','GIF89a'].includes(data.toString('ascii',0,6));
+  const isWebp=data.length>=12 && data.toString('ascii',0,4)==='RIFF' && data.toString('ascii',8,12)==='WEBP';
+  if (!({ 'image/jpeg':isJpeg,'image/png':isPng,'image/gif':isGif,'image/webp':isWebp })[type]) {
+    throw Object.assign(new Error('The file content does not match the selected image format'),{status:400});
+  }
   const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'};
   const name='bcg-'+randomUUID()+'.'+extensions[type];
-  return {type,name,bytes:Buffer.concat(bytes)};
+  return {type,name,bytes:data};
 }
 export async function driveUpload(token,file) {
   const boundary='bcg_'+randomBytes(12).toString('hex');
