@@ -12,7 +12,7 @@ test('public CMS subscriptions restrict queries to published content', () => {
 });
 
 test('all three CMS services expose their public and admin operations', () => {
-  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society']]) {
+  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society'], ['sports', 'Sport'], ['extracurricular', 'Activity'], ['leadership', 'Leader']]) {
     const service = source('src/lib/' + name + 'Service.js');
     assert.match(service, new RegExp("createContentRepository\\('" + name + "'"));
     for (const action of ['create', 'update', 'delete']) {
@@ -32,13 +32,16 @@ test('admin console verifies the role before displaying the dashboard', () => {
 
 test('admin CMS uses the shared services for news, events and pages', () => {
   const manager = source('src/admin/ContentManager.jsx');
-  for (const type of ['News', 'Events', 'Pages', 'Societies']) {
+  for (const type of ['News', 'Events', 'Pages', 'Societies', 'Sports', 'Extracurricular', 'Leadership']) {
     assert.ok(manager.includes("from '../lib/" + type.toLowerCase() + "Service'"));
   }
   assert.match(manager, /subscribeAdminNews/);
   assert.match(manager, /subscribeAdminEvents/);
   assert.match(manager, /subscribeAdminPages/);
   assert.match(manager, /subscribeAdminSocieties/);
+  assert.match(manager, /subscribeAdminSports/);
+  assert.match(manager, /subscribeAdminExtracurricular/);
+  assert.match(manager, /subscribeAdminLeadership/);
 });
 
 test('page IDs remain stable slugs and content writes include server timestamps', () => {
