@@ -3,6 +3,7 @@ import './LifeDetailPage.css';
 import MenuBar from '../components/MenuBar';
 import Footer from '../components/Footer';
 import SocietiesListing from './SocietiesListing';
+import SchoolContentListing from './SchoolContentListing';
 
 const image = 'https://bcg.lk/img/banner1.jpg';
 
@@ -198,6 +199,9 @@ export default function LifeDetailPage({ slug }) {
 
             {/* Render Societies Directory if active tab is societies */}
             {slug === 'societies' && <SocietiesListing />}
+            {slug === 'societies' && <SchoolContentListing kind="extracurricular" />}
+            {slug === 'sports-athletics' && <SchoolContentListing kind="sports" />}
+            {slug === 'leadership' && <SchoolContentListing kind="leadership" />}
 
             {/* Explore More Cards Section */}
             <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
