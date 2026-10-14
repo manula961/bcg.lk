@@ -22,12 +22,12 @@ const LoadingAnimation = ({ onComplete }) => {
     gsap.set(yearRef.current, { opacity: 0, scale: 0.8 });
     gsap.set(progressBarRef.current, { scaleX: 0 });
 
-    // Main Timeline (Animation sequences updated for the larger logo)
+    // Main Timeline (Accelerated)
     tl.to(logoWrapperRef.current, {
       scale: 1,
       opacity: 1,
       y: 0,
-      duration: 1.2,
+      duration: 0.6,
       ease: 'power3.out',
     })
       .to(
@@ -35,11 +35,11 @@ const LoadingAnimation = ({ onComplete }) => {
         {
           y: 0,
           opacity: 1,
-          duration: 0.8,
-          stagger: 0.03,
+          duration: 0.4,
+          stagger: 0.015,
           ease: 'back.out(1.7)',
         },
-        '-=0.7'
+        '-=0.35'
       )
       .to(
         subtitleRef.current,
@@ -47,63 +47,63 @@ const LoadingAnimation = ({ onComplete }) => {
           opacity: 1,
           y: 0,
           letterSpacing: '0.5em',
-          duration: 0.8,
+          duration: 0.4,
           ease: 'power2.out',
         },
-        '-=0.4'
+        '-=0.2'
       )
       .to(
         yearRef.current,
         {
           opacity: 1,
           scale: 1,
-          duration: 0.6,
+          duration: 0.3,
           ease: 'power2.out',
         },
-        '-=0.4'
+        '-=0.2'
       )
-      // Progress Bar Animation
+      // Progress Bar Animation (Faster)
       .to(progressBarRef.current, {
         scaleX: 1,
-        duration: 1.2,
+        duration: 0.6,
         ease: 'power1.inOut',
       })
-      .to({}, { duration: 0.4 }) // Short Pause
+      .to({}, { duration: 0.15 }) // Shorter Pause
       // Fade/Exit Content
       .to([logoWrapperRef.current, yearRef.current], {
         scale: 0.8,
         opacity: 0,
-        duration: 0.5,
+        duration: 0.3,
         ease: 'power2.in',
       })
       .to(
         [titleLettersRef.current, subtitleRef.current],
         {
-          y: -30,
+          y: -20,
           opacity: 0,
-          duration: 0.4,
-          stagger: 0.01,
+          duration: 0.25,
+          stagger: 0.008,
           ease: 'power2.in',
         },
-        '-=0.4'
+        '-=0.2'
       )
-      // Luxury Curtain Split Reveal (Left & Right)
+      // Luxury Curtain Split Reveal (Faster)
       .to(leftCurtainRef.current, {
         xPercent: -100,
-        duration: 1,
+        duration: 0.6,
         ease: 'power4.inOut',
       })
       .to(
         rightCurtainRef.current,
         {
           xPercent: 100,
-          duration: 1,
+          duration: 0.6,
           ease: 'power4.inOut',
           onComplete: () => {
             if (onComplete) onComplete();
           },
         },
-        '-=1'
+        '-=0.6'
       );
 
     return () => {
@@ -121,7 +121,7 @@ const LoadingAnimation = ({ onComplete }) => {
 
       {/* Center Content */}
       <div className="center-content">
-        {/* Logo (Dotted outer ring completely removed, logo container expanded) */}
+        {/* Logo */}
         <div className="logo-wrapper">
           <div ref={logoWrapperRef} className="logo-container">
             <img
