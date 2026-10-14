@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
 
 export const cookies = { state: 'bcg_drive_oauth', session: 'bcg_drive_session' };
-const maximumBytes = 5 * 1024 * 1024;
+const maximumBytes = 4 * 1024 * 1024;
 const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
 export function configured() {
@@ -132,7 +132,7 @@ export async function readImage(req) {
   let size=0;
   for await(const chunk of req) {
     size+=chunk.length;
-    if(size>maximumBytes) throw Object.assign(new Error('Image exceeds 5 MB'),{status:413});
+    if(size>maximumBytes) throw Object.assign(new Error('Image exceeds 4 MB'),{status:413});
     bytes.push(chunk);
   }
   if(size===0) throw Object.assign(new Error('Empty image'),{status:400});
