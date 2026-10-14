@@ -8,18 +8,18 @@ function toNewsCard(post) {
     date instanceof Date && !Number.isNaN(date.getTime())
       ? date.toLocaleDateString("en-US", {
           year: "numeric",
-          month: "long",
+          month: "short",
           day: "numeric",
         })
       : "";
   return {
     id: post.id,
     category: post.category === "Announcements" ? "Announcements" : "News",
-    title: post.title || "",
-    excerpt: post.excerpt || "",
+    title: post.title || "Untitled Post",
+    excerpt: post.excerpt || "No summary available for this post.",
     date: formattedDate,
     image: post.imageUrl || "",
-    tag: post.tag || "",
+    tag: post.tag || post.category || "General",
   };
 }
 
@@ -34,7 +34,10 @@ const NewsSection = () => {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.05,
+        rootMargin: '0px 0px -10% 0px' 
+      }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -61,69 +64,63 @@ const NewsSection = () => {
 
   return (
     <section id="news" ref={sectionRef} className="news-section">
-      {/* Background texture */}
       <div className="news-bg-texture" />
       <div className="news-container">
-        {/* Top Header & Horizontal Filters Bar */}
-        <div
-          className={`news-header-container ${
-            visible ? "news-header-visible" : "news-header-init"
-          }`}
-        >
-          {/* Header Title */}
-          <div>
-            <div className="news-subtitle">Nayakenz</div>
-            <h2 className="news-title">LATEST UPDATES</h2>
-            <div className="events-divider-wrap">
-              <div className="news-divider-maroon" />
-              <div className="news-divider-blue" />
+        <div className={`news-content-group ${visible ? 'visible' : ''}`}>
+          <div className="news-header-container">
+            <div>
+              <div className="news-subtitle">Nayakenz</div>
+              <h2 className="news-title">Latest Updates</h2>
+              <div className="events-divider-wrap">
+                <div className="news-divider-maroon" />
+                <div className="news-divider-blue" />
+              </div>
+            </div>
+
+            <div className="news-filters">
+              {filters.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={`filter-btn ${activeFilter === f ? "active" : ""}`}
+                >
+                  {f}
+                </button>
+              ))}
             </div>
           </div>
-          {/* Horizontal Filter Buttons */}
-          <div className="news-filters">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`filter-btn ${activeFilter === f ? "active" : ""}`}
-              >
-                {f}
-              </button>
+
+          <div className="news-grid">
+            {filtered.map((post) => (
+              <div key={post.id} className="news-card">
+                {post.image ? (
+                  <div
+                    className="news-card-image-wrap"
+                    style={{ backgroundImage: `url(${post.image})` }}
+                  >
+                    <div className="news-card-image-overlay" />
+                    <div className="news-card-tag">{post.tag}</div>
+                  </div>
+                ) : (
+                  <div className="news-card-image-wrap" style={{ height: "70px" }}>
+                    <div className="news-card-tag">{post.tag}</div>
+                  </div>
+                )}
+                <div className="news-card-content">
+                  <div>
+                    <div className="news-card-meta">
+                      {post.category} {post.date ? ` • ${post.date}` : ""}
+                    </div>
+                    <h3 className="news-card-title">{post.title}</h3>
+                    <p className="news-card-excerpt">{post.excerpt}</p>
+                  </div>
+                  <span className="news-card-link">
+                    Read More <span>→</span>
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* Horizontal Card Grid with Vertical Content Layout */}
-        <div className="news-grid">
-          {filtered.map((post, i) => (
-            <div
-              key={post.id}
-              className={`news-card ${
-                visible ? "news-card-visible" : "news-card-init"
-              }`}
-              style={{ transitionDelay: `${i * 0.12}s` }}
-            >
-              {/* Top Image */}
-              <div
-                className="news-card-image-wrap"
-                style={{ backgroundImage: `url(${post.image})` }}
-              >
-                <div className="news-card-image-overlay" />
-                <div className="news-card-tag">{post.tag}</div>
-              </div>
-              {/* Bottom Vertical Content */}
-              <div className="news-card-content">
-                <div>
-                  <div className="news-card-meta">
-                    {post.category} • {post.date}
-                  </div>
-                  <h3 className="news-card-title">{post.title}</h3>
-                  <p className="news-card-excerpt">{post.excerpt}</p>
-                </div>
-                <span className="news-card-link">Read More →</span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </section>
