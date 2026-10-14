@@ -38,3 +38,29 @@ Keep `main` unchanged while working on `backend-updates`. Review the diff for mo
 
 ### Cleanup decision
 No additional tracked source or UI file met the evidence threshold for safe deletion. Preserve application components, assets, Firebase rules, dependency lockfile and CI workflows. Do not delete the older uploaded ZIP's `dist/` or `node_modules/` from Git because they are not verified tracked files in the live branch.
+
+## Four-phase readiness review — 2026-10-14
+
+### Phase 1: Firebase authorization and access control
+- Reviewed `src/admin/AdminApp.jsx`, `firestore.rules`, `storage.rules`, and the shared content repository. The admin screen checks `admins/{uid}.role == admin`; Firestore rules enforce admin-only writes and restrict public content reads to published documents.
+- Storage allows public read access under `public/` and admin-only writes to supported image MIME types under 10 MiB. MIME declarations alone do not validate file contents.
+- Added source-level CMS contract regression tests. These **do not** simulate Firebase rule execution. Before production, verify anonymous/authenticated/admin reads and writes against Firebase Emulator Suite and confirm the deployed rules match the repo. Create a test-only admin account and test: anonymous published reads; draft denial; non-admin write denial; admin CRUD; non-admin storage upload denial; admin image upload and size/content-type limits.
+- Review Firebase Auth email enumeration protection, authorized domains, MFA for privileged users, and admin membership provisioning from a trusted console. These account/project settings cannot be confirmed from Git source alone.
+
+### Phase 2: News, Events, Pages CMS
+- Source review confirms all three services have published and admin subscriptions, create/update/delete operations, validation and server timestamps. The admin interface connects these services to existing CMS screens.
+- Test actual login, create, edit, publish, unpublish, delete, refresh and cross-browser behavior in a staging Firebase project. No test content was written to production.
+- Pages CMS stores entries in Firestore; creating a page does not by itself create a new public route. Public News and Events already subscribe to published content through the existing sections.
+
+### Phase 3: Rule #1 UI preservation
+- No existing JSX, CSS, fonts, images, or layout files were modified by this phase of work.
+- `scripts/verify-no-ui-changes.mjs` blocks modified UI and asset paths for backend PRs; `tests/cms-contracts.test.mjs` adds static CMS contract checks.
+- Visual regression **not yet verified**. To finish, capture matching desktop and mobile screenshots of baseline `main` and the new Vercel preview with matching viewport/data and compare hero, menus, News, Events, admin, mobile and animation behavior. Do not approve a visual change automatically.
+
+### Phase 4: Deployment and operations
+- CI runs `npm ci`, Node tests and Vite production build. Backend-only PRs additionally block UI-file diffs. Verify PR checks and Vercel deployments before merging.
+- Verify all six `VITE_FIREBASE_*` values exist for appropriate Vercel Preview and Production environments. These are public web-app identifiers, not service-account secrets.
+- Confirm authorized domains, safe deployment previews, a tested recovery procedure, Firestore export/restore, audit logging, and administrator offboarding procedures. These require project-owner access and are not proven by GitHub checks.
+- Outstanding no-UI-change decisions: CSS font-import warnings, unresolved favicon reference, and placeholder navigation links. Altering their presentation or behavior requires explicit approval under Rule #1.
+
+**Release gate:** Automated tests and Vercel build must pass, then emulator security tests and visual comparison must be completed before treating all four phases as fully production-verified. Do not merge or deploy Firebase rules automatically without reviewed results.
