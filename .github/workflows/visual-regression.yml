@@ -1,0 +1,40 @@
+name: BCG.LK Visual Regression
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_url:
+        description: "Approved main deployment URL (must be reachable by GitHub Actions)"
+        required: true
+        type: string
+      candidate_url:
+        description: "Candidate preview URL (must be reachable by GitHub Actions)"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save --package-lock=false playwright@1.56.1 pixelmatch@6.0.0 pngjs@7.0.0
+      - run: npx playwright install --with-deps chromium
+      - name: Compare original and preview rendering
+        env:
+          VISUAL_BASELINE_URL: ${{ inputs.baseline_url }}
+          VISUAL_CANDIDATE_URL: ${{ inputs.candidate_url }}
+          VISUAL_MAX_DIFFERENCE: '0.005'
+        run: node tests/visual/compare.mjs
+      - name: Upload screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-evidence
+          path: artifacts/visual/
+          if-no-files-found: warn
