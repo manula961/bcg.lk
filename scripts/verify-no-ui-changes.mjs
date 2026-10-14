@@ -59,10 +59,6 @@ for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.js
   if (path.endsWith('AdminDashboard.jsx')) {
     normalized = normalized.replace(/  \{\n    id: 'sports',[\s\S]*?\n  \},\n(?=  \{\n    id: 'pages')/, '');
   } else {
-    normalized = normalized.replace(/import \{\n  subscribeAdminSports,[\s\S]*?\} from '\.\.\/lib\/leadershipService';\n/, '');
-    normalized = normalized.replace(/  sports: \{\n[\s\S]*?\n  \},\n(?=  pages: \{)/, '');
-    normalized = normalized.replace("if (['events', 'societies', 'sports', 'extracurricular', 'leadership'].includes(kind))", "if (kind === 'events' || kind === 'societies')");
-    normalized = normalized.replace('item.excerpt, item.description, item.websiteUrl, item.role, item.achievements,', 'item.excerpt, item.description, item.websiteUrl,');
 
     // Undo only the approved Cloudinary upload control, then compare with main.
     normalized = normalized.replace("import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';\n", '');
