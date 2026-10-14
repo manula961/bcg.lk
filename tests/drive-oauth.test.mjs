@@ -48,11 +48,14 @@ test('OAuth uses drive.file, offline consent, state, PKCE and an exact redirect'
 });
 
 test('server validates media types and rejects oversized input', async () => {
-  const good=Readable.from([Buffer.from('image')]);
+  const good=Readable.from([Buffer.from([137,80,78,71,13,10,26,10])]);
   good.headers={'content-type':'image/png'};
   const img=await readImage(good);
   assert.equal(img.type,'image/png');
   assert.match(img.name,/^bcg-[a-f0-9-]+\.png$/);
+  const forged=Readable.from([Buffer.from('not-a-real-png')]);
+  forged.headers={'content-type':'image/png'};
+  await assert.rejects(()=>readImage(forged),/does not match/);
   const forbidden=Readable.from([Buffer.from('file')]);
   forbidden.headers={'content-type':'text/html'};
   await assert.rejects(()=>readImage(forbidden));
