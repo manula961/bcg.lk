@@ -73,7 +73,7 @@ test('admin client never receives or saves refresh tokens', async () => {
   const {readFileSync}=await import('node:fs');
   const source=readFileSync(new URL('../src/lib/googleDriveUpload.js',import.meta.url),'utf8');
   const manager=readFileSync(new URL('../src/admin/ContentManager.jsx',import.meta.url),'utf8');
-  assert.match(source,/currentUser\.getIdToken\(\)/);
+  assert.match(source,/user\.getIdToken\(\)/);
   assert.match(source,/\/api\/drive\/upload/);
   assert.match(source,/\/api\/drive\/connect/);
   assert.doesNotMatch(source,/refresh_token|client_secret|googleapis\.com/);
