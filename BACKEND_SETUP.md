@@ -121,3 +121,26 @@ The admin editor keeps the existing HTTPS image URL input for every content type
 **Security warning:** An unsigned upload preset is a public capability; the preset identifier can be discovered by any browser user or from network traffic. The fact that the Upload button is inside a Firebase-admin-authenticated UI does **not** make the Cloudinary upload endpoint admin-only. The client-side file limits can be bypassed by a direct API caller. Restrict the preset, monitor quota, rotate/disable it if abused, and prefer a signed server-side upload endpoint with Firebase token verification for stronger security. Never put a Cloudinary API secret in a `VITE_*` variable, in Git, or in browser code. Uploaded media and the Firestore record are separate; deleting a record does not delete the Cloudinary asset. Avoid uploading private staff photos before appropriate permission.
 
 No Firebase Storage billing is needed for this path. Cloudinary plan limits and terms may apply; inspect current pricing before production use.
+
+## Google Drive OAuth image uploads — separate from the ChatGPT Drive connection
+
+### Configuration (Vercel server environment)
+1. Create a Google Cloud project, enable the Google Drive API, and configure the OAuth consent screen. Google may require consent-screen app verification depending on users and scopes.
+2. Create a Google OAuth Web application client. Register EXACTLY https://bcglk.devoraid.com/api/drive/callback as its authorized redirect URI. For preview testing, register the exact preview callback instead, with matching environment variables.
+3. Configure GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REDIRECT_URI, DRIVE_COOKIE_ENCRYPTION_KEY, FIREBASE_PROJECT_ID, and FIREBASE_WEB_API_KEY on the Vercel project. Generate DRIVE_COOKIE_ENCRYPTION_KEY using openssl rand -hex 32. Store secrets in Vercel only, never in GitHub or browser-visible VITE_ variables.
+4. GOOGLE_DRIVE_FOLDER_ID is optional. The connected Google account must have authorized the target folder with the limited drive.file OAuth scope; arbitrary existing folders may not work. By default uploads go to Drive root.
+5. Redeploy preview. Sign into BCG.LK admin with a verified admin account. Use Connect Google Drive beside an image field; after Google consent, upload an image and save the record.
+
+### Security and operational boundaries
+- The server validates a Firebase ID token against Firebase Auth and confirms the UID has the admin role in Firestore. UI visibility alone is not authorization.
+- The server alone exchanges OAuth codes and refreshes Google access tokens. It encrypts refresh tokens with AES-256-GCM and stores ciphertext as an HttpOnly, Secure, SameSite=Lax browser cookie, tied to the admin UID and expiring after 30 days. No Google refresh token is exposed to React. Each browser must connect separately.
+- OAuth uses PKCE, a 10-minute state, exact HTTPS redirect URI, and same-origin verification for mutating endpoints. The scope is drive.file, not full-Drive access.
+- Disconnect clears the encrypted token cookie in the current browser. It does NOT revoke OAuth access or delete uploaded Drive assets. Revoke access separately through the Google account if required.
+- The server limits uploaded requests to 4 MiB and JPEG, PNG, WebP or GIF MIME types. MIME checking alone does not guarantee genuine image bytes. Vercel/Google quotas still apply.
+- Uploads are shared publicly (anyone with link, reader) for public website images. Never upload confidential images or unapproved staff/student photos: an uploaded image is public even while its CMS record is a draft.
+- The CMS stores a Google Drive thumbnail URL. Google Drive is not a dedicated image CDN and thumbnail embedding can fail or be rate-limited. Verify anonymous desktop/mobile rendering and long-term reliability before production approval; if unreliable choose dedicated image hosting.
+- Vercel functions require GOOGLE_OAUTH_REDIRECT_URI to match the origin used by the browser. Configure preview and production separately; do not share OAuth cookies across different domains.
+
+### Required verification
+Run npm test, npm run build, Firebase Emulator security tests, and the UI-preservation guard. Then test OAuth consent, valid/invalid admin roles, CSRF rejection, actual image upload, 4-MiB rejection, previews, public display, logout/disconnect, and visual regression against the existing admin design. The Google Drive plugin connected to ChatGPT is a separate connection from the website's Google OAuth app.
+Nothing is deployed to production or connected to a production Google account by adding code to this branch.
