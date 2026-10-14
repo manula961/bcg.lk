@@ -1,3 +1,4 @@
+
 /* Menu Toggle Floating Button */
 .menu-toggle-btn {
   position: fixed;
@@ -132,12 +133,14 @@
 }
 
 .menu-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Google Sans Flex', sans-serif;
   font-size: clamp(1.4rem, 3.2vw, 2.2rem);
   font-weight: 700;
   color: #ffffff;
   transition: color 0.3s ease;
   line-height: 1;
+  /* text-transform: uppercase; */
+  letter-spacing: -0.01em;
 }
 
 .menu-nav-item:hover .menu-title {

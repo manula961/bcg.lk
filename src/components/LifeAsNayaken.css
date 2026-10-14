@@ -27,15 +27,16 @@
   color: #7B1C1C;
   text-transform: uppercase;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .life-title {
-  font-family: 'Cinzel', serif;
+  font-family: 'Google Sans Flex', sans-serif;
   font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 900;
+  font-weight: 800;
   color: #1a1a1a;
   line-height: 1.1;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
   margin-bottom: 16px;
 }
 
@@ -141,12 +142,13 @@
 }
 
 .bento-title {
-  font-family: 'Geologica', sans-serif !important;
+  font-family: 'Google Sans Flex', sans-serif !important;
   font-size: clamp(1.25rem, 2vw, 1.6rem);
   font-weight: 700;
   color: #ffffff;
   line-height: 1.25;
   margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
 
 .bento-desc {
@@ -223,11 +225,12 @@
 }
 
 .stat-value {
-  font-family: 'Geologica', sans-serif !important;
+  font-family: 'Google Sans Flex', sans-serif !important;
   font-size: clamp(2.2rem, 4vw, 3.2rem);
   font-weight: 800;
   line-height: 1;
   margin-bottom: 8px;
+  letter-spacing: -0.02em;
 }
 
 .stat-card.maroon .stat-value {
@@ -244,6 +247,7 @@
   letter-spacing: 0.2em;
   color: rgba(0, 0, 0, 0.6);
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 /* Responsive Grid Adjustments */

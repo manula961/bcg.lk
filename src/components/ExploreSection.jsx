@@ -42,7 +42,6 @@ const ExploreSection = () => {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Intersection observer to trigger visibility animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -54,13 +53,12 @@ const ExploreSection = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Automatic slide transition timer (every 4 seconds)
   useEffect(() => {
     if (!visible || isPaused) return;
 
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
-    }, 4000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [visible, isPaused]);
@@ -74,19 +72,16 @@ const ExploreSection = () => {
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="section-container">
-        {/* Header */}
         <div className={`explore-header ${visible ? 'visible' : ''}`}>
           <div className="explore-subtitle">Discover BCG</div>
-          <h2 className="explore-title">EXPLORE THE SCHOOL</h2>
+          <h2 className="explore-title">Explore The School</h2>
           <div className="explore-divider-wrap">
             <div className="explore-divider-maroon" />
             <div className="explore-divider-blue" />
           </div>
         </div>
 
-        {/* Main layout: tabs, display */}
         <div className={`explore-grid ${visible ? 'visible' : ''}`}>
-          {/* Left: place list */}
           <div className="explore-tabs-list">
             {places.map((place, i) => (
               <button
@@ -100,7 +95,6 @@ const ExploreSection = () => {
             ))}
           </div>
 
-          {/* Right: featured display */}
           <div className="explore-display-card">
             <img
               key={active}

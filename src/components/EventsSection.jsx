@@ -54,17 +54,15 @@ const EventsSection = () => {
       <div className="events-bg-overlay" />
       <div className="events-watermark">1918</div>
       <div className="events-container">
-        {/* Header */}
         <div className={`events-header ${visible ? 'visible' : ''}`}>
           <div className="events-subtitle">Mark Your Calendar</div>
-          <h2 className="events-title">LATEST EVENTS</h2>
+          <h2 className="events-title">Latest Events</h2>
           <div className="events-divider-wrap">
             <div className="events-divider-maroon" />
             <div className="events-divider-blue" />
           </div>
         </div>
 
-        {/* Events list */}
         <div className="events-list">
           {events.map((event, i) => (
             <div
@@ -75,7 +73,6 @@ const EventsSection = () => {
                 '--hover-color': event.color,
               }}
             >
-              {/* Date Badge */}
               <div className="event-date-block">
                 <div className="event-month" style={{ color: event.color }}>
                   {event.month}
@@ -83,7 +80,6 @@ const EventsSection = () => {
                 <div className="event-day">{event.day}</div>
               </div>
 
-              {/* Content */}
               <div className="event-content">
                 <h3 className="event-item-title">{event.title}</h3>
                 <p className="event-desc">{event.desc}</p>
@@ -104,7 +100,6 @@ const EventsSection = () => {
                 </div>
               </div>
 
-              {/* Action SVG Arrow */}
               <div className="event-arrow-circle">
                 <svg
                   className="arrow-icon"
@@ -123,7 +118,6 @@ const EventsSection = () => {
           ))}
         </div>
 
-        {/* View all button */}
         <div className={`events-action ${visible ? 'visible' : ''}`}>
           <button className="events-btn">
             View All Events

@@ -29,7 +29,7 @@ const LifeAsNayaken = () => {
         {/* Header */}
         <div className={`life-header ${visible ? 'visible' : ''}`}>
           <div className="life-subtitle">Experience It</div>
-          <h2 className="life-title">LIFE AS A NAYAKEN</h2>
+          <h2 className="life-title">Life As A Nayaken</h2>
           <p className="life-desc">
             Every day at Bandaranayake College is a new chapter shaped by learning, sport, art, and the unbreakable bond of brotherhood.
           </p>
