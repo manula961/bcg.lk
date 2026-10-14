@@ -8,6 +8,9 @@ import {
 import {
   subscribeAdminPages, createPage, updatePage, deletePage,
 } from '../lib/pagesService';
+import {
+  subscribeAdminSocieties, createSociety, updateSociety, deleteSociety,
+} from '../lib/societiesService';
 import './Admin.css';
 
 const collections = {
@@ -38,6 +41,20 @@ const collections = {
       { key: 'location', label: 'Location / venue', required: true, maxLength: 200, placeholder: 'e.g. Main Hall, BCG' },
       { key: 'description', label: 'Event description', type: 'textarea', rows: 7, maxLength: 3000, required: true, wide: true },
       { key: 'imageUrl', label: 'Event image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/photo.jpg', wide: true },
+    ],
+  },
+  societies: {
+    title: 'College Societies',
+    singular: 'society',
+    description: 'Add society names, descriptions and logo URLs, then publish them on the Societies page.',
+    subscribe: subscribeAdminSocieties, create: createSociety, update: updateSociety, remove: deleteSociety,
+    defaults: { title: '', category: '', description: '', imageUrl: '', websiteUrl: '', published: false },
+    fields: [
+      { key: 'title', label: 'Society name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Computer Society' },
+      { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Science & Technology' },
+      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 5, maxLength: 1200, wide: true },
+      { key: 'imageUrl', label: 'Society logo URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/society-logo.png', help: 'Paste an HTTPS image URL. The existing preview shows the logo before publishing.' },
+      { key: 'websiteUrl', label: 'Society website or social link', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com' },
     ],
   },
   pages: {
@@ -72,7 +89,7 @@ function displayDate(record) {
 
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
-  if (kind === 'events') return item.description || '';
+  if (kind === 'events' || kind === 'societies') return item.description || '';
   return item.seoDescription || item.slug || '';
 }
 
@@ -159,7 +176,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
       if (!term) return true;
       return [
         item.title, item.slug, item.category, item.location, item.eventDate,
-        item.excerpt, item.description,
+        item.excerpt, item.description, item.websiteUrl,
       ].some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term));
     });
   }, [items, search, status]);

@@ -8,7 +8,7 @@ const changed = output.split(/\r?\n/).filter(Boolean);
 // New detail pages can be added. Existing component/CSS/UI assets are protected.
 const protectedPaths = changed.filter(path => {
   if (/^src\/pages\//.test(path)) return false;
-  if (path === 'src/main.jsx' || path === 'src/components/LifeAsNayaken.jsx') return false; // checked byte-for-byte below
+  if (['src/main.jsx', 'src/components/LifeAsNayaken.jsx', 'src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.jsx'].includes(path)) return false; // checked byte-for-byte below
   return /^src\/components\//.test(path) ||
     /^src\/admin\/.*\.(?:jsx|css)$/.test(path) ||
     /^src\/(?:App\.jsx|index\.css)$/.test(path) ||
@@ -47,6 +47,23 @@ if (changed.includes('src/components/LifeAsNayaken.jsx')) {
     normalized = normalized.replace(markup, '<div className="bento-card card-' + i + '">');
   }
   if (normalized !== original) protectedPaths.push('src/components/LifeAsNayaken.jsx (unapproved UI change)');
+}
+
+
+// Societies may be added to existing admin configuration only; all original markup must remain byte-exact.
+for (const path of ['src/admin/AdminDashboard.jsx', 'src/admin/ContentManager.jsx']) {
+  if (!changed.includes(path)) continue;
+  const original = execFileSync('git', ['show', 'origin/' + base + ':' + path], { encoding: 'utf8' });
+  let normalized = readFileSync(path, 'utf8');
+  if (path.endsWith('AdminDashboard.jsx')) {
+    normalized = normalized.replace(/  \{\n    id: 'societies',[\s\S]*?\n  \},\n(?=  \{\n    id: 'pages')/, '');
+  } else {
+    normalized = normalized.replace("import {\n  subscribeAdminSocieties, createSociety, updateSociety, deleteSociety,\n} from '../lib/societiesService';\n", '');
+    normalized = normalized.replace(/  societies: \{\n[\s\S]*?\n  \},\n(?=  pages: \{)/, '');
+    normalized = normalized.replace("if (kind === 'events' || kind === 'societies')", "if (kind === 'events')");
+    normalized = normalized.replace('item.excerpt, item.description, item.websiteUrl,', 'item.excerpt, item.description,');
+  }
+  if (normalized !== original) protectedPaths.push(path + ' (changes beyond the approved societies configuration)');
 }
 
 if (protectedPaths.length) {
