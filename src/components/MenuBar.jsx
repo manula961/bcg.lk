@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './MenuBar.css';
 
 const menuItems = [
-  { label: 'Home', href: '#home', sub: 'Welcome to BCG' },
-  { label: 'News', href: '#news', sub: 'Latest Updates & Events' },
-  { label: 'Academics', href: '#academics', sub: 'Excellence in Education' },
-  { label: 'Explore', href: '#explore', sub: 'Discover Our School' },
-  { label: 'Extra Curricular', href: '#extracurricular', sub: 'Beyond the Classroom' },
+  { label: 'home', href: '#home', sub: 'Welcome to BCG' },
+  { label: 'news', href: '#news', sub: 'Latest Updates & Events' },
+  { label: 'academics', href: '#academics', sub: 'Excellence in Education' },
+  { label: 'explore', href: '#explore', sub: 'Discover Our School' },
+  { label: 'extra curricular', href: '#extracurricular', sub: 'Beyond the Classroom' },
 ];
 
 const MenuBar = () => {

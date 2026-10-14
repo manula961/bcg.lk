@@ -62,7 +62,7 @@
 }
 
 .events-subtitle {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Geologica', sans-serif;
   font-size: 0.7rem;
   letter-spacing: 0.35em;
   color: #7b1c1c;
@@ -153,7 +153,7 @@
 }
 
 .event-month {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Geologica', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -206,7 +206,7 @@ h3.event-item-title {
 }
 
 .event-location {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Geologica', sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -272,9 +272,9 @@ h3.event-item-title {
   border-radius: 16px;
   background: transparent;
   color: #7b1c1c;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Geologica', sans-serif;
   font-size: 0.78rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s ease;
