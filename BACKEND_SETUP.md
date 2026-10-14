@@ -64,3 +64,25 @@ No additional tracked source or UI file met the evidence threshold for safe dele
 - Outstanding no-UI-change decisions: CSS font-import warnings, unresolved favicon reference, and placeholder navigation links. Altering their presentation or behavior requires explicit approval under Rule #1.
 
 **Release gate:** Automated tests and Vercel build must pass, then emulator security tests and visual comparison must be completed before treating all four phases as fully production-verified. Do not merge or deploy Firebase rules automatically without reviewed results.
+
+## Executable verification — Firebase Emulators, CMS, visual regression
+
+### Automated Firebase and CMS integration tests
+`tests/integration/firebase-emulator.test.mjs` runs real Firestore and Storage rules in Firebase Local Emulator Suite. It tests anonymous, non-admin and admin access; denial of draft reads; published-only queries; CMS create/edit/publish/unpublish/delete; unauthorized writes; deny-by-default paths; storage size, MIME type and restricted uploads.
+
+CI uses Node 22, Java 21, `@firebase/rules-unit-testing@4.0.1` and `firebase-tools@13.35.1` with demo project `demo-bcg-verification`. There are **no production credentials or data writes**. The test dependencies are installed ephemerally without modifying the existing dependency lockfile.
+
+For local execution after `npm ci`:
+```bash
+npm install --no-save --package-lock=false @firebase/rules-unit-testing@4.0.1
+npx --yes firebase-tools@13.35.1 emulators:exec --only firestore,storage --project demo-bcg-verification "node --test tests/integration/*.test.mjs"
+```
+
+### Manual visual regression workflow
+Run the GitHub Actions workflow **BCG.LK Visual Regression** (workflow_dispatch) with an approved main deployment as `baseline_url` and the candidate preview as `candidate_url`, both publicly reachable from GitHub Actions. The browser loads public `/` and admin `/admin` on desktop (1440x900) and mobile (390x844), saves baseline/candidate/diff PNGs as build artifacts, and fails if more than 0.5% of pixels differ. Matching dynamic content, login/session state, fonts, and access controls is required for meaningful results. It does **not** bypass Vercel deployment protection or auto-approve visual differences.
+
+### Production sign-off
+- CI passing verifies emulator rules and documented CMS integration behaviors, but **does not** cover every production Auth/Storage configuration or real admin browser interactions.
+- A project owner still needs to perform staging admin login and full CMS flows against configured Firebase and verify user roles and deployment settings.
+- The visual workflow must be run with baseline and candidate URLs before Rule #1 can be independently signed off.
+- Do not merge into `main` until both automated checks and remaining staging/visual verification pass.
