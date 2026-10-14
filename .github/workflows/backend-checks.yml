@@ -11,10 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
+      - name: Confirm no UI files changed
+        if: github.event_name == 'pull_request'
+        run: node scripts/verify-no-ui-changes.mjs
       - run: npm ci
       - run: npm run test
       - run: npm run build
