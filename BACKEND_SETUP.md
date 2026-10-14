@@ -11,7 +11,7 @@ This branch uses Firebase Authentication, Firestore, and Firebase Storage.
 
 ## Current limitations
 - News has Firestore-backed publishing and a management form.
-- Events on the public page are currently hardcoded; Events and Pages admin views are placeholders.
+- The current main branch supplies Firestore-backed News, Events, and Pages admin management. Confirm public event/page publishing behavior before production release.
 - Do not alter the existing UI to implement these features without explicit permission.
 - The automated checks are static configuration assertions plus a Vite build, **not** Firebase emulator authorization tests.
 - Verify published/draft access, admin authorization, image upload limits, and deployment configuration in a Firebase emulator or test project before production release.
