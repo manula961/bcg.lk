@@ -17,14 +17,15 @@ const LifeAsNayaken = () => {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { 
-        threshold: 0.05,
-        rootMargin: '0px 0px -10% 0px' 
-      }
+      { threshold: 0.05, rootMargin: '0px 0px -10% 0px' }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleNavigate = (path) => {
+    window.location.assign(path);
+  };
 
   return (
     <section id="extracurricular" ref={sectionRef} className="life-section">
@@ -43,19 +44,22 @@ const LifeAsNayaken = () => {
               className="bento-card card-1"
               role="link"
               tabIndex={0}
-              aria-label="Open academic excellence page"
-              onClick={() => window.location.assign('/life/academic-excellence')}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') window.location.assign('/life/academic-excellence');
+              aria-label="Open Academic Excellence details page"
+              onClick={() => handleNavigate('/life/academic-excellence')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/academic-excellence');
+                }
               }}
             >
               <img
                 src="https://bcg.lk/img/banner1.jpg"
-                alt="Academic Excellence"
+                alt=""
                 className="bento-bg-img"
               />
               <div className="bento-overlay" />
-              <div className="bento-arrow">
+              <div className="bento-arrow" aria-hidden="true">
                 <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -73,19 +77,22 @@ const LifeAsNayaken = () => {
               className="bento-card card-2"
               role="link"
               tabIndex={0}
-              aria-label="Open sports athletics page"
-              onClick={() => window.location.assign('/life/sports-athletics')}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') window.location.assign('/life/sports-athletics');
+              aria-label="Open Sports and Athletics details page"
+              onClick={() => handleNavigate('/life/sports-athletics')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/sports-athletics');
+                }
               }}
             >
               <img
                 src="https://bcg.lk/img/banner1.jpg"
-                alt="Sports and Athletics"
+                alt=""
                 className="bento-bg-img"
               />
               <div className="bento-overlay" />
-              <div className="bento-arrow">
+              <div className="bento-arrow" aria-hidden="true">
                 <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -103,19 +110,22 @@ const LifeAsNayaken = () => {
               className="bento-card card-3"
               role="link"
               tabIndex={0}
-              aria-label="Open societies page"
-              onClick={() => window.location.assign('/life/societies')}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') window.location.assign('/life/societies');
+              aria-label="Open Societies details page"
+              onClick={() => handleNavigate('/life/societies')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/societies');
+                }
               }}
             >
               <img
                 src="https://bcg.lk/img/banner1.jpg"
-                alt="Societies"
+                alt=""
                 className="bento-bg-img"
               />
               <div className="bento-overlay" />
-              <div className="bento-arrow">
+              <div className="bento-arrow" aria-hidden="true">
                 <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -131,19 +141,22 @@ const LifeAsNayaken = () => {
               className="bento-card card-4"
               role="link"
               tabIndex={0}
-              aria-label="Open leadership page"
-              onClick={() => window.location.assign('/life/leadership')}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') window.location.assign('/life/leadership');
+              aria-label="Open Leadership details page"
+              onClick={() => handleNavigate('/life/leadership')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/leadership');
+                }
               }}
             >
               <img
                 src="https://bcg.lk/img/banner1.jpg"
-                alt="Leadership"
+                alt=""
                 className="bento-bg-img"
               />
               <div className="bento-overlay" />
-              <div className="bento-arrow">
+              <div className="bento-arrow" aria-hidden="true">
                 <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

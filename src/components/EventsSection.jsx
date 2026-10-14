@@ -8,11 +8,11 @@ function toEventCard(event) {
   const monthIndex = date ? Number(date[1]) - 1 : -1;
   return {
     id: event.id,
-    month: months[monthIndex] || "",
-    day: date ? date[2] : "",
-    title: event.title || "",
-    desc: event.description || "",
-    location: event.location || "",
+    month: months[monthIndex] || "UPCOMING",
+    day: date ? date[2] : "—",
+    title: event.title || "College Event",
+    desc: event.description || "Event details will be announced soon.",
+    location: event.location || "Main Hall",
     color: event.color || "#7B1C1C",
   };
 }
@@ -29,10 +29,7 @@ const EventsSection = () => {
           setVisible(true);
         }
       },
-      { 
-        threshold: 0.05,
-        rootMargin: '0px 0px -10% 0px' // Triggers early as section hits lower viewport
-      }
+      { threshold: 0.05, rootMargin: '0px 0px -10% 0px' }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -51,6 +48,13 @@ const EventsSection = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleViewAllEvents = () => {
+    const eventsElement = document.getElementById('events');
+    if (eventsElement) {
+      eventsElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="events" ref={sectionRef} className="events-section">
       <div className="events-bg-overlay" />
@@ -65,59 +69,71 @@ const EventsSection = () => {
               <div className="events-divider-blue" />
             </div>
           </div>
-
+          
           <div className="events-list">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className="event-row"
-                style={{ '--hover-color': event.color }}
-              >
-                <div className="event-date-block">
-                  <div className="event-month" style={{ color: event.color }}>
-                    {event.month}
+            {events.length === 0 ? (
+              <p className="events-empty-msg">No scheduled public events at this time.</p>
+            ) : (
+              events.map((event) => (
+                <div
+                  key={event.id}
+                  className="event-row"
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Event: ${event.title} on ${event.month} ${event.day} at ${event.location}`}
+                  style={{ '--hover-color': event.color }}
+                >
+                  <div className="event-date-block">
+                    <div className="event-month" style={{ color: event.color }}>
+                      {event.month}
+                    </div>
+                    <div className="event-day">{event.day}</div>
                   </div>
-                  <div className="event-day">{event.day}</div>
-                </div>
-                <div className="event-content">
-                  <h3 className="event-item-title">{event.title}</h3>
-                  <p className="event-desc">{event.desc}</p>
-                  <div className="event-location" style={{ color: event.color }}>
+                  <div className="event-content">
+                    <h3 className="event-item-title">{event.title}</h3>
+                    <p className="event-desc">{event.desc}</p>
+                    <div className="event-location" style={{ color: event.color }}>
+                      <svg
+                        className="location-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      {event.location}
+                    </div>
+                  </div>
+                  <div className="event-arrow-circle" aria-hidden="true">
                     <svg
-                      className="location-icon"
+                      className="arrow-icon"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="1.8"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                      <circle cx="12" cy="10" r="3" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
                     </svg>
-                    {event.location}
                   </div>
                 </div>
-                <div className="event-arrow-circle">
-                  <svg
-                    className="arrow-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="events-action">
-            <button className="events-btn">
+            <button
+              className="events-btn"
+              onClick={handleViewAllEvents}
+              aria-label="View all college events"
+            >
               View All Events
               <svg
                 className="btn-arrow-icon"
@@ -127,6 +143,7 @@ const EventsSection = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
