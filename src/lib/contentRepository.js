@@ -126,7 +126,7 @@ function documents(snapshot, publishedOnly = false) {
  * because Firestore Security Rules are not automatic query filters.
  */
 export function createContentRepository(name, fields, options = {}) {
-  if (!['news', 'events', 'pages', 'societies'].includes(name)) throw new TypeError('Unsupported collection.');
+  if (!['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership'].includes(name)) throw new TypeError('Unsupported collection.');
   const records = () => collection(database(), name);
   const record = id => doc(database(), name, documentId(id));
   const publishedQuery = () => query(records(), where('published', '==', true));
