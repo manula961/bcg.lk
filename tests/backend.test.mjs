@@ -31,3 +31,25 @@ test('Firebase credentials are loaded from environment, not embedded in source',
     assert.ok(source.includes('import.meta.env.VITE_FIREBASE_' + key));
   }
 });
+
+// Prevent previously committed conflict markers from breaking production builds.
+test('source files must not contain unresolved Git conflict markers', async () => {
+  const { readdirSync, readFileSync, statSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const root = new URL('../src/', import.meta.url);
+  const conflicts = [];
+  function visit(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const location = join(dir, entry.name);
+      if (entry.isDirectory()) visit(location);
+      else if (entry.isFile() && /\\.(?:js|jsx|ts|tsx|css|json)$/.test(entry.name)) {
+        const content = readFileSync(location, 'utf8');
+        content.split(/\\r?\\n/).forEach((line, index) => {
+          if (/^(?:<{7}|={7}|>{7})(?: |$)/.test(line)) conflicts.push(location + ':' + (index + 1));
+        });
+      }
+    }
+  }
+  visit(root.pathname);
+  assert.deepEqual(conflicts, [], 'Unresolved merge markers detected in: ' + conflicts.join(', '));
+});
