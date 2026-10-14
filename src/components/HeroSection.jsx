@@ -64,7 +64,7 @@ const HeroSection = () => {
     <section
       id="home"
       ref={heroRef}
-      className="hero-section relative flex flex-col items-center justify-center h-screen overflow-hidden text-center will-change-transform"
+      className="hero-section relative flex flex-col items-center justify-center h-[100dvh] min-h-[100dvh] overflow-hidden text-center will-change-transform"
     >
       <div className="relative z-10 flex flex-col items-center px-4 -mt-12 md:-mt-16">
         {/* Logo */}

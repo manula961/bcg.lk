@@ -16,6 +16,8 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  height: 100dvh;
+  min-height: 100dvh;
 }
 
 /* Hidden Initial State for Stagger Fade-In Animations */
@@ -35,10 +37,11 @@
   margin-bottom: 5px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 648px) {
   .motto-container {
     font-size: 1.25rem;
     gap: 0.5rem;
+    margin-top: -80px;
   }
 }
 
