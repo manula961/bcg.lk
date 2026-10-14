@@ -42,3 +42,37 @@ test('detail pages reuse the original homepage navigation, footer and layout con
   assert.match(source, /<Footer \/>/);
   assert.match(source, /section-container life-detail-container/);
 });
+
+
+test('each detail page contains three substantive editorial sections with source links', () => {
+  const pages = read('src/pages/LifeDetailPage.jsx');
+  for (const heading of [
+    'Pathways for every ambition',
+    'Excellence in national examinations',
+    'Learning through discovery',
+    'Four houses, one college spirit',
+    'A record across many sports',
+    'Developing character through competition',
+    'The sound of tradition',
+    'Performance and artistic expression',
+    'Student creativity and communication',
+    'Leadership through service',
+    'A tradition of recognition',
+    'Growing together as Nayakenz',
+  ]) assert.ok(pages.includes("heading: '" + heading + "'"), 'Missing editorial section: ' + heading);
+  assert.match(pages, /current\.sections\.map/);
+  assert.match(pages, /current\.highlights\.map/);
+  assert.match(pages, /href=\{section\.source\}/);
+  assert.match(pages, /rel="noopener noreferrer"/);
+});
+
+test('college-specific claims link back to traceable sources', () => {
+  const pages = read('src/pages/LifeDetailPage.jsx');
+  for (const source of [
+    'https://bcg.lk/about_us',
+    'https://bcg.lk/sports_achievements',
+    'https://bcg.lk/cadet_band_eastern',
+    'https://bcg.lk/clubs_societies',
+    'https://bcss.lk/',
+  ]) assert.ok(pages.includes(source), 'Missing evidence: ' + source);
+});
