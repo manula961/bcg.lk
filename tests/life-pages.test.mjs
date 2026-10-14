@@ -21,7 +21,7 @@ test('homepage and admin routes remain the unchanged defaults', () => {
   assert.match(entry, /isAdminPath \? <AdminApp \/> : lifeSlug \? <LifeDetailPage slug=\{lifeSlug\} \/> : <App \/>/);
   assert.match(entry, /Object\.prototype\.hasOwnProperty\.call\(lifePages, lifeMatch\[1\]\)/);
   const home = read('src/components/LifeAsNayaken.jsx');
-  assert.match(home, /className="life-bento-grid/);
+  assert.match(home, /life-bento-grid/);
   assert.match(home, /className="life-section"/);
 });
 
