@@ -133,6 +133,7 @@ export default function LifeDetailPage({ slug }) {
           </div>
         </section>
 
+        {slug !== 'societies' && (
         <section className="life-detail-story" aria-labelledby="life-detail-story-title">
           <div className="life-detail-section-heading">
             <p className="life-detail-kicker">DISCOVER THE STORY</p>
@@ -163,6 +164,7 @@ export default function LifeDetailPage({ slug }) {
             ))}
           </div>
         </section>
+        )}
 
         {slug === 'societies' && <SocietiesListing />}
 
