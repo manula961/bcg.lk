@@ -1,7 +1,7 @@
 import { auth } from './firebase';
 
 const supported = new Set(['image/jpeg','image/png','image/webp','image/gif']);
-const limit = 5 * 1024 * 1024;
+const limit = 4 * 1024 * 1024;
 
 async function authorized(path, options = {}) {
   const user = auth?.currentUser;
@@ -31,7 +31,7 @@ export async function disconnectDrive() {
 }
 export async function uploadDriveImage(file) {
   if (!(file instanceof File) || !supported.has(file.type)) throw new Error('Choose a JPG, PNG, WebP or GIF image');
-  if (!file.size || file.size > limit) throw new Error('Image must be smaller than 5 MB');
+  if (!file.size || file.size > limit) throw new Error('Image must be smaller than 4 MB');
   const result = await authorized('/api/drive/upload', {
     method:'POST',headers:{'Content-Type':file.type},body:file,
   });
