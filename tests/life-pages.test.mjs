@@ -13,7 +13,7 @@ test('four Life as a Nayaken detail pages have stable paths and source-based tit
     assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
   }
   assert.match(pages, /href=\{'\/life\/' \+ key\}/);
-  assert.match(pages, /href="\/#extracurricular"/);
+  assert.match(pages, /href="\/" onClick=\{handleBackToHome\}/);
 });
 
 test('homepage and admin routes remain the unchanged defaults', () => {
