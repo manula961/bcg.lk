@@ -3,6 +3,7 @@ import './MenuBar.css';
 
 const menuItems = [
   { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
+  { label: 'About Us', href: '/about-us', isRoute: true, sub: 'Our History & Mission' },
   { label: 'News', href: 'news', sub: 'Latest Updates & Announcements' },
   { label: 'Events', href: 'events', sub: 'Upcoming Events Calendar' },
   { label: 'Explore', href: 'explore', sub: 'Discover Our Campus' },
@@ -24,13 +25,11 @@ const MenuBar = () => {
         ticking = true;
       }
     };
-
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && open) {
         setOpen(false);
       }
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -39,13 +38,18 @@ const MenuBar = () => {
     };
   }, [open]);
 
-  const handleNav = (sectionId) => {
+  const handleNav = (item) => {
     setOpen(false);
-    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
 
+    if (item.isRoute) {
+      window.location.assign(item.href);
+      return;
+    }
+
+    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
     if (isHomePage) {
       setTimeout(() => {
-        const el = document.getElementById(sectionId);
+        const el = document.getElementById(item.href);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth' });
         }
@@ -55,7 +59,7 @@ const MenuBar = () => {
       }, 300);
     } else {
       sessionStorage.setItem('skipLoading', 'true');
-      sessionStorage.setItem('scrollToSection', sectionId);
+      sessionStorage.setItem('scrollToSection', item.href);
       window.location.assign('/');
     }
   };
@@ -78,7 +82,7 @@ const MenuBar = () => {
             {menuItems.map((item, i) => (
               <button
                 key={item.label}
-                onClick={() => handleNav(item.href)}
+                onClick={() => handleNav(item)}
                 className="menu-nav-item"
               >
                 <span className="menu-num">0{i + 1}</span>

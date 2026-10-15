@@ -1,0 +1,558 @@
+/* About Us Page Layout */
+.about-page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #1a1a1a;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.about-top-wrapper {
+  padding-top: clamp(20px, 4vw, 40px);
+}
+
+.about-page a {
+  text-decoration: none;
+}
+
+.about-skip {
+  position: absolute;
+  left: 12px;
+  top: -80px;
+  z-index: 50;
+  padding: 12px 20px;
+  background: #C9A84C;
+  color: #000000;
+  font-family: 'Geologica', sans-serif;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: top 0.2s ease;
+}
+
+.about-skip:focus {
+  top: 12px;
+}
+
+/* Return Link */
+.about-return {
+  padding-top: 10px;
+  margin-bottom: clamp(16px, 3vw, 24px);
+}
+
+.about-return-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #7B1C1C;
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.75rem, 1.2vw, 0.85rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.25s ease, transform 0.25s ease;
+  width: fit-content;
+}
+
+.about-return-btn:hover {
+  color: #1a3a6b;
+}
+
+.about-return-btn:hover .return-arrow-icon {
+  transform: translateX(-4px);
+}
+
+/* Header Section */
+.about-intro {
+  text-align: center;
+  padding: 12px clamp(16px, 4vw, 32px) clamp(28px, 4vw, 40px);
+}
+
+.about-kicker {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.68rem, 1vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #7B1C1C;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.about-intro h1 {
+  margin: 0 auto 12px;
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.about-description {
+  max-width: 680px;
+  margin: 0 auto;
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  font-weight: 300;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.8;
+}
+
+.about-container {
+  padding-bottom: clamp(60px, 10vw, 120px);
+}
+
+/* Vision & Mission Grid */
+.about-vm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 3vw, 28px);
+  margin-bottom: clamp(20px, 3.5vw, 28px);
+}
+
+.about-vm-card {
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #faf8f5;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.about-vm-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(123, 28, 28, 0.25);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+}
+
+.about-vm-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.about-vm-tag {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.68rem, 1vw, 0.75rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #7B1C1C;
+}
+
+.about-vm-card.mission .about-vm-tag {
+  color: #1a3a6b;
+}
+
+.about-vm-card h3 {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.about-vm-card p {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.88rem, 1.2vw, 0.95rem);
+  font-weight: 300;
+  color: #555555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Compact School Anthem Audio Bar */
+.anthem-player-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 28px);
+  padding: 14px clamp(20px, 3vw, 28px);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #faf8f5;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.025);
+  margin-bottom: clamp(24px, 4vw, 36px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.anthem-player-card:hover {
+  border-color: rgba(123, 28, 28, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.anthem-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.anthem-player-tag {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #7B1C1C;
+  text-transform: uppercase;
+}
+
+.anthem-player-title {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.anthem-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  max-width: 560px;
+  background: #ffffff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.anthem-play-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #7B1C1C;
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(123, 28, 28, 0.25);
+}
+
+.anthem-play-btn:hover {
+  background: #5a1212;
+  transform: scale(1.05);
+  box-shadow: 0 4px 14px rgba(123, 28, 28, 0.35);
+}
+
+.anthem-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.anthem-time-text {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666666;
+  min-width: 32px;
+  text-align: center;
+}
+
+.anthem-seekbar {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: height 0.15s ease;
+}
+
+.anthem-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #7B1C1C;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.anthem-seekbar::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.anthem-seekbar::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #7B1C1C;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.anthem-seekbar::-moz-range-thumb:hover {
+  transform: scale(1.25);
+}
+
+/* Feature Banner */
+.about-feature {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(320px, 42vh, 480px);
+  padding: clamp(20px, 5vw, 60px);
+  overflow: hidden;
+  border-radius: clamp(14px, 2vw, 24px);
+  background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+.about-feature-image,
+.about-feature-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.about-feature-image {
+  object-fit: cover;
+  opacity: 0.3;
+}
+
+.about-feature-shade {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.25) 100%);
+}
+
+.about-feature-body {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+}
+
+.about-feature-label {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.62rem, 0.9vw, 0.72rem);
+  letter-spacing: 0.12em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.about-feature h2 {
+  margin: clamp(8px, 1.5vw, 14px) 0;
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.about-feature p {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.75;
+}
+
+/* Highlights */
+.about-story {
+  padding-top: clamp(48px, 8vw, 100px);
+}
+
+.about-section-heading {
+  text-align: center;
+  padding-bottom: clamp(24px, 4vw, 40px);
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.about-section-heading h2 {
+  margin-top: 8px;
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(1.6rem, 3.8vw, 3rem);
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.15;
+}
+
+.about-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2.5vw, 24px);
+  margin: clamp(24px, 4vw, 40px) 0;
+}
+
+.about-highlight {
+  background: #f7f5f0;
+  border-top: 3px solid #7B1C1C;
+  border-radius: 16px;
+  padding: clamp(18px, 3vw, 28px) clamp(12px, 2vw, 20px);
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-highlight:hover {
+  background: #f0ece1;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.about-highlight:nth-child(even) {
+  border-top-color: #1a3a6b;
+}
+
+.about-highlight strong {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-weight: 800;
+  color: #7B1C1C;
+  line-height: 1.1;
+}
+
+.about-highlight:nth-child(even) strong {
+  color: #1a3a6b;
+}
+
+.about-highlight span {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.68rem, 1vw, 0.78rem);
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.65);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Stories Cards */
+.about-stories {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
+  margin-top: clamp(24px, 4vw, 48px);
+}
+
+.about-story-card {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 28px);
+  align-items: start;
+  padding: clamp(20px, 3.5vw, 40px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.035);
+  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.about-story-card:hover {
+  border-color: rgba(123, 28, 28, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.about-story-number {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  font-weight: 700;
+  color: #C9A84C;
+  line-height: 1;
+}
+
+.about-story-card h3 {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.about-story-card p {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.85rem, 1.1vw, 0.92rem);
+  font-weight: 300;
+  color: #60636a;
+  line-height: 1.8;
+  max-width: 830px;
+}
+
+.about-timeline-section {
+  padding-top: clamp(48px, 8vw, 100px);
+}
+
+.about-content-group {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.about-content-group.visible {
+  opacity: 1;
+  transform: translateY(0) !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 860px) {
+  .about-vm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .anthem-player-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  .anthem-controls-row {
+    max-width: 100%;
+    padding: 8px 12px;
+  }
+  .about-highlights {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .about-story-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 580px) {
+  .about-intro {
+    padding: 16px 12px 28px;
+  }
+  .about-feature {
+    min-height: 280px;
+    padding: 20px;
+  }
+  .about-highlight {
+    min-height: 100px;
+    padding: 16px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-story-card,
+  .about-highlight,
+  .about-content-group,
+  .about-vm-card,
+  .anthem-player-card {
+    transition: none !important;
+  }
+}

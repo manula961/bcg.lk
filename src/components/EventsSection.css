@@ -62,7 +62,7 @@
 .events-subtitle {
   font-family: 'Geologica', sans-serif;
   font-size: 0.7rem;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.1em;
   color: #7b1c1c;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -207,7 +207,7 @@ h3.event-item-title {
 .event-location {
   font-family: 'Geologica', sans-serif;
   font-size: 0.68rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   display: flex;
   align-items: center;

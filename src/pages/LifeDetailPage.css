@@ -4,11 +4,11 @@
   background: #ffffff;
   color: #1a1a1a;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .life-detail-top-wrapper {
-  padding-top: 40px;
+  padding-top: clamp(20px, 4vw, 40px);
 }
 
 .life-detail a {
@@ -36,7 +36,7 @@
 /* Back Link Button */
 .life-detail-return {
   padding-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: clamp(16px, 3vw, 24px);
 }
 
 .life-detail-return-btn {
@@ -45,7 +45,7 @@
   gap: 8px;
   color: #7B1C1C;
   font-family: 'Geologica', sans-serif;
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 1.2vw, 0.85rem);
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -54,8 +54,8 @@
 }
 
 .return-arrow-icon {
-  width: 16px;
-  height: 16px;
+  width: clamp(14px, 1.5vw, 18px);
+  height: clamp(14px, 1.5vw, 18px);
   stroke: currentColor;
   transition: transform 0.25s ease;
 }
@@ -78,13 +78,13 @@
 /* Page Hero Intro */
 .life-detail-intro {
   text-align: center;
-  padding: 12px 24px 50px;
+  padding: 12px clamp(16px, 4vw, 32px) clamp(32px, 5vw, 50px);
 }
 
 .life-detail-kicker {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.3em;
+  font-size: clamp(0.68rem, 1vw, 0.75rem);
+  letter-spacing: 0.18em;
   color: #7B1C1C;
   text-transform: uppercase;
   font-weight: 600;
@@ -93,7 +93,7 @@
 
 .life-detail-eyebrow {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.7rem;
+  font-size: clamp(0.65rem, 0.9vw, 0.72rem);
   letter-spacing: 0.25em;
   color: #a38229;
   text-transform: uppercase;
@@ -102,9 +102,9 @@
 }
 
 .life-detail-intro h1 {
-  margin: 16px auto 20px;
+  margin: clamp(10px, 2vw, 16px) auto clamp(12px, 2vw, 20px);
   font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  font-size: clamp(2rem, 5.5vw, 4.2rem);
   font-weight: 800;
   color: #1a1a1a;
   line-height: 1.1;
@@ -115,14 +115,14 @@
   max-width: 660px;
   margin: 0 auto;
   font-family: 'Geologica', sans-serif;
-  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
   font-weight: 300;
   color: rgba(0, 0, 0, 0.65);
   line-height: 1.8;
 }
 
 .life-detail-container {
-  padding-bottom: 120px;
+  padding-bottom: clamp(60px, 10vw, 120px);
 }
 
 /* Main Feature Card */
@@ -131,10 +131,10 @@
   isolation: isolate;
   display: flex;
   align-items: flex-end;
-  min-height: 440px;
-  padding: clamp(28px, 5vw, 60px);
+  min-height: clamp(300px, 40vh, 460px);
+  padding: clamp(20px, 5vw, 60px);
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: clamp(14px, 2vw, 24px);
   background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
 }
@@ -157,7 +157,7 @@
 }
 
 .life-detail-feature-shade {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 100%);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.25) 100%);
 }
 
 .life-detail-feature-body {
@@ -169,17 +169,17 @@
 .life-detail-feature-label,
 .life-detail-card-label {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  font-size: clamp(0.62rem, 0.9vw, 0.72rem);
+  letter-spacing: 0.12em;
   color: #C9A84C;
   text-transform: uppercase;
   font-weight: 600;
 }
 
 .life-detail-feature h2 {
-  margin: 12px 0;
+  margin: clamp(8px, 1.5vw, 14px) 0;
   font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
   font-weight: 700;
   color: #ffffff;
   line-height: 1.2;
@@ -187,9 +187,9 @@
 
 .life-detail-feature p {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   line-height: 1.75;
 }
 
@@ -197,20 +197,20 @@
 .life-detail-highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  margin: 32px 0 40px;
+  gap: clamp(12px, 2.5vw, 24px);
+  margin: clamp(24px, 4vw, 40px) 0;
 }
 
 .life-detail-highlight {
   background: #f7f5f0;
   border-top: 3px solid #7B1C1C;
   border-radius: 16px;
-  padding: 28px 20px;
-  min-height: 140px;
+  padding: clamp(18px, 3vw, 28px) clamp(12px, 2vw, 20px);
+  min-height: 130px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
@@ -228,7 +228,7 @@
 
 .life-detail-highlight strong {
   font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
   font-weight: 800;
   color: #7B1C1C;
   line-height: 1.1;
@@ -240,29 +240,29 @@
 
 .life-detail-highlight span {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: rgba(0, 0, 0, 0.6);
+  font-size: clamp(0.68rem, 1vw, 0.78rem);
+  letter-spacing: 0.06em;
+  color: rgba(0, 0, 0, 0.65);
   text-transform: uppercase;
   font-weight: 500;
 }
 
-/* Editorial Story Cards */
+/* Editorial Story Section */
 .life-detail-story {
-  padding-top: 100px;
+  padding-top: clamp(48px, 8vw, 100px);
 }
 
 .life-detail-section-heading {
   text-align: center;
-  padding-bottom: 40px;
+  padding-bottom: clamp(24px, 4vw, 40px);
   max-width: 780px;
   margin: 0 auto;
 }
 
 .life-detail-section-heading h2 {
-  margin-top: 10px;
+  margin-top: 8px;
   font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(1.8rem, 3.8vw, 3rem);
+  font-size: clamp(1.6rem, 3.8vw, 3rem);
   font-weight: 800;
   color: #1a1a1a;
   line-height: 1.15;
@@ -271,15 +271,15 @@
 
 .life-detail-stories {
   display: grid;
-  gap: 20px;
+  gap: clamp(14px, 2vw, 24px);
 }
 
 .life-detail-story-card {
   display: grid;
-  grid-template-columns: 70px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: 60px minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 28px);
   align-items: start;
-  padding: clamp(24px, 4vw, 40px);
+  padding: clamp(20px, 3.5vw, 40px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   background: #ffffff;
@@ -296,7 +296,7 @@
 
 .life-detail-story-number {
   font-family: 'Geologica', sans-serif;
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
   font-weight: 700;
   color: #C9A84C;
   line-height: 1;
@@ -304,151 +304,137 @@
 
 .life-detail-story-card h3 {
   font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
   font-weight: 700;
   color: #1a1a1a;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   line-height: 1.3;
 }
 
 .life-detail-story-card p {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.1vw, 0.92rem);
   font-weight: 300;
   color: #60636a;
   line-height: 1.8;
   max-width: 830px;
 }
 
-.life-detail-story-card a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 18px;
-  color: #7B1C1C;
-  font-family: 'Geologica', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: gap 0.25s ease, color 0.25s ease;
+/* Rich Mid-Tone House Grid Showcase */
+.house-showcase-section {
+  margin-top: clamp(36px, 6vw, 56px);
 }
 
-.life-detail-story-card a:hover {
-  transition-delay: 0s !important;
-  color: #1a3a6b;
-  gap: 12px;
-}
-
-/* Published Societies Directory Section */
-.life-detail-societies {
-  padding-top: 88px;
-}
-
-.life-detail-society-grid {
+.house-showcase-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2.5vw, 24px);
+  margin-top: clamp(20px, 3.5vw, 32px);
 }
 
-.life-detail-society-card {
-  min-width: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 16px;
-  background: #ffffff;
-  padding: 28px;
+.house-card-modern {
+  position: relative;
+  border-radius: 20px;
+  padding: clamp(20px, 3.5vw, 32px);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+  justify-content: space-between;
+  min-height: 195px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
-.life-detail-society-card:hover {
-  transition-delay: 0s !important;
-  border-color: rgba(123, 28, 28, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-  transform: translateY(-6px);
+/* Rich, Deep-Color Gradients */
+.house-card-vijaya {
+  background: linear-gradient(135deg, #a81c1c 0%, #7b1212 100%);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
-.life-detail-society-logo-wrap {
-  width: 100%;
-  height: 180px;
+.house-card-gamunu {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.house-card-thissa {
+  background: linear-gradient(135deg, #15803d 0%, #14532d 100%);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.house-card-parakrama {
+  background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Hover States */
+.house-card-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+}
+
+.house-card-vijaya:hover { border-color: rgba(252, 165, 165, 0.5); }
+.house-card-gamunu:hover { border-color: rgba(147, 197, 253, 0.5); }
+.house-card-thissa:hover { border-color: rgba(134, 239, 172, 0.5); }
+.house-card-parakrama:hover { border-color: rgba(253, 230, 138, 0.5); }
+
+.house-card-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: #faf8f5;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 2px;
-  overflow: hidden;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-.life-detail-society-logo {
-  /* max-width: 100%;
-  max-height: 100%; */
-  object-fit: cover;
-}
-
-.life-detail-society-card h3 {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: 1.35rem;
+.house-card-num {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.3;
-  margin: 0;
+  color: #fef08a;
+  letter-spacing: 0.15em;
 }
 
-.life-detail-society-card p {
+.house-card-tag {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 300;
-  color: #555555;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  margin: 0;
-}
-
-.life-detail-society-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 8px;
-  color: #7B1C1C;
-  font-family: 'Geologica', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: clamp(4rem, 12vw, 10rem);
+  font-weight: 800;
+  letter-spacing: -0.08em;
   text-transform: uppercase;
-  transition: gap 0.25s ease, color 0.25s ease;
+  color: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  pointer-events: none;
+  user-select: none;
 }
 
-.life-detail-society-link:hover {
-  color: #1a3a6b;
-  gap: 10px;
+.house-card-title {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.35rem, 2.5vw, 1.7rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px;
+  line-height: 1.15;
 }
 
-.life-detail-societies-message {
-  text-align: center;
-  padding: 20px;
-  color: #60636a;
+.house-card-desc {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.7;
+  font-size: clamp(0.82rem, 1.1vw, 0.88rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.65;
+  margin: 0;
 }
 
 /* Explore More Cards Section */
 .life-detail-explore {
-  padding-top: 100px;
+  padding-top: clamp(48px, 8vw, 100px);
 }
 
 .life-detail-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  gap: clamp(14px, 2vw, 20px);
 }
 
 .life-detail-card {
@@ -456,9 +442,9 @@
   isolation: isolate;
   display: flex;
   align-items: flex-end;
-  min-height: 290px;
+  min-height: clamp(220px, 30vh, 290px);
   border-radius: 16px;
-  padding: 28px;
+  padding: clamp(18px, 3vw, 28px);
   overflow: hidden;
   background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -509,7 +495,7 @@
 
 .life-detail-card-content strong {
   font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: 1.35rem;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
   font-weight: 700;
   color: #ffffff;
   line-height: 1.25;
@@ -517,7 +503,7 @@
 
 .life-detail-card-content > span:last-child {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.825rem;
+  font-size: clamp(0.78rem, 1vw, 0.825rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.75);
   line-height: 1.6;
@@ -525,13 +511,13 @@
 
 .life-detail-card-arrow {
   position: absolute;
-  right: 24px;
-  top: 24px;
+  right: clamp(16px, 2.5vw, 24px);
+  top: clamp(16px, 2.5vw, 24px);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: clamp(32px, 4vw, 38px);
+  height: clamp(32px, 4vw, 38px);
   z-index: 1;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.17);
@@ -552,10 +538,107 @@
   transform: translate(2px, -2px);
 }
 
+/* Published Societies Directory Section */
+.life-detail-societies {
+  padding-top: clamp(48px, 8vw, 88px);
+}
+
+.life-detail-society-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+.life-detail-society-card {
+  min-width: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  padding: clamp(18px, 3vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.life-detail-society-card:hover {
+  transition-delay: 0s !important;
+  border-color: rgba(123, 28, 28, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px);
+}
+
+.life-detail-society-logo-wrap {
+  width: 100%;
+  height: clamp(140px, 20vh, 180px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #faf8f5;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 2px;
+  overflow: hidden;
+}
+
+.life-detail-society-logo {
+  object-fit: cover;
+}
+
+.life-detail-society-card h3 {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.life-detail-society-card p {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.82rem, 1.1vw, 0.875rem);
+  font-weight: 300;
+  color: #555555;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.life-detail-society-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+  color: #7B1C1C;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: gap 0.25s ease, color 0.25s ease;
+}
+
+.life-detail-society-link:hover {
+  color: #1a3a6b;
+  gap: 10px;
+}
+
+.life-detail-societies-message {
+  text-align: center;
+  padding: 20px;
+  color: #60636a;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
 /* Entrance Fade-Up Group Animation */
 .life-content-group {
   opacity: 0;
-  transform: translateY(50px);
+  transform: translateY(40px);
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
@@ -578,58 +661,67 @@
   border: 0;
 }
 
-/* Responsive Styles */
-@media (max-width: 900px) {
-  .life-detail-top-wrapper {
-    padding-top: 20px;
-  }
+/* Comprehensive Responsive Breakpoints */
+@media (max-width: 960px) {
   .life-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .life-detail-highlights {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .life-detail-container {
-    padding-bottom: 80px;
-  }
-  .life-detail-explore,
-  .life-detail-story {
-    padding-top: 72px;
-  }
 }
 
-@media (max-width: 600px) {
-  .life-detail-intro {
-    padding: 24px 20px 36px;
-  }
-  .life-detail-feature {
-    min-height: 340px;
-    padding: 24px;
-  }
-  .life-detail-highlights,
-  .life-detail-grid,
-  .life-detail-society-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .life-detail-highlight {
-    min-height: 110px;
-    padding: 20px 16px;
-    letter-spacing: 0.06em;
-  }
-  .life-detail-story-card {
+@media (max-width: 768px) {
+  .life-detail-highlights {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+  
+  .house-showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .life-detail-story-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .life-detail-story-number {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .life-detail-intro {
+    padding: 16px 12px 28px;
+  }
+
+  .life-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .life-detail-society-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .life-detail-feature {
+    min-height: 280px;
+    padding: 20px;
+  }
+
+  .life-detail-highlight {
+    min-height: 100px;
+    padding: 16px 12px;
+  }
+
   .life-detail-card {
-    min-height: 240px;
+    min-height: 200px;
   }
-  .life-detail-story,
-  .life-detail-societies {
-    padding-top: 62px;
-  }
-  .life-detail-kicker{
-    letter-spacing: 0.1rem;
+
+  .house-card-tag {
+    font-size: 5rem;
+    top: -5px;
+    right: -5px;
   }
 }
 
@@ -638,8 +730,9 @@
   .life-detail-card > img,
   .life-detail-story-card,
   .life-detail-highlight,
-  .life-detail-society-card {
-    transition: none;
-    letter-spacing: normal;
+  .life-detail-society-card,
+  .house-card-modern,
+  .life-content-group {
+    transition: none !important;
   }
 }

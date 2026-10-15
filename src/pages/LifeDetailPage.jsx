@@ -20,9 +20,9 @@ export const lifePages = Object.freeze({
       { value: 'Science', label: 'Exploration beyond the classroom' },
     ],
     sections: [
-      { heading: 'Pathways for every ambition', copy: 'The college describes Advanced Level learning across Mathematics, Agriculture, Commerce and Arts, with foreign-language opportunities and examination-focused programmes. These pathways give students room to develop their strengths as they prepare for higher education.', source: 'https://bcg.lk/about_us', sourceLabel: 'College About Us' },
-      { heading: 'Excellence in national examinations', copy: 'The Past Pupils Association reported 87 students with three A passes in the 2025 G.C.E. Advanced Level examination. Its April 2026 report also highlighted national rankings in Engineering Technology and Commerce. These are results for that specific examination, not a claim about every year.', source: 'https://www.bcoba.lk/view/?news=p20260404135704', sourceLabel: 'Past Pupils Association 2025 A/L results' },
-      { heading: 'Learning through discovery', copy: 'The Bandaranayake College Science Society describes workshops, exhibitions and competitions that encourage scientific curiosity. Its Vishwabhiyathra annual science day creates opportunities for students to share ideas and take part in science-related challenges.', source: 'https://bcss.lk/', sourceLabel: 'Bandaranayake College Science Society' },
+      { heading: 'Pathways for every ambition', copy: 'The college describes Advanced Level learning across Mathematics, Agriculture, Commerce and Arts, with foreign-language opportunities and examination-focused programmes. These pathways give students room to develop their strengths as they prepare for higher education.' },
+      { heading: 'Excellence in national examinations', copy: 'The Past Pupils Association reported 87 students with three A passes in the 2025 G.C.E. Advanced Level examination. Its April 2026 report also highlighted national rankings in Engineering Technology and Commerce. These are results for that specific examination, not a claim about every year.' },
+      { heading: 'Learning through discovery', copy: 'The Bandaranayake College Science Society describes workshops, exhibitions and competitions that encourage scientific curiosity. Its Vishwabhiyathra annual science day creates opportunities for students to share ideas and take part in science-related challenges.' },
     ],
   },
   'sports-athletics': {
@@ -30,16 +30,21 @@ export const lifePages = Object.freeze({
     subtitle: 'Strength, teamwork and sportsmanship',
     description: 'From cricket to athletics, our athletes carry the BCG spirit with pride at every national competition.',
     accent: 'blue',
-    overview: 'Sport is part of college life: opportunities to compete, develop discipline, and represent the Nayakenz with pride.',
+    overview: 'Sport is an integral pillar of life at Bandaranayake College, fostering resilience, discipline, physical agility, and unwavering brotherhood.',
     highlights: [
       { value: '4', label: 'School houses' },
       { value: '2005', label: 'District cricket title recorded in college history' },
       { value: 'Teamwork', label: 'On and off the field' },
     ],
     sections: [
-      { heading: 'Four houses, one college spirit', copy: 'The college names four houses Vijaya (red), Gamunu (blue), Thissa (green) and Parakrama (yellow). The school describes inter-house games as an opportunity for students to test their skills and contribute to their teams.', source: 'https://bcg.lk/about_us', sourceLabel: 'College About Us' },
-      { heading: 'A record across many sports', copy: 'The school s published sports history covers athletics, wrestling, karate, volleyball, hockey and cricket. Its historical records include the 2005 Gampaha District cricket championship and the 2005 Western Province volleyball championship.', source: 'https://bcg.lk/sports_achievements', sourceLabel: 'College Sports Achievements' },
-      { heading: 'Developing character through competition', copy: 'Training and competition can teach responsibility, preparation, resilience and respect for teammates and opponents. The same qualities support the college s wider emphasis on personal growth beyond academic lessons.', source: 'https://bcg.lk/about_us', sourceLabel: 'College About Us' },
+      {
+        heading: 'Athletic Tradition & House Pride',
+        copy: 'The annual inter-house athletic meet stands as one of the most anticipated highlights of the college calendar. Students represent Vijaya, Gamunu, Thissa, and Parakrama, demonstrating individual athletic strength and collective team dedication in track and field sports.',
+      },
+      {
+        heading: 'Competitive Discipline Across Sports',
+        copy: 'Beyond internal house rivalries, college teams actively compete across provincial and national tournaments in cricket, volleyball, hockey, wrestling, karate, and athletics. Training regimes focus on tactical mastery and mental endurance.',
+      }
     ],
   },
   'societies': {
@@ -54,9 +59,9 @@ export const lifePages = Object.freeze({
       { value: 'Service', label: 'Interact, scouts and community-minded groups' },
     ],
     sections: [
-      { heading: 'Science, technology and discovery', copy: 'The school lists a Science Society, Computer Society, Technology Society, New Invention Society, Aeronautical Society and Union of Astronomy. Together they represent opportunities to pursue scientific curiosity, technical skills and new ideas. Specific current events should be confirmed with the relevant society.', source: 'https://bcg.lk/clubs_societies', sourceLabel: 'College Clubs and Societies' },
-      { heading: 'Creativity and communication', copy: 'The Media Unit, Photographic Art Society, Art Society, Sinhala Debate & Oratory Forum Society and Quiz Club represent a wide range of creative and communication interests. The college describes the Media Unit as connected with Siyanesara FM and SiyaneRoo TV.', source: 'https://bcg.lk/clubs_societies', sourceLabel: 'College Clubs and Societies' },
-      { heading: 'Citizenship and service', copy: 'The college also lists its Interact Club, Scouts, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. These organisations offer different contexts for teamwork, service and responsibility beyond the classroom.', source: 'https://bcg.lk/clubs_societies', sourceLabel: 'College Clubs and Societies' },
+      { heading: 'Science, technology and discovery', copy: 'The school lists a Science Society, Computer Society, Technology Society, New Invention Society, Aeronautical Society and Union of Astronomy. Together they represent opportunities to pursue scientific curiosity, technical skills and new ideas. Specific current events should be confirmed with the relevant society.' },
+      { heading: 'Creativity and communication', copy: 'The Media Unit, Photographic Art Society, Art Society, Sinhala Debate & Oratory Forum Society and Quiz Club represent a wide range of creative and communication interests. The college describes the Media Unit as connected with Siyanesara FM and SiyaneRoo TV.' },
+      { heading: 'Citizenship and service', copy: 'The college also lists its Interact Club, Scouts, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. These organisations offer different contexts for teamwork, service and responsibility beyond the classroom.' },
     ],
   },
   'leadership': {
@@ -71,14 +76,41 @@ export const lifePages = Object.freeze({
       { value: 'Service', label: 'Leadership through contribution' },
     ],
     sections: [
-      { heading: 'Values that guide leadership', copy: 'The college s published vision describes developing students with strong personalities who can meet future challenges while protecting social values. Its mission also emphasises morals, virtues and intelligence. These are school-wide aims, not a list of current student office holders.', source: 'https://bcg.lk/', sourceLabel: 'College Vision and Mission' },
-      { heading: 'Discipline and cadet tradition', copy: 'The official cadet platoon history dates the establishment of the school s senior cadet platoon to 1927. It also records the 1994 Herman Loos Trophy, illustrating a historical tradition of discipline, coordination and commitment.', source: 'https://bcg.lk/cadet_band_platoon', sourceLabel: 'College Cadet Platoon' },
-      { heading: 'Leadership beyond a title', copy: 'The school s clubs and societies include Scouts, Interact Club, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. Participation offers opportunities to practise communication, cooperation and service; responsibilities and membership may differ by year.', source: 'https://bcg.lk/clubs_societies', sourceLabel: 'College Clubs and Societies' },
+      { heading: 'Values that guide leadership', copy: 'The college s published vision describes developing students with strong personalities who can meet future challenges while protecting social values. Its mission also emphasises morals, virtues and intelligence. These are school-wide aims, not a list of current student office holders.' },
+      { heading: 'Discipline and cadet tradition', copy: 'The official cadet platoon history dates the establishment of the school s senior cadet platoon to 1927. It also records the 1994 Herman Loos Trophy, illustrating a historical tradition of discipline, coordination and commitment.' },
+      { heading: 'Leadership beyond a title', copy: 'The school s clubs and societies include Scouts, Interact Club, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. Participation offers opportunities to practise communication, cooperation and service; responsibilities and membership may differ by year.' },
     ],
   },
 });
 
 const labels = Object.entries(lifePages);
+
+const detailedHouses = [
+  {
+    id: 'vijaya',
+    name: 'Vijaya House',
+    color: 'Red',
+    description: 'Symbolizing courage, passion, and competitive vigor, Vijaya House inspires athletes to push past physical limitations.',
+  },
+  {
+    id: 'gamunu',
+    name: 'Gamunu House',
+    color: 'Blue',
+    description: 'Named in honor of steadfast leadership, Gamunu House stands for strategic unity, resilience, and tactical focus.',
+  },
+  {
+    id: 'thissa',
+    name: 'Thissa House',
+    color: 'Green',
+    description: 'Embodying endurance and steady growth, Thissa House emphasizes disciplined athletic training and persistent determination.',
+  },
+  {
+    id: 'parakrama',
+    name: 'Parakrama House',
+    color: 'Yellow',
+    description: 'Representing energy and grand ambition, Parakrama House drives competitors to aim for victory and peak performance.',
+  },
+];
 
 export default function LifeDetailPage({ slug }) {
   const current = lifePages[slug];
@@ -138,23 +170,25 @@ export default function LifeDetailPage({ slug }) {
       <div onClickCapture={handleMenuNavigation}>
         <MenuBar />
       </div>
+
       <div ref={pageRef} className="life-detail-top-wrapper">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="section-container life-detail-return">
             <a href="/" onClick={handleBackToHome} className="life-detail-return-btn">
               <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
+                <polyline points="15 18 9 12 15 6" />
               </svg>
-              <span>Back</span>
+              <span>BACK</span>
             </a>
           </div>
+
           <section id="life-detail-main" className="life-detail-intro" aria-labelledby="life-detail-title">
             <p className="life-detail-kicker">EXPERIENCE IT</p>
             <p className="life-detail-eyebrow">{current.label}</p>
             <h1 id="life-detail-title">{current.title}</h1>
             <p className="life-detail-description">{current.description}</p>
           </section>
+
           <div className="section-container life-detail-container">
             {/* Main Feature Card */}
             <section className={'life-detail-feature ' + current.accent} aria-label={current.title}>
@@ -166,7 +200,8 @@ export default function LifeDetailPage({ slug }) {
                 <p>{current.description}</p>
               </div>
             </section>
-            {/* Editorial Story hidden on Societies only */}
+
+            {/* Editorial Story Section */}
             {slug !== 'societies' && (
               <section className="life-detail-story" aria-labelledby="life-detail-story-title">
                 <div className="life-detail-section-heading">
@@ -174,6 +209,7 @@ export default function LifeDetailPage({ slug }) {
                   <h2 id="life-detail-story-title">{current.title} at Bandaranayake</h2>
                   <p className="life-detail-description">{current.overview}</p>
                 </div>
+
                 <div className="life-detail-highlights">
                   {current.highlights.map((item) => (
                     <div className="life-detail-highlight" key={item.label}>
@@ -182,33 +218,63 @@ export default function LifeDetailPage({ slug }) {
                     </div>
                   ))}
                 </div>
-                <div className="life-detail-stories">
-                  {current.sections.map((section, index) => (
-                    <article className="life-detail-story-card" key={section.heading}>
-                      <span className="life-detail-story-number">0{index + 1}</span>
-                      <div>
-                        <h3>{section.heading}</h3>
-                        <p>{section.copy}</p>
-                        <a href={section.source} target="_blank" rel="noopener noreferrer">
-                          Read more <span aria-hidden="true"> </span>
-                          <span className="life-detail-visually-hidden">: {section.sourceLabel}</span>
-                        </a>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+
+                {/* House Division Editorial Grid for Sports & Athletics */}
+                {slug === 'sports-athletics' && (
+                  <div className="house-showcase-section">
+                    <div className="life-detail-section-heading">
+                      <p className="life-detail-kicker">INTER-HOUSE DIVISION</p>
+                      <h2>The Four Houses</h2>
+                      <p className="life-detail-description">
+                        Every Nayaken belongs to one of four historic houses, competing annually in track, field, and indoor championships.
+                      </p>
+                    </div>
+
+                    <div className="house-showcase-grid">
+                      {detailedHouses.map((house, index) => (
+                        <div key={house.id} className={`house-card-modern house-card-${house.id}`}>
+                          <div className="house-card-header">
+                            <span className="house-card-num">0{index + 1}</span>
+                            <span className="house-card-tag">{house.color}</span>
+                          </div>
+                          <div>
+                            <h3 className="house-card-title">{house.name}</h3>
+                            <p className="house-card-desc">{house.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Editorial Articles */}
+                {current.sections.length > 0 && (
+                  <div className="life-detail-stories" style={{ marginTop: 'clamp(24px, 4vw, 48px)' }}>
+                    {current.sections.map((section, index) => (
+                      <article className="life-detail-story-card" key={section.heading}>
+                        <span className="life-detail-story-number">0{index + 1}</span>
+                        <div>
+                          <h3>{section.heading}</h3>
+                          <p>{section.copy}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
               </section>
             )}
-            {/* Render Societies Directory if active tab is societies */}
+
+            {/* Directories */}
             {slug === 'societies' && <SocietiesListing />}
             {slug === 'societies' && <SchoolContentListing kind="extracurricular" />}
             {slug === 'sports-athletics' && <SchoolContentListing kind="sports" />}
             {slug === 'leadership' && <SchoolContentListing kind="leadership" />}
+
             {/* Explore More Cards Section */}
             <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
               <div className="life-detail-section-heading">
                 <p className="life-detail-kicker">EXPLORE MORE</p>
-                <h2 id="life-detail-explore-title">LIFE AS A NAYAKEN</h2>
+                <h2 id="life-detail-explore-title">Life As A Nayaken</h2>
               </div>
               <div className="life-detail-grid">
                 {labels.filter(([key]) => key !== slug).map(([key, page]) => (

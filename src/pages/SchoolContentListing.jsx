@@ -5,17 +5,17 @@ import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
   sports: {
-    title: 'COLLEGE SPORTS',
+    title: 'College Sports',
     intro: 'School sports and achievements published by the administration.',
     subscribe: subscribePublishedSports,
   },
   extracurricular: {
-    title: 'EXTRACURRICULAR ACTIVITIES',
+    title: 'Extracurricular Activities',
     intro: 'Activities and programmes published by the administration.',
     subscribe: subscribePublishedExtracurricular,
   },
   leadership: {
-    title: 'SCHOOL ADMINISTRATION',
+    title: 'Sschool Administration',
     intro: 'Verified senior school administrative staff, displayed in the order set by the administration.',
     subscribe: subscribePublishedLeadership,
   },

@@ -93,7 +93,7 @@ const HeroSection = () => {
         >
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
 
-          <span className="text-xl font-black tracking-[0.3em] text-yellow-400 uppercase">
+          <span className="text-xl font-black tracking-[0.1em] text-yellow-400 uppercase">
             SINCE 1918
           </span>
 

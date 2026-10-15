@@ -58,7 +58,7 @@
   font-family: 'Geologica', sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.1em;
   color: #c9a84c;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -307,11 +307,9 @@ h3.news-card-title {
 
 .news-card-link {
   font-family: 'Geologica', sans-serif;
-  font-size: 0.725rem;
+  font-size: 0.73rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
   color: #c9a84c;
-  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   gap: 6px;
