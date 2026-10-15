@@ -21,7 +21,6 @@ export default function Updates({ titleSlug }) {
           );
           return slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
         });
-
         setArticle(match || null);
         setLoading(false);
       });
@@ -87,7 +86,10 @@ export default function Updates({ titleSlug }) {
             The news update you are looking for does not exist or has been removed.
           </p>
           <a href="/" onClick={handleBackToHome} className="updates-return-btn">
-            ← BACK
+            <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <span>BACK</span>
           </a>
         </div>
         <Footer />
@@ -113,25 +115,21 @@ export default function Updates({ titleSlug }) {
           <div className="updates-return">
             <a href="/" onClick={handleBackToHome} className="updates-return-btn">
               <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
+                <polyline points="15 18 9 12 15 6" />
               </svg>
               <span>BACK</span>
             </a>
           </div>
-
           <header className="updates-header">
             {article.category && <p className="updates-category">{article.category}</p>}
             <h1 className="updates-title">{article.title}</h1>
             {formattedDate && <p className="updates-date">{formattedDate}</p>}
           </header>
-
           {article.imageUrl && (
             <div className="updates-hero-image-wrap">
               <img src={article.imageUrl} alt={article.title} className="updates-hero-image" />
             </div>
           )}
-
           <article className="updates-content">
             {article.body || article.excerpt}
           </article>

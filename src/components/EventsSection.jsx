@@ -9,7 +9,7 @@ function toEventCard(event) {
   return {
     id: event.id,
     month: months[monthIndex] || "UPCOMING",
-    day: date ? date[2] : "—",
+    day: date ? date[2] : "--",
     title: event.title || "College Event",
     desc: event.description || "Event details will be announced soon.",
     location: event.location || "Main Hall",
@@ -48,12 +48,19 @@ const EventsSection = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleViewAllEvents = () => {
-    const eventsElement = document.getElementById('events');
-    if (eventsElement) {
-      eventsElement.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleEventClick = (eventItem) => {
+    const slug = encodeURIComponent(
+      (eventItem.title || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+    );
+    window.location.href = `/events/${slug}`;
   };
+
+ const handleViewAllEvents = () => {
+  window.location.href = '/events';
+};
 
   return (
     <section id="events" ref={sectionRef} className="events-section">
@@ -82,6 +89,13 @@ const EventsSection = () => {
                   role="button"
                   aria-label={`Event: ${event.title} on ${event.month} ${event.day} at ${event.location}`}
                   style={{ '--hover-color': event.color }}
+                  onClick={() => handleEventClick(event)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleEventClick(event);
+                    }
+                  }}
                 >
                   <div className="event-date-block">
                     <div className="event-month" style={{ color: event.color }}>
@@ -127,7 +141,6 @@ const EventsSection = () => {
               ))
             )}
           </div>
-
           <div className="events-action">
             <button
               className="events-btn"
