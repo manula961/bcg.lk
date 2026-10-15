@@ -23,4 +23,4 @@ jobs:
         shell: bash
         run: |
           npm audit --json > audit-report.json || true
-          node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync("audit-report.json")); console.log(JSON.stringify(r.metadata?.vulnerabilities || {},null,2));'
+          node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync("audit-report.json")); console.log(JSON.stringify(r.metadata?.vulnerabilities || {},null,2)); for (const [name,v] of Object.entries(r.vulnerabilities || {})) console.log([name,v.severity,Array.isArray(v.via) ? v.via.length : "",JSON.stringify(v.fixAvailable)].join(" | "));'
