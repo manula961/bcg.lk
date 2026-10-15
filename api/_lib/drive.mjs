@@ -120,6 +120,24 @@ export async function accessToken(refresh) {
   const token = await googleToken({grant_type:'refresh_token',refresh_token:refresh});
   return token.access_token;
 }
+/**
+ * Invalidate the Google account grant as well as the local session cookie.
+ * Only called after the caller's Firebase admin role has been verified.
+ */
+export async function revokeGoogleAccess(refreshToken) {
+  if (typeof refreshToken !== 'string' || !refreshToken) {
+    throw Object.assign(new Error('Google Drive is not connected'), { status: 400 });
+  }
+  const result = await fetch('https://oauth2.googleapis.com/revoke', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ token: refreshToken }),
+  });
+  if (!result.ok && result.status !== 400) {
+    throw new Error('Google token revocation request failed');
+  }
+  // A 400 response commonly means this grant has already been revoked.
+}
 export function errorReply(res,error) {
   const status = [400,401,403,405,413].includes(error?.status) ? error.status : 500;
   console.error('[Drive API]',status,error?.message);
