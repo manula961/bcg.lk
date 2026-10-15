@@ -74,8 +74,15 @@ export async function requireAdmin(req) {
   return uid;
 }
 export function verifySession(req, uid) {
-  const data = unseal(cookieValue(req,cookies.session));
-  if (data.uid !== uid || !data.refresh || data.exp < Date.now()) throw Error('Connect Google Drive again');
+  let data;
+  try {
+    data = unseal(cookieValue(req, cookies.session));
+  } catch {
+    throw Object.assign(new Error('Connect Google Drive again'), { status: 401 });
+  }
+  if (data.uid !== uid || !data.refresh || data.exp < Date.now()) {
+    throw Object.assign(new Error('Connect Google Drive again'), { status: 401 });
+  }
   return data;
 }
 export function googleRedirect() {
