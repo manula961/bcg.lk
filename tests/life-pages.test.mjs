@@ -18,7 +18,7 @@ test('four Life as a Nayaken detail pages have stable paths and source-based tit
 
 test('homepage and admin routes remain the unchanged defaults', () => {
   const entry = read('src/main.jsx');
-  assert.match(entry, /isAdminPath \? <AdminApp \/> : lifeSlug \? <LifeDetailPage slug=\{lifeSlug\} \/> : <App \/>/);
+  assert.match(entry, /isAdminPath \? <AdminApp \/> : lifeSlug \? <LifeDetailPage slug=\{lifeSlug\} \/> : pageSlug \? <PublishedContentPage slug=\{pageSlug\} \/> : <App \/>/);
   assert.match(entry, /Object\.prototype\.hasOwnProperty\.call\(lifePages, lifeMatch\[1\]\)/);
   const home = read('src/components/LifeAsNayaken.jsx');
   assert.match(home, /life-bento-grid/);
