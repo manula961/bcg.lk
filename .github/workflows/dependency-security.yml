@@ -1,0 +1,26 @@
+name: Dependency security audit
+on:
+  push:
+    branches: [backend-updates]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  production-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Block high and critical production dependency advisories
+        run: npm audit --omit=dev --audit-level=high
+      - name: Summarize all dependency advisories
+        if: always()
+        shell: bash
+        run: |
+          npm audit --json > audit-report.json || true
+          node -e 'const fs=require("fs"); const r=JSON.parse(fs.readFileSync("audit-report.json")); console.log(JSON.stringify(r.metadata?.vulnerabilities || {},null,2)); for (const [name,v] of Object.entries(r.vulnerabilities || {})) console.log([name,v.severity,Array.isArray(v.via) ? v.via.length : "",JSON.stringify(v.fixAvailable)].join(" | "));'

@@ -67,7 +67,7 @@ test('public reads are published-only, and unrestricted queries are rejected', a
 });
 
 test('non-admin writes fail; administrator can create, edit, publish, unpublish, delete', async () => {
-  for (const name of ['news', 'events', 'pages']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
     const id = 'integration-' + name;
     const record = doc(admin.firestore(), name, id);
     await assertFails(setDoc(doc(visitor.firestore(), name, id), { title: 'Unauthorized', published: true }));

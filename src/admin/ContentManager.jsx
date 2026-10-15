@@ -20,6 +20,7 @@ import {
 import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader, reorderLeadership,
 } from '../lib/leadershipService';
+import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
 import './Admin.css';
 
 const collections = {
@@ -170,10 +171,18 @@ export default function ContentManager({ kind, onDirtyChange }) {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [drive, setDrive] = useState({ configured: false, connected: false });
 
   // Drag and Drop State
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    getDriveStatus().then(status => { if (active) setDrive(status); }).catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -248,7 +257,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   function leaveEditor() {
-    if (busy) return;
+    if (busy || uploadingImage) return;
     if (dirty && !window.confirm('Discard unsaved changes?')) return;
     setEditorOpen(false);
     setEditingId(null);
@@ -299,9 +308,39 @@ export default function ContentManager({ kind, onDirtyChange }) {
     }
   }
 
+  async function startDriveConnection() {
+    if (dirty && !window.confirm('Connecting Google Drive reloads the editor. Continue without saving changes?')) return;
+    setNotice(null);
+    try { await connectDrive(); }
+    catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+  }
+
+  async function handleDriveUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || busy || uploadingImage) return;
+    setUploadingImage(true);
+    setNotice(null);
+    try {
+      const url = await uploadDriveImage(file);
+      updateField('imageUrl', url);
+      setNotice({ type: 'success', text: 'Image uploaded to Drive. Verify the preview, then save the record.' });
+    } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+    finally { setUploadingImage(false); }
+  }
+
+  async function stopDriveConnection() {
+    if (uploadingImage) return;
+    try {
+      await disconnectDrive();
+      setDrive(previous => ({ ...previous, connected: false }));
+      setNotice({ type: 'success', text: 'Google Drive disconnected from this browser.' });
+    } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+  }
+
   async function save(event) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || uploadingImage) return;
     setBusy(true);
     setNotice(null);
     try {
@@ -522,7 +561,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
             <h2 className="admin-editor-title">
               {editingId ? `Edit ${config.singular}` : `New ${config.singular}`}
             </h2>
-            <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-ghost">
+            <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-ghost">
               Cancel
             </button>
           </div>
@@ -580,6 +619,26 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       Generate slug from title
                     </button>
                   )}
+                  {field.key === 'imageUrl' && drive.configured && (
+                    <div className="flex flex-wrap items-center gap-3">
+                      {drive.connected ? (
+                        <>
+                          <label className="admin-btn-secondary cursor-pointer">
+                            {uploadingImage ? 'Uploading...' : 'Upload to Google Drive'}
+                            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                              disabled={uploadingImage || busy} onChange={handleDriveUpload}
+                              className="sr-only" aria-label="Upload image to Google Drive" />
+                          </label>
+                          <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
+                            onClick={stopDriveConnection}>Disconnect Drive</button>
+                        </>
+                      ) : (
+                        <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
+                          onClick={startDriveConnection}>Connect Google Drive</button>
+                      )}
+                      <span className="admin-help-text">JPG, PNG, WebP or GIF · up to 4 MB</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -609,10 +668,10 @@ export default function ContentManager({ kind, onDirtyChange }) {
               </label>
             </div>
             <div className="admin-editor-footer">
-              <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
+              <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="admin-btn-primary">
+              <button type="submit" disabled={busy || uploadingImage} className="admin-btn-primary">
                 {busy ? 'Saving...' : editingId ? 'Save Changes' : `Create ${config.singular}`}
               </button>
             </div>

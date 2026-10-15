@@ -4,6 +4,7 @@ import Lenis from 'lenis';
 import App from './App.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 import LifeDetailPage, { lifePages } from './pages/LifeDetailPage.jsx';
+import PublishedContentPage from './pages/PublishedContentPage.jsx';
 import Updates from './pages/Updates.jsx';
 import EventDetail from './pages/EventDetail.jsx';
 import EventsPage from './pages/EventsPage.jsx';
@@ -13,6 +14,8 @@ const pathname = window.location.pathname;
 const isAdminPath = pathname === '/admin' || pathname === '/admin/';
 const lifeMatch = pathname.match(/^\/life\/([a-z-]+)\/?$/);
 const lifeSlug = lifeMatch && Object.prototype.hasOwnProperty.call(lifePages, lifeMatch[1]) ? lifeMatch[1] : null;
+const pageMatch = pathname.match(/^\/pages\/([a-z0-9]+(?:-[a-z0-9]+)*)\/?$/);
+const pageSlug = pageMatch ? pageMatch[1] : null;
 
 // Handle /updates/[News title] routing
 const updatesMatch = pathname.match(/^\/updates\/([^/]+)\/?$/);
@@ -49,6 +52,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Updates titleSlug={updatesSlug} />
     ) : lifeSlug ? (
       <LifeDetailPage slug={lifeSlug} />
+    ) : pageSlug ? (
+      <PublishedContentPage slug={pageSlug} />
     ) : (
       <App />
     )}
