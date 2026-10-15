@@ -50,7 +50,7 @@ No additional tracked source or UI file met the evidence threshold for safe dele
 ### Phase 2: News, Events, Pages CMS
 - Source review confirms all three services have published and admin subscriptions, create/update/delete operations, validation and server timestamps. The admin interface connects these services to existing CMS screens.
 - Test actual login, create, edit, publish, unpublish, delete, refresh and cross-browser behavior in a staging Firebase project. No test content was written to production.
-- Pages CMS stores entries in Firestore; creating a page does not by itself create a new public route. Public News and Events already subscribe to published content through the existing sections.
+- Published Pages CMS records can now be viewed at `/pages/<slug>`. Drafts and missing records are not publicly rendered. Public News and Events subscribe to Firestore through the existing sections. The route is a client-rendered React page, not server-rendered SEO output.
 
 ### Phase 3: Rule #1 UI preservation
 - No existing JSX, CSS, fonts, images, or layout files were modified by this phase of work.
@@ -123,7 +123,7 @@ All existing homepage components, CSS and shared page design remain untouched. N
 - The server validates a Firebase ID token against Firebase Auth and confirms the UID has the admin role in Firestore. UI visibility alone is not authorization.
 - The server alone exchanges OAuth codes and refreshes Google access tokens. It encrypts refresh tokens with AES-256-GCM and stores ciphertext as an HttpOnly, Secure, SameSite=Lax browser cookie, tied to the admin UID and expiring after 30 days. No Google refresh token is exposed to React. Each browser must connect separately.
 - OAuth uses PKCE, a 10-minute state, exact HTTPS redirect URI, and same-origin verification for mutating endpoints. The scope is drive.file, not full-Drive access.
-- Disconnect clears the encrypted token cookie in the current browser. It does NOT revoke OAuth access or delete uploaded Drive assets. Revoke access separately through the Google account if required.
+- Disconnect now attempts to revoke the Google OAuth grant server-side, then clears the encrypted token cookie. If Google is temporarily unavailable, retry and revoke the app from your Google Account. This does not delete files already uploaded to Drive.
 - The server limits uploaded requests to 4 MiB and JPEG, PNG, WebP or GIF MIME types. MIME checking alone does not guarantee genuine image bytes. Vercel/Google quotas still apply.
 - Uploads are shared publicly (anyone with link, reader) for public website images. Never upload confidential images or unapproved staff/student photos: an uploaded image is public even while its CMS record is a draft.
 - The CMS stores a Google Drive thumbnail URL. Google Drive is not a dedicated image CDN and thumbnail embedding can fail or be rate-limited. Verify anonymous desktop/mobile rendering and long-term reliability before production approval; if unreliable choose dedicated image hosting.
@@ -132,3 +132,10 @@ All existing homepage components, CSS and shared page design remain untouched. N
 ### Required verification
 Run npm test, npm run build, Firebase Emulator security tests, and the UI-preservation guard. Then test OAuth consent, valid/invalid admin roles, CSRF rejection, actual image upload, 4-MiB rejection, previews, public display, logout/disconnect, and visual regression against the existing admin design. The Google Drive plugin connected to ChatGPT is a separate connection from the website's Google OAuth app.
 Nothing is deployed to production or connected to a production Google account by adding code to this branch.
+
+## Release follow-up after audit
+
+- The previously proposed unsigned Cloudinary experiment was intentionally excluded from the final `backend-updates` file tree. Google Drive is the selected upload option.
+- New public page URLs use `/pages/<slug>` and the existing website components; existing routes, homepage DOM and styles are protected by an exact source-comparison CI guard.
+- The Firestore emulator CRUD test includes all seven collections, while external Google and Firebase service calls are mocked in the server tests. Live Google OAuth, image delivery, Vercel variables, and a real administrator test remain manual release requirements.
+- Do not merge into `main` or treat Google Drive thumbnails as a guaranteed CDN until the real-browser and security checks pass.
