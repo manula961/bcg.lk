@@ -31,7 +31,6 @@ const NewsSection = () => {
   const [visible, setVisible] = useState(false);
   const [posts, setPosts] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedPost, setSelectedPost] = useState(null);
 
   // Drag-to-scroll State
   const [isDragging, setIsDragging] = useState(false);
@@ -128,7 +127,6 @@ const NewsSection = () => {
   const handleMouseDown = (e) => {
     if (!gridRef.current) return;
     isMouseDown.current = true;
-    setIsDragging(true);
     setHasDragged(false);
     dragStartX.current = e.pageX - gridRef.current.offsetLeft;
     dragScrollLeft.current = gridRef.current.scrollLeft;
@@ -136,10 +134,10 @@ const NewsSection = () => {
 
   const handleMouseMove = (e) => {
     if (!isMouseDown.current || !gridRef.current) return;
-    e.preventDefault();
     const x = e.pageX - gridRef.current.offsetLeft;
     const walk = (x - dragStartX.current) * 1.5;
     if (Math.abs(walk) > 5) {
+      setIsDragging(true);
       setHasDragged(true);
     }
     gridRef.current.scrollLeft = dragScrollLeft.current - walk;
@@ -148,6 +146,21 @@ const NewsSection = () => {
   const handleMouseUp = () => {
     isMouseDown.current = false;
     setIsDragging(false);
+  };
+
+  const handleCardClick = (post, e) => {
+    if (hasDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    const slug = encodeURIComponent(
+      (post.title || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+    );
+    window.location.href = `/updates/${slug}`;
   };
 
   const dotsList = filtered.length > 0 ? filtered : [null];
@@ -202,11 +215,11 @@ const NewsSection = () => {
               </div>
             </div>
           </div>
+
           <div
             key={activeFilter}
             ref={gridRef}
             className={`news-grid ${isDragging ? "dragging" : ""}`}
-            data-lenis-prevent
             onScroll={handleScrollUpdate}
             onMouseDown={handleMouseDown}
             onMouseLeave={handleMouseUp}
@@ -220,18 +233,11 @@ const NewsSection = () => {
                 tabIndex={0}
                 role="article"
                 aria-label={`Read ${post.title}`}
-                onClick={(e) => {
-                  if (hasDragged) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  setSelectedPost(post);
-                }}
+                onClick={(e) => handleCardClick(post, e)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    setSelectedPost(post);
+                    handleCardClick(post, e);
                   }
                 }}
               >
@@ -276,6 +282,7 @@ const NewsSection = () => {
               </div>
             ))}
           </div>
+
           <div className="news-dots-container">
             {dotsList.map((_, i) => (
               <button
@@ -288,44 +295,6 @@ const NewsSection = () => {
           </div>
         </div>
       </div>
-
-      {/* Article Reader Modal */}
-      {selectedPost && (
-        <div
-          className="news-modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setSelectedPost(null)}
-        >
-          <div
-            className="news-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="news-modal-close"
-              onClick={() => setSelectedPost(null)}
-              aria-label="Close article"
-            >
-              ✕
-            </button>
-            {selectedPost.image && (
-              <img
-                src={selectedPost.image}
-                alt=""
-                className="news-modal-img"
-              />
-            )}
-            <div className="news-modal-body">
-              <span className="news-card-tag">{selectedPost.tag}</span>
-              <h2 className="news-modal-title">{selectedPost.title}</h2>
-              <p className="news-card-meta">{selectedPost.date}</p>
-              <div className="news-modal-text">
-                {selectedPost.body || selectedPost.excerpt}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

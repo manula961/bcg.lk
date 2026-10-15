@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './MenuBar.css';
 
 const menuItems = [
-  { label: 'Home', href: '#home', sub: 'Welcome to BCG' },
-  { label: 'News', href: '#news', sub: 'Latest Updates & Announcements' },
-  { label: 'Events', href: '#events', sub: 'Upcoming Events Calendar' },
-  { label: 'Explore', href: '#explore', sub: 'Discover Our Campus' },
-  { label: 'Extra Curricular', href: '#extracurricular', sub: 'Life As A Nayaken' },
+  { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
+  { label: 'News', href: 'news', sub: 'Latest Updates & Announcements' },
+  { label: 'Events', href: 'events', sub: 'Upcoming Events Calendar' },
+  { label: 'Explore', href: 'explore', sub: 'Discover Our Campus' },
+  { label: 'Extra Curricular', href: 'extracurricular', sub: 'Life As A Nayaken' },
 ];
 
 const MenuBar = () => {
@@ -39,12 +39,25 @@ const MenuBar = () => {
     };
   }, [open]);
 
-  const handleNav = (href) => {
+  const handleNav = (sectionId) => {
     setOpen(false);
-    setTimeout(() => {
-      const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
+    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+
+    if (isHomePage) {
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+        if (window.history.pushState) {
+          window.history.pushState(null, '', window.location.pathname);
+        }
+      }, 300);
+    } else {
+      sessionStorage.setItem('skipLoading', 'true');
+      sessionStorage.setItem('scrollToSection', sectionId);
+      window.location.assign('/');
+    }
   };
 
   return (
@@ -59,7 +72,6 @@ const MenuBar = () => {
         <span className="hamburger-line line-2" />
         <span className="hamburger-line line-3" />
       </button>
-
       <div className={`menu-overlay ${open ? 'is-open' : ''}`}>
         <div className="menu-container">
           <nav className="menu-nav-list" aria-label="Main Navigation">
