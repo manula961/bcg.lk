@@ -110,18 +110,6 @@ Firestore collections are `sports`, `extracurricular`, `leadership`. Public quer
 
 All existing homepage components, CSS and shared page design remain untouched. New public directories reuse the same existing scoped life-page card classes, without adding new styles. Run Firebase Emulator tests, browser CRUD checks and visual comparison before merging.
 
-## Optional Cloudinary image uploads (Firebase Spark-compatible)
-
-The admin editor keeps the existing HTTPS image URL input for every content type. When configured, a small **Upload image** control appears alongside it. Supported browser-checked formats: JPG, PNG, WebP and GIF, maximum 5 MB. The returned Cloudinary HTTPS URL fills the existing image URL field. **You must then click Save/Create** to store that URL in Firestore.
-
-1. Create a Cloudinary account and configure a dedicated **unsigned upload preset** restricted to image resource type, `jpg`, `png`, `webp`, and `gif` formats, and a dedicated BCG.LK folder. Disable public ID overrides, use moderation or approval when available, and monitor quota/usage. Cloudinary does not enforce a per-preset max-file-size limit; the 5 MB limit in this app is **client-side only**.
-2. In Vercel → Project → Settings → Environment Variables, set `VITE_CLOUDINARY_CLOUD_NAME` and `VITE_CLOUDINARY_UPLOAD_PRESET` for the appropriate preview/production environments, then redeploy. Without both settings, the upload control is hidden and the existing image URL field remains fully functional.
-3. Create a record or open an existing one in Admin → News, Events, Societies, Sports, Extracurricular, Leadership, or Pages. Upload a file, confirm the preview, then **Save** the record.
-
-**Security warning:** An unsigned upload preset is a public capability; the preset identifier can be discovered by any browser user or from network traffic. The fact that the Upload button is inside a Firebase-admin-authenticated UI does **not** make the Cloudinary upload endpoint admin-only. The client-side file limits can be bypassed by a direct API caller. Restrict the preset, monitor quota, rotate/disable it if abused, and prefer a signed server-side upload endpoint with Firebase token verification for stronger security. Never put a Cloudinary API secret in a `VITE_*` variable, in Git, or in browser code. Uploaded media and the Firestore record are separate; deleting a record does not delete the Cloudinary asset. Avoid uploading private staff photos before appropriate permission.
-
-No Firebase Storage billing is needed for this path. Cloudinary plan limits and terms may apply; inspect current pricing before production use.
-
 ## Google Drive OAuth image uploads — separate from the ChatGPT Drive connection
 
 ### Configuration (Vercel server environment)

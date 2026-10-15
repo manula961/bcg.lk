@@ -20,7 +20,6 @@ import {
 import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader,
 } from '../lib/leadershipService';
-import { cloudinaryUploadConfigured, uploadAdminImage } from '../lib/cloudinaryUpload';
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
 import './Admin.css';
 
@@ -270,31 +269,12 @@ export default function ContentManager({ kind, onDirtyChange }) {
     setDirty(true);
   }
 
-  async function handleImageUpload(event) {
-    const file = event.target.files?.[0];
-    // Permit selecting the same file again if an upload fails.
-    event.target.value = '';
-    if (!file || uploadingImage) return;
-    setUploadingImage(true);
-    setNotice(null);
-    try {
-      const url = await uploadAdminImage(file);
-      updateField('imageUrl', url);
-      setNotice({ type: 'success', text: 'Image uploaded. Save this record to keep the new image URL.' });
-    } catch (error) {
-      setNotice({ type: 'error', text: formatError(error) });
-    } finally {
-      setUploadingImage(false);
-    }
-  }
-
   async function startDriveConnection() {
     if (dirty && !window.confirm('Connecting Google Drive reloads the editor. Continue without saving changes?')) return;
     setNotice(null);
     try { await connectDrive(); }
     catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
   }
-
   async function handleDriveUpload(event) {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -304,18 +284,16 @@ export default function ContentManager({ kind, onDirtyChange }) {
     try {
       const url = await uploadDriveImage(file);
       updateField('imageUrl', url);
-      setNotice({ type: 'success', text: 'Uploaded to Google Drive. Save this record to keep the image URL. Confirm that the image preview loads.' });
-    } catch (error) {
-      setNotice({ type: 'error', text: formatError(error) });
-    } finally { setUploadingImage(false); }
+      setNotice({ type: 'success', text: 'Image uploaded to Drive. Verify the preview, then save the record.' });
+    } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+    finally { setUploadingImage(false); }
   }
-
   async function stopDriveConnection() {
     if (uploadingImage) return;
     try {
       await disconnectDrive();
       setDrive(previous => ({ ...previous, connected: false }));
-      setNotice({ type: 'success', text: 'Google Drive disconnected in this browser.' });
+      setNotice({ type: 'success', text: 'Google Drive disconnected from this browser.' });
     } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
   }
 
@@ -592,7 +570,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 {editingId ? 'Update ' : 'Create '}{config.singular}
               </h3>
             </div>
-            <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
+            <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
               ← Back to List
             </button>
           </div>
@@ -661,7 +639,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     {drive.connected ? (
                       <>
                         <label className="admin-btn-secondary cursor-pointer">
-                          {uploadingImage ? 'Uploading image...' : 'Upload to Google Drive'}
+                          {uploadingImage ? 'Uploading...' : 'Upload to Google Drive'}
                           <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
                             disabled={uploadingImage || busy} onChange={handleDriveUpload}
                             className="sr-only" aria-label="Upload image to Google Drive" />
@@ -673,23 +651,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
                         onClick={startDriveConnection}>Connect Google Drive</button>
                     )}
-                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • maximum 4 MB</span>
-                  </div>
-                )}
-                {field.key === 'imageUrl' && cloudinaryUploadConfigured && (
-                  <div className="md:col-span-2 flex flex-wrap items-center gap-3">
-                    <label className="admin-btn-secondary cursor-pointer">
-                      {uploadingImage ? 'Uploading image...' : 'Upload image'}
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        disabled={uploadingImage || busy}
-                        onChange={handleImageUpload}
-                        className="sr-only"
-                        aria-label="Upload an image to Cloudinary"
-                      />
-                    </label>
-                    <span className="text-[11px] text-white/45">JPG, PNG, WebP or GIF • up to 5 MB</span>
+                    <span className="text-xs text-white/50">Images up to 4 MB</span>
                   </div>
                 )}
                 </React.Fragment>
@@ -736,7 +698,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
               <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
                 Cancel
               </button>
-              <button type="submit" disabled={busy || uploadingImage} className="admin-btn-primary">
+              <button type="submit" disabled={busy} className="admin-btn-primary">
                 {busy ? 'Saving...' : editingId ? 'Save Changes' : 'Create ' + config.singular}
               </button>
             </div>
