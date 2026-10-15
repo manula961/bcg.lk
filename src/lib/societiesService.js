@@ -1,4 +1,3 @@
-/** Firestore Societies CMS. Existing UI components remain unchanged. */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -11,7 +10,7 @@ const fields = {
 };
 
 const societies = createContentRepository('societies', fields, {
-  defaults: { category: '', imageUrl: '', websiteUrl: '', published: false },
+  defaults: { category: '', imageUrl: '', websiteUrl: '', published: false, rank: 999 },
 });
 
 export const subscribePublishedSocieties = societies.subscribePublished;
@@ -20,4 +19,5 @@ export const subscribeAdminSocieties = societies.subscribeAdmin;
 export const listAdminSocieties = societies.listAdmin;
 export const createSociety = societies.create;
 export const updateSociety = societies.update;
+export const reorderSocieties = societies.reorderBatch;
 export const deleteSociety = societies.remove;

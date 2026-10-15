@@ -1,4 +1,3 @@
-/** Firestore Events service. Stores eventDate in YYYY-MM-DD (local calendar date). */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -12,7 +11,7 @@ const fields = {
 };
 
 const events = createContentRepository('events', fields, {
-  defaults: { color: '#7B1C1C', imageUrl: '', published: false },
+  defaults: { color: '#7B1C1C', imageUrl: '', published: false, rank: 999 },
 });
 
 export const listPublishedEvents = events.listPublished;
@@ -23,4 +22,5 @@ export const subscribeAdminEvents = events.subscribeAdmin;
 export const getAdminEvent = events.getAdmin;
 export const createEvent = events.create;
 export const updateEvent = events.update;
+export const reorderEvents = events.reorderBatch;
 export const deleteEvent = events.remove;

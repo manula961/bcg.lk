@@ -1,4 +1,3 @@
-/** Firestore Pages service. A page's Firestore document ID is its stable slug. */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -12,7 +11,7 @@ const fields = {
 
 const pages = createContentRepository('pages', fields, {
   idField: 'slug',
-  defaults: { seoDescription: '', imageUrl: '', published: false },
+  defaults: { seoDescription: '', imageUrl: '', published: false, rank: 999 },
 });
 
 export const listPublishedPages = pages.listPublished;
@@ -23,4 +22,5 @@ export const subscribeAdminPages = pages.subscribeAdmin;
 export const getAdminPage = pages.getAdmin;
 export const createPage = pages.create;
 export const updatePage = pages.update;
+export const reorderPages = pages.reorderBatch;
 export const deletePage = pages.remove;

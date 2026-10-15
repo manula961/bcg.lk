@@ -773,3 +773,34 @@
     justify-content: flex-end;
   }
 }
+
+/* Drag Handle Area */
+.admin-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px 8px 0;
+  color: var(--admin-text-muted);
+  cursor: grab;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.admin-drag-handle:hover {
+  color: var(--admin-accent-gold);
+}
+
+.admin-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Row Drag Feedback */
+.admin-row.dragging {
+  opacity: 0.4;
+  background: rgba(201, 168, 76, 0.08);
+}
+
+.admin-row.drag-target {
+  border-top: 2px solid var(--admin-accent-gold);
+  background: rgba(123, 28, 28, 0.15);
+}

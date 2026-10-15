@@ -1,4 +1,3 @@
-/** Admin-authorized Sports content, filtered to published records on public pages. */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -10,11 +9,14 @@ const fields = {
   published: { type: 'boolean' },
 };
 
-const repository = createContentRepository('sports', fields, { defaults: { category: '', achievements: '', imageUrl: '', published: false } });
+const repository = createContentRepository('sports', fields, {
+  defaults: { category: '', achievements: '', imageUrl: '', published: false, rank: 999 },
+});
 
 export const subscribePublishedSports = repository.subscribePublished;
 export const listPublishedSports = repository.listPublished;
 export const subscribeAdminSports = repository.subscribeAdmin;
 export const createSport = repository.create;
 export const updateSport = repository.update;
+export const reorderSports = repository.reorderBatch;
 export const deleteSport = repository.remove;

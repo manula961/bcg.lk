@@ -1,4 +1,3 @@
-/** Firestore News service. No changes to public NewsSection or dashboard markup. */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -12,7 +11,7 @@ const fields = {
 };
 
 const news = createContentRepository('news', fields, {
-  defaults: { category: 'News', body: '', tag: '', imageUrl: '', published: false },
+  defaults: { category: 'News', body: '', tag: '', imageUrl: '', published: false, rank: 999 },
 });
 
 export const listPublishedNews = news.listPublished;
@@ -23,4 +22,5 @@ export const subscribeAdminNews = news.subscribeAdmin;
 export const getAdminNews = news.getAdmin;
 export const createNews = news.create;
 export const updateNews = news.update;
+export const reorderNews = news.reorderBatch;
 export const deleteNews = news.remove;

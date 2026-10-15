@@ -1,24 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  subscribeAdminNews, createNews, updateNews, deleteNews,
+  subscribeAdminNews, createNews, updateNews, deleteNews, reorderNews,
 } from '../lib/newsService';
 import {
-  subscribeAdminEvents, createEvent, updateEvent, deleteEvent,
+  subscribeAdminEvents, createEvent, updateEvent, deleteEvent, reorderEvents,
 } from '../lib/eventsService';
 import {
-  subscribeAdminPages, createPage, updatePage, deletePage,
+  subscribeAdminPages, createPage, updatePage, deletePage, reorderPages,
 } from '../lib/pagesService';
 import {
-  subscribeAdminSocieties, createSociety, updateSociety, deleteSociety,
+  subscribeAdminSocieties, createSociety, updateSociety, deleteSociety, reorderSocieties,
 } from '../lib/societiesService';
 import {
-  subscribeAdminSports, createSport, updateSport, deleteSport,
+  subscribeAdminSports, createSport, updateSport, deleteSport, reorderSports,
 } from '../lib/sportsService';
 import {
-  subscribeAdminExtracurricular, createActivity, updateActivity, deleteActivity,
+  subscribeAdminExtracurricular, createActivity, updateActivity, deleteActivity, reorderExtracurricular,
 } from '../lib/extracurricularService';
 import {
-  subscribeAdminLeadership, createLeader, updateLeader, deleteLeader,
+  subscribeAdminLeadership, createLeader, updateLeader, deleteLeader, reorderLeadership,
 } from '../lib/leadershipService';
 import './Admin.css';
 
@@ -27,7 +27,7 @@ const collections = {
     title: 'News & Announcements',
     singular: 'article',
     description: 'Write announcements, keep drafts, and manage published articles.',
-    subscribe: subscribeAdminNews, create: createNews, update: updateNews, remove: deleteNews,
+    subscribe: subscribeAdminNews, create: createNews, update: updateNews, remove: deleteNews, reorder: reorderNews,
     defaults: { title: '', category: 'News', tag: '', excerpt: '', body: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Article title', required: true, maxLength: 180, placeholder: 'Enter headline', wide: true },
@@ -42,7 +42,7 @@ const collections = {
     title: 'College Events',
     singular: 'event',
     description: 'Manage dates, venues, and event details.',
-    subscribe: subscribeAdminEvents, create: createEvent, update: updateEvent, remove: deleteEvent,
+    subscribe: subscribeAdminEvents, create: createEvent, update: updateEvent, remove: deleteEvent, reorder: reorderEvents,
     defaults: { title: '', eventDate: '', location: '', description: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Event title', required: true, maxLength: 180, wide: true, placeholder: 'Enter event name' },
@@ -56,7 +56,7 @@ const collections = {
     title: 'College Societies',
     singular: 'society',
     description: 'Add society names, descriptions and logo URLs.',
-    subscribe: subscribeAdminSocieties, create: createSociety, update: updateSociety, remove: deleteSociety,
+    subscribe: subscribeAdminSocieties, create: createSociety, update: updateSociety, remove: deleteSociety, reorder: reorderSocieties,
     defaults: { title: '', category: '', description: '', imageUrl: '', websiteUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Society name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Computer Society' },
@@ -70,7 +70,7 @@ const collections = {
     title: 'College Sports',
     singular: 'sport',
     description: 'Manage school sports, teams and achievements.',
-    subscribe: subscribeAdminSports, create: createSport, update: updateSport, remove: deleteSport,
+    subscribe: subscribeAdminSports, create: createSport, update: updateSport, remove: deleteSport, reorder: reorderSports,
     defaults: { title: '', category: '', description: '', achievements: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Sport or team name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Cricket' },
@@ -84,7 +84,7 @@ const collections = {
     title: 'Extracurricular Activities',
     singular: 'activity',
     description: 'Manage activities and programmes outside the classroom.',
-    subscribe: subscribeAdminExtracurricular, create: createActivity, update: updateActivity, remove: deleteActivity,
+    subscribe: subscribeAdminExtracurricular, create: createActivity, update: updateActivity, remove: deleteActivity, reorder: reorderExtracurricular,
     defaults: { title: '', category: '', description: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Activity name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Community Service' },
@@ -97,12 +97,11 @@ const collections = {
     title: 'School Leadership',
     singular: 'leader',
     description: 'Manage verified senior administrative staff and display order.',
-    subscribe: subscribeAdminLeadership, create: createLeader, update: updateLeader, remove: deleteLeader,
-    defaults: { title: '', role: 'Principal', rank: '1', description: '', imageUrl: '', published: false },
+    subscribe: subscribeAdminLeadership, create: createLeader, update: updateLeader, remove: deleteLeader, reorder: reorderLeadership,
+    defaults: { title: '', role: 'Principal', description: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Staff member name', required: true, maxLength: 180, wide: true, placeholder: 'Enter full name' },
       { key: 'role', label: 'Position', type: 'select', options: ['Principal', 'Deputy Principal', 'Assistant Principal', 'Sectional Head', 'Other Senior Staff'] },
-      { key: 'rank', label: 'Display order', type: 'select', options: Array.from({ length: 20 }, (_, i) => String(i + 1)) },
       { key: 'description', label: 'Profile / responsibilities', type: 'textarea', rows: 5, maxLength: 1200, wide: true },
       { key: 'imageUrl', label: 'Official portrait URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/portrait.jpg' },
     ],
@@ -111,7 +110,7 @@ const collections = {
     title: 'Website Pages',
     singular: 'page',
     description: 'Prepare page content and search descriptions.',
-    subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage,
+    subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage, reorder: reorderPages,
     defaults: { title: '', slug: '', seoDescription: '', body: '', imageUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Page title', required: true, maxLength: 180, wide: true, placeholder: 'Enter page title' },
@@ -172,6 +171,10 @@ export default function ContentManager({ kind, onDirtyChange }) {
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
 
+  // Drag and Drop State
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+
   useEffect(() => {
     onDirtyChange(dirty);
   }, [dirty, onDirtyChange]);
@@ -229,7 +232,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }, [items, search, status]);
 
   function openNew() {
-    setForm({ ...config.defaults });
+    setForm({ ...config.defaults, rank: items.length + 1 });
     setEditingId(null);
     setDirty(false);
     setNotice(null);
@@ -255,6 +258,45 @@ export default function ContentManager({ kind, onDirtyChange }) {
   function updateField(key, value) {
     setForm(previous => ({ ...previous, [key]: value }));
     setDirty(true);
+  }
+
+  // Drag and Drop Event Handlers
+  function handleDragStart(index) {
+    setDraggedIndex(index);
+  }
+
+  function handleDragOver(e, index) {
+    e.preventDefault();
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  }
+
+  async function handleDrop(targetIndex) {
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reorderedList = [...visible];
+    const [movedItem] = reorderedList.splice(draggedIndex, 1);
+    reorderedList.splice(targetIndex, 0, movedItem);
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    const orderedIds = reorderedList.map((item) => item.id);
+
+    setActionId('reordering');
+    try {
+      await config.reorder(orderedIds);
+      setNotice({ type: 'success', text: 'Item positions updated.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: formatError(error) });
+    } finally {
+      setActionId(null);
+    }
   }
 
   async function save(event) {
@@ -338,10 +380,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
           {notice.text}
         </div>
       )}
-
       {!editorOpen ? (
         <>
-          {/* Action Row */}
+          {/* Action Toolbar */}
           <div className="admin-toolbar-row">
             <div className="admin-search-wrap">
               <svg className="admin-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -356,7 +397,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 className="admin-search-input"
               />
             </div>
-
             <div className="admin-filter-wrap">
               <select
                 value={status}
@@ -367,14 +407,13 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <option value="published">Published ({totals.published})</option>
                 <option value="drafts">Drafts ({totals.drafts})</option>
               </select>
-
               <button type="button" onClick={openNew} className="admin-btn-primary">
                 + New {config.singular}
               </button>
             </div>
           </div>
 
-          {/* List Content */}
+          {/* Item Table */}
           <div className="admin-table-card">
             {loadError ? (
               <p role="alert" className="admin-state-msg error">{loadError}</p>
@@ -395,8 +434,30 @@ export default function ContentManager({ kind, onDirtyChange }) {
             ) : (
               <div className="admin-list-container">
                 {visible.map((item, index) => {
+                  const isBeingDragged = draggedIndex === index;
+                  const isDragTarget = dragOverIndex === index;
+
                   return (
-                    <article key={item.id} className="admin-row">
+                    <article
+                      key={item.id}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={() => handleDrop(index)}
+                      className={`admin-row ${isBeingDragged ? 'dragging' : ''} ${isDragTarget ? 'drag-target' : ''}`}
+                    >
+                      {/* Drag Handle (Far Left) */}
+                      <div className="admin-drag-handle" title="Click and drag to reorder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="9" cy="5" r="2" />
+                          <circle cx="15" cy="5" r="2" />
+                          <circle cx="9" cy="12" r="2" />
+                          <circle cx="15" cy="12" r="2" />
+                          <circle cx="9" cy="19" r="2" />
+                          <circle cx="15" cy="19" r="2" />
+                        </svg>
+                      </div>
+
                       <div className="admin-row-main">
                         <div className="admin-thumb">
                           {item.imageUrl && item.imageUrl.startsWith('https://') ? (
@@ -410,9 +471,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
                           <p className="admin-row-snippet">{getSnippet(item, kind) || 'No text summary.'}</p>
                           <div className="admin-row-meta">
                             <span>Updated {displayDate(item)}</span>
-                            {item.eventDate && <span> • Date: {item.eventDate}</span>}
-                            {item.category && <span> • {item.category}</span>}
-                            {item.slug && <span> • /{item.slug}</span>}
+                            {item.eventDate && <span>   Date: {item.eventDate}</span>}
+                            {item.category && <span>   {item.category}</span>}
+                            {item.slug && <span>   /{item.slug}</span>}
                           </div>
                         </div>
                       </div>
@@ -422,7 +483,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                           <span className="admin-status-dot" />
                           {item.published ? 'Published' : 'Draft'}
                         </span>
-
                         <button
                           type="button"
                           disabled={actionId !== null}
@@ -431,7 +491,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                         >
                           Edit
                         </button>
-
                         <button
                           type="button"
                           disabled={actionId !== null}
@@ -440,7 +499,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                         >
                           {actionId === item.id ? '...' : item.published ? 'Unpublish' : 'Publish'}
                         </button>
-
                         <button
                           type="button"
                           disabled={actionId !== null}
@@ -468,7 +526,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
               Cancel
             </button>
           </div>
-
           <form onSubmit={save} className="admin-editor-form">
             <div className="admin-form-grid">
               {config.fields.map((field) => (
@@ -477,7 +534,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     {field.label}
                     {field.required && <span className="admin-required">*</span>}
                   </label>
-
                   {field.type === 'textarea' ? (
                     <textarea
                       rows={field.rows || 4}
@@ -513,7 +569,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       placeholder={field.placeholder}
                     />
                   )}
-
                   {field.help && <span className="admin-help-text">{field.help}</span>}
                   {kind === 'pages' && field.key === 'slug' && !editingId && (
                     <button
@@ -528,14 +583,12 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 </div>
               ))}
             </div>
-
             {form.imageUrl && /^https:\/\//i.test(form.imageUrl) && (
               <div className="admin-preview-box">
                 <span className="admin-label">Image Preview</span>
                 <img src={form.imageUrl} alt="Preview" className="admin-preview-img" />
               </div>
             )}
-
             <div className="admin-publish-row">
               <div>
                 <span className="admin-publish-title">Publishing Status</span>
@@ -555,7 +608,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <span>Published</span>
               </label>
             </div>
-
             <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
                 Cancel

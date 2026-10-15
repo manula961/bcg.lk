@@ -1,4 +1,3 @@
-/** Admin-authorized Extracurricular content, filtered to published records on public pages. */
 import { createContentRepository } from './contentRepository';
 
 const fields = {
@@ -9,11 +8,14 @@ const fields = {
   published: { type: 'boolean' },
 };
 
-const repository = createContentRepository('extracurricular', fields, { defaults: { category: '', imageUrl: '', published: false } });
+const repository = createContentRepository('extracurricular', fields, {
+  defaults: { category: '', imageUrl: '', published: false, rank: 999 },
+});
 
 export const subscribePublishedExtracurricular = repository.subscribePublished;
 export const listPublishedExtracurricular = repository.listPublished;
 export const subscribeAdminExtracurricular = repository.subscribeAdmin;
 export const createActivity = repository.create;
 export const updateActivity = repository.update;
+export const reorderExtracurricular = repository.reorderBatch;
 export const deleteActivity = repository.remove;
