@@ -5,10 +5,15 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 
 test('published CMS route is isolated from all existing homepage and admin routes',()=>{
  const entry=read('src/main.jsx');
- assert.match(entry,/pageMatch = window\.location\.pathname\.match/);
- assert.match(entry,/pageSlug \? <PublishedContentPage slug=\{pageSlug\} \/> : <App \/>/);
- assert.match(entry,/isAdminPath \? <AdminApp \/>/);
- assert.match(entry,/lifeSlug \? <LifeDetailPage slug=\{lifeSlug\} \/>/);
+ assert.match(entry,/pageMatch = pathname\.match/);
+ assert.match(entry,/pageSlug \? \(/);
+ assert.match(entry,/<PublishedContentPage slug=\{pageSlug\} \/>/);
+ assert.match(entry,/isEventsIndex \? \(/);
+ assert.match(entry,/eventsSlug \? \(/);
+ assert.match(entry,/updatesSlug \? \(/);
+ assert.match(entry,/isAdminPath \? \(/);
+ assert.match(entry,/lifeSlug \? \(/);
+ assert.match(entry,/<LifeDetailPage slug=\{lifeSlug\} \/>/);
 });
 
 test('published page uses existing MenuBar and Footer and never renders raw CMS HTML',()=>{
