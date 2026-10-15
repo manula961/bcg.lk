@@ -47,10 +47,7 @@ const ExploreSection = () => {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { 
-        threshold: 0.05,
-        rootMargin: '0px 0px -10% 0px' 
-      }
+      { threshold: 0.05, rootMargin: '0px 0px -10% 0px' }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -60,7 +57,7 @@ const ExploreSection = () => {
     if (!visible || isPaused) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
-    }, 3000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [visible, isPaused]);
 
@@ -71,6 +68,8 @@ const ExploreSection = () => {
       className="explore-section"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
     >
       <div className="section-container">
         <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
@@ -83,10 +82,14 @@ const ExploreSection = () => {
             </div>
           </div>
           <div className="explore-grid">
-            <div className="explore-tabs-list">
+            <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
                 <button
                   key={place.id}
+                  role="tab"
+                  aria-selected={active === i}
+                  aria-controls={`place-panel-${place.id}`}
+                  id={`place-tab-${place.id}`}
                   onClick={() => setActive(i)}
                   className={`explore-tab-btn ${active === i ? 'active' : ''}`}
                 >
@@ -95,7 +98,12 @@ const ExploreSection = () => {
                 </button>
               ))}
             </div>
-            <div className="explore-display-card">
+            <div
+              className="explore-display-card"
+              id={`place-panel-${places[active].id}`}
+              role="tabpanel"
+              aria-labelledby={`place-tab-${places[active].id}`}
+            >
               <img
                 key={active}
                 src={places[active].image}

@@ -12,12 +12,12 @@ function toNewsCard(post) {
           day: "numeric",
         })
       : "";
-
   return {
     id: post.id,
     category: post.category === "Announcements" ? "Announcements" : "News",
-    title: post.title || "Untitled Post",
-    excerpt: post.excerpt || "No summary available for this post.",
+    title: post.title || "Untitled Announcement",
+    excerpt: post.excerpt || "No summary available for this announcement.",
+    body: post.body || "",
     date: formattedDate,
     image: post.imageUrl || "",
     tag: post.tag || post.category || "General",
@@ -31,11 +31,14 @@ const NewsSection = () => {
   const [visible, setVisible] = useState(false);
   const [posts, setPosts] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   // Drag-to-scroll State
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+  const isMouseDown = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,21 +64,39 @@ const NewsSection = () => {
     return () => unsubscribe();
   }, []);
 
-  // Update active dot dynamically based on actual scroll position
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isMouseDown.current) {
+        isMouseDown.current = false;
+        setIsDragging(false);
+      }
+    };
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
+  }, []);
+
+  const filters = ["All", "Announcements", "News"];
+  const filtered =
+    activeFilter === "All"
+      ? posts
+      : posts.filter((p) => p.category === activeFilter);
+
   const handleScrollUpdate = () => {
     if (!gridRef.current) return;
     const container = gridRef.current;
     const firstCard = container.querySelector(".news-card");
     if (!firstCard) return;
-
-    const cardWidth = firstCard.offsetWidth + 24; // Width + CSS Gap
+    const cardWidth = firstCard.offsetWidth + 20;
     const maxScroll = container.scrollWidth - container.clientWidth;
-
+    if (maxScroll <= 0) {
+      setActiveIndex(0);
+      return;
+    }
     if (container.scrollLeft >= maxScroll - 10) {
-      setActiveIndex(filtered.length - 1);
+      setActiveIndex(Math.max(0, filtered.length - 1));
     } else {
       const index = Math.round(container.scrollLeft / cardWidth);
-      setActiveIndex(Math.min(filtered.length - 1, Math.max(0, index)));
+      setActiveIndex(Math.min(Math.max(0, filtered.length - 1), Math.max(0, index)));
     }
   };
 
@@ -83,20 +104,20 @@ const NewsSection = () => {
     if (!gridRef.current) return;
     const firstCard = gridRef.current.querySelector(".news-card");
     if (!firstCard) return;
-
-    const cardWidth = firstCard.offsetWidth + 24;
+    const cardWidth = firstCard.offsetWidth + 20;
     gridRef.current.scrollTo({ left: index * cardWidth, behavior: "smooth" });
   };
 
   const handleScroll = (direction) => {
     if (!gridRef.current) return;
     const firstCard = gridRef.current.querySelector(".news-card");
-    const cardWidth = firstCard ? firstCard.offsetWidth + 24 : 364;
+    const cardWidth = firstCard ? firstCard.offsetWidth + 20 : 340;
     const scrollAmount = direction === "left" ? -cardWidth : cardWidth;
     gridRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
   const handleFilterChange = (filter) => {
+    if (filter === activeFilter) return;
     setActiveFilter(filter);
     setActiveIndex(0);
     if (gridRef.current) {
@@ -106,27 +127,30 @@ const NewsSection = () => {
 
   const handleMouseDown = (e) => {
     if (!gridRef.current) return;
+    isMouseDown.current = true;
     setIsDragging(true);
-    setStartX(e.pageX - gridRef.current.offsetLeft);
-    setScrollLeft(gridRef.current.scrollLeft);
+    setHasDragged(false);
+    dragStartX.current = e.pageX - gridRef.current.offsetLeft;
+    dragScrollLeft.current = gridRef.current.scrollLeft;
   };
-
-  const handleMouseLeave = () => setIsDragging(false);
-  const handleMouseUp = () => setIsDragging(false);
 
   const handleMouseMove = (e) => {
-    if (!isDragging || !gridRef.current) return;
+    if (!isMouseDown.current || !gridRef.current) return;
     e.preventDefault();
     const x = e.pageX - gridRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    gridRef.current.scrollLeft = scrollLeft - walk;
+    const walk = (x - dragStartX.current) * 1.5;
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    gridRef.current.scrollLeft = dragScrollLeft.current - walk;
   };
 
-  const filters = ["All", "Announcements", "News"];
-  const filtered =
-    activeFilter === "All"
-      ? posts
-      : posts.filter((p) => p.category === activeFilter);
+  const handleMouseUp = () => {
+    isMouseDown.current = false;
+    setIsDragging(false);
+  };
+
+  const dotsList = filtered.length > 0 ? filtered : [null];
 
   return (
     <section id="news" ref={sectionRef} className="news-section">
@@ -142,7 +166,6 @@ const NewsSection = () => {
                 <div className="news-divider-blue" />
               </div>
             </div>
-
             <div className="news-controls">
               <div className="news-filters">
                 {filters.map((f) => (
@@ -157,44 +180,61 @@ const NewsSection = () => {
                   </button>
                 ))}
               </div>
-
-              {filtered.length > 1 && (
-                <div className="news-scroll-arrows">
-                  <button
-                    onClick={() => handleScroll("left")}
-                    className="scroll-arrow-btn"
-                    aria-label="Scroll left"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleScroll("right")}
-                    className="scroll-arrow-btn"
-                    aria-label="Scroll right"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                </div>
-              )}
+              <div className="news-scroll-arrows">
+                <button
+                  onClick={() => handleScroll("left")}
+                  className="scroll-arrow-btn"
+                  aria-label="Scroll left"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleScroll("right")}
+                  className="scroll-arrow-btn"
+                  aria-label="Scroll right"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-
           <div
+            key={activeFilter}
             ref={gridRef}
-            className="news-grid"
+            className={`news-grid ${isDragging ? "dragging" : ""}`}
             data-lenis-prevent
             onScroll={handleScrollUpdate}
             onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={handleMouseUp}
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
             {filtered.map((post) => (
-              <div key={post.id} className="news-card">
+              <div
+                key={post.id}
+                className="news-card"
+                tabIndex={0}
+                role="article"
+                aria-label={`Read ${post.title}`}
+                onClick={(e) => {
+                  if (hasDragged) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  setSelectedPost(post);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedPost(post);
+                  }
+                }}
+              >
                 {post.image ? (
                   <div
                     className="news-card-image-wrap"
@@ -204,7 +244,7 @@ const NewsSection = () => {
                     <div className="news-card-tag">{post.tag}</div>
                   </div>
                 ) : (
-                  <div className="news-card-image-wrap" style={{ height: "70px" }}>
+                  <div className="news-card-image-wrap news-card-no-img">
                     <div className="news-card-tag">{post.tag}</div>
                   </div>
                 )}
@@ -217,28 +257,75 @@ const NewsSection = () => {
                     <p className="news-card-excerpt">{post.excerpt}</p>
                   </div>
                   <span className="news-card-link">
-                    Read More <span>→</span>
+                    Read More
+                    <svg
+                      className="news-card-link-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
                   </span>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Interactive Navigation Dots Bar */}
-          {filtered.length > 1 && (
-            <div className="news-dots-container">
-              {filtered.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleDotClick(i)}
-                  className={`news-dot ${activeIndex === i ? "active" : ""}`}
-                  aria-label={`Jump to article ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
+          <div className="news-dots-container">
+            {dotsList.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => handleDotClick(i)}
+                className={`news-dot ${activeIndex === i ? "active" : ""}`}
+                aria-label={`Jump to article ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Article Reader Modal */}
+      {selectedPost && (
+        <div
+          className="news-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelectedPost(null)}
+        >
+          <div
+            className="news-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="news-modal-close"
+              onClick={() => setSelectedPost(null)}
+              aria-label="Close article"
+            >
+              ✕
+            </button>
+            {selectedPost.image && (
+              <img
+                src={selectedPost.image}
+                alt=""
+                className="news-modal-img"
+              />
+            )}
+            <div className="news-modal-body">
+              <span className="news-card-tag">{selectedPost.tag}</span>
+              <h2 className="news-modal-title">{selectedPost.title}</h2>
+              <p className="news-card-meta">{selectedPost.date}</p>
+              <div className="news-modal-text">
+                {selectedPost.body || selectedPost.excerpt}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
