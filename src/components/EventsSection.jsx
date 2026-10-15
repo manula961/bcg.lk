@@ -2,18 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import './EventsSection.css';
 import { subscribePublishedEvents } from '../lib/eventsService';
 
-function toEventCard(event) {
-  const date = /^\d{4}-(\d{2})-(\d{2})$/.exec(event.eventDate || "");
+function parseEventDate(eventDateStr) {
+  const date = /^\d{4}-(\d{2})-(\d{2})$/.exec(eventDateStr || "");
   const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   const monthIndex = date ? Number(date[1]) - 1 : -1;
   return {
-    id: event.id,
     month: months[monthIndex] || "UPCOMING",
-    day: date ? date[2] : "—",
-    title: event.title || "College Event",
-    desc: event.description || "Event details will be announced soon.",
-    location: event.location || "Main Hall",
-    color: event.color || "#7B1C1C",
+    day: date ? date[2] : "--",
   };
 }
 
@@ -39,7 +34,24 @@ const EventsSection = () => {
     let unsubscribe = () => {};
     try {
       unsubscribe = subscribePublishedEvents(
-        (publishedEvents) => setEvents(publishedEvents.map(toEventCard)),
+        (publishedEvents) => {
+          // Dynamically alternate colors (index % 2) so adjacent items never share the same accent
+          const mapped = publishedEvents.map((event, index) => {
+            const { month, day } = parseEventDate(event.eventDate);
+            const alternatingColor = index % 2 === 0 ? '#7B1C1C' : '#1A3A6B';
+
+            return {
+              id: event.id,
+              month,
+              day,
+              title: event.title || 'College Event',
+              desc: event.description || 'Event details will be announced soon.',
+              location: event.location || 'Main Hall',
+              color: alternatingColor,
+            };
+          });
+          setEvents(mapped);
+        },
         (error) => console.error('Unable to load published events:', error),
       );
     } catch (error) {
@@ -48,11 +60,18 @@ const EventsSection = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleEventClick = (eventItem) => {
+    const slug = encodeURIComponent(
+      (eventItem.title || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+    );
+    window.location.href = `/events/${slug}`;
+  };
+
   const handleViewAllEvents = () => {
-    const eventsElement = document.getElementById('events');
-    if (eventsElement) {
-      eventsElement.scrollIntoView({ behavior: 'smooth' });
-    }
+    window.location.href = '/events';
   };
 
   return (
@@ -69,7 +88,7 @@ const EventsSection = () => {
               <div className="events-divider-blue" />
             </div>
           </div>
-          
+
           <div className="events-list">
             {events.length === 0 ? (
               <p className="events-empty-msg">No scheduled public events at this time.</p>
@@ -82,6 +101,13 @@ const EventsSection = () => {
                   role="button"
                   aria-label={`Event: ${event.title} on ${event.month} ${event.day} at ${event.location}`}
                   style={{ '--hover-color': event.color }}
+                  onClick={() => handleEventClick(event)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleEventClick(event);
+                    }
+                  }}
                 >
                   <div className="event-date-block">
                     <div className="event-month" style={{ color: event.color }}>
@@ -127,7 +153,6 @@ const EventsSection = () => {
               ))
             )}
           </div>
-
           <div className="events-action">
             <button
               className="events-btn"

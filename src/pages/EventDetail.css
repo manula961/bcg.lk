@@ -1,0 +1,161 @@
+.event-detail-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-detail-top-wrapper {
+  padding-top: 40px;
+}
+
+.event-detail-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 100px;
+}
+
+.event-detail-return {
+  padding-top: 10px;
+  margin-bottom: 24px;
+}
+
+.event-detail-return-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #7B1C1C;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.25s ease, transform 0.25s ease;
+  width: fit-content;
+}
+
+.event-detail-return-btn:hover {
+  color: #1a3a6b;
+  transform: translateX(-4px);
+}
+
+.event-detail-return-btn .return-arrow-icon {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  transition: transform 0.25s ease;
+}
+
+.event-detail-return-btn:hover .return-arrow-icon {
+  transform: translateX(-4px);
+}
+
+.event-detail-header {
+  text-align: center;
+  padding: 12px 0 32px;
+}
+
+.event-detail-kicker {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: #7B1C1C;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.event-detail-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.6rem);
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.event-detail-meta-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.event-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.85rem;
+  color: #a38229;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #f7f5f0;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.event-detail-chip svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+.event-detail-hero-image-wrap {
+  width: 100%;
+  max-height: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+.event-detail-hero-image {
+  width: 100%;
+  height: 100%;
+  max-height: 480px;
+  object-fit: cover;
+}
+
+.event-detail-content {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  line-height: 1.85;
+  color: #333333;
+  font-weight: 300;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.event-detail-loading,
+.event-detail-not-found {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.event-detail-not-found-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.event-detail-not-found-desc {
+  font-family: 'Geologica', sans-serif;
+  color: #666666;
+  margin-bottom: 24px;
+}

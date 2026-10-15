@@ -4,9 +4,21 @@ import { subscribePublishedExtracurricular } from '../lib/extracurricularService
 import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
-  sports: { title: 'COLLEGE SPORTS', intro: 'School sports and achievements published by the administration.', subscribe: subscribePublishedSports },
-  extracurricular: { title: 'EXTRACURRICULAR ACTIVITIES', intro: 'Activities and programmes published by the administration.', subscribe: subscribePublishedExtracurricular },
-  leadership: { title: 'SCHOOL ADMINISTRATION', intro: 'Verified senior school administrative staff, displayed in the order set by the administration.', subscribe: subscribePublishedLeadership },
+  sports: {
+    title: 'COLLEGE SPORTS',
+    intro: 'School sports and achievements published by the administration.',
+    subscribe: subscribePublishedSports,
+  },
+  extracurricular: {
+    title: 'EXTRACURRICULAR ACTIVITIES',
+    intro: 'Activities and programmes published by the administration.',
+    subscribe: subscribePublishedExtracurricular,
+  },
+  leadership: {
+    title: 'SCHOOL ADMINISTRATION',
+    intro: 'Verified senior school administrative staff, displayed in the order set by the administration.',
+    subscribe: subscribePublishedLeadership,
+  },
 };
 
 export default function SchoolContentListing({ kind }) {
@@ -18,7 +30,10 @@ export default function SchoolContentListing({ kind }) {
     let unsubscribe = () => {};
     try {
       unsubscribe = config.subscribe(
-        data => { setRecords(data); setError(''); },
+        (data) => {
+          setRecords(data);
+          setError('');
+        },
         () => setError('Unable to load this content right now.')
       );
     } catch {
@@ -27,13 +42,6 @@ export default function SchoolContentListing({ kind }) {
     return () => unsubscribe();
   }, [config]);
 
-  const sorted = kind === 'leadership'
-    ? [...records].sort((a, b) =>
-        Number(a.rank || 20) - Number(b.rank || 20) ||
-        a.title.localeCompare(b.title)
-      )
-    : records;
-
   return (
     <section className="life-detail-societies" aria-labelledby={'directory-' + kind}>
       <div className="life-detail-section-heading">
@@ -41,22 +49,27 @@ export default function SchoolContentListing({ kind }) {
         <h2 id={'directory-' + kind}>{config.title}</h2>
         <p className="life-detail-description">{config.intro}</p>
       </div>
-
       {error && <p role="alert" className="life-detail-societies-message">{error}</p>}
-      {!error && sorted.length === 0 && (
+      {!error && records.length === 0 && (
         <p className="life-detail-societies-message">Profiles will appear here when published.</p>
       )}
-
       <div className="life-detail-society-grid">
-        {sorted.map(item => (
+        {records.map((item) => (
           <article key={item.id} className="life-detail-society-card">
             {item.imageUrl && (
               <div className="life-detail-society-logo-wrap">
-                <img src={item.imageUrl} alt={kind === 'leadership' ? item.title : ''} loading="lazy" className="life-detail-society-logo" />
+                <img
+                  src={item.imageUrl}
+                  alt={kind === 'leadership' ? item.title : ''}
+                  loading="lazy"
+                  className="life-detail-society-logo"
+                />
               </div>
             )}
             {(kind === 'leadership' ? item.role : item.category) && (
-              <span className="life-detail-feature-label">{kind === 'leadership' ? item.role : item.category}</span>
+              <span className="life-detail-feature-label">
+                {kind === 'leadership' ? item.role : item.category}
+              </span>
             )}
             <h3>{item.title}</h3>
             {item.description && <p>{item.description}</p>}

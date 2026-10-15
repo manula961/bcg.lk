@@ -1,0 +1,400 @@
+.events-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.events-page-top {
+  padding-top: 40px;
+}
+
+.events-page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 100px;
+}
+
+.events-page-return {
+  padding-top: 10px;
+  margin-bottom: 24px;
+}
+
+.events-page-return-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #7B1C1C;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.25s ease, transform 0.25s ease;
+  width: fit-content;
+}
+
+.events-page-return-btn:hover {
+  color: #1a3a6b;
+  transform: translateX(-4px);
+}
+
+.events-page-header {
+  text-align: center;
+  padding: 12px 0 36px;
+}
+
+.events-page-subtitle {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: #7B1C1C;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.events-page-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(1.8rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.15;
+}
+
+/* Calendar Card Container */
+.calendar-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
+  padding: clamp(16px, 3vw, 32px);
+  position: relative;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.calendar-month-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.calendar-nav-btn {
+  position: relative;
+  background: #f7f5f0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1a1a1a;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: #7B1C1C;
+  color: #ffffff;
+}
+
+.has-event-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #7B1C1C;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(123, 28, 28, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(123, 28, 28, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(123, 28, 28, 0); }
+}
+
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  text-align: center;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7B1C1C;
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.day-name-full {
+  display: inline;
+}
+
+.day-name-short {
+  display: none;
+}
+
+.calendar-grid-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.calendar-day-cell {
+  min-height: 95px;
+  background: #faf8f5;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+}
+
+.calendar-day-cell.has-events {
+  border-color: rgba(123, 28, 28, 0.25);
+  background: #fdfbf7;
+  cursor: pointer;
+}
+
+.calendar-day-cell.has-events:hover {
+  border-color: #7B1C1C;
+  background: #f7f1e7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(123, 28, 28, 0.08);
+}
+
+.calendar-day-cell.empty {
+  background: transparent;
+  border: none;
+  min-height: 0;
+}
+
+.calendar-day-number {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555555;
+}
+
+.calendar-event-pill {
+  background: #7B1C1C;
+  color: #ffffff;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 5px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+  transition: background 0.2s ease;
+}
+
+.calendar-day-cell.has-events:hover .calendar-event-pill {
+  background: #1a3a6b;
+}
+
+.calendar-event-dot {
+  display: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #7B1C1C;
+  margin: 4px auto 0;
+}
+
+/* Zero-Lag Hardware Accelerated Cursor Tooltip */
+.event-floating-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background: #121215;
+  color: #ffffff;
+  padding: 18px 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+  width: 320px;
+  will-change: transform;
+  animation: tooltipFade 0.15s ease-out;
+}
+
+@keyframes tooltipFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tooltip-date-tag {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.68rem;
+  color: #C9A84C;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.tooltip-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
+  line-height: 1.25;
+}
+
+.tooltip-desc {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tooltip-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.72rem;
+  color: #C9A84C;
+  margin-top: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile Modal Popup */
+.mobile-event-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.mobile-event-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+  text-align: center;
+  animation: modalUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f0ece1;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.mobile-modal-kicker {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.68rem;
+  color: #7B1C1C;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.mobile-modal-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 6px 0 10px;
+}
+
+.mobile-modal-desc {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.85rem;
+  color: #555555;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.mobile-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px;
+  background: #7B1C1C;
+  color: #ffffff;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 640px) {
+  .day-name-full {
+    display: none;
+  }
+  .day-name-short {
+    display: inline;
+  }
+  .calendar-day-cell {
+    min-height: 48px;
+    padding: 4px;
+    align-items: center;
+  }
+  .calendar-event-pill {
+    display: none;
+  }
+  .calendar-event-dot {
+    display: block;
+  }
+}

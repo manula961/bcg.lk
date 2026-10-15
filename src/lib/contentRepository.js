@@ -1,8 +1,5 @@
 /**
- * Firestore-only CMS repository. No UI dependencies or DOM operations.
- *
- * IMPORTANT: Client validation is for consistency, not authorization.
- * Firestore Security Rules remain the authority for every read/write.
+ * Firestore-only CMS repository.
  */
 import {
   addDoc,
@@ -17,6 +14,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -31,7 +29,6 @@ function adminUser() {
   if (!auth?.currentUser) {
     throw new Error('Sign in as an administrator before editing content.');
   }
-  // The actual admin-role check is enforced by Firestore Security Rules.
   return auth.currentUser;
 }
 
@@ -44,10 +41,19 @@ function documentId(value) {
 
 function cleanField(key, value, definition) {
   const { type = 'text', max = 1000, required = false } = definition;
+
+  if (type === 'number') {
+    if (value === '' || value === null || value === undefined) return null;
+    const num = Number(value);
+    if (!Number.isFinite(num)) throw new TypeError(key + ' must be a valid number.');
+    return num;
+  }
+
   if (type === 'boolean') {
     if (typeof value !== 'boolean') throw new TypeError(key + ' must be a boolean.');
     return value;
   }
+
   if (typeof value !== 'string') throw new TypeError(key + ' must be a string.');
   const cleaned = value.trim();
   if (cleaned.length > max) throw new RangeError(key + ' is too long (maximum ' + max + ' characters).');
@@ -77,9 +83,11 @@ function cleanField(key, value, definition) {
   if (type === 'hexcolor' && cleaned && !/^#[0-9a-fA-F]{6}$/.test(cleaned)) {
     throw new TypeError(key + ' must be a six-digit hex color.');
   }
+
   if (definition.allowed && !definition.allowed.includes(cleaned)) {
     throw new TypeError(key + ' must be one of: ' + definition.allowed.join(', '));
   }
+
   return cleaned;
 }
 
@@ -111,6 +119,13 @@ function fromSnapshot(snapshot) {
 
 function newestFirst(items) {
   return items.sort((a, b) => {
+    const aRank = typeof a.rank === 'number' ? a.rank : Infinity;
+    const bRank = typeof b.rank === 'number' ? b.rank : Infinity;
+
+    if (aRank !== bRank) {
+      return aRank - bRank;
+    }
+
     const aTime = a.publishedAt?.toMillis?.() ?? a.updatedAt?.toMillis?.() ?? a.createdAt?.toMillis?.() ?? 0;
     const bTime = b.publishedAt?.toMillis?.() ?? b.updatedAt?.toMillis?.() ?? b.createdAt?.toMillis?.() ?? 0;
     return bTime - aTime;
@@ -121,12 +136,16 @@ function documents(snapshot, publishedOnly = false) {
   return newestFirst(snapshot.docs.map(fromSnapshot).filter(item => !publishedOnly || item.published === true));
 }
 
-/**
- * Generic collection access. Public list queries *must* filter published==true,
- * because Firestore Security Rules are not automatic query filters.
- */
 export function createContentRepository(name, fields, options = {}) {
-  if (!['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership'].includes(name)) throw new TypeError('Unsupported collection.');
+  if (!['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership'].includes(name)) {
+    throw new TypeError('Unsupported collection.');
+  }
+
+  const enrichedFields = {
+    ...fields,
+    rank: { type: 'number' },
+  };
+
   const records = () => collection(database(), name);
   const record = id => doc(database(), name, documentId(id));
   const publishedQuery = () => query(records(), where('published', '==', true));
@@ -146,7 +165,6 @@ export function createContentRepository(name, fields, options = {}) {
       const snapshot = await getDoc(record(id));
       return snapshot.exists() && snapshot.data().published === true ? fromSnapshot(snapshot) : null;
     },
-
     async listAdmin() {
       adminUser();
       return documents(await getDocs(records()));
@@ -161,10 +179,9 @@ export function createContentRepository(name, fields, options = {}) {
       const snapshot = await getDoc(record(id));
       return snapshot.exists() ? fromSnapshot(snapshot) : null;
     },
-
     async create(input) {
       const user = adminUser();
-      const data = validate(input, fields, { create: true, defaults: options.defaults });
+      const data = validate(input, enrichedFields, { create: true, defaults: options.defaults });
       const payload = {
         ...data,
         createdAt: serverTimestamp(),
@@ -186,15 +203,13 @@ export function createContentRepository(name, fields, options = {}) {
       const ref = await addDoc(records(), payload);
       return ref.id;
     },
-
     async update(id, patch) {
       const user = adminUser();
       const ref = record(id);
-      const input = validate(patch, fields);
+      const input = validate(patch, enrichedFields);
       if (options.idField && hasOwn(input, options.idField) && input[options.idField] !== id) {
         throw new Error(options.idField + ' cannot be changed after creation.');
       }
-      // Read the old publication state so draft/re-publish transitions are correct.
       const existing = await getDoc(ref);
       if (!existing.exists()) throw new Error('Content entry not found.');
       const payload = { ...input, updatedAt: serverTimestamp(), updatedBy: user.uid };
@@ -203,7 +218,16 @@ export function createContentRepository(name, fields, options = {}) {
       }
       await updateDoc(ref, payload);
     },
-
+    async reorderBatch(orderedIds) {
+      adminUser();
+      if (!Array.isArray(orderedIds)) throw new TypeError('orderedIds must be an array.');
+      const batch = writeBatch(database());
+      orderedIds.forEach((id, index) => {
+        const ref = record(id);
+        batch.update(ref, { rank: index + 1, updatedAt: serverTimestamp() });
+      });
+      await batch.commit();
+    },
     async remove(id) {
       adminUser();
       await deleteDoc(record(id));

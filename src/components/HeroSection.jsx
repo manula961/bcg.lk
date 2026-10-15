@@ -64,7 +64,7 @@ const HeroSection = () => {
     <section
       id="home"
       ref={heroRef}
-      className="hero-section relative flex flex-col items-center justify-center h-[100dvh] min-h-[95dvh] overflow-hidden text-center will-change-transform"
+      className="hero-section relative flex flex-col items-center justify-center h-screen overflow-hidden text-center will-change-transform"
     >
       <div className="relative z-10 flex flex-col items-center px-4 -mt-12 md:-mt-16">
         {/* Logo */}
@@ -72,15 +72,15 @@ const HeroSection = () => {
           <img
             src="https://i.ibb.co/Wv1bGqbs/images.jpg"
             alt="Bandaranayake College Logo"
-            className="object-cover w-140 h-140 rounded-full md:w-48 md:h-48 lg:w-52 lg:h-52"
+            className="object-cover w-40 h-40 rounded-full md:w-48 md:h-48 lg:w-52 lg:h-52"
           />
         </div>
 
         {/* College name - Using Geologica Font */}
         <div ref={titleRef} className="hero-fade-init">
-          <h1 className="geologica mb-4 text-2xl font-extrabold tracking-normal text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text md:text-5xl lg:text-6xl whitespace-nowrap">
+          <h1 className="geologica mb-4 text-4xl font-extrabold tracking-normal text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text md:text-5xl lg:text-6xl whitespace-nowrap">
             BANDARANAYAKE COLLEGE <br />
-            <span ref={subtitleRef} className="block mt-1 text-2xl font-extrabold md:text-5xl lg:text-6xl">
+            <span ref={subtitleRef} className="block mt-1 text-4xl font-extrabold md:text-5xl lg:text-6xl">
               GAMPAHA
             </span>
           </h1>
@@ -92,6 +92,7 @@ const HeroSection = () => {
           className="hero-fade-init flex items-center justify-center gap-3 my-1"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
+
           <span className="text-xl font-black tracking-[0.3em] text-yellow-400 uppercase">
             SINCE 1918
           </span>
@@ -109,7 +110,6 @@ const HeroSection = () => {
           <span className="motto-maroon">විද්වාත්</span>
           <span className="motto-blue">සර්වත්‍ර</span>
           <span className="motto-maroon">පූජ්‍යතේ</span>
-
         </div>
       </div>
 
