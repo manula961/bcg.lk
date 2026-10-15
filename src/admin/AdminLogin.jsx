@@ -14,15 +14,14 @@ export default function AdminLogin() {
     if (busy) return;
     setBusy(true);
     setError('');
-
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
     } catch (err) {
       const messages = {
         'auth/invalid-credential': 'Email or password is incorrect.',
-        'auth/too-many-requests': 'Too many attempts. Wait before trying again.',
-        'auth/network-request-failed': 'Network error. Check your connection and retry.',
-        'auth/operation-not-allowed': 'Email/password sign-in is disabled in Firebase Authentication.',
+        'auth/too-many-requests': 'Too many attempts. Please try again later.',
+        'auth/network-request-failed': 'Network error. Check your internet connection.',
+        'auth/operation-not-allowed': 'Sign-in is disabled in Firebase Authentication.',
       };
       setError(messages[err?.code] || err?.message || 'Unable to sign in.');
     } finally {
@@ -32,21 +31,16 @@ export default function AdminLogin() {
 
   return (
     <main className="admin-center-screen">
-      <div className="admin-glow-maroon" />
-      <div className="admin-glow-gold" />
-
-      <form onSubmit={login} className="admin-card-glass relative z-10 space-y-6">
-        <div className="text-center space-y-2">
-          <div className="admin-logo-box mx-auto mb-2">B</div>
-          <h1 className="admin-title text-2xl font-extrabold text-white">BCG.LK Admin</h1>
-          <p className="admin-subtitle text-xs font-semibold tracking-widest text-[#C9A84C] uppercase">
-            Sign in to access console
-          </p>
+      <form onSubmit={login} className="admin-login-card">
+        <div className="admin-login-header">
+          <div className="admin-logo-mark large">B</div>
+          <h1 className="admin-login-title">BCG Admin Console</h1>
+          <p className="admin-login-sub">Sign in to manage college content</p>
         </div>
 
-        <div className="space-y-4">
-          <label className="block">
-            <span className="admin-input-label">Email Address</span>
+        <div className="admin-login-fields">
+          <div>
+            <label className="admin-label">Email Address</label>
             <input
               type="email"
               required
@@ -56,30 +50,26 @@ export default function AdminLogin() {
               placeholder="admin@bcg.lk"
               className="admin-input"
             />
-          </label>
+          </div>
 
-          <label className="block">
-            <span className="admin-input-label">Password</span>
+          <div>
+            <label className="admin-label">Password</label>
             <input
               type="password"
               required
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
+              placeholder="••••••••"
               className="admin-input"
             />
-          </label>
+          </div>
         </div>
 
-        {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-950/30 p-3 text-xs text-red-200">
-            {error}
-          </div>
-        )}
+        {error && <div className="admin-notice error">{error}</div>}
 
-        <button type="submit" disabled={busy} className="admin-btn-primary w-full py-3.5">
-          {busy ? 'Signing in...' : 'Sign In to Admin Console'}
+        <button type="submit" disabled={busy} className="admin-btn-primary wide">
+          {busy ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
     </main>

@@ -170,7 +170,7 @@
 .life-detail-card-label {
   font-family: 'Geologica', sans-serif;
   font-size: 0.68rem;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.1em;
   color: #C9A84C;
   text-transform: uppercase;
   font-weight: 600;
@@ -381,14 +381,14 @@
   border-radius: 14px;
   background: #faf8f5;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 24px;
+  padding: 2px;
   overflow: hidden;
 }
 
 .life-detail-society-logo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  /* max-width: 100%;
+  max-height: 100%; */
+  object-fit: cover;
 }
 
 .life-detail-society-card h3 {

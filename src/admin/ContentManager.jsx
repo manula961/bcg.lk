@@ -30,7 +30,7 @@ const collections = {
     subscribe: subscribeAdminNews, create: createNews, update: updateNews, remove: deleteNews,
     defaults: { title: '', category: 'News', tag: '', excerpt: '', body: '', imageUrl: '', published: false },
     fields: [
-      { key: 'title', label: 'Article title', required: true, maxLength: 180, placeholder: 'Enter the headline', wide: true },
+      { key: 'title', label: 'Article title', required: true, maxLength: 180, placeholder: 'Enter headline', wide: true },
       { key: 'category', label: 'Category', type: 'select', options: ['News', 'Announcements'] },
       { key: 'tag', label: 'Topic / tag', maxLength: 80, placeholder: 'e.g. Sports' },
       { key: 'excerpt', label: 'Short summary', type: 'textarea', rows: 3, maxLength: 500, required: true, wide: true },
@@ -41,28 +41,28 @@ const collections = {
   events: {
     title: 'College Events',
     singular: 'event',
-    description: 'Manage dates, venues, and event details. Event accent colors are auto-assigned (odd: red, even: blue).',
+    description: 'Manage dates, venues, and event details.',
     subscribe: subscribeAdminEvents, create: createEvent, update: updateEvent, remove: deleteEvent,
     defaults: { title: '', eventDate: '', location: '', description: '', imageUrl: '', published: false },
     fields: [
-      { key: 'title', label: 'Event title', required: true, maxLength: 180, wide: true, placeholder: 'Enter the event name' },
+      { key: 'title', label: 'Event title', required: true, maxLength: 180, wide: true, placeholder: 'Enter event name' },
       { key: 'eventDate', label: 'Event date', type: 'date', required: true },
       { key: 'location', label: 'Location / venue', required: true, maxLength: 200, placeholder: 'e.g. Main Hall, BCG' },
-      { key: 'description', label: 'Event description', type: 'textarea', rows: 7, maxLength: 3000, required: true, wide: true },
+      { key: 'description', label: 'Event description', type: 'textarea', rows: 6, maxLength: 3000, required: true, wide: true },
       { key: 'imageUrl', label: 'Event image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/photo.jpg', wide: true },
     ],
   },
   societies: {
     title: 'College Societies',
     singular: 'society',
-    description: 'Add society names, descriptions and logo URLs, then publish them on the Societies page.',
+    description: 'Add society names, descriptions and logo URLs.',
     subscribe: subscribeAdminSocieties, create: createSociety, update: updateSociety, remove: deleteSociety,
     defaults: { title: '', category: '', description: '', imageUrl: '', websiteUrl: '', published: false },
     fields: [
       { key: 'title', label: 'Society name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Computer Society' },
       { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Science & Technology' },
       { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 5, maxLength: 1200, wide: true },
-      { key: 'imageUrl', label: 'Society logo URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/society-logo.png', help: 'Paste an HTTPS image URL. The existing preview shows the logo before publishing.' },
+      { key: 'imageUrl', label: 'Society logo URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/society-logo.png' },
       { key: 'websiteUrl', label: 'Society website or social link', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com' },
     ],
   },
@@ -89,20 +89,20 @@ const collections = {
     fields: [
       { key: 'title', label: 'Activity name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Community Service' },
       { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Cadets and Service' },
-      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 6, maxLength: 3000, wide: true },
+      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 5, maxLength: 3000, wide: true },
       { key: 'imageUrl', label: 'Activity image URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/photo.jpg' },
     ],
   },
   leadership: {
     title: 'School Leadership',
     singular: 'leader',
-    description: 'Manage verified senior administrative staff and their display order. Do not publish unconfirmed appointments.',
+    description: 'Manage verified senior administrative staff and display order.',
     subscribe: subscribeAdminLeadership, create: createLeader, update: updateLeader, remove: deleteLeader,
     defaults: { title: '', role: 'Principal', rank: '1', description: '', imageUrl: '', published: false },
     fields: [
-      { key: 'title', label: 'Staff member name', required: true, maxLength: 180, wide: true, placeholder: 'Enter the verified full name' },
+      { key: 'title', label: 'Staff member name', required: true, maxLength: 180, wide: true, placeholder: 'Enter full name' },
       { key: 'role', label: 'Position', type: 'select', options: ['Principal', 'Deputy Principal', 'Assistant Principal', 'Sectional Head', 'Other Senior Staff'] },
-      { key: 'rank', label: 'Display order (1 first)', type: 'select', options: Array.from({ length: 20 }, (_, i) => String(i + 1)) },
+      { key: 'rank', label: 'Display order', type: 'select', options: Array.from({ length: 20 }, (_, i) => String(i + 1)) },
       { key: 'description', label: 'Profile / responsibilities', type: 'textarea', rows: 5, maxLength: 1200, wide: true },
       { key: 'imageUrl', label: 'Official portrait URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/portrait.jpg' },
     ],
@@ -110,16 +110,14 @@ const collections = {
   pages: {
     title: 'Website Pages',
     singular: 'page',
-    description: 'Prepare page content and search descriptions for public-site integrations.',
+    description: 'Prepare page content and search descriptions.',
     subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage,
     defaults: { title: '', slug: '', seoDescription: '', body: '', imageUrl: '', published: false },
     fields: [
-      { key: 'title', label: 'Page title', required: true, maxLength: 180, wide: true, placeholder: 'Enter the page title' },
-      { key: 'slug', label: 'Page slug', required: true, maxLength: 120, placeholder: 'about-college',
-        help: 'Lowercase letters, numbers and hyphens only. Cannot be changed later.' },
+      { key: 'title', label: 'Page title', required: true, maxLength: 180, wide: true, placeholder: 'Enter page title' },
+      { key: 'slug', label: 'Page slug', required: true, maxLength: 120, placeholder: 'about-college', help: 'Lowercase letters, numbers and hyphens only.' },
       { key: 'seoDescription', label: 'Search description', type: 'textarea', rows: 3, maxLength: 320, wide: true },
-      { key: 'body', label: 'Page body', type: 'textarea', rows: 12, maxLength: 50000, required: true, wide: true,
-        help: 'Plain text content. Publishing does not automatically create a public website route.' },
+      { key: 'body', label: 'Page body', type: 'textarea', rows: 10, maxLength: 50000, required: true, wide: true },
       { key: 'imageUrl', label: 'Page image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/image.jpg', wide: true },
     ],
   },
@@ -129,7 +127,7 @@ function displayDate(record) {
   const timestamp = record.updatedAt || record.createdAt;
   if (!timestamp || typeof timestamp.toDate !== 'function') return 'Not available';
   try {
-    return timestamp.toDate().toLocaleDateString(undefined, {
+    return timestamp.toDate().toLocaleDateString('en-US', {
       day: 'numeric', month: 'short', year: 'numeric',
     });
   } catch {
@@ -154,7 +152,7 @@ function copyRecord(item, defaults) {
 function formatError(error) {
   const message = error && typeof error.message === 'string' ? error.message : '';
   if (error?.code === 'permission-denied') {
-    return 'Firestore denied this action. Confirm that your account has the admin role and the deployed Firestore rules are correct.';
+    return 'Firestore denied this action. Check admin role permissions.';
   }
   return message || 'Something went wrong. Please try again.';
 }
@@ -185,7 +183,6 @@ export default function ContentManager({ kind, onDirtyChange }) {
     let unsubscribe = () => {};
     setLoading(true);
     setLoadError('');
-
     try {
       unsubscribe = config.subscribe(
         results => {
@@ -249,7 +246,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
 
   function leaveEditor() {
     if (busy) return;
-    if (dirty && !window.confirm('Discard your unsaved changes?')) return;
+    if (dirty && !window.confirm('Discard unsaved changes?')) return;
     setEditorOpen(false);
     setEditingId(null);
     setDirty(false);
@@ -265,11 +262,8 @@ export default function ContentManager({ kind, onDirtyChange }) {
     if (busy) return;
     setBusy(true);
     setNotice(null);
-
     try {
       const payload = { ...form };
-
-      // Automatic event color assignment: Odd = Red (#7B1C1C), Even = Blue (#1a3a6b)
       if (kind === 'events') {
         const itemIndex = editingId
           ? items.findIndex((i) => i.id === editingId)
@@ -277,19 +271,17 @@ export default function ContentManager({ kind, onDirtyChange }) {
         const itemNumber = itemIndex >= 0 ? itemIndex + 1 : 1;
         payload.color = itemNumber % 2 !== 0 ? '#7B1C1C' : '#1a3a6b';
       }
-
       if (editingId) {
         await config.update(editingId, payload);
       } else {
         await config.create(payload);
       }
-
       setDirty(false);
       setEditorOpen(false);
       setEditingId(null);
       setNotice({
         type: 'success',
-        text: config.singular === 'article' ? 'Article saved successfully.' : 'Content saved successfully.',
+        text: 'Saved successfully.',
       });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -302,11 +294,10 @@ export default function ContentManager({ kind, onDirtyChange }) {
     if (actionId !== null) return;
     setActionId(item.id);
     setNotice(null);
-
     try {
       const next = item.published !== true;
       await config.update(item.id, { published: next });
-      setNotice({ type: 'success', text: next ? 'Published successfully.' : 'Moved to drafts.' });
+      setNotice({ type: 'success', text: next ? 'Published live.' : 'Moved to drafts.' });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
     } finally {
@@ -316,10 +307,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
 
   async function remove(item) {
     if (actionId !== null) return;
-    if (!window.confirm('Permanently delete "' + item.title + '"? This cannot be undone.')) return;
+    if (!window.confirm('Permanently delete "' + (item.title || 'item') + '"?')) return;
     setActionId(item.id);
     setNotice(null);
-
     try {
       await config.remove(item.id);
       setNotice({ type: 'success', text: 'Deleted successfully.' });
@@ -339,33 +329,11 @@ export default function ContentManager({ kind, onDirtyChange }) {
     .slice(0, 120);
 
   return (
-    <section aria-label={config.title} className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="admin-subtitle text-xs font-semibold uppercase tracking-widest text-[#C9A84C]">
-            Content Management
-          </p>
-          <h2 className="admin-title text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            {config.title}
-          </h2>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/55">{config.description}</p>
-        </div>
-
-        {!editorOpen && (
-          <button type="button" onClick={openNew} className="admin-btn-primary">
-            + New {config.singular}
-          </button>
-        )}
-      </div>
-
+    <div className="admin-cm-wrap">
       {notice && (
         <div
           role={notice.type === 'error' ? 'alert' : 'status'}
-          className={
-            notice.type === 'error'
-              ? 'rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-xs text-red-200'
-              : 'rounded-xl border border-emerald-500/30 bg-emerald-950/30 px-4 py-3 text-xs text-emerald-200'
-          }
+          className={`admin-notice ${notice.type}`}
         >
           {notice.text}
         </div>
@@ -373,117 +341,85 @@ export default function ContentManager({ kind, onDirtyChange }) {
 
       {!editorOpen ? (
         <>
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {[
-              { label: 'Total Records', value: totals.all, accent: 'border-t-[#C9A84C]' },
-              { label: 'Published Live', value: totals.published, accent: 'border-t-emerald-400' },
-              { label: 'Draft Mode', value: totals.drafts, accent: 'border-t-amber-400' },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className={`rounded-2xl border border-white/10 border-t-2 ${item.accent} bg-[#0d0f13] p-5 shadow-lg`}
-              >
-                <p className="admin-subtitle text-[10px] font-semibold uppercase tracking-widest text-white/45">
-                  {item.label}
-                </p>
-                <div className="mt-2 flex items-baseline justify-between">
-                  <span className="text-3xl font-extrabold text-white">
-                    {loading ? '—' : item.value}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* List Table */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0f13] shadow-xl">
-            <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4 sm:p-5">
+          {/* Action Row */}
+          <div className="admin-toolbar-row">
+            <div className="admin-search-wrap">
+              <svg className="admin-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
               <input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={'Search ' + kind + '...'}
-                className="admin-input !mt-0 min-w-[200px] flex-1"
+                placeholder={`Search ${kind}...`}
+                className="admin-search-input"
               />
+            </div>
 
+            <div className="admin-filter-wrap">
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="admin-input !mt-0 !w-auto"
+                className="admin-select"
               >
-                <option value="all">All statuses</option>
-                <option value="published">Published</option>
-                <option value="drafts">Drafts</option>
+                <option value="all">All status ({totals.all})</option>
+                <option value="published">Published ({totals.published})</option>
+                <option value="drafts">Drafts ({totals.drafts})</option>
               </select>
-            </div>
 
+              <button type="button" onClick={openNew} className="admin-btn-primary">
+                + New {config.singular}
+              </button>
+            </div>
+          </div>
+
+          {/* List Content */}
+          <div className="admin-table-card">
             {loadError ? (
-              <p role="alert" className="px-6 py-10 text-xs text-red-300">
-                {loadError}
-              </p>
+              <p role="alert" className="admin-state-msg error">{loadError}</p>
             ) : loading ? (
-              <div className="px-6 py-12 text-center text-xs text-white/50">
-                Loading {kind} from Firestore...
-              </div>
+              <p className="admin-state-msg">Loading content...</p>
             ) : visible.length === 0 ? (
-              <div className="px-6 py-16 text-center">
-                <h3 className="text-base font-semibold text-white">
-                  {items.length ? 'No matching records' : 'No content created'}
-                </h3>
-                <p className="mt-1 text-xs text-white/50">
-                  {items.length
-                    ? 'Try adjusting search terms or filters.'
-                    : 'Create your first ' + config.singular + ' to get started.'}
+              <div className="admin-empty-state">
+                <p className="admin-empty-title">No records found</p>
+                <p className="admin-empty-sub">
+                  {items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
                 </p>
                 {!items.length && (
-                  <button type="button" onClick={openNew} className="admin-btn-primary mt-4">
+                  <button type="button" onClick={openNew} className="admin-btn-primary">
                     Create {config.singular}
                   </button>
                 )}
               </div>
             ) : (
-              <div className="divide-y divide-white/10">
+              <div className="admin-list-container">
                 {visible.map((item, index) => {
-                  const eventNumber = index + 1;
-                  const autoColor = eventNumber % 2 !== 0 ? '#7B1C1C' : '#1a3a6b';
-
                   return (
-                    <article key={item.id} className="admin-item-row">
-                      <div className="flex min-w-0 items-start gap-4">
-                        <div
-                          className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-[#171a21] text-base font-bold"
-                          style={{ color: kind === 'events' ? autoColor : '#C9A84C' }}
-                        >
+                    <article key={item.id} className="admin-row">
+                      <div className="admin-row-main">
+                        <div className="admin-thumb">
                           {item.imageUrl && item.imageUrl.startsWith('https://') ? (
-                            <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                            <img src={item.imageUrl} alt="" loading="lazy" />
                           ) : (
-                            config.singular.charAt(0).toUpperCase()
+                            <span>{(item.title || 'U').charAt(0).toUpperCase()}</span>
                           )}
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="break-words text-sm font-semibold text-white sm:text-base">
-                            {item.title || 'Untitled'}
-                          </h3>
-                          <p className="mt-0.5 line-clamp-1 text-xs text-white/50">
-                            {getSnippet(item, kind) || 'No snippet content'}
-                          </p>
-                          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/40">
-                            <span>Updated: {displayDate(item)}</span>
-                            {item.eventDate && <span>• Date: {item.eventDate}</span>}
-                            {item.category && <span>• {item.category}</span>}
-                            {item.slug && <span>• /{item.slug}</span>}
-                            {kind === 'events' && (
-                              <span style={{ color: autoColor }}>
-                                • Auto Color: {eventNumber % 2 !== 0 ? 'Red' : 'Blue'}
-                              </span>
-                            )}
+                        <div className="admin-row-details">
+                          <h3 className="admin-row-title">{item.title || 'Untitled'}</h3>
+                          <p className="admin-row-snippet">{getSnippet(item, kind) || 'No text summary.'}</p>
+                          <div className="admin-row-meta">
+                            <span>Updated {displayDate(item)}</span>
+                            {item.eventDate && <span> • Date: {item.eventDate}</span>}
+                            {item.category && <span> • {item.category}</span>}
+                            {item.slug && <span> • /{item.slug}</span>}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
-                        <span className={item.published ? 'admin-badge-published' : 'admin-badge-draft'}>
+                      <div className="admin-row-actions">
+                        <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
+                          <span className="admin-status-dot" />
                           {item.published ? 'Published' : 'Draft'}
                         </span>
 
@@ -491,7 +427,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => openExisting(item)}
-                          className="admin-btn-secondary"
+                          className="admin-btn-ghost"
                         >
                           Edit
                         </button>
@@ -500,16 +436,16 @@ export default function ContentManager({ kind, onDirtyChange }) {
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
-                          className="admin-btn-secondary"
+                          className="admin-btn-ghost"
                         >
-                          {actionId === item.id ? 'Saving...' : item.published ? 'Unpublish' : 'Publish'}
+                          {actionId === item.id ? '...' : item.published ? 'Unpublish' : 'Publish'}
                         </button>
 
                         <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => remove(item)}
-                          className="admin-btn-danger"
+                          className="admin-btn-ghost-danger"
                         >
                           Delete
                         </button>
@@ -523,29 +459,24 @@ export default function ContentManager({ kind, onDirtyChange }) {
         </>
       ) : (
         /* Form Editor */
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0f13] shadow-2xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-5">
-            <div>
-              <p className="admin-subtitle text-[10px] font-semibold uppercase tracking-widest text-[#C9A84C]">
-                {editingId ? 'Edit Record' : 'New Record'}
-              </p>
-              <h3 className="admin-title text-lg font-bold text-white">
-                {editingId ? 'Update ' : 'Create '}{config.singular}
-              </h3>
-            </div>
-            <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
-              ← Back to List
+        <div className="admin-editor-card">
+          <div className="admin-editor-header">
+            <h2 className="admin-editor-title">
+              {editingId ? `Edit ${config.singular}` : `New ${config.singular}`}
+            </h2>
+            <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-ghost">
+              Cancel
             </button>
           </div>
 
-          <form onSubmit={save} className="space-y-6 p-5 sm:p-7">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <form onSubmit={save} className="admin-editor-form">
+            <div className="admin-form-grid">
               {config.fields.map((field) => (
-                <label key={field.key} className={'block min-w-0 ' + (field.wide ? 'md:col-span-2' : '')}>
-                  <span className="admin-input-label">
+                <div key={field.key} className={`admin-field-wrap ${field.wide ? 'wide' : ''}`}>
+                  <label className="admin-label">
                     {field.label}
-                    {field.required && <span className="ml-1 text-[#C9A84C]">*</span>}
-                  </span>
+                    {field.required && <span className="admin-required">*</span>}
+                  </label>
 
                   {field.type === 'textarea' ? (
                     <textarea
@@ -554,7 +485,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       onChange={(e) => updateField(field.key, e.target.value)}
                       required={Boolean(field.required)}
                       maxLength={field.maxLength}
-                      className="admin-input resize-y"
+                      className="admin-input textarea"
                       placeholder={field.placeholder}
                     />
                   ) : field.type === 'select' ? (
@@ -583,69 +514,59 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     />
                   )}
 
-                  {field.help && <span className="mt-1 block text-[11px] text-white/45">{field.help}</span>}
-
+                  {field.help && <span className="admin-help-text">{field.help}</span>}
                   {kind === 'pages' && field.key === 'slug' && !editingId && (
                     <button
                       type="button"
                       disabled={!slugSuggestion}
                       onClick={() => updateField('slug', slugSuggestion)}
-                      className="mt-1 text-xs font-semibold text-[#C9A84C] hover:underline disabled:opacity-40"
+                      className="admin-slug-btn"
                     >
-                      Auto-generate slug from title
+                      Generate slug from title
                     </button>
                   )}
-                </label>
+                </div>
               ))}
             </div>
 
             {form.imageUrl && /^https:\/\//i.test(form.imageUrl) && (
-              <div className="max-w-sm rounded-xl border border-white/10 bg-[#07080a] p-3 space-y-2">
-                <p className="admin-subtitle text-[10px] font-semibold uppercase tracking-widest text-white/50">
-                  Image Preview
-                </p>
-                <img
-                  src={form.imageUrl}
-                  alt="Preview"
-                  className="max-h-48 w-full rounded-lg object-cover"
-                />
+              <div className="admin-preview-box">
+                <span className="admin-label">Image Preview</span>
+                <img src={form.imageUrl} alt="Preview" className="admin-preview-img" />
               </div>
             )}
 
-            <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-[#07080a] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="admin-publish-row">
               <div>
-                <h4 className="admin-subtitle text-xs font-bold text-white uppercase tracking-wider">
-                  Publication Status
-                </h4>
-                <p className="mt-0.5 text-xs text-white/50">
+                <span className="admin-publish-title">Publishing Status</span>
+                <p className="admin-publish-desc">
                   {form.published
-                    ? 'This item will be visible to public users on the website.'
-                    : 'This item will remain as a draft visible only to admins.'}
+                    ? 'Visible live on the public website.'
+                    : 'Saved as draft (hidden from public website).'}
                 </p>
               </div>
-
-              <label className="flex shrink-0 cursor-pointer items-center gap-3 text-xs font-semibold text-white">
+              <label className="admin-toggle-label">
                 <input
                   type="checkbox"
                   checked={form.published}
                   onChange={(e) => updateField('published', e.target.checked)}
-                  className="h-5 w-5 rounded border-white/20 bg-black accent-[#C9A84C]"
+                  className="admin-toggle-input"
                 />
-                Publish Item
+                <span>Published</span>
               </label>
             </div>
 
-            <div className="flex flex-wrap items-center justify-end gap-3 border-t border-white/10 pt-5">
+            <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy} className="admin-btn-secondary">
                 Cancel
               </button>
               <button type="submit" disabled={busy} className="admin-btn-primary">
-                {busy ? 'Saving...' : editingId ? 'Save Changes' : 'Create ' + config.singular}
+                {busy ? 'Saving...' : editingId ? 'Save Changes' : `Create ${config.singular}`}
               </button>
             </div>
           </form>
         </div>
       )}
-    </section>
+    </div>
   );
 }
