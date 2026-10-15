@@ -201,8 +201,8 @@ export default function LifeDetailPage({ slug }) {
             )}
             {/* Render Societies Directory if active tab is societies */}
             {slug === 'societies' && <SocietiesListing />}
-            {slug === 'societies' && <SchoolContentListing kind="extracurricular" />}
             {slug === 'sports-athletics' && <SchoolContentListing kind="sports" />}
+            {slug === 'sports-athletics' && <SchoolContentListing kind="extracurricular" />}
             {slug === 'leadership' && <SchoolContentListing kind="leadership" />}
             {/* Explore More Cards Section */}
             <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
