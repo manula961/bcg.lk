@@ -83,3 +83,24 @@ test('admin client never receives or saves refresh tokens', async () => {
   assert.match(manager,/Connect Google Drive/);
   assert.match(manager,/Upload to Google Drive/);
 });
+
+test('Drive sessions reject expired, future-dated, forged-user and malformed credentials', () => {
+  const previous = process.env.DRIVE_COOKIE_ENCRYPTION_KEY;
+  process.env.DRIVE_COOKIE_ENCRYPTION_KEY = 'a'.repeat(64);
+  try {
+    const req = payload => ({ headers: { cookie: cookies.session + '=' + seal(payload) } });
+    const valid = { uid: 'verified-admin', refresh: 'private-token', exp: Date.now() + 60000 };
+    assert.equal(verifySession(req(valid), 'verified-admin').uid, 'verified-admin');
+    assert.throws(() => verifySession(req(valid), 'other-user'));
+    for (const payload of [
+      { ...valid, exp: Date.now() - 1000 },
+      { ...valid, exp: Date.now() + 31 * 86400000 },
+      { ...valid, exp: 'tomorrow' },
+      { ...valid, refresh: {} },
+      { ...valid, refresh: '' },
+    ]) assert.throws(() => verifySession(req(payload), 'verified-admin'));
+  } finally {
+    if (previous === undefined) delete process.env.DRIVE_COOKIE_ENCRYPTION_KEY;
+    else process.env.DRIVE_COOKIE_ENCRYPTION_KEY = previous;
+  }
+});
