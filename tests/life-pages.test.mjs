@@ -18,12 +18,12 @@ test('four Life as a Nayaken detail pages have stable paths and source-based tit
 
 test('homepage and admin routes remain the unchanged defaults', () => {
   const entry = read('src/main.jsx');
-  assert.match(entry, /isAdminPath \? \(/);
-  assert.match(entry, /isEventsIndex \? \(/);
-  assert.match(entry, /eventsSlug \? \(/);
-  assert.match(entry, /updatesSlug \? \(/);
-  assert.match(entry, /lifeSlug \? \(/);
-  assert.match(entry, /pageSlug \? \(/);
+  assert.match(entry, /if \(isAdminPath\) return /);
+  assert.match(entry, /if \(isEventsIndex\) return /);
+  assert.match(entry, /if \(eventsSlug\) return /);
+  assert.match(entry, /if \(updatesSlug\) return /);
+  assert.match(entry, /if \(lifeSlug\) return /);
+  assert.match(entry, /if \(pageSlug\) return /);
   assert.match(entry, /<PublishedContentPage slug=\{pageSlug\} \/>/);
   assert.match(entry, /Object\.prototype\.hasOwnProperty\.call\(lifePages, lifeMatch\[1\]\)/);
   const home = read('src/components/LifeAsNayaken.jsx');
