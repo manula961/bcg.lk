@@ -571,7 +571,8 @@
 
 .life-detail-society-logo-wrap {
   width: 100%;
-  height: clamp(140px, 20vh, 180px);
+  height: auto;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
