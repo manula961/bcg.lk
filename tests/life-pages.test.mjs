@@ -49,9 +49,9 @@ test('detail pages reuse the original homepage navigation, footer and layout con
 
 test('Life detail pages render existing editorial content and CMS directories', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
-  assert.match(pages, /sections\\.map/);
-  assert.match(pages, /normalizedSlug === 'sports-societies' && <SocietiesListing \\/>/);
-  assert.match(pages, /<SchoolContentListing kind="sports" \\/>/);
+  assert.match(pages, /sections\.map/);
+  assert.match(pages, /normalizedSlug === 'sports-societies' && <SocietiesListing \/>/);
+  assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {
@@ -68,7 +68,7 @@ test('replacement cards lead to current routes, never retired pages', () => {
 
 test('Sports and Societies retains admin-managed directory', () => {
   const source = read('src/pages/LifeDetailPage.jsx');
-  assert.match(source, /normalizedSlug === 'sports-societies' && <SocietiesListing \\/>/);
+  assert.match(source, /normalizedSlug === 'sports-societies' && <SocietiesListing \/>/);
   assert.match(source, /life-detail-top-wrapper/);
   assert.match(source, /life-content-group/);
 });
