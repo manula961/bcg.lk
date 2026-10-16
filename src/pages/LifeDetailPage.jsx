@@ -8,7 +8,35 @@ import SchoolContentListing from './SchoolContentListing';
 const image = 'https://bcg.lk/img/banner1.jpg';
 
 export const lifePages = Object.freeze({
+  'about-us': {
+    label: 'About Us',
+    title: 'About Us',
+    subtitle: 'Our History, Vision & Service',
+    description: 'Discover our founding history, vision, mission, and century-long citadel of learning.',
+    accent: 'maroon',
+    overview: 'Founded with a vision to nurture wisdom and character, Bandaranayake College stands as a citadel of secondary education in Sri Lanka.',
+    highlights: [
+      { value: '1918', label: 'Year Established' },
+      { value: '108+', label: 'Years of Service' },
+      { value: 'Citadel', label: 'Of Wisdom & Character' },
+    ],
+    sections: [
+      {
+        heading: 'Our Founding & Legacy',
+        copy: 'Established to provide quality education and foster leadership, Bandaranayake College has grown into a prestigious seat of learning, producing nation-builders across every field.',
+      },
+      {
+        heading: 'Vision & Educational Mission',
+        copy: 'Our mission is to empower students through balanced academic excellence, moral integrity, physical vitality, and strong social responsibility.',
+      },
+      {
+        heading: 'Community & Brotherhood',
+        copy: 'Generations of Nayakenz remain united by shared values, honor, and an enduring commitment to serving our motherland.',
+      },
+    ],
+  },
   'academic-excellence': {
+    label: 'Academic Excellence',
     title: 'Academic Excellence',
     subtitle: 'Learning, ambition and opportunity',
     description: 'Guided by dedicated teachers, our students consistently achieve top provincial and national standings.',
@@ -25,12 +53,13 @@ export const lifePages = Object.freeze({
       { heading: 'Learning through discovery', copy: 'The Bandaranayake College Science Society describes workshops, exhibitions and competitions that encourage scientific curiosity. Its Vishwabhiyathra annual science day creates opportunities for students to share ideas and take part in science-related challenges.' },
     ],
   },
-  'sports-athletics': {
-    title: 'Sports & Athletics',
+  'sports-societies': {
+    label: 'Sports & Societies',
+    title: 'Sports & Societies',
     subtitle: 'Strength, teamwork and sportsmanship',
-    description: 'From cricket to athletics, our athletes carry the BCG spirit with pride at every national competition.',
+    description: 'From cricket to athletics and student-led clubs, Nayakenz carry the BCG spirit with pride across sports and co-curricular domains.',
     accent: 'blue',
-    overview: 'Sport is an integral pillar of life at Bandaranayake College, fostering resilience, discipline, physical agility, and unwavering brotherhood.',
+    overview: 'Sport and student societies form an integral pillar of life at Bandaranayake College, fostering resilience, discipline, creative expression, and unwavering brotherhood.',
     highlights: [
       { value: '4', label: 'School houses' },
       { value: '2005', label: 'District cricket title recorded in college history' },
@@ -47,24 +76,8 @@ export const lifePages = Object.freeze({
       }
     ],
   },
-  'societies': {
-    title: 'Societies',
-    subtitle: 'Explore, collaborate and make your mark',
-    description: 'Student societies bring ideas to life through science, technology, creativity, communication and community service.',
-    accent: 'maroon',
-    overview: 'Bandaranayake College lists societies and clubs across science, technology, creative arts, communication, service and the environment. These offer different ways for Nayakenz to explore interests beyond their subjects.',
-    highlights: [
-      { value: 'STEM', label: 'Science, computing and innovation' },
-      { value: 'Creative', label: 'Media, photography and the arts' },
-      { value: 'Service', label: 'Interact, scouts and community-minded groups' },
-    ],
-    sections: [
-      { heading: 'Science, technology and discovery', copy: 'The school lists a Science Society, Computer Society, Technology Society, New Invention Society, Aeronautical Society and Union of Astronomy. Together they represent opportunities to pursue scientific curiosity, technical skills and new ideas. Specific current events should be confirmed with the relevant society.' },
-      { heading: 'Creativity and communication', copy: 'The Media Unit, Photographic Art Society, Art Society, Sinhala Debate & Oratory Forum Society and Quiz Club represent a wide range of creative and communication interests. The college describes the Media Unit as connected with Siyanesara FM and SiyaneRoo TV.' },
-      { heading: 'Citizenship and service', copy: 'The college also lists its Interact Club, Scouts, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. These organisations offer different contexts for teamwork, service and responsibility beyond the classroom.' },
-    ],
-  },
   'leadership': {
+    label: 'Leadership',
     title: 'Leadership',
     subtitle: 'Responsibility, initiative and service',
     description: 'Leadership at Bandaranayake College grows through service, teamwork, discipline and contributions to school life.',
@@ -113,7 +126,8 @@ const detailedHouses = [
 ];
 
 export default function LifeDetailPage({ slug }) {
-  const current = lifePages[slug];
+  const normalizedSlug = slug ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, '-') : '';
+  const current = lifePages[normalizedSlug] || lifePages[slug];
   const pageRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -202,73 +216,71 @@ export default function LifeDetailPage({ slug }) {
             </section>
 
             {/* Editorial Story Section */}
-            {slug !== 'societies' && (
-              <section className="life-detail-story" aria-labelledby="life-detail-story-title">
-                <div className="life-detail-section-heading">
-                  <p className="life-detail-kicker">DISCOVER THE STORY</p>
-                  <h2 id="life-detail-story-title">{current.title} at Bandaranayake</h2>
-                  <p className="life-detail-description">{current.overview}</p>
-                </div>
+            <section className="life-detail-story" aria-labelledby="life-detail-story-title">
+              <div className="life-detail-section-heading">
+                <p className="life-detail-kicker">DISCOVER THE STORY</p>
+                <h2 id="life-detail-story-title">{current.title} at Bandaranayake</h2>
+                <p className="life-detail-description">{current.overview}</p>
+              </div>
 
-                <div className="life-detail-highlights">
-                  {current.highlights.map((item) => (
-                    <div className="life-detail-highlight" key={item.label}>
-                      <strong>{item.value}</strong>
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* House Division Editorial Grid for Sports & Athletics */}
-                {slug === 'sports-athletics' && (
-                  <div className="house-showcase-section">
-                    <div className="life-detail-section-heading">
-                      <p className="life-detail-kicker">INTER-HOUSE DIVISION</p>
-                      <h2>The Four Houses</h2>
-                      <p className="life-detail-description">
-                        Every Nayaken belongs to one of four historic houses, competing annually in track, field, and indoor championships.
-                      </p>
-                    </div>
-
-                    <div className="house-showcase-grid">
-                      {detailedHouses.map((house, index) => (
-                        <div key={house.id} className={`house-card-modern house-card-${house.id}`}>
-                          <div className="house-card-header">
-                            <span className="house-card-num">0{index + 1}</span>
-                            <span className="house-card-tag">{house.color}</span>
-                          </div>
-                          <div>
-                            <h3 className="house-card-title">{house.name}</h3>
-                            <p className="house-card-desc">{house.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              <div className="life-detail-highlights">
+                {current.highlights.map((item) => (
+                  <div className="life-detail-highlight" key={item.label}>
+                    <strong>{item.value}</strong>
+                    <span>{item.label}</span>
                   </div>
-                )}
+                ))}
+              </div>
 
-                {/* Editorial Articles */}
-                {current.sections.length > 0 && (
-                  <div className="life-detail-stories" style={{ marginTop: 'clamp(24px, 4vw, 48px)' }}>
-                    {current.sections.map((section, index) => (
-                      <article className="life-detail-story-card" key={section.heading}>
-                        <span className="life-detail-story-number">0{index + 1}</span>
-                        <div>
-                          <h3>{section.heading}</h3>
-                          <p>{section.copy}</p>
+              {/* House Division Editorial Grid for Sports & Societies */}
+              {normalizedSlug === 'sports-societies' && (
+                <div className="house-showcase-section">
+                  <div className="life-detail-section-heading">
+                    <p className="life-detail-kicker">INTER-HOUSE DIVISION</p>
+                    <h2>The Four Houses</h2>
+                    <p className="life-detail-description">
+                      Every Nayaken belongs to one of four historic houses, competing annually in track, field, and indoor championships.
+                    </p>
+                  </div>
+
+                  <div className="house-showcase-grid">
+                    {detailedHouses.map((house, index) => (
+                      <div key={house.id} className={`house-card-modern house-card-${house.id}`}>
+                        <div className="house-card-header">
+                          <span className="house-card-num">0{index + 1}</span>
+                          <span className="house-card-tag">{house.color}</span>
                         </div>
-                      </article>
+                        <div>
+                          <h3 className="house-card-title">{house.name}</h3>
+                          <p className="house-card-desc">{house.description}</p>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                )}
-              </section>
-            )}
+                </div>
+              )}
+
+              {/* Editorial Articles */}
+              {current.sections.length > 0 && (
+                <div className="life-detail-stories" style={{ marginTop: 'clamp(24px, 4vw, 48px)' }}>
+                  {current.sections.map((section, index) => (
+                    <article className="life-detail-story-card" key={section.heading}>
+                      <span className="life-detail-story-number">0{index + 1}</span>
+                      <div>
+                        <h3>{section.heading}</h3>
+                        <p>{section.copy}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
 
             {/* Directories */}
-            {slug === 'societies' && <SocietiesListing />}
-            {slug === 'societies' && <SchoolContentListing kind="extracurricular" />}
-            {slug === 'sports-athletics' && <SchoolContentListing kind="sports" />}
-            {slug === 'leadership' && <SchoolContentListing kind="leadership" />}
+            {normalizedSlug === 'sports-societies' && <SocietiesListing />}
+            {normalizedSlug === 'sports-societies' && <SchoolContentListing kind="sports" />}
+            {normalizedSlug === 'sports-societies' && <SchoolContentListing kind="extracurricular" />}
+            {normalizedSlug === 'leadership' && <SchoolContentListing kind="leadership" />}
 
             {/* Explore More Cards Section */}
             <section className="life-detail-explore" aria-labelledby="life-detail-explore-title">
@@ -277,7 +289,7 @@ export default function LifeDetailPage({ slug }) {
                 <h2 id="life-detail-explore-title">Life As A Nayaken</h2>
               </div>
               <div className="life-detail-grid">
-                {labels.filter(([key]) => key !== slug).map(([key, page]) => (
+                {labels.filter(([key]) => key !== normalizedSlug).map(([key, page]) => (
                   <a key={key} className={'life-detail-card ' + page.accent} href={'/life/' + key}>
                     <img src={image} alt="" loading="lazy" />
                     <span className="life-detail-card-shade" />

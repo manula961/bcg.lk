@@ -7,8 +7,6 @@ import LifeDetailPage, { lifePages } from './pages/LifeDetailPage.jsx';
 import PublishedContentPage from './pages/PublishedContentPage.jsx';
 import Updates from './pages/Updates.jsx';
 import EventDetail from './pages/EventDetail.jsx';
-import EventsPage from './pages/EventsPage.jsx';
-import AboutUsPage from './pages/AboutUsPage.jsx';
 import './index.css';
 
 function Root() {

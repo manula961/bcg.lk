@@ -32,7 +32,7 @@ const LifeAsNayaken = () => {
       <div className="section-container">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="life-header">
-            <div className="life-subtitle">Experience It</div>
+            <div className="life-subtitle">Our Pride</div>
             <h2 className="life-title">Life As A Nayaken</h2>
             <p className="life-desc">
               Every day at Bandaranayake College is a new chapter shaped by learning, sport, art, and the unbreakable bond of brotherhood.
@@ -42,6 +42,72 @@ const LifeAsNayaken = () => {
           <div className="life-bento-grid">
             <div
               className="bento-card card-1"
+              role="link"
+              tabIndex={0}
+              aria-label="Open About Us details page"
+              onClick={() => handleNavigate('/life/about-us')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/about-us');
+                }
+              }}
+            >
+              <img
+                src="https://bcg.lk/img/banner1.jpg"
+                alt=""
+                className="bento-bg-img"
+              />
+              <div className="bento-overlay" />
+              <div className="bento-arrow" aria-hidden="true">
+                <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="bento-content">
+                <div className="bento-tag">About Us</div>
+                <h3 className="bento-title">Our History, Vision & Service</h3>
+                <p className="bento-desc">
+                  Discover our founding history, vision, mission, and century-long citadel of learning.
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="bento-card card-2"
+              role="link"
+              tabIndex={0}
+              aria-label="Open Sports and Societies details page"
+              onClick={() => handleNavigate('/life/sports-societies')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleNavigate('/life/sports-societies');
+                }
+              }}
+            >
+              <img
+                src="https://bcg.lk/img/banner1.jpg"
+                alt=""
+                className="bento-bg-img"
+              />
+              <div className="bento-overlay" />
+              <div className="bento-arrow" aria-hidden="true">
+                <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="bento-content">
+                <div className="bento-tag">Champions</div>
+                <h3 className="bento-title">Sports & Societies</h3>
+                <p className="bento-desc">
+                  Explore student organizations, clubs, athletic rivalries, and house tradition.
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="bento-card card-3"
               role="link"
               tabIndex={0}
               aria-label="Open Academic Excellence details page"
@@ -65,75 +131,9 @@ const LifeAsNayaken = () => {
                 </svg>
               </div>
               <div className="bento-content">
-                <div className="bento-tag">The Nayaken Way</div>
+                <div className="bento-tag">The Nayakenz Way</div>
                 <h3 className="bento-title">Academic Excellence</h3>
-                <p className="bento-desc">
-                  Guided by dedicated teachers, our students consistently achieve top provincial and national standings.
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="bento-card card-2"
-              role="link"
-              tabIndex={0}
-              aria-label="Open Sports and Athletics details page"
-              onClick={() => handleNavigate('/life/sports-athletics')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleNavigate('/life/sports-athletics');
-                }
-              }}
-            >
-              <img
-                src="https://bcg.lk/img/banner1.jpg"
-                alt=""
-                className="bento-bg-img"
-              />
-              <div className="bento-overlay" />
-              <div className="bento-arrow" aria-hidden="true">
-                <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="bento-content">
-                <div className="bento-tag">Champions</div>
-                <h3 className="bento-title">Sports & Athletics</h3>
-                <p className="bento-desc">
-                  From cricket to athletics, our athletes carry the BCG spirit with pride at every national competition.
-                </p>
-              </div>
-            </div>
-
-            <div
-              className="bento-card card-3"
-              role="link"
-              tabIndex={0}
-              aria-label="Open Societies details page"
-              onClick={() => handleNavigate('/life/societies')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleNavigate('/life/societies');
-                }
-              }}
-            >
-              <img
-                src="https://bcg.lk/img/banner1.jpg"
-                alt=""
-                className="bento-bg-img"
-              />
-              <div className="bento-overlay" />
-              <div className="bento-arrow" aria-hidden="true">
-                <svg className="bento-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="bento-content">
-                <div className="bento-tag">Discovery</div>
-                <h3 className="bento-title">Societies</h3>
-                <p className="bento-desc">Science, creativity, service and teamwork.</p>
+                <p className="bento-desc">Top-tier standings in national A/L & O/L examinations and discovery across all streams.</p>
               </div>
             </div>
 
