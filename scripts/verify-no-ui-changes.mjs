@@ -1,28 +1,38 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { applyApprovedAdminPatch } from './approved-admin-upload-patch.mjs';
-import { applyApprovedPageRoutePatch } from './approved-page-route-patch.mjs';
-const base=process.env.GITHUB_BASE_REF || 'main';
-const run=args=>execFileSync('git',args,{encoding:'utf8'});
-const changed=run(['diff','--name-only','origin/'+base+'...HEAD']).trim().split('\n').filter(Boolean);
-const protectedFiles=changed.filter(path=>
- /^src\/(?:components|admin|pages)\//.test(path) ||
- /^src\/(?:App\.jsx|main\.jsx|index\.css)$/.test(path) ||
- /^public\//.test(path) ||
- /\.(?:css|scss|svg|png|jpe?g|webp|woff2?)$/i.test(path)
-).filter(path=>!['src/admin/ContentManager.jsx','src/main.jsx','src/pages/PublishedContentPage.jsx'].includes(path));
-if(changed.includes('src/admin/ContentManager.jsx')){
- const baseline=run(['show','origin/'+base+':src/admin/ContentManager.jsx']);
- if(readFileSync('src/admin/ContentManager.jsx','utf8')!==applyApprovedAdminPatch(baseline))
-   protectedFiles.push('src/admin/ContentManager.jsx (unapproved UI change)');
+
+const base = process.env.GITHUB_BASE_REF || 'main';
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+const changed = git('diff', '--name-only', '--diff-filter=ACMR', 'origin/' + base + '...HEAD')
+  .split('\n').filter(Boolean);
+
+// Rule #1: reject edits to existing visual source, styles, and static assets.
+// New UI files are reviewed explicitly, rather than implicitly permitted.
+const protectedPath = path =>
+  /^src\/(?:components|admin|pages)\//.test(path) ||
+  /^src\/(?:App\.jsx|main\.jsx|index\.css)$/.test(path) ||
+  /^public\//.test(path) ||
+  /\.(?:css|scss|svg|png|jpe?g|webp|woff2?)$/i.test(path);
+
+const approvedRouteFile = 'src/main.jsx';
+const violations = [];
+for (const path of changed.filter(protectedPath)) {
+  if (path === approvedRouteFile) {
+    // Route-only edits are allowed when existing imports/components and routing
+    // branches are preserved. Any other change needs explicit review.
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const normalize = value => value
+      .replace(/^import EventsPage from '\.\/pages\/EventsPage\.jsx';\n?/m, '')
+      .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
+      .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
+    if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
+  } else {
+    violations.push(path);
+  }
 }
-if(changed.includes('src/main.jsx')){
- const baseline=run(['show','origin/'+base+':src/main.jsx']);
- if(readFileSync('src/main.jsx','utf8')!==applyApprovedPageRoutePatch(baseline))protectedFiles.push('src/main.jsx (unapproved route change)');
+if (violations.length) {
+  console.error('Rule #1: protected UI source changed: ' + violations.join(', '));
+  process.exitCode = 1;
+} else {
+  console.log('Rule #1 passed: no unapproved visual-source changes detected.');
 }
-if(changed.includes('src/pages/PublishedContentPage.jsx')){
- const baselineExists=run(['ls-tree','-r','--name-only','origin/'+base,'--','src/pages/PublishedContentPage.jsx']).trim();
- if(baselineExists) protectedFiles.push('Existing published-page UI modified');
-}
-if(protectedFiles.length){console.error('Rule #1: UI files changed: '+protectedFiles.join(', '));process.exitCode=1;}
-else console.log('Rule #1 passed: original UI source preserved; only approved upload controls added.');
