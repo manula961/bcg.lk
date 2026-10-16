@@ -9,7 +9,7 @@ const image = 'https://bcg.lk/img/banner1.jpg';
 
 export const lifePages = Object.freeze({
   'about-us': {
-    label: 'About Us',
+    label: 'Nayaknz Heritage',
     title: 'About Us',
     subtitle: 'Our History, Vision & Service',
     description: 'Discover our founding history, vision, mission, and century-long citadel of learning.',
@@ -36,7 +36,7 @@ export const lifePages = Object.freeze({
     ],
   },
   'academic-excellence': {
-    label: 'Academic Excellence',
+    label: 'The Nayakenz Way',
     title: 'Academic Excellence',
     subtitle: 'Learning, ambition and opportunity',
     description: 'Guided by dedicated teachers, our students consistently achieve top provincial and national standings.',
@@ -54,7 +54,7 @@ export const lifePages = Object.freeze({
     ],
   },
   'sports-societies': {
-    label: 'Sports & Societies',
+    label: 'Nayakenz Spirit',
     title: 'Sports & Societies',
     subtitle: 'Strength, teamwork and sportsmanship',
     description: 'From cricket to athletics and student-led clubs, Nayakenz carry the BCG spirit with pride across sports and co-curricular domains.',
@@ -77,7 +77,7 @@ export const lifePages = Object.freeze({
     ],
   },
   'leadership': {
-    label: 'Leadership',
+    label: 'School Leadership',
     title: 'Leadership',
     subtitle: 'Responsibility, initiative and service',
     description: 'Leadership at Bandaranayake College grows through service, teamwork, discipline and contributions to school life.',
@@ -197,7 +197,6 @@ export default function LifeDetailPage({ slug }) {
           </div>
 
           <section id="life-detail-main" className="life-detail-intro" aria-labelledby="life-detail-title">
-            <p className="life-detail-kicker">EXPERIENCE IT</p>
             <p className="life-detail-eyebrow">{current.label}</p>
             <h1 id="life-detail-title">{current.title}</h1>
             <p className="life-detail-description">{current.description}</p>

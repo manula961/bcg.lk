@@ -3,11 +3,10 @@ import './MenuBar.css';
 
 const menuItems = [
   { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
-  { label: 'About Us', href: '/about-us', isRoute: true, sub: 'Our History & Mission' },
   { label: 'News', href: 'news', sub: 'Latest Updates & Announcements' },
   { label: 'Events', href: 'events', sub: 'Upcoming Events Calendar' },
   { label: 'Explore', href: 'explore', sub: 'Discover Our Campus' },
-  { label: 'Extra Curricular', href: 'extracurricular', sub: 'Life As A Nayaken' },
+  { label: 'Nayakenz Pride', href: 'nayakenzpride', sub: 'Life As A Nayaken' },
 ];
 
 const MenuBar = () => {

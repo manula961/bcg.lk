@@ -84,7 +84,7 @@
 .life-detail-kicker {
   font-family: 'Geologica', sans-serif;
   font-size: clamp(0.68rem, 1vw, 0.75rem);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.1em;
   color: #7B1C1C;
   text-transform: uppercase;
   font-weight: 600;
@@ -94,7 +94,7 @@
 .life-detail-eyebrow {
   font-family: 'Geologica', sans-serif;
   font-size: clamp(0.65rem, 0.9vw, 0.72rem);
-  letter-spacing: 0.25em;
+  letter-spacing: 0.1em;
   color: #a38229;
   text-transform: uppercase;
   font-weight: 600;
@@ -170,7 +170,7 @@
 .life-detail-card-label {
   font-family: 'Geologica', sans-serif;
   font-size: clamp(0.62rem, 0.9vw, 0.72rem);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: #C9A84C;
   text-transform: uppercase;
   font-weight: 600;

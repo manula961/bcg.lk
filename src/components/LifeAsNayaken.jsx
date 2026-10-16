@@ -28,11 +28,11 @@ const LifeAsNayaken = () => {
   };
 
   return (
-    <section id="extracurricular" ref={sectionRef} className="life-section">
+    <section id="nayakenzpride" ref={sectionRef} className="life-section">
       <div className="section-container">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="life-header">
-            <div className="life-subtitle">Our Pride</div>
+            <div className="life-subtitle">Nayakenz Pride</div>
             <h2 className="life-title">Life As A Nayaken</h2>
             <p className="life-desc">
               Every day at Bandaranayake College is a new chapter shaped by learning, sport, art, and the unbreakable bond of brotherhood.
@@ -45,11 +45,11 @@ const LifeAsNayaken = () => {
               role="link"
               tabIndex={0}
               aria-label="Open About Us details page"
-              onClick={() => handleNavigate('/life/about-us')}
+              onClick={() => handleNavigate('/about-us')}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleNavigate('/life/about-us');
+                  handleNavigate('/about-us');
                 }
               }}
             >
