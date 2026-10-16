@@ -23,7 +23,7 @@ export default function SocietiesListing() {
     <section className="life-detail-societies" aria-labelledby="societies-directory-title">
       <div className="life-detail-section-heading">
         <p className="life-detail-kicker">OUR COMMUNITY</p>
-        <h2 id="societies-directory-title">COLLEGE SOCIETIES</h2>
+        <h2 id="societies-directory-title">College Societies</h2>
         <p className="life-detail-description">Discover the societies published by the college administration.</p>
       </div>
 
