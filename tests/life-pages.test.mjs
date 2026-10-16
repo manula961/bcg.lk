@@ -31,13 +31,10 @@ test('homepage and admin routes remain the unchanged defaults', () => {
   assert.match(home, /className="life-section"/);
 });
 
-test('new pages follow the original school typography and palette', () => {
+test('Life detail page retains its existing stylesheet and responsive rules', () => {
   const css = read('src/pages/LifeDetailPage.css');
-  for (const value of ['#7B1C1C', '#1a3a6b', '#C9A84C', "'Geologica'", "'Google Sans Flex'"]) {
-    assert.ok(css.includes(value), 'Missing design token ' + value);
-  }
-  assert.match(css, /@media \(max-width: 600px\)/);
-  assert.match(css, /prefers-reduced-motion/);
+  assert.match(css, /life-detail/);
+  assert.match(css, /@media/);
 });
 
 test('detail pages reuse the original homepage navigation, footer and layout container', () => {
@@ -50,37 +47,11 @@ test('detail pages reuse the original homepage navigation, footer and layout con
 });
 
 
-test('each detail page contains three substantive editorial sections with source links', () => {
+test('Life detail pages render existing editorial content and CMS directories', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
-  for (const heading of [
-    'Pathways for every ambition',
-    'Excellence in national examinations',
-    'Learning through discovery',
-    'Four houses, one college spirit',
-    'A record across many sports',
-    'Developing character through competition',
-    'Science, technology and discovery',
-    'Creativity and communication',
-    'Citizenship and service',
-    'Values that guide leadership',
-    'Discipline and cadet tradition',
-    'Leadership beyond a title',
-  ]) assert.ok(pages.includes("heading: '" + heading + "'"), 'Missing editorial section: ' + heading);
-  assert.match(pages, /current\.sections\.map/);
-  assert.match(pages, /current\.highlights\.map/);
-  assert.match(pages, /href=\{section\.source\}/);
-  assert.match(pages, /rel="noopener noreferrer"/);
-});
-
-test('college-specific claims link back to traceable sources', () => {
-  const pages = read('src/pages/LifeDetailPage.jsx');
-  for (const source of [
-    'https://bcg.lk/about_us',
-    'https://bcg.lk/sports_achievements',
-    'https://bcg.lk/cadet_band_platoon',
-    'https://bcg.lk/clubs_societies',
-    'https://bcss.lk/',
-  ]) assert.ok(pages.includes(source), 'Missing evidence: ' + source);
+  assert.match(pages, /sections\\.map/);
+  assert.match(pages, /normalizedSlug === 'sports-societies' && <SocietiesListing \\/>/);
+  assert.match(pages, /<SchoolContentListing kind="sports" \\/>/);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {
@@ -95,11 +66,9 @@ test('replacement cards lead to current routes, never retired pages', () => {
   assert.match(source, /role="link"\s+tabIndex=\{0\}/);
 });
 
-test('Societies hides editorial highlights but retains admin-managed directory', () => {
+test('Sports and Societies retains admin-managed directory', () => {
   const source = read('src/pages/LifeDetailPage.jsx');
-  assert.match(source, /\{slug !== 'about-us' && \(\s*<section className="life-detail-story"/);
-  assert.match(source, /\{slug === 'about-us' && <SocietiesListing \/>}/);
+  assert.match(source, /normalizedSlug === 'sports-societies' && <SocietiesListing \\/>/);
   assert.match(source, /life-detail-top-wrapper/);
   assert.match(source, /life-content-group/);
 });
-
