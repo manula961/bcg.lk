@@ -6,13 +6,13 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('published CMS route is isolated from all existing homepage and admin routes',()=>{
  const entry=read('src/main.jsx');
  assert.match(entry,/pageMatch = pathname\.match/);
- assert.match(entry,/pageSlug \? \(/);
+ assert.match(entry, /if \(pageSlug\) return /);
  assert.match(entry,/<PublishedContentPage slug=\{pageSlug\} \/>/);
- assert.match(entry,/isEventsIndex \? \(/);
- assert.match(entry,/eventsSlug \? \(/);
- assert.match(entry,/updatesSlug \? \(/);
- assert.match(entry,/isAdminPath \? \(/);
- assert.match(entry,/lifeSlug \? \(/);
+ assert.match(entry,/if \(isEventsIndex\) return /);
+ assert.match(entry,/if \(eventsSlug\) return /);
+ assert.match(entry,/if \(updatesSlug\) return /);
+ assert.match(entry,/if \(isAdminPath\) return /);
+ assert.match(entry,/if \(lifeSlug\) return /);
  assert.match(entry,/<LifeDetailPage slug=\{lifeSlug\} \/>/);
 });
 
