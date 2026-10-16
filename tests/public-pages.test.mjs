@@ -6,7 +6,7 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('published CMS route is isolated from all existing homepage and admin routes',()=>{
  const entry=read('src/main.jsx');
  assert.match(entry,/pageMatch = pathname\.match/);
- assert.match(entry,/pageSlug \? \(/);
+ assert.match(entry, /if \(pageSlug\) return /);
  assert.match(entry,/<PublishedContentPage slug=\{pageSlug\} \/>/);
  assert.match(entry,/isEventsIndex \? \(/);
  assert.match(entry,/eventsSlug \? \(/);
