@@ -11,10 +11,16 @@ test('Firestore denies unknown paths and protects administrator records', () => 
   assert.match(rules, /match \/\{document=\*\*\} \{ allow read, write: if false; \}/);
 });
 
-test('Firestore content writes require administrator authorization', () => {
+test('Firestore content writes require administrator authorization and schema validation', () => {
   const rules = read('firestore.rules');
+  assert.match(rules, /function isAdmin\(\)/);
+  assert.match(rules, /function validRecord\(data, collectionName\)/);
+  assert.match(rules, /allow create: if collectionName in/);
+  assert.match(rules, /&& isAdmin\(\) && validRecord\(request\.resource\.data, collectionName\)/);
+  assert.match(rules, /allow update: if collectionName in/);
+  assert.match(rules, /&& validUpdateOwnership\(\)/);
   for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
-    assert.match(rules, new RegExp('match /' + name + '/\\{id\\} \\{[\\s\\S]*?allow create, update, delete: if isAdmin\\(\\);'));
+    assert.ok(rules.includes("collectionName == '" + name + "'"), 'Missing collection policy: ' + name);
   }
 });
 

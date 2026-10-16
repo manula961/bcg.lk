@@ -1,42 +1,95 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
+    function role() {
       return request.auth != null &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role
+        : null;
+    }
+    function isAdmin() { return role() == 'admin'; }
+    function canReview() { return isAdmin() || role() == 'auditor'; }
+    function optionalString(data, key, max) {
+      return !(key in data) || (data[key] is string && data[key].size() <= max);
+    }
+    function optionalBool(data, key) {
+      return !(key in data) || data[key] is bool;
+    }
+    function optionalNumber(data, key) {
+      return !(key in data) || data[key] == null || data[key] is number;
+    }
+    function optionalTimestamp(data, key) {
+      return !(key in data) || data[key] == null || data[key] is timestamp;
+    }
+    function validCommon(data) {
+      return optionalString(data, 'title', 180)
+        && optionalBool(data, 'published')
+        && optionalNumber(data, 'rank')
+        && optionalString(data, 'imageUrl', 2048)
+        && optionalTimestamp(data, 'createdAt')
+        && optionalTimestamp(data, 'updatedAt')
+        && optionalTimestamp(data, 'publishedAt')
+        && optionalString(data, 'createdBy', 128)
+        && optionalString(data, 'updatedBy', 128);
+    }
+    function validOwnership(data) {
+      return (!('createdBy' in data) || data.createdBy == request.auth.uid)
+        && (!('updatedBy' in data) || data.updatedBy == request.auth.uid);
+    }
+    function validUpdateOwnership() {
+      return (!('createdBy' in resource.data) ||
+        request.resource.data.createdBy == resource.data.createdBy)
+        && (!('createdAt' in resource.data) ||
+        request.resource.data.createdAt == resource.data.createdAt)
+        && (!('updatedBy' in request.resource.data) ||
+        request.resource.data.updatedBy == request.auth.uid);
+    }
+    function validRecord(data, collectionName) {
+      return validCommon(data) &&
+        (
+          (collectionName == 'news' &&
+            data.keys().hasOnly(['title','excerpt','body','category','tag','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'excerpt',500) && optionalString(data,'body',30000) &&
+            optionalString(data,'category',32) && optionalString(data,'tag',80))
+          || (collectionName == 'events' &&
+            data.keys().hasOnly(['title','description','eventDate','location','color','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',3000) && optionalString(data,'eventDate',10) &&
+            optionalString(data,'location',200) && optionalString(data,'color',7))
+          || (collectionName == 'pages' &&
+            data.keys().hasOnly(['slug','title','body','seoDescription','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'slug',120) && optionalString(data,'body',50000) &&
+            optionalString(data,'seoDescription',320))
+          || (collectionName == 'societies' &&
+            data.keys().hasOnly(['title','description','category','imageUrl','websiteUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',1200) && optionalString(data,'category',80) &&
+            optionalString(data,'websiteUrl',2048))
+          || (collectionName == 'sports' &&
+            data.keys().hasOnly(['title','description','category','achievements','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',3000) && optionalString(data,'category',80) &&
+            optionalString(data,'achievements',2000))
+          || (collectionName == 'extracurricular' &&
+            data.keys().hasOnly(['title','description','category','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',3000) && optionalString(data,'category',80))
+          || (collectionName == 'leadership' &&
+            data.keys().hasOnly(['title','description','role','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',1200) && optionalString(data,'role',80))
+        );
     }
     match /admins/{uid} {
       allow get: if request.auth != null && request.auth.uid == uid;
       allow list, create, update, delete: if false;
     }
-    match /news/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /events/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /pages/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /societies/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /sports/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /extracurricular/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
-    }
-    match /leadership/{id} {
-      allow get, list: if isAdmin() || resource.data.published == true;
-      allow create, update, delete: if isAdmin();
+    match /{collectionName}/{id} {
+      allow get, list: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && (canReview() || resource.data.published == true);
+      allow create: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && isAdmin() && validRecord(request.resource.data, collectionName)
+        && validOwnership(request.resource.data);
+      allow update: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && isAdmin() && validRecord(request.resource.data, collectionName)
+        && validUpdateOwnership();
+      allow delete: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && isAdmin();
     }
     match /{document=**} { allow read, write: if false; }
   }

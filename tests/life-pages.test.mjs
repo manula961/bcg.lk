@@ -58,7 +58,7 @@ test('replacement cards lead to current routes, never retired pages', () => {
   const source = read('src/components/LifeAsNayaken.jsx');
   const pages = read('src/pages/LifeDetailPage.jsx');
   for (const slug of ['academic-excellence','sports-societies','about-us','leadership']) {
-    assert.ok(source.includes("'/life/" + slug + "'"), 'Unlinked card: ' + slug);
+    assert.ok(source.includes(slug === 'about-us' ? "'/about-us'" : "'/life/" + slug + "'"), 'Unlinked card: ' + slug);
     assert.ok(pages.includes("'" + slug + "':"), 'Missing detail page: ' + slug);
   }
   assert.doesNotMatch(source, /Arts & Culture|Prefect Council/);
