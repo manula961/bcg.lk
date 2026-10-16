@@ -102,3 +102,37 @@ test('Storage enforces admin uploads, allowed image types and 10 MiB size limit'
   await assertFails(deleteObject(ref(editor.storage(), path)));
   await assertSucceeds(deleteObject(ref(admin.storage(), path)));
 });
+
+test('administrator cannot inject unsupported CMS fields or oversized text', async () => {
+  await assertFails(setDoc(doc(admin.firestore(), 'news/invalid-extra'), {
+    title: 'Injected', published: true, isSuperuser: true,
+  }));
+  await assertFails(setDoc(doc(admin.firestore(), 'news/invalid-size'), {
+    title: 'x'.repeat(181), published: false,
+  }));
+  await assertFails(setDoc(doc(admin.firestore(), 'news/invalid-type'), {
+    title: 'Wrong type', published: 'true',
+  }));
+});
+
+test('administrator cannot forge or rewrite immutable creation metadata', async () => {
+  const record = doc(admin.firestore(), 'news/ownership-check');
+  await assertFails(setDoc(record, { title: 'Forgery', createdBy: 'another-user', published: false }));
+  await assertSucceeds(setDoc(record, { title: 'Owned', createdBy: 'verified-admin', updatedBy: 'verified-admin', published: false }));
+  await assertFails(updateDoc(record, { createdBy: 'another-user' }));
+  await assertFails(updateDoc(record, { updatedBy: 'another-user' }));
+  await assertSucceeds(updateDoc(record, { title: 'Legitimate edit' }));
+  await assertSucceeds(deleteDoc(record));
+});
+
+test('auditor has read-only draft visibility without publication or role management', async () => {
+  await environment.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'admins/security-auditor'), { role: 'auditor' });
+  });
+  const auditor = environment.authenticatedContext('security-auditor');
+  await assertSucceeds(getDoc(doc(auditor.firestore(), 'news/draft-news')));
+  await assertSucceeds(getDocs(collection(auditor.firestore(), 'news')));
+  await assertFails(setDoc(doc(auditor.firestore(), 'news/unauthorized'), { title: 'No', published: true }));
+  await assertFails(updateDoc(doc(auditor.firestore(), 'news/draft-news'), { published: true }));
+  await assertFails(setDoc(doc(auditor.firestore(), 'admins/security-auditor'), { role: 'admin' }));
+});
