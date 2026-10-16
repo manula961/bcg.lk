@@ -6,10 +6,10 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 
 test('four Life as a Nayaken detail pages have stable paths and source-based titles', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
-  for (const slug of ['academic-excellence', 'sports-athletics', 'societies', 'leadership']) {
+  for (const slug of ['academic-excellence', 'sports-societies', 'about-us', 'leadership']) {
     assert.ok(pages.includes("'" + slug + "':"), 'Missing page ' + slug);
   }
-  for (const heading of ['Academic Excellence', 'Sports & Athletics', 'Societies', 'Leadership']) {
+  for (const heading of ['Academic Excellence', 'Sports & Societies', 'About Us', 'Leadership']) {
     assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
   }
   assert.match(pages, /href=\{'\/life\/' \+ key\}/);
@@ -86,7 +86,7 @@ test('college-specific claims link back to traceable sources', () => {
 test('replacement cards lead to current routes, never retired pages', () => {
   const source = read('src/components/LifeAsNayaken.jsx');
   const pages = read('src/pages/LifeDetailPage.jsx');
-  for (const slug of ['academic-excellence','sports-athletics','societies','leadership']) {
+  for (const slug of ['academic-excellence','sports-societies','about-us','leadership']) {
     assert.ok(source.includes("'/life/" + slug + "'"), 'Unlinked card: ' + slug);
     assert.ok(pages.includes("'" + slug + "':"), 'Missing detail page: ' + slug);
   }
@@ -97,8 +97,8 @@ test('replacement cards lead to current routes, never retired pages', () => {
 
 test('Societies hides editorial highlights but retains admin-managed directory', () => {
   const source = read('src/pages/LifeDetailPage.jsx');
-  assert.match(source, /\{slug !== 'societies' && \(\s*<section className="life-detail-story"/);
-  assert.match(source, /\{slug === 'societies' && <SocietiesListing \/>}/);
+  assert.match(source, /\{slug !== 'about-us' && \(\s*<section className="life-detail-story"/);
+  assert.match(source, /\{slug === 'about-us' && <SocietiesListing \/>}/);
   assert.match(source, /life-detail-top-wrapper/);
   assert.match(source, /life-content-group/);
 });
