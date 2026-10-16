@@ -7,6 +7,7 @@ import LifeDetailPage, { lifePages } from './pages/LifeDetailPage.jsx';
 import PublishedContentPage from './pages/PublishedContentPage.jsx';
 import Updates from './pages/Updates.jsx';
 import EventDetail from './pages/EventDetail.jsx';
+import EventsPage from './pages/EventsPage.jsx';
 import './index.css';
 
 function Root() {
@@ -30,7 +31,7 @@ function Root() {
   const eventsSlug = eventsMatch ? eventsMatch[1] : null;
 
   if (isAdminPath) return <AdminApp />;
-  if (isAboutUsPath) return <AboutUsPage />;
+  if (isAboutUsPath) return <LifeDetailPage slug="about-us" />;
   if (isEventsIndex) return <EventsPage />;
   if (eventsSlug) return <EventDetail titleSlug={eventsSlug} />;
   if (updatesSlug) return <Updates titleSlug={updatesSlug} />;
