@@ -16,6 +16,12 @@ export default function EventsPage() {
   // Mobile modal popup state
   const [activeMobileEvent, setActiveMobileEvent] = useState(null);
 
+  const realToday = new Date();
+  const todayYear = realToday.getFullYear();
+  const todayMonth = realToday.getMonth();
+  const todayDay = realToday.getDate();
+  const todayString = `${todayYear}-${String(todayMonth + 1).padStart(2, '0')}-${String(todayDay).padStart(2, '0')}`;
+
   useEffect(() => {
     let unsubscribe = () => {};
     try {
@@ -40,12 +46,15 @@ export default function EventsPage() {
   const month = currentDate.getMonth();
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay();
+  // Monday start offset calculation: Convert Sun(0)...Sat(6) -> Mon(0)...Sun(6)
+  const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+  const jumpToToday = () => setCurrentDate(new Date());
 
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
+  const isCurrentMonth = year === todayYear && month === todayMonth;
 
   // Check if future months have events scheduled
   const hasEventsInFutureMonths = events.some((ev) => {
@@ -72,7 +81,10 @@ export default function EventsPage() {
     });
   };
 
-  const handleCellInteraction = (ev, e) => {
+  const handleCellInteraction = (ev, e, isToday) => {
+    if (isToday) {
+      jumpToToday();
+    }
     if (!ev) return;
     const isMobile = window.innerWidth <= 640;
     if (isMobile) {
@@ -96,7 +108,7 @@ export default function EventsPage() {
               <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
-              <span>BACK</span>
+              <span>HOME</span>
             </a>
           </div>
 
@@ -112,7 +124,16 @@ export default function EventsPage() {
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <h2 className="calendar-month-title">{monthName} {year}</h2>
+
+              <div className="calendar-month-wrapper">
+                <h2 className="calendar-month-title">{monthName} {year}</h2>
+                {!isCurrentMonth && (
+                  <button onClick={jumpToToday} className="jump-today-btn" title="Jump to Today">
+                    Jump to Today
+                  </button>
+                )}
+              </div>
+
               <button onClick={nextMonth} className="calendar-nav-btn" aria-label="Next Month">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6" />
@@ -121,17 +142,19 @@ export default function EventsPage() {
               </button>
             </div>
 
+            {/* Week Starting Monday */}
             <div className="calendar-grid-header">
-              <div><span className="day-name-full">Sun</span><span className="day-name-short">S</span></div>
               <div><span className="day-name-full">Mon</span><span className="day-name-short">M</span></div>
               <div><span className="day-name-full">Tue</span><span className="day-name-short">T</span></div>
               <div><span className="day-name-full">Wed</span><span className="day-name-short">W</span></div>
               <div><span className="day-name-full">Thu</span><span className="day-name-short">T</span></div>
               <div><span className="day-name-full">Fri</span><span className="day-name-short">F</span></div>
               <div><span className="day-name-full">Sat</span><span className="day-name-short">S</span></div>
+              <div><span className="day-name-full">Sun</span><span className="day-name-short">S</span></div>
             </div>
 
-            <div className="calendar-grid-days">
+            {/* Animated Grid Container */}
+            <div key={`${year}-${month}`} className="calendar-grid-days month-transition-active">
               {Array.from({ length: firstDayIndex }).map((_, index) => (
                 <div key={`empty-${index}`} className="calendar-day-cell empty" />
               ))}
@@ -142,14 +165,15 @@ export default function EventsPage() {
                 const formattedMonth = String(month + 1).padStart(2, '0');
                 const dateString = `${year}-${formattedMonth}-${formattedDay}`;
 
+                const isToday = dateString === todayString;
                 const dayEvents = events.filter((ev) => ev.eventDate === dateString);
                 const primaryEvent = dayEvents[0];
 
                 return (
                   <div
                     key={dayNumber}
-                    className={`calendar-day-cell ${dayEvents.length > 0 ? 'has-events' : ''}`}
-                    onClick={(e) => handleCellInteraction(primaryEvent, e)}
+                    className={`calendar-day-cell ${dayEvents.length > 0 ? 'has-events' : ''} ${isToday ? 'is-today' : ''}`}
+                    onClick={(e) => handleCellInteraction(primaryEvent, e, isToday)}
                     onMouseEnter={() => {
                       if (primaryEvent && window.innerWidth > 640) {
                         setHoveredEvent(primaryEvent);
@@ -157,18 +181,25 @@ export default function EventsPage() {
                     }}
                     onMouseLeave={() => setHoveredEvent(null)}
                   >
-                    <span className="calendar-day-number">{dayNumber}</span>
+                    <div className="calendar-day-header">
+                      <span className={`calendar-day-number ${isToday ? 'today-text' : ''}`}>{dayNumber}</span>
+                      {isToday && <span className="today-hover-label">Today</span>}
+                    </div>
+
                     <div>
-                      {dayEvents.map((ev) => (
-                        <React.Fragment key={ev.id}>
-                          {/* Desktop Pill View */}
-                          <div className="calendar-event-pill">
-                            {ev.title}
-                          </div>
-                          {/* Mobile Indicator Dot View */}
-                          <div className="calendar-event-dot" />
-                        </React.Fragment>
-                      ))}
+                      {dayEvents.map((ev) => {
+                        const isPassed = ev.eventDate < todayString;
+                        return (
+                          <React.Fragment key={ev.id}>
+                            {/* Desktop Pill View */}
+                            <div className={`calendar-event-pill ${isPassed ? 'passed' : ''}`}>
+                              {ev.title}
+                            </div>
+                            {/* Mobile Indicator Dot View */}
+                            <div className={`calendar-event-dot ${isPassed ? 'passed' : ''}`} />
+                          </React.Fragment>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -178,31 +209,36 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Hardware-Accelerated Floating Preview Tooltip (Desktop) */}
+      {/* Floating Preview Tooltip with SVG Icons */}
       {hoveredEvent && window.innerWidth > 640 && (
-        <div
-          ref={tooltipRef}
-          className="event-floating-tooltip"
-        >
-          <div className="tooltip-date-tag">{hoveredEvent.eventDate}</div>
+        <div ref={tooltipRef} className="event-floating-tooltip">
+          <div className="tooltip-date-tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span>{hoveredEvent.eventDate}</span>
+          </div>
           <div className="tooltip-title">{hoveredEvent.title}</div>
           <div className="tooltip-desc">{hoveredEvent.description}</div>
           {hoveredEvent.location && (
-            <div className="tooltip-location">📍 {hoveredEvent.location}</div>
+            <div className="tooltip-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>{hoveredEvent.location}</span>
+            </div>
           )}
         </div>
       )}
 
-      {/* Mobile Event Popup Modal */}
+      {/* Mobile Event Popup Modal with SVG Icons */}
       {activeMobileEvent && (
-        <div
-          className="mobile-event-modal-overlay"
-          onClick={() => setActiveMobileEvent(null)}
-        >
-          <div
-            className="mobile-event-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="mobile-event-modal-overlay" onClick={() => setActiveMobileEvent(null)}>
+          <div className="mobile-event-modal" onClick={(e) => e.stopPropagation()}>
             <button
               className="mobile-modal-close"
               onClick={() => setActiveMobileEvent(null)}
@@ -210,9 +246,26 @@ export default function EventsPage() {
             >
               ✕
             </button>
-            <p className="mobile-modal-kicker">UPCOMING EVENT</p>
+            <p className="mobile-modal-kicker">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '5px', verticalAlign: 'middle' }}>
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {activeMobileEvent.eventDate}
+            </p>
             <h3 className="mobile-modal-title">{activeMobileEvent.title}</h3>
             <p className="mobile-modal-desc">{activeMobileEvent.description}</p>
+            {activeMobileEvent.location && (
+              <p className="mobile-modal-location">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{activeMobileEvent.location}</span>
+              </p>
+            )}
             <a
               href={`/events/${encodeURIComponent(
                 (activeMobileEvent.title || '').toLowerCase().trim().replace(/\s+/g, '-')

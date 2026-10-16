@@ -49,7 +49,7 @@
 .events-page-subtitle {
   font-family: 'Geologica', sans-serif;
   font-size: 0.75rem;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.1em;
   color: #7B1C1C;
   text-transform: uppercase;
   font-weight: 600;
@@ -81,11 +81,38 @@
   margin-bottom: 24px;
 }
 
+.calendar-month-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .calendar-month-title {
   font-family: 'Google Sans Flex', sans-serif;
   font-size: clamp(1.2rem, 2.5vw, 1.6rem);
   font-weight: 700;
   color: #1a1a1a;
+}
+
+.jump-today-btn {
+  background: #1a3a6b;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  white-space: nowrap;
+}
+
+.jump-today-btn:hover {
+  background: #2a5298;
+  transform: scale(1.05);
 }
 
 .calendar-nav-btn {
@@ -102,6 +129,7 @@
   color: #1a1a1a;
   font-weight: 700;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .calendar-nav-btn:hover {
@@ -149,11 +177,27 @@
   display: none;
 }
 
+/* Calendar Days Grid & Smooth Month Transition */
 .calendar-grid-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
   margin-top: 12px;
+}
+
+.calendar-grid-days.month-transition-active {
+  animation: monthFadeSlide 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes monthFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .calendar-day-cell {
@@ -166,6 +210,48 @@
   justify-content: space-between;
   border: 1px solid rgba(0, 0, 0, 0.04);
   transition: all 0.25s ease;
+  position: relative;
+}
+
+/* 1px Blue Today Border & Card Styling */
+.calendar-day-cell.is-today {
+  border: 1px solid #1a3a6b;
+  background: #f0f7ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  cursor: pointer;
+}
+
+.calendar-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calendar-day-number.today-text {
+  color: #1a3a6b;
+  font-weight: 800;
+}
+
+/* Hover "Today" Badge replacing the dot */
+.today-hover-label {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #1a3a6b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.calendar-day-cell.is-today:hover .today-hover-label {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .calendar-day-cell.has-events {
@@ -179,6 +265,11 @@
   background: #f7f1e7;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(123, 28, 28, 0.08);
+}
+
+.calendar-day-cell.is-today.has-events:hover {
+  border-color: #1a3a6b;
+  background: #e0edff;
 }
 
 .calendar-day-cell.empty {
@@ -206,10 +297,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin-top: 4px;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.calendar-day-cell.has-events:hover .calendar-event-pill {
+/* Passed Events (Gray Styling) */
+.calendar-event-pill.passed {
+  background: #a09d9a;
+  color: #ffffff;
+  opacity: 0.8;
+  text-decoration: line-through;
+}
+
+.calendar-day-cell.has-events:hover .calendar-event-pill:not(.passed) {
   background: #1a3a6b;
 }
 
@@ -222,7 +321,11 @@
   margin: 4px auto 0;
 }
 
-/* Zero-Lag Hardware Accelerated Cursor Tooltip */
+.calendar-event-dot.passed {
+  background-color: #a09d9a;
+}
+
+/* Floating Tooltip (SVG Icons Integrated) */
 .event-floating-tooltip {
   position: fixed;
   top: 0;
@@ -246,13 +349,16 @@
 }
 
 .tooltip-date-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Geologica', sans-serif;
   font-size: 0.68rem;
   color: #C9A84C;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .tooltip-title {
@@ -343,6 +449,9 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mobile-modal-title {
@@ -358,6 +467,19 @@
   font-size: 0.85rem;
   color: #555555;
   line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.mobile-modal-location {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7B1C1C;
+  text-transform: uppercase;
   margin-bottom: 16px;
 }
 
@@ -378,23 +500,94 @@
   text-decoration: none;
 }
 
-/* Mobile Responsive Adjustments */
+/* Comprehensive Mobile Responsive Layout Fixes */
 @media (max-width: 640px) {
+  .events-page-container {
+    padding: 0 12px 60px;
+  }
+
+  .calendar-card {
+    padding: 16px 12px;
+    border-radius: 16px;
+  }
+
+  .calendar-header {
+    margin-bottom: 16px;
+    gap: 8px;
+  }
+
+  .calendar-month-wrapper {
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .calendar-month-title {
+    font-size: 1.15rem;
+    line-height: 1.2;
+  }
+
+  .jump-today-btn {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+  }
+
+  .calendar-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .calendar-grid-header {
+    gap: 4px;
+    padding-bottom: 8px;
+    font-size: 0.7rem;
+  }
+
   .day-name-full {
     display: none;
   }
+
   .day-name-short {
     display: inline;
   }
-  .calendar-day-cell {
-    min-height: 48px;
-    padding: 4px;
-    align-items: center;
+
+  .calendar-grid-days {
+    gap: 4px;
+    margin-top: 8px;
   }
+
+  .calendar-day-cell {
+    min-height: 42px;
+    padding: 4px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .calendar-day-header {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .calendar-day-number {
+    font-size: 0.78rem;
+  }
+
+  .today-hover-label {
+    display: none; /* Hide hover badge on touch screens to prevent overflow */
+  }
+
   .calendar-event-pill {
     display: none;
   }
+
   .calendar-event-dot {
     display: block;
+    width: 6px;
+    height: 6px;
+    margin-top: 3px;
   }
 }
