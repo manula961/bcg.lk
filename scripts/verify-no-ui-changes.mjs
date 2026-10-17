@@ -26,6 +26,20 @@ for (const path of changed.filter(protectedPath)) {
       .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
       .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
     if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
+  } else if (path === 'src/admin/AdminDashboard.jsx' || path === 'src/admin/AdminLogin.jsx') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const expected = before.replace("import './Admin.css';", "import './Admin.css';\nimport './AdminGlass.css';");
+    if (after !== expected) violations.push(path + ' (not an admin-only glass theme import)');
+  } else if (path === 'src/admin/AdminGlass.css') {
+    // New, explicitly reviewed admin-only theme; never permit global or public selectors.
+    const css = git('show', 'HEAD:' + path);
+    const selectors = css.match(/(?:^|})\s*([^{}]+)\s*\{/g) || [];
+    if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
+        /@import|url\s*\(|:root|\bbody\s*\{|\bhtml\s*\{|!important/.test(css) ||
+        selectors.some(s => !/\.admin-(?:body|center-screen)/.test(s) && !/^}\s*@(?:media|supports)/.test(s))) {
+      violations.push(path + ' (admin glass CSS scope violation)');
+    }
   } else {
     violations.push(path);
   }
