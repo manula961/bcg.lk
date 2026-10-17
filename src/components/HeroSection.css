@@ -82,3 +82,9 @@
     height: 44px;
   }
 }
+
+@media (max-width: 400px) {
+  .motto-container {
+    margin-bottom: 50px;
+  }
+}
