@@ -91,6 +91,18 @@ const sections = [
 export default function AdminDashboard({ user }) {
   const [section, setSection] = useState('news');
   const [editorDirty, setEditorDirty] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try { return window.localStorage.getItem('bcg-admin-theme') === 'dark' ? 'dark' : 'light'; }
+    catch { return 'light'; }
+  });
+
+  function toggleTheme() {
+    setTheme(current => {
+      const next = current === 'light' ? 'dark' : 'light';
+      try { window.localStorage.setItem('bcg-admin-theme', next); } catch { /* storage may be disabled */ }
+      return next;
+    });
+  }
 
   function changeSection(next) {
     if (section === next) return;
@@ -102,7 +114,7 @@ export default function AdminDashboard({ user }) {
   const currentSection = sections.find((s) => s.id === section);
 
   return (
-    <main className="admin-body">
+    <main className={`admin-body ${theme === 'dark' ? 'admin-theme-dark' : ''}`}>
       <div className="admin-layout-wrapper">
         {/* Sidebar */}
         <aside className="admin-sidebar">
@@ -160,6 +172,10 @@ export default function AdminDashboard({ user }) {
               <p className="admin-header-desc">{currentSection?.description}</p>
             </div>
             <div className="admin-header-actions">
+              <button type="button" className="admin-btn-secondary admin-theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`} aria-pressed={theme === 'dark'}>
+                <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
+                {theme === 'light' ? 'Dark mode' : 'Light mode'}
+              </button>
               <a
                 href="/"
                 target="_blank"
