@@ -59,7 +59,6 @@
   padding: 12px 20px;
   background: #c9a84c;
   color: #000000;
-  font-family: "Geologica", sans-serif !important;
   font-weight: 600;
   border-radius: 8px;
   transition: top 0.2s ease;
@@ -98,12 +97,10 @@
 }
 
 .life-detail-return-btn:hover {
-  transition-delay: 0s !important;
   color: #1a3a6b;
 }
 
 .life-detail-return-btn:hover .return-arrow-icon {
-  transition-delay: 0s !important;
   transform: translateX(-4px);
 }
 
@@ -148,11 +145,11 @@
 }
 
 .life-detail-description {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   font-size: clamp(0.9rem, 1.3vw, 1.05rem);
   font-weight: 300;
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.68);
   line-height: 1.8;
 }
 
@@ -191,7 +188,7 @@
 
 .life-detail-feature-image {
   object-fit: cover;
-  opacity: 0.3;
+  opacity: 0.35;
 }
 
 .life-detail-feature-shade {
@@ -261,7 +258,6 @@
 }
 
 .life-detail-highlight:hover {
-  transition-delay: 0s !important;
   background: #f4efe6;
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
@@ -297,7 +293,7 @@
   text-align: center;
   padding-bottom: clamp(24px, 4vw, 40px);
   max-width: 780px;
-  margin: 5rem auto 0;
+  margin: 4rem auto 0;
 }
 
 .life-detail-section-heading h2 {
@@ -331,7 +327,6 @@
 }
 
 .life-detail-story-card:hover {
-  transition-delay: 0s !important;
   border-color: rgba(123, 28, 28, 0.25);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
   transform: translateY(-4px);
@@ -467,8 +462,7 @@
 }
 
 /* ==========================================
-   7. UNIVERSAL DIRECTORY & PROFILE CARDS
-   (Bigger Cards, 1:1 Aspect Ratio Logo Box, Left-Aligned)
+   7. DIRECTORY & PROFILE CARDS
    ========================================== */
 .life-detail-society-grid,
 .societies-grid,
@@ -520,7 +514,6 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
 
-/* 1:1 Aspect Ratio Logo & Portrait Wrapper */
 .life-detail-society-logo-wrap,
 .society-logo-wrap,
 .school-content-image-wrap,
@@ -545,15 +538,6 @@
   box-sizing: border-box;
 }
 
-/* Avatar Circle Modifier for Circular Profiles */
-.profile-avatar-wrap.round,
-.society-logo-wrap.round {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  padding: 6px;
-}
-
 .life-detail-society-logo,
 .society-logo,
 .school-content-image,
@@ -567,19 +551,12 @@
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.profile-avatar-wrap.round .profile-avatar,
-.society-logo-wrap.round .society-logo {
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .life-detail-society-card:hover .life-detail-society-logo,
 .school-content-card:hover .school-content-image,
 .profile-card:hover .profile-avatar {
   transform: scale(1.05);
 }
 
-/* Subtitles, Tags & Roles */
 .life-detail-society-role,
 .society-tag,
 .school-content-tag,
@@ -595,20 +572,6 @@
   margin-bottom: 4px;
 }
 
-/* Distinction Tag Chip for Special Leadership/Patron Titles */
-.profile-badge-chip {
-  background: rgba(123, 28, 28, 0.08);
-  color: #7b1c1c;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-/* Titles & Person Names */
 .life-detail-society-title,
 .society-title,
 .school-content-title,
@@ -621,7 +584,6 @@
   line-height: 1.25;
 }
 
-/* Descriptions, Department & Bio Copy */
 .life-detail-society-desc,
 .society-desc,
 .school-content-desc,
@@ -634,42 +596,12 @@
   margin: 0 0 12px 0;
 }
 
-/* Links & Contact Action Buttons */
-.life-detail-society-link,
-.society-link,
-.profile-contact {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #7b1c1c;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  transition: color 0.25s ease;
-}
-
-.life-detail-society-link:hover,
-.society-link:hover,
-.profile-contact:hover {
-  color: #1a3a6b;
-}
-
-.empty-listing-message {
-  text-align: left;
-  font-size: 0.95rem;
-  color: #60636a;
-  font-weight: 300;
-  padding: 32px 0;
-  margin: 0;
-}
-
 /* ==========================================
    8. EXPLORE MORE CARDS
    ========================================== */
+.life-detail-explore {
+  margin-top: clamp(40px, 8vw, 80px);
+}
 
 .life-detail-grid {
   display: grid;
@@ -698,7 +630,6 @@
 }
 
 .life-detail-card:hover {
-  transition-delay: 0s !important;
   transform: translateY(-4px);
   box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
 }
@@ -720,7 +651,6 @@
 }
 
 .life-detail-card:hover > img {
-  transition-delay: 0s !important;
   transform: scale(1.05);
   opacity: 0.4;
 }
@@ -739,6 +669,14 @@
   position: relative;
   z-index: 1;
   gap: 6px;
+}
+
+.life-detail-card-label {
+  font-size: clamp(0.68rem, 0.9vw, 0.75rem);
+  font-weight: 700;
+  color: #c9a84c !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .life-detail-card-content strong {
@@ -781,7 +719,6 @@
 }
 
 .life-detail-card:hover .life-detail-card-arrow {
-  transition-delay: 0s !important;
   background: #c9a84c;
   color: #111111;
   transform: translate(2px, -2px);
@@ -815,21 +752,17 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
-
   .house-showcase-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-
   .life-detail-story-card {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-
   .life-detail-story-number {
     font-size: 1.5rem;
   }
-
   .house-card-tag {
     font-size: 4rem;
   }
@@ -839,21 +772,17 @@
   .life-detail-intro {
     padding: 16px 12px 28px;
   }
-
   .life-detail-grid {
     grid-template-columns: 1fr;
     gap: 14px;
   }
-
   .life-detail-highlight {
     min-height: 100px;
     padding: 16px 12px;
   }
-
   .life-detail-card {
     min-height: 200px;
   }
-
   .life-detail-society-grid,
   .societies-grid,
   .school-content-grid,
@@ -861,7 +790,6 @@
   .profile-grid {
     justify-content: center;
   }
-
   .life-detail-society-card,
   .society-card,
   .school-content-card,
