@@ -29,8 +29,11 @@ export function unseal(value) {
   return JSON.parse(Buffer.concat([decipher.update(data.subarray(28)), decipher.final()]).toString());
 }
 export function cookieValue(req, name) {
-  const found = (req.headers.cookie || '').split(';').map(p => p.trim()).find(p => p.startsWith(name+'='));
-  return found ? found.slice(name.length+1) : null;
+  const header = req?.headers?.cookie;
+  if (typeof header !== 'string' || header.length > 8192) return null;
+  const values = header.split(';').map(p => p.trim()).filter(p => p.startsWith(name + '='));
+  // Ambiguous duplicate cookies must not select an attacker-controlled value.
+  return values.length === 1 ? values[0].slice(name.length + 1) : null;
 }
 export function setCookie(name, value, seconds, path='/api/drive') {
   return name+'='+value+'; Path='+path+'; HttpOnly; Secure; SameSite=Lax; Max-Age='+seconds;
@@ -63,14 +66,20 @@ export async function requireAdmin(req) {
   });
   if (!authResponse.ok) throw Object.assign(new Error('Invalid Firebase session'),{status:401});
   const result = await authResponse.json();
-  const uid = result.users?.[0]?.localId;
-  if (!uid || result.users?.[0]?.disabled) throw Object.assign(new Error('Invalid Firebase session'),{status:401});
+  const users = result?.users;
+  if (!Array.isArray(users) || users.length !== 1 ||
+      typeof users[0]?.localId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(users[0].localId) ||
+      users[0].disabled === true) {
+    throw Object.assign(new Error('Invalid Firebase session'), { status: 401 });
+  }
+  const uid = users[0].localId;
   const project = process.env.FIREBASE_PROJECT_ID;
   const url = 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(project)+'/databases/(default)/documents/admins/'+encodeURIComponent(uid);
   const roleResponse = await fetch(url,{headers:{Authorization:'Bearer '+match[1]}});
   if (!roleResponse.ok) throw Object.assign(new Error('Administrator access required'),{status:403});
   const record = await roleResponse.json();
-  if (record.fields?.role?.stringValue !== 'admin') throw Object.assign(new Error('Administrator access required'),{status:403});
+  // The role document is looked up using the verified Firebase UID only.
+  if (record?.fields?.role?.stringValue !== 'admin') throw Object.assign(new Error('Administrator access required'),{status:403});
   return uid;
 }
 export function verifySession(req, uid) {

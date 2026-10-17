@@ -170,3 +170,55 @@ test('internal errors are redacted from API responses', () => {
     assert.ok(!JSON.stringify(res.payload).includes('secret-google-token'));
   } finally { console.error = savedError; }
 });
+
+test('admin boundary rejects malformed Firebase account identities and roles', async () => {
+  const restore = withEnv(['FIREBASE_WEB_API_KEY', 'FIREBASE_PROJECT_ID'], {
+    FIREBASE_WEB_API_KEY: 'test-web-api-key', FIREBASE_PROJECT_ID: 'demo-bcg-verification',
+  });
+  const original = globalThis.fetch;
+  const req = { headers: { authorization: 'Bearer valid.firebase.token' } };
+  try {
+    for (const users of [
+      undefined, null, [], [{ localId: '' }], [{ localId: '../other' }],
+      [{ localId: 42 }], [{ localId: 'admin', disabled: true }],
+      [{ localId: 'admin' }, { localId: 'other' }],
+    ]) {
+      let calls = 0;
+      globalThis.fetch = async () => { calls++; return json({ users }); };
+      await assert.rejects(() => requireAdmin(req), { status: 401 });
+      assert.equal(calls, 1, 'invalid identity must not reach Firestore');
+    }
+    for (const role of ['auditor', 'editor', '', undefined]) {
+      globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
+        ? json({ users: [{ localId: 'admin' }] })
+        : json(role === undefined ? {} : { fields: { role: { stringValue: role } } });
+      await assert.rejects(() => requireAdmin(req), { status: 403 });
+    }
+    globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
+      ? json({ users: [{ localId: 'admin' }] })
+      : json({}, 403);
+    await assert.rejects(() => requireAdmin(req), { status: 403 });
+  } finally {
+    globalThis.fetch = original;
+    restore();
+  }
+});
+
+test('session cookie parsing rejects ambiguous duplicate and oversized headers', async () => {
+  const { cookieValue, verifySession, seal } = await import('../api/_lib/drive.mjs');
+  const previous = process.env.DRIVE_COOKIE_ENCRYPTION_KEY;
+  process.env.DRIVE_COOKIE_ENCRYPTION_KEY = 'a'.repeat(64);
+  try {
+    const payload = seal({ uid: 'admin', refresh: 'token', exp: Date.now() + 60000 });
+    const name = cookies.session;
+    assert.equal(cookieValue({ headers: { cookie: name + '=' + payload } }, name), payload);
+    const duplicated = { headers: { cookie: name + '=' + payload + '; ' + name + '=malicious' } };
+    assert.equal(cookieValue(duplicated, name), null);
+    assert.throws(() => verifySession(duplicated, 'admin'), { status: 401 });
+    assert.equal(cookieValue({ headers: { cookie: name + '=' + 'x'.repeat(8200) } }, name), null);
+    assert.equal(cookieValue({ headers: {} }, name), null);
+  } finally {
+    if (previous === undefined) delete process.env.DRIVE_COOKIE_ENCRYPTION_KEY;
+    else process.env.DRIVE_COOKIE_ENCRYPTION_KEY = previous;
+  }
+});
