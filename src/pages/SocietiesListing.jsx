@@ -23,7 +23,7 @@ export default function SocietiesListing() {
     <section className="life-detail-societies" aria-labelledby="societies-directory-title">
       <div className="life-detail-section-heading">
         <p className="life-detail-kicker">OUR COMMUNITY</p>
-        <h2 id="societies-directory-title">College Societies</h2>
+        <h2 id="societies-directory-title">Societies & Sports</h2>
         <p className="life-detail-description">Discover the societies published by the college administration.</p>
       </div>
 
@@ -40,9 +40,11 @@ export default function SocietiesListing() {
                 <img src={item.imageUrl} alt={item.title + ' logo'} loading="lazy" className="life-detail-society-logo" />
               </div>
             )}
-            {item.category && <span className="life-detail-feature-label">{item.category}</span>}
-            <h3>{item.title}</h3>
-            {item.description && <p>{item.description}</p>}
+            
+            {item.category && <span className="life-detail-society-role">{item.category}</span>}
+            <h3 className="life-detail-society-title">{item.title}</h3>
+            {item.description && <p className="life-detail-society-desc">{item.description}</p>}
+            
             {item.websiteUrl && (
               <a
                 href={item.websiteUrl}
@@ -52,9 +54,9 @@ export default function SocietiesListing() {
                 aria-label={'Visit ' + item.title + ' website'}
               >
                 <span>Visit society</span>
-                <svg className="return-arrow-icon" style={{ transform: 'rotate(135deg)' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12 19 5 12 12 5" />
+                <svg className="society-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
                 </svg>
               </a>
             )}

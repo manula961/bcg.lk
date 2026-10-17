@@ -597,7 +597,37 @@
 }
 
 /* ==========================================
-   8. EXPLORE MORE CARDS
+   8. SOCIETY EXTERNAL LINK STYLES
+   ========================================== */
+.life-detail-society-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #7b1c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.25s ease;
+}
+
+.life-detail-society-link:hover {
+  color: #1a3a6b;
+}
+
+.society-link-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s ease;
+}
+
+.life-detail-society-link:hover .society-link-icon {
+  transform: translate(2px, -2px);
+}
+
+/* ==========================================
+   9. EXPLORE MORE CARDS
    ========================================== */
 .life-detail-explore {
   margin-top: clamp(40px, 8vw, 80px);
@@ -725,7 +755,7 @@
 }
 
 /* ==========================================
-   9. ANIMATION UTILITIES & RESPONSIVE QUERIES
+   10. ANIMATION UTILITIES & RESPONSIVE QUERIES
    ========================================== */
 .life-content-group {
   opacity: 0;
