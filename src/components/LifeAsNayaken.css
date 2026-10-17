@@ -15,7 +15,6 @@
    2. SECTION & CONTAINER STYLING
    ========================================== */
 .life-bento-section {
-  background-color: #ffffff;
   padding: clamp(48px, 6vw, 90px) 0;
   width: 100%;
 }

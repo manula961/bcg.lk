@@ -12,9 +12,9 @@
   background: linear-gradient(
     90deg,
     #7b1c1c 0%,
-    #c9a84c 35%,
-    #1a3a6b 65%,
-    #c9a84c 85%,
+    #c9a84c 25%,
+    #1a3a6b 50%,
+    #c9a84c 75%,
     #7b1c1c 100%
   );
   box-shadow: 0 0 12px rgba(201, 168, 76, 0.4);
