@@ -1,4 +1,40 @@
-/* Light Theme Base Page Layout */
+/* ==========================================
+   1. GLOBAL FONT ENFORCEMENT & RESET
+   ========================================== */
+.life-detail,
+.life-detail button,
+.life-detail input,
+.life-detail select,
+.life-detail textarea,
+.life-detail p,
+.life-detail span,
+.life-detail div,
+.life-detail a,
+.life-detail li {
+  font-family:
+    "Geologica",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif !important;
+}
+
+.life-detail h1,
+.life-detail h2,
+.life-detail h3,
+.life-detail h4,
+.life-detail h5,
+.life-detail h6 {
+  font-family:
+    "Google Sans Flex",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif !important;
+}
+
 .life-detail {
   min-height: 100vh;
   background: #ffffff;
@@ -21,9 +57,9 @@
   top: -80px;
   z-index: 50;
   padding: 12px 20px;
-  background: #C9A84C;
+  background: #c9a84c;
   color: #000000;
-  font-family: 'Geologica', sans-serif;
+  font-family: "Geologica", sans-serif !important;
   font-weight: 600;
   border-radius: 8px;
   transition: top 0.2s ease;
@@ -33,7 +69,7 @@
   top: 12px;
 }
 
-/* Back Link Button */
+/* Return Button */
 .life-detail-return {
   padding-top: 10px;
   margin-bottom: clamp(16px, 3vw, 24px);
@@ -43,13 +79,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #7B1C1C;
-  font-family: 'Geologica', sans-serif;
+  color: #7b1c1c;
   font-size: clamp(0.75rem, 1.2vw, 0.85rem);
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: color 0.25s ease, transform 0.25s ease;
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
   width: fit-content;
 }
 
@@ -71,40 +108,39 @@
 }
 
 .life-detail a:focus-visible {
-  outline: 2px solid #C9A84C;
+  outline: 2px solid #c9a84c;
   outline-offset: 4px;
 }
 
-/* Page Hero Intro */
+/* ==========================================
+   2. HERO & INTRO SECTION
+   ========================================== */
 .life-detail-intro {
   text-align: center;
   padding: 12px clamp(16px, 4vw, 32px) clamp(32px, 5vw, 50px);
 }
 
 .life-detail-kicker {
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.68rem, 1vw, 0.75rem);
-  letter-spacing: 0.1em;
-  color: #7B1C1C;
+  letter-spacing: 0.12em;
+  color: #7b1c1c;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
 .life-detail-eyebrow {
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.65rem, 0.9vw, 0.72rem);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: #a38229;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 4px;
 }
 
 .life-detail-intro h1 {
   margin: clamp(10px, 2vw, 16px) auto clamp(12px, 2vw, 20px);
-  font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(2rem, 5.5vw, 4.2rem);
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
   font-weight: 800;
   color: #1a1a1a;
   line-height: 1.1;
@@ -112,9 +148,8 @@
 }
 
 .life-detail-description {
-  max-width: 660px;
+  max-width: 680px;
   margin: 0 auto;
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.9rem, 1.3vw, 1.05rem);
   font-weight: 300;
   color: rgba(0, 0, 0, 0.65);
@@ -125,18 +160,21 @@
   padding-bottom: clamp(60px, 10vw, 120px);
 }
 
-/* Main Feature Card */
+/* ==========================================
+   3. FEATURE BANNER CARD
+   ========================================== */
 .life-detail-feature {
   position: relative;
   isolation: isolate;
   display: flex;
   align-items: flex-end;
-  min-height: clamp(300px, 40vh, 460px);
-  padding: clamp(20px, 5vw, 60px);
+  min-height: clamp(280px, 35vh, 420px);
+  padding: clamp(24px, 4vw, 48px);
   overflow: hidden;
-  border-radius: clamp(14px, 2vw, 24px);
-  background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #7b1c1c 0%, #5a1212 100%);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: clamp(28px, 4vw, 48px);
 }
 
 .life-detail-feature.blue {
@@ -157,7 +195,11 @@
 }
 
 .life-detail-feature-shade {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.25) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
 }
 
 .life-detail-feature-body {
@@ -166,34 +208,33 @@
   max-width: 740px;
 }
 
-.life-detail-feature-label,
-.life-detail-card-label {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(0.62rem, 0.9vw, 0.72rem);
-  letter-spacing: 0.1em;
-  color: #C9A84C;
+.life-detail-feature-label {
+  font-size: clamp(0.65rem, 0.9vw, 0.72rem);
+  letter-spacing: 0.12em;
+  color: #c9a84c;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .life-detail-feature h2 {
-  margin: clamp(8px, 1.5vw, 14px) 0;
-  font-family: 'Google Sans Flex', sans-serif;
-  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
-  font-weight: 700;
-  color: #ffffff;
+  margin: clamp(8px, 1.5vw, 12px) 0;
+  font-size: clamp(1.5rem, 3.2vw, 2.6rem);
+  font-weight: 800;
+  color: #ffffff !important;
   line-height: 1.2;
 }
 
 .life-detail-feature p {
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.85rem, 1.2vw, 0.95rem);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.88) !important;
   line-height: 1.75;
+  margin: 0;
 }
 
-/* Highlights Grid */
+/* ==========================================
+   4. HIGHLIGHT METRICS GRID
+   ========================================== */
 .life-detail-highlights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -202,36 +243,35 @@
 }
 
 .life-detail-highlight {
-  background: #f7f5f0;
-  border-top: 3px solid #7B1C1C;
-  border-radius: 16px;
-  padding: clamp(18px, 3vw, 28px) clamp(12px, 2vw, 20px);
-  min-height: 130px;
+  background: #faf8f5;
+  border-radius: 20px;
+  padding: clamp(22px, 3vw, 32px) clamp(16px, 2vw, 24px);
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 6px;
   text-align: center;
-  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  gap: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.02);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .life-detail-highlight:hover {
   transition-delay: 0s !important;
-  background: #f0ece1;
+  background: #f4efe6;
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.life-detail-highlight:nth-child(even) {
-  border-top-color: #1a3a6b;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
 }
 
 .life-detail-highlight strong {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   font-weight: 800;
-  color: #7B1C1C;
-  line-height: 1.1;
+  color: #7b1c1c;
+  line-height: 1;
 }
 
 .life-detail-highlight:nth-child(even) strong {
@@ -239,15 +279,16 @@
 }
 
 .life-detail-highlight span {
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.68rem, 1vw, 0.78rem);
-  letter-spacing: 0.06em;
-  color: rgba(0, 0, 0, 0.65);
+  letter-spacing: 0.1em;
+  color: #60636a;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Editorial Story Section */
+/* ==========================================
+   5. EDITORIAL STORY CARDS
+   ========================================== */
 .life-detail-story {
   padding-top: clamp(48px, 8vw, 100px);
 }
@@ -256,12 +297,11 @@
   text-align: center;
   padding-bottom: clamp(24px, 4vw, 40px);
   max-width: 780px;
-  margin: 0 auto;
+  margin: 5rem auto 0;
 }
 
 .life-detail-section-heading h2 {
   margin-top: 8px;
-  font-family: 'Google Sans Flex', sans-serif;
   font-size: clamp(1.6rem, 3.8vw, 3rem);
   font-weight: 800;
   color: #1a1a1a;
@@ -271,7 +311,7 @@
 
 .life-detail-stories {
   display: grid;
-  gap: clamp(14px, 2vw, 24px);
+  gap: clamp(16px, 2.5vw, 24px);
 }
 
 .life-detail-story-card {
@@ -279,12 +319,15 @@
   grid-template-columns: 60px minmax(0, 1fr);
   gap: clamp(16px, 3vw, 28px);
   align-items: start;
-  padding: clamp(20px, 3.5vw, 40px);
+  padding: clamp(24px, 3.5vw, 40px);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 18px;
+  border-radius: 20px;
   background: #ffffff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.035);
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .life-detail-story-card:hover {
@@ -295,16 +338,14 @@
 }
 
 .life-detail-story-number {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-  font-weight: 700;
-  color: #C9A84C;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 800;
+  color: #c9a84c;
   line-height: 1;
 }
 
 .life-detail-story-card h3 {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
   font-weight: 700;
   color: #1a1a1a;
   margin: 0 0 10px;
@@ -312,15 +353,17 @@
 }
 
 .life-detail-story-card p {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(0.85rem, 1.1vw, 0.92rem);
+  font-size: clamp(0.88rem, 1.1vw, 0.95rem);
   font-weight: 300;
   color: #60636a;
   line-height: 1.8;
+  margin: 0;
   max-width: 830px;
 }
 
-/* Rich Mid-Tone House Grid Showcase */
+/* ==========================================
+   6. INTER-HOUSE DIVISION CARDS
+   ========================================== */
 .house-showcase-section {
   margin-top: clamp(36px, 6vw, 56px);
 }
@@ -335,18 +378,20 @@
 .house-card-modern {
   position: relative;
   border-radius: 20px;
-  padding: clamp(20px, 3.5vw, 32px);
+  padding: clamp(24px, 3.5vw, 36px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 195px;
+  min-height: 200px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
-/* Rich, Deep-Color Gradients */
 .house-card-vijaya {
   background: linear-gradient(135deg, #a81c1c 0%, #7b1212 100%);
   border-color: rgba(239, 68, 68, 0.3);
@@ -367,16 +412,10 @@
   border-color: rgba(245, 158, 11, 0.3);
 }
 
-/* Hover States */
 .house-card-modern:hover {
   transform: translateY(-5px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
 }
-
-.house-card-vijaya:hover { border-color: rgba(252, 165, 165, 0.5); }
-.house-card-gamunu:hover { border-color: rgba(147, 197, 253, 0.5); }
-.house-card-thissa:hover { border-color: rgba(134, 239, 172, 0.5); }
-.house-card-parakrama:hover { border-color: rgba(253, 230, 138, 0.5); }
 
 .house-card-header {
   display: flex;
@@ -386,50 +425,251 @@
 }
 
 .house-card-num {
-  font-family: 'Geologica', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #fef08a;
-  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.1em;
 }
 
 .house-card-tag {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(4rem, 12vw, 10rem);
-  font-weight: 800;
-  letter-spacing: -0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.08);
-  padding: 4px 12px;
   position: absolute;
-  top: -10px;
-  right: -10px;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.12);
   pointer-events: none;
   user-select: none;
+  text-transform: uppercase;
 }
 
 .house-card-title {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.35rem, 2.5vw, 1.7rem);
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
   font-weight: 800;
   color: #ffffff;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   line-height: 1.15;
+  position: relative;
+  z-index: 1;
 }
 
 .house-card-desc {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(0.82rem, 1.1vw, 0.88rem);
+  font-size: clamp(0.82rem, 1.1vw, 0.9rem);
   font-weight: 300;
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.65;
   margin: 0;
+  position: relative;
+  z-index: 1;
+  max-width: 85%;
 }
 
-/* Explore More Cards Section */
-.life-detail-explore {
-  padding-top: clamp(48px, 8vw, 100px);
+/* ==========================================
+   7. UNIVERSAL DIRECTORY & PROFILE CARDS
+   (Bigger Cards, 1:1 Aspect Ratio Logo Box, Left-Aligned)
+   ========================================== */
+.life-detail-society-grid,
+.societies-grid,
+.school-content-grid,
+.content-listing-grid,
+.profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: clamp(18px, 2.5vw, 24px);
+  margin-top: clamp(20px, 3.5vw, 32px);
+  width: 100%;
 }
+
+.life-detail-society-card,
+.society-card,
+.school-content-card,
+.content-card,
+.profile-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 0 1 320px;
+  width: 100%;
+  max-width: 340px;
+  min-width: 270px;
+  padding: clamp(20px, 2.5vw, 24px);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.035);
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  box-sizing: border-box;
+}
+
+.life-detail-society-card:hover,
+.society-card:hover,
+.school-content-card:hover,
+.content-card:hover,
+.profile-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(123, 28, 28, 0.25);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* 1:1 Aspect Ratio Logo & Portrait Wrapper */
+.life-detail-society-logo-wrap,
+.society-logo-wrap,
+.school-content-image-wrap,
+.content-card-image-wrap,
+.profile-avatar-wrap {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: #faf8f5;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  padding: 16px;
+  margin: 0 0 16px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.35s ease;
+  box-sizing: border-box;
+}
+
+/* Avatar Circle Modifier for Circular Profiles */
+.profile-avatar-wrap.round,
+.society-logo-wrap.round {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  padding: 6px;
+}
+
+.life-detail-society-logo,
+.society-logo,
+.school-content-image,
+.content-card-image,
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.profile-avatar-wrap.round .profile-avatar,
+.society-logo-wrap.round .society-logo {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.life-detail-society-card:hover .life-detail-society-logo,
+.school-content-card:hover .school-content-image,
+.profile-card:hover .profile-avatar {
+  transform: scale(1.05);
+}
+
+/* Subtitles, Tags & Roles */
+.life-detail-society-role,
+.society-tag,
+.school-content-tag,
+.content-card-tag,
+.profile-role,
+.profile-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a38229;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+
+/* Distinction Tag Chip for Special Leadership/Patron Titles */
+.profile-badge-chip {
+  background: rgba(123, 28, 28, 0.08);
+  color: #7b1c1c;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Titles & Person Names */
+.life-detail-society-title,
+.society-title,
+.school-content-title,
+.content-card-title,
+.profile-name {
+  font-size: clamp(1.2rem, 1.9vw, 1.4rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+  line-height: 1.25;
+}
+
+/* Descriptions, Department & Bio Copy */
+.life-detail-society-desc,
+.society-desc,
+.school-content-desc,
+.content-card-desc,
+.profile-bio {
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: #60636a;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+/* Links & Contact Action Buttons */
+.life-detail-society-link,
+.society-link,
+.profile-contact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7b1c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: color 0.25s ease;
+}
+
+.life-detail-society-link:hover,
+.society-link:hover,
+.profile-contact:hover {
+  color: #1a3a6b;
+}
+
+.empty-listing-message {
+  text-align: left;
+  font-size: 0.95rem;
+  color: #60636a;
+  font-weight: 300;
+  padding: 32px 0;
+  margin: 0;
+}
+
+/* ==========================================
+   8. EXPLORE MORE CARDS
+   ========================================== */
 
 .life-detail-grid {
   display: grid;
@@ -443,12 +683,14 @@
   display: flex;
   align-items: flex-end;
   min-height: clamp(220px, 30vh, 290px);
-  border-radius: 16px;
-  padding: clamp(18px, 3vw, 28px);
+  border-radius: 20px;
+  padding: clamp(20px, 3vw, 32px);
   overflow: hidden;
-  background: linear-gradient(135deg, #7B1C1C 0%, #5a1212 100%);
+  background: linear-gradient(135deg, #7b1c1c 0%, #5a1212 100%);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease;
 }
 
 .life-detail-card.blue {
@@ -471,18 +713,24 @@
 
 .life-detail-card > img {
   object-fit: cover;
-  opacity: 0.25;
-  transition: transform 0.5s ease, opacity 0.5s ease;
+  opacity: 0.3;
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease;
 }
 
 .life-detail-card:hover > img {
   transition-delay: 0s !important;
   transform: scale(1.05);
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
 .life-detail-card-shade {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.08) 100%);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
 }
 
 .life-detail-card-content {
@@ -494,18 +742,16 @@
 }
 
 .life-detail-card-content strong {
-  font-family: 'Google Sans Flex', sans-serif !important;
   font-size: clamp(1.15rem, 2vw, 1.35rem);
   font-weight: 700;
-  color: #ffffff;
+  color: #ffffff !important;
   line-height: 1.25;
 }
 
 .life-detail-card-content > span:last-child {
-  font-family: 'Geologica', sans-serif;
   font-size: clamp(0.78rem, 1vw, 0.825rem);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85) !important;
   line-height: 1.6;
 }
 
@@ -520,9 +766,12 @@
   height: clamp(32px, 4vw, 38px);
   z-index: 1;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.17);
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .life-detail-card-arrow svg {
@@ -533,114 +782,20 @@
 
 .life-detail-card:hover .life-detail-card-arrow {
   transition-delay: 0s !important;
-  background: #C9A84C;
+  background: #c9a84c;
   color: #111111;
   transform: translate(2px, -2px);
 }
 
-/* Published Societies Directory Section */
-.life-detail-societies {
-  padding-top: clamp(48px, 8vw, 88px);
-}
-
-.life-detail-society-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: clamp(16px, 2.5vw, 28px);
-}
-
-.life-detail-society-card {
-  min-width: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 16px;
-  background: #ffffff;
-  padding: clamp(18px, 3vw, 28px);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
-}
-
-.life-detail-society-card:hover {
-  transition-delay: 0s !important;
-  border-color: rgba(123, 28, 28, 0.2);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  transform: translateY(-6px);
-}
-
-.life-detail-society-logo-wrap {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: #faf8f5;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 2px;
-  overflow: hidden;
-}
-
-.life-detail-society-logo {
-  object-fit: cover;
-}
-
-.life-detail-society-card h3 {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.15rem, 2vw, 1.35rem);
-  font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1.3;
-  margin: 0;
-}
-
-.life-detail-society-card p {
-  font-family: 'Geologica', sans-serif;
-  font-size: clamp(0.82rem, 1.1vw, 0.875rem);
-  font-weight: 300;
-  color: #555555;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  margin: 0;
-}
-
-.life-detail-society-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 8px;
-  color: #7B1C1C;
-  font-family: 'Geologica', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: gap 0.25s ease, color 0.25s ease;
-}
-
-.life-detail-society-link:hover {
-  color: #1a3a6b;
-  gap: 10px;
-}
-
-.life-detail-societies-message {
-  text-align: center;
-  padding: 20px;
-  color: #60636a;
-  font-family: 'Geologica', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.7;
-}
-
-/* Entrance Fade-Up Group Animation */
+/* ==========================================
+   9. ANIMATION UTILITIES & RESPONSIVE QUERIES
+   ========================================== */
 .life-content-group {
   opacity: 0;
   transform: translateY(40px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -649,20 +804,6 @@
   transform: translateY(0) !important;
 }
 
-/* Utilities */
-.life-detail-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Comprehensive Responsive Breakpoints */
 @media (max-width: 960px) {
   .life-detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -674,7 +815,7 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .house-showcase-grid {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -688,6 +829,10 @@
   .life-detail-story-number {
     font-size: 1.5rem;
   }
+
+  .house-card-tag {
+    font-size: 4rem;
+  }
 }
 
 @media (max-width: 580px) {
@@ -700,16 +845,6 @@
     gap: 14px;
   }
 
-  .life-detail-society-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .life-detail-feature {
-    min-height: 280px;
-    padding: 20px;
-  }
-
   .life-detail-highlight {
     min-height: 100px;
     padding: 16px 12px;
@@ -719,10 +854,20 @@
     min-height: 200px;
   }
 
-  .house-card-tag {
-    font-size: 5rem;
-    top: -5px;
-    right: -5px;
+  .life-detail-society-grid,
+  .societies-grid,
+  .school-content-grid,
+  .content-listing-grid,
+  .profile-grid {
+    justify-content: center;
+  }
+
+  .life-detail-society-card,
+  .society-card,
+  .school-content-card,
+  .content-card,
+  .profile-card {
+    max-width: 100%;
   }
 }
 
@@ -731,8 +876,8 @@
   .life-detail-card > img,
   .life-detail-story-card,
   .life-detail-highlight,
-  .life-detail-society-card,
   .house-card-modern,
+  .life-detail-society-card,
   .life-content-group {
     transition: none !important;
   }

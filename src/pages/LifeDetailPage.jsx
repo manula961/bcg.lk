@@ -4,34 +4,39 @@ import MenuBar from '../components/MenuBar';
 import Footer from '../components/Footer';
 import SocietiesListing from './SocietiesListing';
 import SchoolContentListing from './SchoolContentListing';
+import Timeline from '../components/ui/Timeline';
 
 const image = 'https://bcg.lk/img/banner1.jpg';
 
 export const lifePages = Object.freeze({
   'about-us': {
-    label: 'Nayaknz Heritage',
+    label: 'Nayakenz Heritage',
     title: 'About Us',
-    subtitle: 'Our History, Vision & Service',
-    description: 'Discover our founding history, vision, mission, and century-long citadel of learning.',
+    subtitle: 'Our History, Vision & Institutional Legacy',
+    description: "The premier Buddhist boys' national school in Gampaha, and one of Sri Lanka's leading boys' schools, founded on September 18, 1918.",
     accent: 'maroon',
-    overview: 'Founded with a vision to nurture wisdom and character, Bandaranayake College stands as a citadel of secondary education in Sri Lanka.',
+    overview: 'Bandaranayake College Gampaha (Sinhala: බණ්ඩාරනායක විද්‍යාලය ගම්පහ) is the premier Buddhist boys’ national school in Gampaha and one of the leading boys’ schools in the island, nurturing a student population exceeding 5,000.',
     highlights: [
-      { value: '1918', label: 'Year Established' },
-      { value: '108+', label: 'Years of Service' },
-      { value: 'Citadel', label: 'Of Wisdom & Character' },
+      { value: '1918', label: 'FOUNDED SEPT 18' },
+      { value: '5,000+', label: 'STUDENT POPULATION' },
+      { value: 'National', label: 'SCHOOL STATUS' },
     ],
     sections: [
       {
-        heading: 'Our Founding & Legacy',
-        copy: 'Established to provide quality education and foster leadership, Bandaranayake College has grown into a prestigious seat of learning, producing nation-builders across every field.',
+        heading: 'Founding & Historical Evolution',
+        copy: 'Established on September 18, 1918, as "Henarathgoda Seewali Buddhist School" at the location where Yashodara Devi Balika Vidyalaya is situated at present, with Mr. Charles Samarasooriya serving as the first principal. It was later transformed into Henarathgoda Senior Secondary School, and in 1949, re-established at its current location as "Henarathgoda Secondary English School" under Principal Mr. Jinadasa Munasinghe. Having operated as a mixed school up to the 1980s, the institution steadily advanced in educational standing, promoted as a First Grade School, and elevated to National Level status as Bandaranayake College on May 25, 1993.',
       },
       {
-        heading: 'Vision & Educational Mission',
-        copy: 'Our mission is to empower students through balanced academic excellence, moral integrity, physical vitality, and strong social responsibility.',
+        heading: 'Vision',
+        copy: 'Giving out Students with a great Personality into the world, who can succeed in future challenges while protecting the Social Values.',
       },
       {
-        heading: 'Community & Brotherhood',
-        copy: 'Generations of Nayakenz remain united by shared values, honor, and an enduring commitment to serving our motherland.',
+        heading: 'Mission',
+        copy: 'Endowment of an inspiring younger generation fortified with morals, virtues and intelligence in order to create a spiritually fertile society.',
+      },
+      {
+        heading: 'Infrastructure & Campus Development',
+        copy: 'Under the guidance of Principal Ven. Labuthale Sudassana Thero starting in 2006, a new development era was launched. Through the untiring efforts of the Principal, tutorial staff, parents, Past Pupils’ Association (PPA), and well-wishers, the college executed major projects including an international-standard swimming pool, volleyball and badminton courts, playground expansions, a re-established canteen, and campus transport.',
       },
     ],
   },
@@ -41,15 +46,15 @@ export const lifePages = Object.freeze({
     subtitle: 'Learning, ambition and opportunity',
     description: 'Guided by dedicated teachers, our students consistently achieve top provincial and national standings.',
     accent: 'maroon',
-    overview: 'A tradition of learning supported by subject choice, practical exploration and the dedication of the college community.',
+    overview: 'A tradition of learning supported by subject choice, practical exploration and the dedication of the college community across 60 parallel classes from Grade 6 to Grade 13.',
     highlights: [
-      { value: '1918', label: 'College founded' },
-      { value: '87', label: 'Three-A passes reported for the 2025 A/L examination' },
-      { value: 'Science', label: 'Exploration beyond the classroom' },
+      { value: '1918', label: 'COLLEGE FOUNDED' },
+      { value: '87', label: 'THREE-A PASSES IN 2025 A/L' },
+      { value: 'Science', label: 'EXPLORATION BEYOND CLASSROOM' },
     ],
     sections: [
-      { heading: 'Pathways for every ambition', copy: 'The college describes Advanced Level learning across Mathematics, Agriculture, Commerce and Arts, with foreign-language opportunities and examination-focused programmes. These pathways give students room to develop their strengths as they prepare for higher education.' },
-      { heading: 'Excellence in national examinations', copy: 'The Past Pupils Association reported 87 students with three A passes in the 2025 G.C.E. Advanced Level examination. Its April 2026 report also highlighted national rankings in Engineering Technology and Commerce. These are results for that specific examination, not a claim about every year.' },
+      { heading: 'Pathways for every ambition', copy: 'The college offers Advanced Level learning across Mathematics, Agriculture, Commerce, and Arts streams with 3 foreign languages and 24 subjects, including English medium instruction started in 2002. Over 130 students enter national and international higher education institutes annually.' },
+      { heading: 'Excellence in national examinations', copy: 'The Past Pupils Association reported 87 students with three A passes in the 2025 G.C.E. Advanced Level examination. Its April 2026 report also highlighted national rankings in Engineering Technology and Commerce.' },
       { heading: 'Learning through discovery', copy: 'The Bandaranayake College Science Society describes workshops, exhibitions and competitions that encourage scientific curiosity. Its Vishwabhiyathra annual science day creates opportunities for students to share ideas and take part in science-related challenges.' },
     ],
   },
@@ -57,42 +62,38 @@ export const lifePages = Object.freeze({
     label: 'Nayakenz Spirit',
     title: 'Sports & Societies',
     subtitle: 'Strength, teamwork and sportsmanship',
-    description: 'From cricket to athletics and student-led clubs, Nayakenz carry the BCG spirit with pride across sports and co-curricular domains.',
+    description: 'From 15 sports disciplines to 15 student associations, Nayakenz carry the BCG spirit with pride across athletic and co-curricular domains.',
     accent: 'blue',
     overview: 'Sport and student societies form an integral pillar of life at Bandaranayake College, fostering resilience, discipline, creative expression, and unwavering brotherhood.',
     highlights: [
-      { value: '4', label: 'School houses' },
-      { value: '2005', label: 'District cricket title recorded in college history' },
-      { value: 'Teamwork', label: 'On and off the field' },
+      { value: '4', label: 'SCHOOL HOUSES' },
+      { value: '15', label: 'SPORTS DISCIPLINES' },
+      { value: '15+', label: 'STUDENT ASSOCIATIONS' },
     ],
     sections: [
       {
         heading: 'Athletic Tradition & House Pride',
-        copy: 'The annual inter-house athletic meet stands as one of the most anticipated highlights of the college calendar. Students represent Vijaya, Gamunu, Thissa, and Parakrama, demonstrating individual athletic strength and collective team dedication in track and field sports.',
+        copy: 'Every student belongs to one of four historic houses named after distinguished ancient Kings of Sri Lanka: Vijaya, Gamunu, Thissa, and Parakrama. The annual inter-house athletic meet stands as a premier highlight where students compete across track, field, and indoor sports.',
       },
       {
-        heading: 'Competitive Discipline Across Sports',
-        copy: 'Beyond internal house rivalries, college teams actively compete across provincial and national tournaments in cricket, volleyball, hockey, wrestling, karate, and athletics. Training regimes focus on tactical mastery and mental endurance.',
+        heading: 'Competitive Sports & Co-Curricular Excellence',
+        copy: 'The college fields competitive teams in 15 sports including cricket, volleyball, badminton, swimming, and athletics. Students also participate in 15 student associations and have won international awards in dancing, music, and visual arts.',
       }
     ],
   },
   'leadership': {
-    label: 'School Leadership',
-    title: 'Leadership',
-    subtitle: 'Responsibility, initiative and service',
-    description: 'Leadership at Bandaranayake College grows through service, teamwork, discipline and contributions to school life.',
-    accent: 'blue',
-    overview: 'The college s vision highlights character, future readiness and social values. Student leadership can take many forms, from school responsibilities and collaborative societies to long-standing cadet traditions.',
+    label: 'Leadership',
+    title: 'School Administration',
+    subtitle: 'Executive Leadership & Governance',
+    description: 'Verified senior school administrative staff guiding the academic, moral, and physical development of Bandaranayake College Gampaha.',
+    accent: 'maroon',
+    overview: 'Our administrative leadership directs the strategic vision, academic rigor, character development, and campus governance for over 5,000 students across Bandaranayake College.',
     highlights: [
-      { value: 'Character', label: 'The college s stated educational vision' },
-      { value: '1927', label: 'Year the school says its cadet platoon began' },
-      { value: 'Service', label: 'Leadership through contribution' },
+      { value: 'Principal', label: 'EXECUTIVE HEAD' },
+      { value: '5,000+', label: 'STUDENTS GUIDED' },
+      { value: 'Administration', label: 'SCHOOL GOVERNANCE' },
     ],
-    sections: [
-      { heading: 'Values that guide leadership', copy: 'The college s published vision describes developing students with strong personalities who can meet future challenges while protecting social values. Its mission also emphasises morals, virtues and intelligence. These are school-wide aims, not a list of current student office holders.' },
-      { heading: 'Discipline and cadet tradition', copy: 'The official cadet platoon history dates the establishment of the school s senior cadet platoon to 1927. It also records the 1994 Herman Loos Trophy, illustrating a historical tradition of discipline, coordination and commitment.' },
-      { heading: 'Leadership beyond a title', copy: 'The school s clubs and societies include Scouts, Interact Club, Environment Pioneer Brigade, Red Cross Unit and Traffic Warden Unit. Participation offers opportunities to practise communication, cooperation and service; responsibilities and membership may differ by year.' },
-    ],
+    sections: [],
   },
 });
 
@@ -109,32 +110,32 @@ const detailedHouses = [
     id: 'gamunu',
     name: 'Gamunu House',
     color: 'Blue',
-    description: 'Named in honor of steadfast leadership, Gamunu House stands for strategic unity, resilience, and tactical focus.',
+    description: 'Named in honor of King Dutugemunu, Gamunu House stands for strategic unity, resilience, and tactical focus.',
   },
   {
     id: 'thissa',
     name: 'Thissa House',
     color: 'Green',
-    description: 'Embodying endurance and steady growth, Thissa House emphasizes disciplined athletic training and persistent determination.',
+    description: 'Named after King Devanampiya Tissa, Thissa House emphasizes endurance, moral strength, and persistent determination.',
   },
   {
     id: 'parakrama',
     name: 'Parakrama House',
     color: 'Yellow',
-    description: 'Representing energy and grand ambition, Parakrama House drives competitors to aim for victory and peak performance.',
+    description: 'Inspired by King Parakramabahu the Great, Parakrama House drives competitors to aim for grand achievement and victory.',
   },
 ];
 
 export default function LifeDetailPage({ slug }) {
-  const normalizedSlug = slug ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, '-') : '';
-  const current = lifePages[normalizedSlug] || lifePages[slug];
+  const normalizedSlug = slug ? decodeURIComponent(slug).toLowerCase().trim().replace(/\s+/g, '-') : 'about-us';
+  const current = lifePages[normalizedSlug] || lifePages['about-us'];
   const pageRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!current) return;
     const oldTitle = document.title;
-    document.title = current.title + ' | Bandaranayake College, Gampaha';
+    document.title = `${current.title} | Bandaranayake College, Gampaha`;
     window.scrollTo(0, 0);
     return () => { document.title = oldTitle; };
   }, [slug, current]);
@@ -160,15 +161,15 @@ export default function LifeDetailPage({ slug }) {
   };
 
   const handleMenuNavigation = (event) => {
-    const item = event.target.closest?.(".menu-nav-item");
+    const item = event.target.closest?.('.menu-nav-item');
     if (!item) return;
-    const label = item.querySelector(".menu-title")?.textContent;
+    const label = item.querySelector('.menu-title')?.textContent;
     const destinations = {
-      Home: "home",
-      News: "news",
-      Events: "events",
-      Explore: "explore",
-      "Extra Curricular": "extracurricular",
+      Home: 'home',
+      News: 'news',
+      Events: 'events',
+      Explore: 'explore',
+      'Extra Curricular': 'extracurricular',
     };
     if (destinations[label]) {
       event.stopPropagation();
@@ -199,86 +200,82 @@ export default function LifeDetailPage({ slug }) {
           <section id="life-detail-main" className="life-detail-intro" aria-labelledby="life-detail-title">
             <p className="life-detail-eyebrow">{current.label}</p>
             <h1 id="life-detail-title">{current.title}</h1>
-            <p className="life-detail-description">{current.description}</p>
+            <p className="life-detail-description">{current.overview}</p>
           </section>
 
           <div className="section-container life-detail-container">
-            {/* Main Feature Card */}
-            <section className={'life-detail-feature ' + current.accent} aria-label={current.title}>
-              <img className="life-detail-feature-image" src={image} alt="Bandaranayake College campus" />
-              <div className="life-detail-feature-shade" />
-              <div className="life-detail-feature-body">
-                <span className="life-detail-feature-label">{current.label}</span>
-                <h2>{current.subtitle}</h2>
-                <p>{current.description}</p>
-              </div>
-            </section>
+            {/* Feature Banner Card */}
+            {current.subtitle && (
+              <section className={`life-detail-feature ${current.accent || 'maroon'}`} aria-label={current.title}>
+                <img className="life-detail-feature-image" src={image} alt="Bandaranayake College campus" />
+                <div className="life-detail-feature-shade" />
+                <div className="life-detail-feature-body">
+                  <span className="life-detail-feature-label">{current.label}</span>
+                  <h2>{current.subtitle}</h2>
+                  <p>{current.description}</p>
+                </div>
+              </section>
+            )}
 
-            {/* Editorial Story Section */}
-            <section className="life-detail-story" aria-labelledby="life-detail-story-title">
-              <div className="life-detail-section-heading">
-                <p className="life-detail-kicker">DISCOVER THE STORY</p>
-                <h2 id="life-detail-story-title">{current.title} at Bandaranayake</h2>
-                <p className="life-detail-description">{current.overview}</p>
-              </div>
+            {/* Highlights Grid */}
+            <div className="life-detail-highlights">
+              {current.highlights.map((item) => (
+                <div className="life-detail-highlight" key={item.label}>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
 
-              <div className="life-detail-highlights">
-                {current.highlights.map((item) => (
-                  <div className="life-detail-highlight" key={item.label}>
-                    <strong>{item.value}</strong>
-                    <span>{item.label}</span>
-                  </div>
+            {/* Narrative Sections */}
+            {current.sections && current.sections.length > 0 && (
+              <div className="life-detail-stories" style={{ marginTop: 'clamp(24px, 4vw, 48px)' }}>
+                {current.sections.map((section, index) => (
+                  <article className="life-detail-story-card" key={section.heading}>
+                    <span className="life-detail-story-number">0{index + 1}</span>
+                    <div>
+                      <h3>{section.heading}</h3>
+                      <p>{section.copy}</p>
+                    </div>
+                  </article>
                 ))}
               </div>
+            )}
 
-              {/* House Division Editorial Grid for Sports & Societies */}
-              {normalizedSlug === 'sports-societies' && (
-                <div className="house-showcase-section">
-                  <div className="life-detail-section-heading">
-                    <p className="life-detail-kicker">INTER-HOUSE DIVISION</p>
-                    <h2>The Four Houses</h2>
-                    <p className="life-detail-description">
-                      Every Nayaken belongs to one of four historic houses, competing annually in track, field, and indoor championships.
-                    </p>
-                  </div>
-
-                  <div className="house-showcase-grid">
-                    {detailedHouses.map((house, index) => (
-                      <div key={house.id} className={`house-card-modern house-card-${house.id}`}>
-                        <div className="house-card-header">
-                          <span className="house-card-num">0{index + 1}</span>
-                          <span className="house-card-tag">{house.color}</span>
-                        </div>
-                        <div>
-                          <h3 className="house-card-title">{house.name}</h3>
-                          <p className="house-card-desc">{house.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            {/* Inter-House Division for Sports & Societies */}
+            {normalizedSlug === 'sports-societies' && (
+              <div className="house-showcase-section">
+                <div className="life-detail-section-heading">
+                  <p className="life-detail-kicker">INTER-HOUSE DIVISION</p>
+                  <h2>The Four Houses</h2>
+                  <p className="life-detail-description">
+                    Every Nayaken belongs to one of four historic houses named after distinguished ancient Kings of Sri Lanka, competing annually in major games.
+                  </p>
                 </div>
-              )}
 
-              {/* Editorial Articles */}
-              {current.sections.length > 0 && (
-                <div className="life-detail-stories" style={{ marginTop: 'clamp(24px, 4vw, 48px)' }}>
-                  {current.sections.map((section, index) => (
-                    <article className="life-detail-story-card" key={section.heading}>
-                      <span className="life-detail-story-number">0{index + 1}</span>
-                      <div>
-                        <h3>{section.heading}</h3>
-                        <p>{section.copy}</p>
+                <div className="house-showcase-grid">
+                  {detailedHouses.map((house, index) => (
+                    <div key={house.id} className={`house-card-modern house-card-${house.id}`}>
+                      <div className="house-card-header">
+                        <span className="house-card-num">0{index + 1}</span>
                       </div>
-                    </article>
+                      <span className="house-card-tag">{house.color}</span>
+                      <div>
+                        <h3 className="house-card-title">{house.name}</h3>
+                        <p className="house-card-desc">{house.description}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              )}
-            </section>
+              </div>
+            )}
 
-            {/* Directories */}
+            {/* Render Scroll Timeline for About Us */}
+            {normalizedSlug === 'about-us' && <Timeline />}
+
+            {/* Directory & Profile Listings */}
             {normalizedSlug === 'sports-societies' && <SocietiesListing />}
             {normalizedSlug === 'sports-societies' && <SchoolContentListing kind="sports" />}
-            {normalizedSlug === 'sports-societies' && <SchoolContentListing kind="extracurricular" />}
             {normalizedSlug === 'leadership' && <SchoolContentListing kind="leadership" />}
 
             {/* Explore More Cards Section */}
@@ -289,7 +286,7 @@ export default function LifeDetailPage({ slug }) {
               </div>
               <div className="life-detail-grid">
                 {labels.filter(([key]) => key !== normalizedSlug).map(([key, page]) => (
-                  <a key={key} className={'life-detail-card ' + page.accent} href={'/life/' + key}>
+                  <a key={key} className={`life-detail-card ${page.accent}`} href={`/life/${key}`}>
                     <img src={image} alt="" loading="lazy" />
                     <span className="life-detail-card-shade" />
                     <span className="life-detail-card-arrow" aria-hidden="true">

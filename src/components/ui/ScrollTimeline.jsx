@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 
 export default function ScrollTimeline({ milestones = [] }) {
@@ -31,16 +29,16 @@ export default function ScrollTimeline({ milestones = [] }) {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8" ref={containerRef}>
       <div className="relative">
-        {/* Central Spine Track */}
+        {/* Central Track Line */}
         <div className="absolute left-4 md:left-1/2 top-8 bottom-8 w-[2px] bg-neutral-200 -translate-x-1/2" />
 
-        {/* Animated Active Progress Line */}
+        {/* Animated Active Track Line */}
         <div
           className="absolute left-4 md:left-1/2 top-8 w-[2px] bg-[#7B1C1C] -translate-x-1/2 transition-all duration-150 ease-out z-0"
           style={{ height: `${scrollProgress * 100}%` }}
         />
 
-        {/* Milestone Cards */}
+        {/* Milestone Entries */}
         <div className="flex flex-col gap-10 md:gap-12 relative z-10">
           {milestones.map((milestone, index) => {
             const itemThreshold = index / (milestones.length - 1 || 1);
@@ -69,21 +67,17 @@ export default function ScrollTimeline({ milestones = [] }) {
                   />
                 </div>
 
-                {/* Horizontal Connector Stem (Desktop) */}
+                {/* Connector Stem (Desktop) */}
                 <div
                   className={`hidden md:block absolute top-9 h-[2px] z-0 transition-colors duration-500 ${
                     isActive ? "bg-[#7B1C1C]/40" : "bg-neutral-200"
-                  } ${
-                    isEven
-                      ? "right-1/2 w-8"
-                      : "left-1/2 w-8"
-                  }`}
+                  } ${isEven ? "right-1/2 w-8" : "left-1/2 w-8"}`}
                 />
 
-                {/* Desktop Grid Spacer */}
+                {/* Grid Column Spacer */}
                 <div className="hidden md:block w-1/2" />
 
-                {/* Milestone Card */}
+                {/* Content Card */}
                 <div
                   className={`w-full md:w-1/2 pl-12 md:pl-0 ${
                     isEven ? "md:pr-10 md:text-right" : "md:pl-10 md:text-left"
@@ -102,18 +96,28 @@ export default function ScrollTimeline({ milestones = [] }) {
                       {milestone.date}
                     </div>
 
-                    {/* Title */}
+                    {/* Milestone Title */}
                     <h3
-                      className="text-lg sm:text-xl font-bold tracking-tight text-[#1a1a1a] leading-snug mb-2"
+                      className="text-lg sm:text-xl font-bold tracking-tight text-[#1a1a1a] leading-snug mb-3"
                       style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
                     >
                       {milestone.title}
                     </h3>
 
-                    {/* Body Text */}
-                    <p className="text-xs sm:text-sm text-[#555555] font-light leading-relaxed m-0">
-                      {milestone.description}
-                    </p>
+                    {/* Detailed List Points */}
+                    {milestone.points && milestone.points.length > 0 ? (
+                      <ul className={`space-y-2 text-xs sm:text-sm text-[#555555] font-light leading-relaxed m-0 p-0 list-none ${isEven ? "md:text-right" : "md:text-left"}`}>
+                        {milestone.points.map((pt, pIdx) => (
+                          <li key={pIdx} className="relative">
+                            {pt}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-xs sm:text-sm text-[#555555] font-light leading-relaxed m-0">
+                        {milestone.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

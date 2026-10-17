@@ -1,0 +1,121 @@
+.timeline-section {
+  padding-top: clamp(40px, 6vw, 80px);
+  padding-bottom: clamp(20px, 4vw, 40px);
+}
+
+.timeline-container {
+  position: relative;
+  max-width: 860px;
+  margin: clamp(24px, 4vw, 48px) auto 0;
+  padding: 0 16px;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 28px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: linear-gradient(180deg, #7B1C1C 0%, #C9A84C 50%, #1a3a6b 100%);
+  border-radius: 2px;
+}
+
+.timeline-items {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 4vw, 36px);
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 28px);
+  align-items: start;
+}
+
+.timeline-badge {
+  position: relative;
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #7B1C1C;
+  color: #ffffff;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(123, 28, 28, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.timeline-item:nth-child(even) .timeline-badge {
+  background: #1a3a6b;
+  box-shadow: 0 4px 14px rgba(26, 58, 107, 0.25);
+}
+
+.timeline-content {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: clamp(18px, 3vw, 26px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.035);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-content:hover {
+  transform: translateY(-3px);
+  border-color: rgba(123, 28, 28, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+}
+
+.timeline-date {
+  display: inline-block;
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a38229;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.timeline-item-title {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px;
+  line-height: 1.25;
+}
+
+.timeline-description {
+  font-family: 'Geologica', sans-serif;
+  font-size: clamp(0.85rem, 1.1vw, 0.92rem);
+  font-weight: 300;
+  color: #555555;
+  line-height: 1.75;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .timeline-line {
+    left: 20px;
+  }
+
+  .timeline-item {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .timeline-badge {
+    width: 40px;
+    height: 40px;
+    font-size: 0.68rem;
+  }
+}

@@ -4,18 +4,13 @@ import { subscribePublishedExtracurricular } from '../lib/extracurricularService
 import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
-  sports: {
-    title: 'College Sports',
-    intro: 'School sports and achievements published by the administration.',
-    subscribe: subscribePublishedSports,
-  },
   extracurricular: {
     title: 'Extracurricular Activities',
     intro: 'Activities and programmes published by the administration.',
     subscribe: subscribePublishedExtracurricular,
   },
   leadership: {
-    title: 'Sschool Administration',
+    title: 'School Leadership',
     intro: 'Verified senior school administrative staff, displayed in the order set by the administration.',
     subscribe: subscribePublishedLeadership,
   },
@@ -27,6 +22,7 @@ export default function SchoolContentListing({ kind }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!config) return;
     let unsubscribe = () => {};
     try {
       unsubscribe = config.subscribe(
@@ -42,16 +38,18 @@ export default function SchoolContentListing({ kind }) {
     return () => unsubscribe();
   }, [config]);
 
+  if (!config) return null;
+
   return (
-    <section className="life-detail-societies" aria-labelledby={'directory-' + kind}>
+    <section className="life-detail-societies" aria-labelledby={`directory-${kind}`}>
       <div className="life-detail-section-heading">
         <p className="life-detail-kicker">OUR COLLEGE</p>
-        <h2 id={'directory-' + kind}>{config.title}</h2>
+        <h2 id={`directory-${kind}`}>{config.title}</h2>
         <p className="life-detail-description">{config.intro}</p>
       </div>
-      {error && <p role="alert" className="life-detail-societies-message">{error}</p>}
+      {error && <p role="alert" className="empty-listing-message">{error}</p>}
       {!error && records.length === 0 && (
-        <p className="life-detail-societies-message">Profiles will appear here when published.</p>
+        <p className="empty-listing-message">Profiles will appear here when published.</p>
       )}
       <div className="life-detail-society-grid">
         {records.map((item) => (
@@ -67,14 +65,16 @@ export default function SchoolContentListing({ kind }) {
               </div>
             )}
             {(kind === 'leadership' ? item.role : item.category) && (
-              <span className="life-detail-feature-label">
+              <span className="life-detail-society-role">
                 {kind === 'leadership' ? item.role : item.category}
               </span>
             )}
-            <h3>{item.title}</h3>
-            {item.description && <p>{item.description}</p>}
+            <h3 className="life-detail-society-title">{item.title}</h3>
+            {item.description && <p className="life-detail-society-desc">{item.description}</p>}
             {kind === 'sports' && item.achievements && (
-              <p><strong>Achievements: </strong>{item.achievements}</p>
+              <p className="life-detail-society-desc">
+                <strong>Achievements: </strong>{item.achievements}
+              </p>
             )}
           </article>
         ))}
