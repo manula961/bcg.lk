@@ -80,7 +80,11 @@ export function verifySession(req, uid) {
   } catch {
     throw Object.assign(new Error('Connect Google Drive again'), { status: 401 });
   }
-  if (data.uid !== uid || !data.refresh || data.exp < Date.now()) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||
+      typeof uid !== 'string' || !uid || data.uid !== uid ||
+      typeof data.refresh !== 'string' || !data.refresh.trim() ||
+      !Number.isSafeInteger(data.exp) || data.exp <= Date.now() ||
+      data.exp > Date.now() + 30 * 86400000) {
     throw Object.assign(new Error('Connect Google Drive again'), { status: 401 });
   }
   return data;
@@ -105,9 +109,18 @@ export function oauthStart(uid) {
 }
 export function checkOAuthState(req,state) {
   const data = unseal(cookieValue(req,cookies.state));
-  const a=Buffer.from(data.nonce||'');const b=Buffer.from(state||'');
-  if (data.exp<Date.now()||a.length!==b.length||!timingSafeEqual(a,b) || !data.uid || !data.verifier)
-    throw Error('OAuth session expired or mismatched');
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||
+      !Number.isSafeInteger(data.exp) || data.exp <= Date.now() ||
+      data.exp > Date.now() + 600000 ||
+      typeof data.uid !== 'string' || !data.uid ||
+      typeof data.nonce !== 'string' || !/^[A-Za-z0-9_-]{32}$/.test(data.nonce) ||
+      typeof state !== 'string' || !/^[A-Za-z0-9_-]{32}$/.test(state) ||
+      typeof data.verifier !== 'string' || !/^[A-Za-z0-9_-]{43,128}$/.test(data.verifier))
+    throw Object.assign(new Error('OAuth session expired or mismatched'), { status: 401 });
+  const a = Buffer.from(data.nonce, 'utf8');
+  const b = Buffer.from(state, 'utf8');
+  if (!timingSafeEqual(a, b))
+    throw Object.assign(new Error('OAuth session expired or mismatched'), { status: 401 });
   return data;
 }
 export async function googleToken(params) {
