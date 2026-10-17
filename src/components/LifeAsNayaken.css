@@ -193,24 +193,16 @@
   padding: 32px 16px;
   border-top: 3px solid;
   border-radius: 16px;
-  background: rgba(247, 245, 240, 0.5);
+  background: #FAF8F5;
   transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.0);
 }
 
 .stat-card:hover {
   transition-delay: 0s !important;
-  background: #f7f5f0;
+  background: #F4EFE6;
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-}
-
-.stat-card.maroon {
-  border-color: #7B1C1C;
-}
-
-.stat-card.blue {
-  border-color: #1a3a6b;
 }
 
 .stat-value {
