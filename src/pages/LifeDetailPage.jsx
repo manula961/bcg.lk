@@ -16,7 +16,7 @@ export const lifePages = Object.freeze({
     subtitle: 'Legacy, Vision & Century of Distinction',
     description: 'Discover our founding heritage, transformative vision, and century-old citadel of holistic education.',
     accent: 'maroon',
-    overview: 'Bandaranayake College Gampaha (Sinhala: බණ්ඩාරනායක විද්‍යාලය, ගම්පහ) is the premier Buddhist national school for boys in the Gampaha District, nurturing over 5,000 students in a tradition of moral integrity, academic excellence, and visionary leadership.',
+    overview: 'Bandaranayake College Gampaha is the premier Buddhist national school for boys in the Gampaha District, nurturing over 5,000 students in a tradition of moral integrity, academic excellence, and visionary leadership.',
     highlights: [
       { value: '1918', label: 'FOUNDED SEPT 18' },
       { value: '5,000+', label: 'STUDENT POPULATION' },
@@ -62,7 +62,7 @@ export const lifePages = Object.freeze({
     subtitle: 'Resilience, Teamwork & Unyielding Brotherhood',
     description: 'Spanning 15 competitive athletic disciplines and 15 student associations, Nayakenz champion pride and leadership.',
     accent: 'blue',
-    overview: 'Athletics and co-curricular societies form a cornerstone of student life at Bandaranayake College—instilling discipline and creative leadership.',
+    overview: 'Athletics and co-curricular societies form a cornerstone of student life at Bandaranayake College instilling discipline and creative leadership.',
     highlights: [
       { value: '4', label: 'HISTORIC HOUSES' },
       { value: '15', label: 'SPORTS DISCIPLINES' },
@@ -111,10 +111,8 @@ export default function LifeDetailPage({ slug }) {
       },
       { threshold: 0.05 }
     );
-
     const el = pageRef.current;
     if (el) observer.observe(el);
-
     return () => {
       if (el) observer.unobserve(el);
       observer.disconnect();
@@ -132,13 +130,21 @@ export default function LifeDetailPage({ slug }) {
 
   return (
     <main className="life-detail">
+      <a className="life-detail-skip" href="#life-detail-main">
+        Skip to main content
+      </a>
       <MenuBar />
-
       <div ref={pageRef} className="life-detail-top-wrapper">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="section-container life-detail-return">
             <a href="/" onClick={handleBackToHome} className="life-detail-return-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="16" height="16">
+              <svg
+                className="return-arrow-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+              >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span>HOME</span>
@@ -147,6 +153,7 @@ export default function LifeDetailPage({ slug }) {
 
           {/* Intro Section */}
           <section id="life-detail-main" className="life-detail-intro">
+            <p className="life-detail-kicker">BANDARANAYAKE COLLEGE</p>
             <h1>{current.title}</h1>
             <p className="life-detail-description">{current.overview}</p>
           </section>
@@ -165,7 +172,7 @@ export default function LifeDetailPage({ slug }) {
               </section>
             )}
 
-            {/* Highlights Grid */}
+            {/* Highlights Grid (Side-by-side on Mobile) */}
             <div className="life-detail-highlights">
               {current.highlights.map((item) => (
                 <div className="life-detail-highlight" key={item.label}>
@@ -185,6 +192,7 @@ export default function LifeDetailPage({ slug }) {
                 <SchoolContentListing kind="sports" />
               </>
             )}
+
             {normalizedSlug === 'leadership' && <SchoolContentListing kind="leadership" />}
 
             {/* Shared Bento Explore More Section */}
@@ -192,7 +200,6 @@ export default function LifeDetailPage({ slug }) {
           </div>
         </div>
       </div>
-
       <Footer />
     </main>
   );

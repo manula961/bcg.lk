@@ -64,23 +64,30 @@ const HeroSection = () => {
     <section
       id="home"
       ref={heroRef}
-      className="hero-section relative flex flex-col items-center justify-center h-screen overflow-hidden text-center will-change-transform"
+      className="hero-section relative flex flex-col items-center justify-center min-h-screen h-[100dvh] overflow-hidden text-center will-change-transform px-4"
     >
-      <div className="relative z-10 flex flex-col items-center px-4 -mt-12 md:-mt-16">
+      <div className="relative z-10 flex flex-col items-center w-full max-w-5xl mx-auto -mt-6 sm:-mt-10 md:-mt-16">
         {/* Logo */}
-        <div ref={logoRef} className="hero-fade-init mb-1 flex justify-center">
+        <div ref={logoRef} className="hero-fade-init mb-2 sm:mb-4 flex justify-center">
           <img
             src="https://i.ibb.co/Wv1bGqbs/images.jpg"
             alt="Bandaranayake College Logo"
-            className="object-cover w-40 h-40 rounded-full md:w-48 md:h-48 lg:w-52 lg:h-52"
+            className="object-cover w-35 h-35 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-full"
           />
         </div>
 
         {/* College name - Using Geologica Font */}
-        <div ref={titleRef} className="hero-fade-init">
-          <h1 className="geologica mb-4 text-4xl font-extrabold tracking-normal text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text md:text-5xl lg:text-6xl whitespace-nowrap">
-            BANDARANAYAKE COLLEGE <br/>
-            <span ref={subtitleRef} className="block mt-1 text-4xl font-extrabold md:text-5xl lg:text-6xl">
+        <div ref={titleRef} className="hero-fade-init w-full px-1">
+          <h1 className="geologica mb-2 sm:mb-4 text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text leading-tight">
+            {/* Line 1 */}
+            <span className="block whitespace-nowrap text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
+              BANDARANAYAKE COLLEGE
+            </span>
+            {/* Line 2 */}
+            <span
+              ref={subtitleRef}
+              className="block mt-1 whitespace-nowrap text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wide sm:tracking-normal"
+            >
               GAMPAHA
             </span>
           </h1>
@@ -89,11 +96,11 @@ const HeroSection = () => {
         {/* Since 1918 */}
         <div
           ref={dividerRef}
-          className="hero-fade-init flex items-center justify-center gap-3 my-1"
+          className="hero-fade-init flex items-center justify-center gap-2 sm:gap-3 my-1"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block" />
 
-          <span className="text-xl font-black tracking-[0.1em] text-yellow-400 uppercase">
+          <span className="text-sm sm:text-lg md:text-xl font-black tracking-[0.1em] text-yellow-400 uppercase">
             SINCE 1918
           </span>
 
@@ -104,7 +111,7 @@ const HeroSection = () => {
       {/* Motto */}
       <div
         ref={mottoRef}
-        className="hero-fade-init absolute bottom-6 z-20 w-full px-4 flex justify-center"
+        className="hero-fade-init absolute bottom-4 sm:bottom-6 z-20 w-full px-4 flex justify-center -mt-20 sm:mt-0"
       >
         <div className="motto-container">
           <span className="motto-maroon">විද්වාත්</span>
@@ -116,7 +123,7 @@ const HeroSection = () => {
       {/* Scroll indicator */}
       <div
         ref={scrollRef}
-        className="hero-fade-init absolute bottom-7 right-8 z-10 flex flex-col items-center gap-2"
+        className="hero-fade-init absolute bottom-4 sm:bottom-7 right-4 sm:right-8 z-10 hidden xs:flex flex-col items-center gap-1 sm:gap-2"
       >
         <span className="scroll-indicator-text">Scroll</span>
         <div className="scroll-indicator-bar" />

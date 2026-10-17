@@ -81,25 +81,49 @@ const ExploreSection = () => {
               <div className="explore-divider-blue" />
             </div>
           </div>
+
           <div className="explore-grid">
+            {/* Tabs List */}
             <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
-                <button
-                  key={place.id}
-                  role="tab"
-                  aria-selected={active === i}
-                  aria-controls={`place-panel-${place.id}`}
-                  id={`place-tab-${place.id}`}
-                  onClick={() => setActive(i)}
-                  className={`explore-tab-btn ${active === i ? 'active' : ''}`}
-                >
-                  <div className="explore-tab-tag">{place.tag}</div>
-                  <h3 className="explore-tab-title">{place.title}</h3>
-                </button>
+                <div key={place.id} className="explore-tab-wrapper">
+                  <button
+                    role="tab"
+                    aria-selected={active === i}
+                    aria-controls={`place-panel-${place.id}`}
+                    id={`place-tab-${place.id}`}
+                    onClick={() => setActive(i)}
+                    className={`explore-tab-btn ${active === i ? 'active' : ''}`}
+                  >
+                    <div className="explore-tab-tag">{place.tag}</div>
+                    <h3 className="explore-tab-title">{place.title}</h3>
+                  </button>
+
+                  {/* Accordion content visible on mobile screens only */}
+                  {active === i && (
+                    <div className="explore-accordion-content">
+                      <div className="explore-display-card">
+                        <img
+                          src={place.image}
+                          alt={place.title}
+                          className="explore-display-img"
+                        />
+                        <div className="explore-display-overlay" />
+                        <div className="explore-display-content">
+                          <div className="explore-display-subtitle">{place.subtitle}</div>
+                          <h3 className="explore-display-title">{place.title}</h3>
+                          <p className="explore-display-desc">{place.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
+
+            {/* Main Display Card for Desktop */}
             <div
-              className="explore-display-card"
+              className="explore-display-card explore-desktop-card"
               id={`place-panel-${places[active].id}`}
               role="tabpanel"
               aria-labelledby={`place-tab-${places[active].id}`}
