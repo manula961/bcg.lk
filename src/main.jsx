@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import Lenis from 'lenis';
-import App from './App.jsx';
-import AdminApp from './admin/AdminApp.jsx';
-import LifeDetailPage, { lifePages } from './pages/LifeDetailPage.jsx';
-import PublishedContentPage from './pages/PublishedContentPage.jsx';
-import Updates from './pages/Updates.jsx';
-import EventDetail from './pages/EventDetail.jsx';
-import EventsPage from './pages/EventsPage.jsx';
-import NotFoundPage from './pages/NotFoundPage.jsx';
+import { lifePages } from './pages/lifePageData.js';
+
+// Load only the route being visited. Admin Firebase and editor code stays out
+// of the public homepage's initial JavaScript download.
+const App = lazy(() => import('./App.jsx'));
+const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
+const LifeDetailPage = lazy(() => import('./pages/LifeDetailPage.jsx'));
+const PublishedContentPage = lazy(() => import('./pages/PublishedContentPage.jsx'));
+const Updates = lazy(() => import('./pages/Updates.jsx'));
+const EventDetail = lazy(() => import('./pages/EventDetail.jsx'));
+const EventsPage = lazy(() => import('./pages/EventsPage.jsx'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
 import './index.css';
 
 function Root() {
@@ -60,6 +64,8 @@ if (window.location.pathname !== '/admin' && window.location.pathname !== '/admi
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Root />
+    <Suspense fallback={<main aria-busy="true" aria-label="Loading page" className="min-h-screen bg-[#0a0a0a]" />}>
+      <Root />
+    </Suspense>
   </React.StrictMode>
 );
