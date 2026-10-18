@@ -4,7 +4,7 @@ This document replaces old step-by-step setup drafts, redundant CMS notes, merge
 
 ## 1. Architecture
 
-- Frontend: React 18, Vite, Tailwind CSS, GSAP and Lenis, deployed on Vercel.
+- Frontend: React 19, Vite, Tailwind CSS, GSAP and Lenis, deployed on Vercel.
 - Admin: `/admin`, Firebase Authentication email/password and Firestore `admins/{uid}` role checks.
 - Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports`, `extracurricular` and `leadership`.
 - Public queries only request `published == true` documents. Writes are authorized by Firestore rules, not merely by hidden admin buttons.

@@ -116,6 +116,7 @@ export default function LifeDetailPage({ slug }) {
               <>
                 <SocietiesListing />
                 <SchoolContentListing kind="sports" />
+                <SchoolContentListing kind="extracurricular" />
               </>
             )}
             {normalizedSlug === 'leadership' && <SchoolContentListing kind="leadership" />}
