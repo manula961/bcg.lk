@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import ContentManager from './ContentManager';
 import './Admin.css';
+import './AdminFrontendTheme.css';
 
 const sections = [
   {

@@ -26,6 +26,19 @@ for (const path of changed.filter(protectedPath)) {
       .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
       .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
     if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
+  } else if (path === 'src/admin/AdminDashboard.jsx' || path === 'src/admin/AdminLogin.jsx') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const expected = before.replace("import './Admin.css';", "import './Admin.css';\nimport './AdminFrontendTheme.css';");
+    if (after !== expected) violations.push(path + ' (admin theme import only)');
+  } else if (path === 'src/admin/AdminFrontendTheme.css') {
+    const css = git('show', 'HEAD:' + path);
+    if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
+        /@import|url\s*\(|:root|!important/.test(css) ||
+        css.split('{').slice(0,-1).some((chunk, i) => {
+          const selector = chunk.split('}').pop().trim();
+          return !selector.startsWith('@') && !selector.split(',').every(s => /\.admin-(?:body|center-screen)/.test(s));
+        })) violations.push(path + ' (unscoped admin theme)');
   } else {
     violations.push(path);
   }
