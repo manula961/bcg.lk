@@ -1,0 +1,122 @@
+import { chromium } from 'playwright';
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { setTimeout as delay } from 'node:timers/promises';
+
+const staging = process.env.BCG_STAGING_MODE === 'true';
+const project = staging ? process.env.VITE_FIREBASE_PROJECT_ID : 'demo-bcg-e2e';
+if (staging) {
+  if (!project || !process.env.BCG_PRODUCTION_PROJECT_ID ||
+      project === process.env.BCG_PRODUCTION_PROJECT_ID ||
+      project.startsWith('demo-')) {
+    throw new Error('Staging requires a separate, non-demo Firebase project that differs from production.');
+  }
+} else if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+  throw new Error('Do not run this test against real Firebase without BCG_STAGING_MODE.');
+}
+
+const email = staging ? process.env.BCG_STAGING_ADMIN_EMAIL : 'automation-admin@example.test';
+const password = staging ? process.env.BCG_STAGING_ADMIN_PASSWORD : 'test-only-passphrase-123';
+if (!email || !password) throw new Error('Dedicated staging administrator credentials are required.');
+const uidPrefix = 'audit-' + Date.now().toString(36);
+const newsTitle = uidPrefix + ' CMS test';
+const base = 'http://127.0.0.1:4173';
+const env = staging ? { ...process.env, VITE_USE_FIREBASE_EMULATORS: 'false' } : {
+  ...process.env,
+  VITE_FIREBASE_API_KEY: 'fake-web-api-key',
+  VITE_FIREBASE_AUTH_DOMAIN: 'demo-bcg-e2e.firebaseapp.com',
+  VITE_FIREBASE_PROJECT_ID: project,
+  VITE_FIREBASE_STORAGE_BUCKET: 'demo-bcg-e2e.appspot.com',
+  VITE_FIREBASE_MESSAGING_SENDER_ID: '1234567890',
+  VITE_FIREBASE_APP_ID: '1:1234567890:web:e2e',
+  VITE_USE_FIREBASE_EMULATORS: 'true',
+};
+
+async function json(url, options) {
+  const res = await fetch(url, options);
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error('Emulator fixture setup failed: ' + res.status + ': ' + JSON.stringify(body));
+  return body;
+}
+if (!staging) {
+  const identity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-web-api-key', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, returnSecureToken: true }),
+  });
+  await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/admins?documentId=' +
+    encodeURIComponent(identity.localId), {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { role: { stringValue: 'admin' } } }),
+  });
+}
+const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
+  env, stdio: ['ignore', 'pipe', 'pipe'],
+});
+let serverLog = '';
+server.stdout.on('data', data => { serverLog += data.toString().slice(-500); });
+server.stderr.on('data', data => { serverLog += data.toString().slice(-500); });
+let browser;
+let context;
+let page;
+const output = 'artifacts/browser';
+mkdirSync(output, { recursive: true });
+try {
+  let ready = false;
+  for (let i = 0; i < 45; i++) {
+    if (server.exitCode !== null) throw new Error('Preview process stopped: ' + serverLog);
+    try {
+      const result = await fetch(base + '/admin');
+      if (result.ok) { ready = true; break; }
+    } catch {}
+    await delay(400);
+  }
+  if (!ready) throw new Error('Preview not ready: ' + serverLog);
+  browser = await chromium.launch({ headless: true });
+  context = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  page = await context.newPage();
+  const failures = [];
+  page.on('pageerror', error => failures.push(error.message));
+  page.on('dialog', dialog => dialog.accept());
+  await page.goto(base + '/admin');
+  await page.getByLabel('Email Address').fill(email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByRole('heading', { name: 'News', exact: true }).waitFor({ timeout: 20000 });
+  await page.getByRole('button', { name: /New article/i }).click();
+  await page.getByPlaceholder('Enter headline').fill(newsTitle);
+  await page.locator('textarea').first().fill('This item verifies publishing with nonproduction Firebase.');
+  await page.getByRole('button', { name: /Create article/i }).click();
+  await page.getByText('Saved successfully.').waitFor({ timeout: 15000 });
+  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+  await page.getByText('Published live.').waitFor({ timeout: 15000 });
+  await page.screenshot({ path: output + '/admin-authenticated.png' });
+
+  // Two independent editor sessions must not silently overwrite one another.
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  const otherContext = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  const otherPage = await otherContext.newPage();
+  await otherPage.goto(base + '/admin');
+  await otherPage.getByLabel('Email Address').fill(email);
+  await otherPage.getByLabel('Password').fill(password);
+  await otherPage.getByRole('button', { name: 'Sign In' }).click();
+  await otherPage.getByRole('heading', { name: 'News', exact: true }).waitFor({ timeout: 20000 });
+  await otherPage.getByRole('button', { name: 'Edit', exact: true }).click();
+  await otherPage.getByPlaceholder('Enter headline').fill(newsTitle + ' updated');
+  await otherPage.getByRole('button', { name: 'Save Changes' }).click();
+  await otherPage.getByText('Saved successfully.').waitFor({ timeout: 15000 });
+  await page.getByPlaceholder('Enter headline').fill(newsTitle + ' stale');
+  await page.getByRole('button', { name: 'Save Changes' }).click();
+  await page.getByText(/changed since you opened it/).waitFor({ timeout: 15000 });
+
+  await otherPage.getByRole('button', { name: 'Delete', exact: true }).click();
+  await otherPage.getByText('Deleted successfully.').waitFor({ timeout: 15000 });
+  await otherContext.close();
+  assert.deepEqual(failures, [], 'Browser exceptions in authenticated CMS');
+  console.log('PASS authenticated administrator login, draft, publish, stale edit rejection, delete');
+} finally {
+  if (page) await page.screenshot({ path: output + '/admin-e2e-final.png' }).catch(() => {});
+  if (context) await context.close().catch(() => {});
+  if (browser) await browser.close().catch(() => {});
+  server.kill('SIGTERM');
+}
