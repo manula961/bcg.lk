@@ -57,6 +57,16 @@ const identity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.co
       } }),
     });
   }
+await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/sports?documentId=audit-sport', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+  body: JSON.stringify({ fields: {
+    title: { stringValue: 'Audit Sport One' },
+    description: { stringValue: 'Published team used for an isolated directory regression test' },
+    achievements: { stringValue: 'Sample achievement' },
+    published: { booleanValue: true },
+  } }),
+});
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4175', '--strictPort'], {
   env, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32',
 });
@@ -105,6 +115,13 @@ try {
     await calendar.close();
     console.log('PASS multiple accessible calendar events and Escape/focus restoration');
   }
+
+  const sportsPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await sportsPage.goto(base + '/life/sports-societies');
+  await sportsPage.getByRole('heading', { name: 'Sports', exact: true }).waitFor({ timeout: 15000 });
+  await sportsPage.getByText('Audit Sport One').waitFor({ timeout: 15000 });
+  await sportsPage.close();
+  console.log('PASS published Sports documents render on the public directory');
 
   await page.getByRole('button', { name: /New article/i }).click();
   await page.getByPlaceholder('Enter headline').fill(newsTitle);

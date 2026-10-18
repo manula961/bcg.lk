@@ -16,6 +16,7 @@ const protectedPath = path =>
 // User-approved fixes in PR #32. Each protected file must match this exact Git blob.
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
+  "src/pages/SchoolContentListing.jsx": "59de3415d460e2b506862ef2f05796d7db6884b6",
   "src/pages/lifePageData.js": "638e19fd673ebddc40453ffd9893b53141abf0aa",
   "src/pages/LifeDetailPage.jsx": "274e37eab492ea864857ef3365e3bf9d77943df6",
   "src/pages/EventsPage.css": "a2a5a58a973c82a0c0bdbbd69f73b5c3ee4125a5",
