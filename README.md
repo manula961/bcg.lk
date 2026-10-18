@@ -1,49 +1,39 @@
-# BCG.lk — Bandaranayake College, Gampaha Website
+# BCG.LK — Bandaranayake College
 
-A modern, production-grade frontend for bcg.lk built with React + Vite + GSAP.
+The Bandaranayake College, Gampaha website, built with React 18, Vite, Tailwind CSS and Firebase. The existing public design is protected by the project's UI-preservation checks.
 
-## Tech Stack
-- **React 18** — UI components
-- **Vite** — Build tool & dev server
-- **GSAP** — Loading animation (curtain reveal)
-- **Tailwind CSS** — Utility classes
-- **Google Fonts** — Cinzel, EB Garamond, Oswald (matches design aesthetic)
+## Project overview
 
-## Color Palette
-| Name | Hex |
-|------|-----|
-| Maroon | `#7B1C1C` |
-| Gold | `#C9A84C` |
-| Navy Blue | `#1a3a6b` |
-| Dark | `#0a0a0a` |
-| White | `#ffffff` |
+- **Public website:** Home, college information, news, event calendar, published pages, societies, sports and leadership directories.
+- **Admin CMS:** Firebase email/password sign-in with Firestore-based administrator authorization; drafting, publishing and managing seven content collections.
+- **Backend:** The **existing** Firebase Authentication, Firestore and Storage project. Google Drive image uploads also use authenticated Vercel API functions.
+- **Deployment:** Vercel with GitHub Actions checks. Keep the current production Firebase project; no additional cloud Firebase project is required.
 
-## File Structure
-```
-src/
-├── components/
-│   ├── LoadingAnimation.jsx   # GSAP curtain reveal with college branding
-│   ├── MenuBar.jsx            # Floating hamburger → full-screen card menu
-│   ├── HeroSection.jsx        # Hero with parallax, spinning logo ring
-│   ├── NewsSection.jsx        # Nayakenz Latest Updates (maroon bg)
-│   ├── EventsSection.jsx      # Latest Events (white bg, timeline list)
-│   ├── ExploreSection.jsx     # Explore the School (dark bg, tab selector)
-│   ├── LifeAsNayaken.jsx      # Bento grid + stats (white bg)
-│   └── Footer.jsx             # Modern dark footer
-├── App.jsx                    # Root — handles loading → main flow
-├── main.jsx                   # React DOM entry
-└── index.css                  # Global fonts, CSS variables, scrollbar
-```
+## Local development
 
-## Quick Start
+Requires a supported Node.js installation (CI uses Node 22).
 
 ```bash
-# Install dependencies
-npm install
-
-# Start dev server
+npm ci
+cp .env.example .env.local
+# Fill .env.local with web-app configuration from the EXISTING Firebase project.
 npm run dev
-
-# Build for production
-npm run build
 ```
+
+Never commit `.env.local`, Firebase administrator credentials, OAuth client secrets or encryption keys. Variables prefixed `VITE_` are exposed to the client and must **not** contain server secrets.
+
+## Verification
+
+```bash
+npm test
+npm run build
+npm run preview
+```
+
+GitHub Actions additionally checks Firestore/Storage rules using local emulators, authenticated CMS flows in disposable emulators, browser routes, production dependency advisories, and JavaScript bundle budgets. The manual visual-regression workflow compares approved deployments.
+
+## Documentation
+
+**[Operations, Firebase, security, backups and deployment guide](docs/OPERATIONS.md)** — the current source of truth for administering and releasing BCG.LK.
+
+Old setup-stage notes, completed pull-request audit reports and superseded branch instructions have been retired from the working tree. Their history remains available in Git. Changes must be reviewed and approved before merging; never deploy Firestore rules or modify the production database automatically as part of documentation work.
