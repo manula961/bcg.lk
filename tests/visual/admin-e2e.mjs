@@ -64,7 +64,7 @@ if (!staging) {
   }
 }
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4175', '--strictPort'], {
-  env, stdio: ['ignore', 'pipe', 'pipe'],
+  env, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32',
 });
 let serverLog = '';
 server.stdout.on('data', data => { serverLog += data.toString().slice(-500); });
@@ -148,5 +148,12 @@ try {
   if (page) await page.screenshot({ path: output + '/admin-e2e-final.png' }).catch(() => {});
   if (context) await context.close().catch(() => {});
   if (browser) await browser.close().catch(() => {});
-  server.kill('SIGTERM');
+  // Kill npm and its Vite child after a successful run.
+  if (server.pid && process.platform !== 'win32') {
+    try { process.kill(-server.pid, 'SIGTERM'); } catch { server.kill('SIGTERM'); }
+  } else {
+    server.kill('SIGTERM');
+  }
+  server.stdout.destroy();
+  server.stderr.destroy();
 }
