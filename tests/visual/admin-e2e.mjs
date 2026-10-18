@@ -49,6 +49,19 @@ if (!staging) {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
     body: JSON.stringify({ fields: { role: { stringValue: 'admin' } } }),
   });
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [id, title] of [['first', 'Audit Event One'], ['second', 'Audit Event Two']]) {
+    await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/events?documentId=' + id, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+      body: JSON.stringify({ fields: {
+        title: { stringValue: title },
+        description: { stringValue: 'Calendar keyboard and multi-event coverage' },
+        eventDate: { stringValue: today },
+        location: { stringValue: 'Test hall' },
+        published: { booleanValue: true },
+      } }),
+    });
+  }
 }
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
   env, stdio: ['ignore', 'pipe', 'pipe'],
@@ -83,6 +96,22 @@ try {
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Sign In' }).click();
   await page.getByRole('heading', { name: 'News', exact: true }).waitFor({ timeout: 20000 });
+  if (!staging) {
+    const calendar = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    await calendar.goto(base + '/events');
+    const today = new Date().toISOString().slice(0, 10);
+    const second = calendar.getByRole('button', { name: 'View Audit Event Two on ' + today });
+    await second.waitFor({ timeout: 15000 });
+    await calendar.getByRole('button', { name: 'View Audit Event One on ' + today }).waitFor();
+    await second.click();
+    await calendar.getByRole('dialog', { name: 'Audit Event Two' }).waitFor();
+    await calendar.keyboard.press('Escape');
+    await calendar.getByRole('dialog').waitFor({ state: 'hidden' });
+    assert.equal(await second.evaluate(el => document.activeElement === el), true, 'Closing the modal restores trigger focus.');
+    await calendar.close();
+    console.log('PASS multiple accessible calendar events and Escape/focus restoration');
+  }
+
   await page.getByRole('button', { name: /New article/i }).click();
   await page.getByPlaceholder('Enter headline').fill(newsTitle);
   await page.locator('textarea').first().fill('This item verifies publishing with nonproduction Firebase.');
