@@ -1,152 +1,202 @@
-import React from 'react';
-import './Footer.css';
+import React from "react";
+import "./Footer.css";
 
-const Footer = () => {
+const quickLinks = [
+  ["Home", "/"],
+  ["About Us", "/about-us"],
+  ["News & Updates", "/#news"],
+  ["Events & Calendar", "/events"],
+  ["Explore", "/#explore"],
+];
+const collegeLinks = [
+  ["Academic Excellence", "/life/academic-excellence"],
+  ["Sports & Societies", "/life/sports-societies"],
+  ["School Leadership", "/life/leadership"],
+  ["College History", "/life/about-us"],
+];
+
+// Add confirmed profile URLs below when available. Icons without URLs are decorative,
+// not dead links. Replace null with a verified URL to activate an icon.
+const socials = [
+  { name: "Facebook", url: "https://www.facebook.com/bc.gampaha", icon: "facebook" },
+  { name: "Instagram", url: "https://www.instagram.com/bc.gampaha", icon: "instagram" },
+  {
+    name: "LinkedIn",
+    url: "https://www.linkedin.com/school/bc-gampaha/",
+    icon: "linkedin",
+  },
+  { name: "YouTube", url: "https://www.youtube.com/@bc.gampaha", icon: "youtube" },
+  { name: "TikTok", url: "https://www.tiktok.com/@bc.gampaha", icon: "tiktok" },
+];
+const paths = {
+  facebook: (
+    <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />
+  ),
+  instagram: (
+    <>
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle cx="17.5" cy="6.5" r="1.2" />
+    </>
+  ),
+  linkedin: (
+    <path d="M20 3H4a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1ZM8.4 18H5.8V9.8h2.6V18ZM7.1 8.7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM18.2 18h-2.6v-4c0-1-.02-2.2-1.35-2.2-1.34 0-1.55 1.05-1.55 2.14V18h-2.6V9.8h2.5v1.12h.04c.35-.66 1.2-1.35 2.47-1.35 2.65 0 3.1 1.74 3.1 4V18Z" />
+  ),
+  youtube: (
+    <path d="M21.5 7.2a2.7 2.7 0 0 0-1.9-1.9C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.6.5a2.7 2.7 0 0 0-1.9 1.9C2 8.9 2 12 2 12s0 3.1.5 4.8a2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.6.5 7.6.5s5.9 0 7.6-.5a2.7 2.7 0 0 0 1.9-1.9c.5-1.7.5-4.8.5-4.8s0-3.1-.5-4.8ZM10 15.5v-7l6 3.5-6 3.5Z" />
+  ),
+  tiktok: (
+    <path d="M16.5 2c.2 2.1 1.4 3.5 3.5 3.7v3.2a9 9 0 0 1-3.5-.9v6.8a6.2 6.2 0 1 1-6.2-6.2c.4 0 .8 0 1.2.1v3.3a3 3 0 1 0 1.8 2.8V2h3.2Z" />
+  ),
+};
+const mapUrl =
+  "https://www.google.com/maps/search/?api=1&query=Bandaranayake+College+Gampaha+Sri+Lanka";
+function LinkColumn({ title, items }) {
+  return (
+    <nav className="footer-column" aria-label={title}>
+      <h2 className="footer-col-title">{title}</h2>
+      <ul className="footer-link-list">
+        {items.map(([label, href]) => (
+          <li key={href}>
+            <a className="footer-link" href={href}>
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+function SocialIcon({ social }) {
+  const content = (
+    <svg
+      viewBox="0 0 24 24"
+      width="19"
+      height="19"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      {paths[social.icon]}
+    </svg>
+  );
+  return social.url ? (
+    <a
+      className="footer-social-btn"
+      href={social.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={social.name}
+      title={social.name}
+    >
+      {content}
+    </a>
+  ) : (
+    <span
+      className="footer-social-btn footer-social-pending"
+      title={`${social.name} — link coming soon`}
+      aria-label={`${social.name} link coming soon`}
+    >
+      {content}
+    </span>
+  );
+}
+export default function Footer() {
   return (
     <footer className="footer-wrapper">
-      <div className="footer-gradient-bar" />
-      <div className="section-container footer-content">
-        <br/><br/>
-        {/* Main Grid */}
+      <div className="footer-gradient-bar" aria-hidden="true" />
+      <div className="footer-content">
         <div className="footer-grid">
-          {/* Col 1: Brand Info */}
-          <div>
-            <div className="footer-brand-header">
+          <div className="footer-brand">
+            <a
+              href="/"
+              className="footer-brand-header"
+              aria-label="Bandaranayake College homepage"
+            >
               <img
                 src="https://i.ibb.co/Wv1bGqbs/images.jpg"
-                alt="BCG Logo"
+                alt="Bandaranayake College crest"
                 className="footer-logo"
+                loading="lazy"
               />
-              <div>
-                <div className="footer-brand-title">Bandaranayake College</div>
-                <div className="footer-brand-title">Gampaha</div>
-              </div>
-            </div>
-            <p className="footer-brand-desc">
-              Nurturing young minds since 1918. A legacy of academic brilliance,
-              sportsmanship, and cultural harmony in the heart of Gampaha.
-            </p>
-            {/* Social Media SVG Buttons */}
-            <div className="footer-socials">
-              {/* Facebook */}
-              <a href="#" className="footer-social-btn" aria-label="Facebook">
-                <svg className="footer-social-icon" viewBox="0 0 24 24">
-                  <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7.5v-3H10V9.5C10 7.01 11.49 5.65 13.75 5.65c1.08 0 2.21.19 2.21.19v2.43h-1.25c-1.23 0-1.61.77-1.61 1.56V12h2.74l-.44 3h-2.3v6.8c4.56-.93 8-4.96 8-9.8z" />
-                </svg>
-              </a>
-              {/* LinkedIn */}
-              <a href="#" className="footer-social-btn" aria-label="LinkedIn">
-                <svg className="footer-social-icon" viewBox="0 0 24 24">
-                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.7a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z" />
-                </svg>
-              </a>
-              {/* YouTube */}
-              <a href="#" className="footer-social-btn" aria-label="YouTube">
-                <svg className="footer-social-icon" viewBox="0 0 24 24">
-                  <path d="M21.58 7.19a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.68.49a2.7 2.7 0 0 0-1.9 1.9C2 8.88 2 12 2 12s0 3.12.42 4.81a2.7 2.7 0 0 0 1.9 1.9C6 19.2 12 19.2 12 19.2s6 0 7.68-.49a2.7 2.7 0 0 0 1.9-1.9C22 15.12 22 12 22 12s0-3.12-.42-4.81zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" />
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          {/* Col 2: Navigation Links */}
-          <div>
-            <h4 className="footer-col-title">Navigate</h4>
-            {['Home', 'Explore', 'Academics', 'Extra Curricular', 'News'].map((link) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase().replace(/\s+/g, '')}`}
-                className="footer-link"
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-
-          {/* Col 3: Academic Sections */}
-          <div>
-            <h4 className="footer-col-title">Academics</h4>
-            {[
-              'Primary Section',
-              'Middle School',
-              'O/L Classes',
-              'A/L Classes',
-              'Science Stream',
-              'Arts Stream',
-            ].map((item) => (
-              <a key={item} href="#" className="footer-link">
-                {item}
-              </a>
-            ))}
-          </div>
-
-          {/* Col 4: Contact Info */}
-          <div>
-            <h4 className="footer-col-title">Contact Us</h4>
-            {/* Location */}
-            <div className="footer-contact-item">
-              <svg
-                className="footer-contact-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span className="footer-contact-text">
-                Bandaranayake College, Gampaha, Sri Lanka
+              <span className="footer-brand-name">
+                <strong>Bandaranayake College</strong>
+                <span>Gampaha, Sri Lanka</span>
               </span>
+            </a>
+            <p className="footer-brand-desc">
+              A proud tradition of knowledge, character, leadership and
+              brotherhood since 1918.
+            </p>
+            <p className="footer-social-label">Connect with us</p>
+            <div className="footer-socials">
+              {socials.map((s) => (
+                <SocialIcon key={s.name} social={s} />
+              ))}
             </div>
-            {/* Phone */}
-            <div className="footer-contact-item">
+          </div>
+          <LinkColumn title="Quick Links" items={quickLinks} />
+          <LinkColumn title="Explore College" items={collegeLinks} />
+          <div className="footer-column footer-contact">
+            <h2 className="footer-col-title">Find Us</h2>
+            <a
+              className="footer-contact-link"
+              href={mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <svg
-                className="footer-contact-icon"
+                className="footer-location-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+                <circle cx="12" cy="10" r="2.5" />
               </svg>
-              <span className="footer-contact-text">+94 33 222 2XXX</span>
-            </div>
-            {/* Email */}
-            <div className="footer-contact-item">
-              <svg
-                className="footer-contact-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="20" height="16" x="2" y="4" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-              <span className="footer-contact-text">info@bcg.lk</span>
-            </div>
+              <span>Bandaranayake College, Gampaha, Sri Lanka</span>
+            </a>
+            <a className="footer-contact-link" href="tel:+94332222202">
+              <span aria-hidden="true">☎</span>
+              <span>+94 33 222 2202</span>
+            </a>
+            <a className="footer-contact-link" href="mailto:info@bcg.lk">
+              <span aria-hidden="true">✉</span>
+              <span>info@bcg.lk</span>
+            </a>
           </div>
         </div>
-
-        {/* Bottom Bar */}
         <div className="footer-bottom-bar">
-          <div className="footer-copyright">
-            2025 Bandaranayake College, Gampaha. All Rights Reserved.
-          </div>
-          <div className="footer-tagline">
-            bcg.lk   Excellence Since 1918
-          </div>
+          <p>
+            © {new Date().getFullYear()} Bandaranayake College, Gampaha. All
+            rights reserved.
+          </p>
+          <p>
+            <strong>#TeamBCCS</strong>
+            <span className="footer-bottom-dot" aria-hidden="true" />
+            Excellence since 1918
+          </p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

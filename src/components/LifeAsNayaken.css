@@ -164,7 +164,7 @@
 
 .life-bento-section .bento-card-desc {
   margin: 0;
-  color: rgba(255, 255, 255, 0.91) !important;
+  color: rgba(255, 255, 255, 0.597) !important;
   font-family: "Geologica", sans-serif;
   font-size: clamp(0.83rem, 1vw, 0.96rem);
   line-height: 1.75;
