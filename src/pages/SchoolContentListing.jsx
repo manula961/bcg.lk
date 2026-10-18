@@ -4,6 +4,11 @@ import { subscribePublishedExtracurricular } from '../lib/extracurricularService
 import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
+  sports: {
+    title: 'Sports',
+    intro: 'Discover college sports, teams and achievements published by the administration.',
+    subscribe: subscribePublishedSports,
+  },
   extracurricular: {
     title: 'Extracurricular Activities',
     intro: 'Activities and programmes published by the administration.',

@@ -57,6 +57,35 @@ const identity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.co
       } }),
     });
   }
+await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/sports?documentId=audit-sport', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+  body: JSON.stringify({ fields: {
+    title: { stringValue: 'Audit Sport One' },
+    description: { stringValue: 'Published team used for an isolated directory regression test' },
+    achievements: { stringValue: 'Sample achievement' },
+    published: { booleanValue: true },
+  } }),
+});
+for (const [collection, id, fields] of [
+  ['societies', 'audit-society', {
+    title: { stringValue: 'Audit Society One' },
+    description: { stringValue: 'Published society used for isolated directory testing' },
+    published: { booleanValue: true },
+  }],
+  ['leadership', 'audit-leader', {
+    title: { stringValue: 'Audit Leader One' },
+    role: { stringValue: 'Principal' },
+    published: { booleanValue: true },
+  }],
+]) {
+  await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/' +
+    collection + '?documentId=' + id, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+    body: JSON.stringify({ fields }),
+  });
+}
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4175', '--strictPort'], {
   env, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32',
 });
@@ -106,14 +135,34 @@ try {
     console.log('PASS multiple accessible calendar events and Escape/focus restoration');
   }
 
+  const sportsPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await sportsPage.goto(base + '/life/sports-societies');
+  await sportsPage.getByRole('heading', { name: 'Sports', exact: true }).waitFor({ timeout: 15000 });
+  await sportsPage.getByText('Audit Sport One').waitFor({ timeout: 15000 });
+  await sportsPage.getByText('Audit Society One').waitFor({ timeout: 15000 });
+  await sportsPage.goto(base + '/life/leadership');
+  await sportsPage.getByText('Audit Leader One').waitFor({ timeout: 15000 });
+  await sportsPage.close();
+  console.log('PASS published Sports documents render on the public directory');
+
   await page.getByRole('button', { name: /New article/i }).click();
   await page.getByPlaceholder('Enter headline').fill(newsTitle);
-  await page.locator('textarea').first().fill('This item verifies publishing with nonproduction Firebase.');
+  await page.getByRole('textbox', { name: /Short summary/i }).fill('This item verifies publishing with nonproduction Firebase.');
   await page.getByRole('button', { name: /Create article/i }).click();
   await page.getByText('Saved successfully.').waitFor({ timeout: 15000 });
   await page.getByRole('button', { name: 'Publish', exact: true }).click();
   await page.getByText('Published live.').waitFor({ timeout: 15000 });
   await page.screenshot({ path: output + '/admin-authenticated.png' });
+  const publicHome = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await publicHome.addInitScript(() => sessionStorage.setItem('skipLoading', 'true'));
+  await publicHome.goto(base + '/');
+  const newsLink = publicHome.getByRole('link', { name: 'Read ' + newsTitle });
+  await newsLink.waitFor({ timeout: 20000 });
+  assert.ok((await newsLink.getAttribute('href')).startsWith('/updates/'));
+  await newsLink.click();
+  await publicHome.getByRole('heading', { name: newsTitle }).waitFor({ timeout: 15000 });
+  await publicHome.close();
+  console.log('PASS published news appear as accessible homepage links');
 
   // Two independent editor sessions must not silently overwrite one another.
   await page.getByRole('button', { name: 'Edit', exact: true }).click();

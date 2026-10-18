@@ -11,6 +11,9 @@ const routes = [
   { label: 'home-390', route: '/', width: 390, height: 844 },
   { label: 'home-desktop', route: '/', width: 1440, height: 900 },
   { label: 'events-mobile', route: '/events', width: 390, height: 844 },
+  { label: 'sports-life-mobile', route: '/life/sports-societies', width: 390, height: 844 },
+  { label: 'leadership-life-mobile', route: '/life/leadership', width: 390, height: 844 },
+  { label: 'about-us-mobile', route: '/about-us', width: 390, height: 844 },
   { label: 'admin-mobile', route: '/admin', width: 390, height: 844 },
   { label: 'unknown-route', route: '/does-not-exist', width: 390, height: 844 },
 ];
