@@ -59,3 +59,14 @@ test('routes are split into asynchronous modules and share route data', () => {
   assert.match(main, /<Suspense fallback=/);
   assert.match(main, /pages\/lifePageData\.js/);
 });
+
+test('admin form fields have explicit labels and content ordering checks revisions', () => {
+  const manager = read('src/admin/ContentManager.jsx');
+  const repository = read('src/lib/contentRepository.js');
+  assert.match(manager, /htmlFor=\{\`admin-field-\$\{kind\}-\$\{field.key\}\`\}/);
+  assert.match(manager, /id=\{\`admin-field-\$\{kind\}-\$\{field.key\}\`\}/);
+  assert.match(manager, /expectedUpdatedAtById/);
+  assert.match(repository, /getDocsFromServer\(records\(\)\)/);
+  assert.match(repository, /transaction\.get\(ref\)/);
+  assert.match(repository, /assertCurrentRevision\(snapshot, expectedUpdatedAtById\[orderedIds\[index\]\]\)/);
+});

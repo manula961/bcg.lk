@@ -21,7 +21,7 @@ const auditedUiBlobs = Object.freeze({
   "src/pages/LifeDetailPage.jsx": "274e37eab492ea864857ef3365e3bf9d77943df6",
   "src/pages/EventsPage.css": "a2a5a58a973c82a0c0bdbbd69f73b5c3ee4125a5",
   "src/admin/AdminApp.jsx": "e53fa46b9ef7c6cddbde40e0fed43dfe9a71478a",
-  "src/admin/ContentManager.jsx": "860d227dd385ec7f54c1ebd6ab0a6e1f74009735",
+  "src/admin/ContentManager.jsx": "47995288a9ca9427396e57f7e284588ca7aa0507",
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",

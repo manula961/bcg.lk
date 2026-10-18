@@ -8,13 +8,13 @@ import {
   doc,
   getDoc,
   getDocs,
+  getDocsFromServer,
   onSnapshot,
   query,
   runTransaction,
   serverTimestamp,
   updateDoc,
   where,
-  writeBatch,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -231,18 +231,38 @@ export function createContentRepository(name, fields, options = {}) {
         transaction.update(ref, payload);
       });
     },
-    async reorderBatch(orderedIds) {
+    async reorderBatch(orderedIds, { expectedUpdatedAtById } = {}) {
       const user = adminUser();
-      if (!Array.isArray(orderedIds) || orderedIds.length > 400 ||
+      if (!Array.isArray(orderedIds) || orderedIds.length === 0 || orderedIds.length > 400 ||
           new Set(orderedIds).size !== orderedIds.length) {
-        throw new TypeError('Provide up to 400 unique content IDs for reordering.');
+        throw new TypeError('Provide between 1 and 400 unique content IDs for reordering.');
       }
-      const batch = writeBatch(database());
-      orderedIds.forEach((id, index) => {
-        const ref = record(id);
-        batch.update(ref, { rank: index + 1, updatedAt: serverTimestamp(), updatedBy: user.uid });
+      orderedIds.forEach(documentId);
+      if (!expectedUpdatedAtById || typeof expectedUpdatedAtById !== 'object') {
+        throw new TypeError('Reordering requires the latest document revisions.');
+      }
+      const latest = await getDocsFromServer(records());
+      if (latest.size !== orderedIds.length ||
+          latest.docs.some(snapshot => !orderedIds.includes(snapshot.id))) {
+        throw new Error('Content was added or removed. Reload the list before reordering.');
+      }
+      await runTransaction(database(), async transaction => {
+        // Read all documents before writing any. Revisions are checked in the
+        // transaction, so concurrent edits cannot be silently overwritten.
+        const refs = orderedIds.map(record);
+        const snapshots = [];
+        for (const ref of refs) snapshots.push(await transaction.get(ref));
+        snapshots.forEach((snapshot, index) => {
+          if (!snapshot.exists()) throw new Error('A content item was removed. Reload and try again.');
+          if (!hasOwn(expectedUpdatedAtById, orderedIds[index])) {
+            throw new Error('Missing document revision. Reload the list and try again.');
+          }
+          assertCurrentRevision(snapshot, expectedUpdatedAtById[orderedIds[index]]);
+        });
+        refs.forEach((ref, index) => transaction.update(ref, {
+          rank: index + 1, updatedAt: serverTimestamp(), updatedBy: user.uid,
+        }));
       });
-      await batch.commit();
     },
     async remove(id, { expectedUpdatedAt } = {}) {
       adminUser();
