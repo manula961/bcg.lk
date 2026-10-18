@@ -59,3 +59,31 @@ test('routes are split into asynchronous modules and share route data', () => {
   assert.match(main, /<Suspense fallback=/);
   assert.match(main, /pages\/lifePageData\.js/);
 });
+
+test('admin form fields have explicit labels and content ordering checks revisions', () => {
+  const manager = read('src/admin/ContentManager.jsx');
+  const repository = read('src/lib/contentRepository.js');
+  assert.match(manager, /htmlFor=\{\`admin-field-\$\{kind\}-\$\{field.key\}\`\}/);
+  assert.match(manager, /id=\{\`admin-field-\$\{kind\}-\$\{field.key\}\`\}/);
+  assert.match(manager, /expectedUpdatedAtById/);
+  assert.match(repository, /getDocsFromServer\(records\(\)\)/);
+  assert.match(repository, /transaction\.get\(ref\)/);
+  assert.match(repository, /assertCurrentRevision\(snapshot, expectedUpdatedAtById\[orderedIds\[index\]\]\)/);
+});
+
+test('news cards use semantic links and both scrolling layers respect reduced-motion', () => {
+  const news = read('src/components/NewsSection.jsx');
+  const main = read('src/main.jsx');
+  const home = read('src/App.jsx');
+  assert.match(news, /href=\{\`\/updates\/\$\{encodeURIComponent\(post\.id\)\}\`\}/);
+  assert.doesNotMatch(news, /role="article"/);
+  assert.match(main, /prefers-reduced-motion: reduce/);
+  assert.match(home, /prefers-reduced-motion: reduce/);
+});
+
+test('initial entry and shared chunk budgets are both enforced', () => {
+  const source = read('scripts/check-bundle-budget.mjs');
+  assert.match(source, /300 \* 1024/);
+  assert.match(source, /800 \* 1024/);
+  assert.match(source, /Largest route-shared JavaScript chunk/);
+});

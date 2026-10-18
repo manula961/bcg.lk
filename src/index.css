@@ -131,3 +131,9 @@ html.lenis, html.lenis body {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+/* Motion preferences preserve the original design without forced animation. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { transition: none; }
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

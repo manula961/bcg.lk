@@ -76,3 +76,11 @@ test('Sports and Societies retains admin-managed directory', () => {
   assert.match(source, /life-detail-top-wrapper/);
   assert.match(source, /life-content-group/);
 });
+
+test('published sports directory is connected to its existing public life page', () => {
+  const page = read('src/pages/LifeDetailPage.jsx');
+  const listing = read('src/pages/SchoolContentListing.jsx');
+  assert.match(page, /<SchoolContentListing kind="sports" \/>/);
+  assert.match(listing, /sports:\s*\{[\s\S]*?subscribe: subscribePublishedSports/);
+  assert.match(listing, /items\.map|records\.map/);
+});

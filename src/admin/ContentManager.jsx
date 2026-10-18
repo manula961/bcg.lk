@@ -295,7 +295,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
     reordered.splice(targetIndex, 0, moved);
     setActionId('reordering');
     try {
-      await config.reorder(reordered.map(item => item.id));
+      await config.reorder(reordered.map(item => item.id), {
+        expectedUpdatedAtById: Object.fromEntries(items.map(item => [item.id, item.updatedAt ?? null])),
+      });
       setNotice({ type: 'success', text: 'Item positions updated.' });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -578,12 +580,14 @@ export default function ContentManager({ kind, onDirtyChange }) {
             <div className="admin-form-grid">
               {config.fields.map((field) => (
                 <div key={field.key} className={`admin-field-wrap ${field.wide ? 'wide' : ''}`}>
-                  <label className="admin-label">
+                  <label className="admin-label" htmlFor={`admin-field-${kind}-${field.key}`}>
                     {field.label}
                     {field.required && <span className="admin-required">*</span>}
                   </label>
                   {field.type === 'textarea' ? (
                     <textarea
+                      id={`admin-field-${kind}-${field.key}`}
+                      aria-describedby={field.help ? `admin-help-${kind}-${field.key}` : undefined}
                       rows={field.rows || 4}
                       value={form[field.key] ?? ''}
                       onChange={(e) => updateField(field.key, e.target.value)}
@@ -594,6 +598,8 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     />
                   ) : field.type === 'select' ? (
                     <select
+                      id={`admin-field-${kind}-${field.key}`}
+                      aria-describedby={field.help ? `admin-help-${kind}-${field.key}` : undefined}
                       value={form[field.key] ?? ''}
                       onChange={(e) => updateField(field.key, e.target.value)}
                       className="admin-input"
@@ -606,6 +612,8 @@ export default function ContentManager({ kind, onDirtyChange }) {
                     </select>
                   ) : (
                     <input
+                      id={`admin-field-${kind}-${field.key}`}
+                      aria-describedby={field.help ? `admin-help-${kind}-${field.key}` : undefined}
                       type={field.type || 'text'}
                       value={form[field.key] ?? ''}
                       onChange={(e) => updateField(field.key, e.target.value)}
@@ -617,7 +625,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       placeholder={field.placeholder}
                     />
                   )}
-                  {field.help && <span className="admin-help-text">{field.help}</span>}
+                  {field.help && <span id={`admin-help-${kind}-${field.key}`} className="admin-help-text">{field.help}</span>}
                   {kind === 'pages' && field.key === 'slug' && !editingId && (
                     <button
                       type="button"
