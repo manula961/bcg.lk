@@ -26,6 +26,34 @@ for (const path of changed.filter(protectedPath)) {
       .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
       .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
     if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
+  } else if (path === 'src/admin/AdminDashboard.jsx' || path === 'src/admin/AdminLogin.jsx') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const expected = before.replace("import './Admin.css';", "import './Admin.css';\nimport './AdminFrontendTheme.css';");
+    if (after !== expected) violations.push(path + ' (admin theme import only)');
+  } else if (path === 'src/admin/AdminFrontendTheme.css') {
+    const css = git('show', 'HEAD:' + path);
+    // Ignore CSS comments and @media wrappers; every actual rule must
+    // target an admin root. This keeps Rule #1 protection for public UI.
+    const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    let pending = '';
+    let invalid = false;
+    for (const part of withoutComments.split(/([{}])/)) {
+      if (part === '{') {
+        const selector = pending.trim();
+        if (!selector.startsWith('@') &&
+            !selector.split(',').every(item => /\.admin-(?:body|center-screen)(?:[.\s:#\[]|$)/.test(item.trim())))
+          invalid = true;
+        pending = '';
+      } else if (part === '}') {
+        pending = '';
+      } else {
+        pending += part;
+      }
+    }
+    if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
+        /@import|url\s*\(|:root|!important/.test(withoutComments) || invalid)
+      violations.push(path + ' (unscoped admin theme)');
   } else {
     violations.push(path);
   }
