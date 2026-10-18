@@ -16,7 +16,7 @@ service cloud.firestore {
     function requiredString(data, key, max) {
       return key in data && data[key] is string &&
         data[key].size() > 0 && data[key].size() <= max &&
-        data[key].matches('.*[^ ].*');
+        data[key].matches('(?s).*\\S.*');
     }
     function optionalBool(data, key) {
       return !(key in data) || data[key] is bool;
