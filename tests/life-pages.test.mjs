@@ -71,7 +71,8 @@ test('replacement cards lead to current routes, never retired pages', () => {
 
 test('Sports and Societies retains admin-managed directory', () => {
   const source = read('src/pages/LifeDetailPage.jsx');
-  assert.match(source, /normalizedSlug === 'sports-societies' && <SocietiesListing \/>/);
+  assert.match(source, /normalizedSlug === 'sports-societies' && \(/);
+  assert.match(source, /<SocietiesListing \/>/);
   assert.match(source, /life-detail-top-wrapper/);
   assert.match(source, /life-content-group/);
 });
