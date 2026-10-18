@@ -46,7 +46,7 @@ if (!staging) {
   });
   await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/admins?documentId=' +
     encodeURIComponent(identity.localId), {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
     body: JSON.stringify({ fields: { role: { stringValue: 'admin' } } }),
   });
 }
