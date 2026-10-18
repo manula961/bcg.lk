@@ -113,6 +113,16 @@ function validate(input, fields, { create = false, defaults = {} } = {}) {
   return data;
 }
 
+function assertCurrentRevision(snapshot, expectedUpdatedAt) {
+  if (expectedUpdatedAt === undefined) return;
+  const current = snapshot.data()?.updatedAt ?? null;
+  const expected = expectedUpdatedAt ?? null;
+  if ((current === null) !== (expected === null) ||
+      (current !== null && (!expected?.isEqual || !expected.isEqual(current)))) {
+    throw new Error('This item changed since you opened it. Copy your changes, reload the item, and try again.');
+  }
+}
+
 function fromSnapshot(snapshot) {
   return { id: snapshot.id, ...snapshot.data() };
 }
@@ -203,34 +213,50 @@ export function createContentRepository(name, fields, options = {}) {
       const ref = await addDoc(records(), payload);
       return ref.id;
     },
-    async update(id, patch) {
+    async update(id, patch, { expectedUpdatedAt } = {}) {
       const user = adminUser();
       const ref = record(id);
       const input = validate(patch, enrichedFields);
       if (options.idField && hasOwn(input, options.idField) && input[options.idField] !== id) {
         throw new Error(options.idField + ' cannot be changed after creation.');
       }
-      const existing = await getDoc(ref);
-      if (!existing.exists()) throw new Error('Content entry not found.');
-      const payload = { ...input, updatedAt: serverTimestamp(), updatedBy: user.uid };
-      if (hasOwn(input, 'published') && input.published !== existing.data().published) {
-        payload.publishedAt = input.published ? serverTimestamp() : null;
-      }
-      await updateDoc(ref, payload);
+      await runTransaction(database(), async transaction => {
+        const existing = await transaction.get(ref);
+        if (!existing.exists()) throw new Error('Content entry not found.');
+        assertCurrentRevision(existing, expectedUpdatedAt);
+        const payload = { ...input, updatedAt: serverTimestamp(), updatedBy: user.uid };
+        if (hasOwn(input, 'published') && input.published !== existing.data().published) {
+          payload.publishedAt = input.published ? serverTimestamp() : null;
+        }
+        transaction.update(ref, payload);
+      });
     },
     async reorderBatch(orderedIds) {
-      adminUser();
-      if (!Array.isArray(orderedIds)) throw new TypeError('orderedIds must be an array.');
+      const user = adminUser();
+      if (!Array.isArray(orderedIds) || orderedIds.length > 400 ||
+          new Set(orderedIds).size !== orderedIds.length) {
+        throw new TypeError('Provide up to 400 unique content IDs for reordering.');
+      }
       const batch = writeBatch(database());
       orderedIds.forEach((id, index) => {
         const ref = record(id);
-        batch.update(ref, { rank: index + 1, updatedAt: serverTimestamp() });
+        batch.update(ref, { rank: index + 1, updatedAt: serverTimestamp(), updatedBy: user.uid });
       });
       await batch.commit();
     },
-    async remove(id) {
+    async remove(id, { expectedUpdatedAt } = {}) {
       adminUser();
-      await deleteDoc(record(id));
+      if (expectedUpdatedAt === undefined) {
+        await deleteDoc(record(id));
+        return;
+      }
+      await runTransaction(database(), async transaction => {
+        const ref = record(id);
+        const existing = await transaction.get(ref);
+        if (!existing.exists()) throw new Error('Content entry not found.');
+        assertCurrentRevision(existing, expectedUpdatedAt);
+        transaction.delete(ref);
+      });
     },
   });
 }
