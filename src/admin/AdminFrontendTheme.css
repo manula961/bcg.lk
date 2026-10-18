@@ -130,3 +130,14 @@
 @media (prefers-reduced-motion: reduce) {
   .admin-body .admin-nav-item { transition: none; }
 }
+
+/* Keep admin-only visual controls usable on narrow screens. */
+@media (max-width: 520px) {
+  .admin-body .admin-sidebar-nav { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .admin-body .admin-nav-item { min-width: 0; }
+  .admin-body .admin-nav-text { min-width: 0; }
+  .admin-body .admin-nav-label, .admin-body .admin-nav-desc { overflow-wrap: anywhere; }
+  .admin-body .admin-header-actions { display: flex; flex-wrap: wrap; }
+  .admin-body .admin-search-wrap { min-width: 0; max-width: 100%; }
+  .admin-body .admin-row-actions { justify-content: flex-start; }
+}

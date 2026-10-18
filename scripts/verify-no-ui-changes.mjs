@@ -26,34 +26,35 @@ for (const path of changed.filter(protectedPath)) {
       .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
       .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
     if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
-  } else if (path === 'src/admin/AdminDashboard.jsx' || path === 'src/admin/AdminLogin.jsx') {
+  } else if (path === 'src/admin/AdminDashboard.jsx') {
     const before = git('show', 'origin/' + base + ':' + path);
     const after = git('show', 'HEAD:' + path);
     const expected = before.replace("import './Admin.css';", "import './Admin.css';\nimport './AdminFrontendTheme.css';");
     if (after !== expected) violations.push(path + ' (admin theme import only)');
+  } else if (path === 'src/admin/Admin.css') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    if (after !== before.replace(':root {', '.admin-body, .admin-center-screen {'))
+      violations.push(path + ' (unexpected admin base style change)');
+  } else if (path === 'src/admin/AdminLogin.jsx') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const expected = before
+      .replace("err?.message || 'Unable to sign in.'", "'Unable to sign in. Please check your details and try again.'")
+      .replace('<label className="admin-label">Email Address</label>', '<label className="admin-label" htmlFor="admin-login-email">Email Address</label>')
+      .replace('type="email"\n', 'id="admin-login-email"\n              type="email"\n')
+      .replace('<label className="admin-label">Password</label>', '<label className="admin-label" htmlFor="admin-login-password">Password</label>')
+      .replace('type="password"\n', 'id="admin-login-password"\n              type="password"\n')
+      .replace('{error && <div className="admin-notice error">{error}</div>}', '{error && <div className="admin-notice error" role="alert">{error}</div>}');
+    if (after !== expected) violations.push(path + ' (unexpected admin login change)');
   } else if (path === 'src/admin/AdminFrontendTheme.css') {
-    const css = git('show', 'HEAD:' + path);
-    // Ignore CSS comments and @media wrappers; every actual rule must
-    // target an admin root. This keeps Rule #1 protection for public UI.
-    const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
-    let pending = '';
-    let invalid = false;
-    for (const part of withoutComments.split(/([{}])/)) {
-      if (part === '{') {
-        const selector = pending.trim();
-        if (!selector.startsWith('@') &&
-            !selector.split(',').every(item => /\.admin-(?:body|center-screen)(?:[.\s:#\[]|$)/.test(item.trim())))
-          invalid = true;
-        pending = '';
-      } else if (part === '}') {
-        pending = '';
-      } else {
-        pending += part;
-      }
-    }
-    if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
-        /@import|url\s*\(|:root|!important/.test(withoutComments) || invalid)
-      violations.push(path + ' (unscoped admin theme)');
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const addition = after.slice(before.length).trim();
+    const expectedAddition = `\n/* Keep admin-only visual controls usable on narrow screens. */\n@media (max-width: 520px) {\n  .admin-body .admin-sidebar-nav { grid-template-columns: repeat(2,minmax(0,1fr)); }\n  .admin-body .admin-nav-item { min-width: 0; }\n  .admin-body .admin-nav-text { min-width: 0; }\n  .admin-body .admin-nav-label, .admin-body .admin-nav-desc { overflow-wrap: anywhere; }\n  .admin-body .admin-header-actions { display: flex; flex-wrap: wrap; }\n  .admin-body .admin-search-wrap { min-width: 0; max-width: 100%; }\n  .admin-body .admin-row-actions { justify-content: flex-start; }\n}\n`;
+    // Exact allowlist: no other CSS rules or public selectors may be introduced.
+    if (!after.startsWith(before) || addition !== expectedAddition.trim())
+      violations.push(path + ' (unexpected admin theme change)');
   } else {
     violations.push(path);
   }
