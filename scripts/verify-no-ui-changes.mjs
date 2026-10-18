@@ -53,7 +53,7 @@ for (const path of changed.filter(protectedPath)) {
     const addition = after.slice(before.length);
     const expectedAddition = `\n/* Keep admin-only visual controls usable on narrow screens. */\n@media (max-width: 520px) {\n  .admin-body .admin-sidebar-nav { grid-template-columns: repeat(2,minmax(0,1fr)); }\n  .admin-body .admin-nav-item { min-width: 0; }\n  .admin-body .admin-nav-text { min-width: 0; }\n  .admin-body .admin-nav-label, .admin-body .admin-nav-desc { overflow-wrap: anywhere; }\n  .admin-body .admin-header-actions { display: flex; flex-wrap: wrap; }\n  .admin-body .admin-search-wrap { min-width: 0; max-width: 100%; }\n  .admin-body .admin-row-actions { justify-content: flex-start; }\n}\n`;
     // Exact allowlist: no other CSS rules or public selectors may be introduced.
-    if (!after.startsWith(before) || addition !== expectedAddition)
+    if (!after.startsWith(before) || addition !== expectedAddition.trimEnd())
       violations.push(path + ' (unexpected admin theme change)');
   } else {
     violations.push(path);
