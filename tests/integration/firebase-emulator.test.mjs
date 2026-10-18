@@ -128,7 +128,7 @@ test('administrator cannot inject unsupported CMS fields or oversized text', asy
 test('administrator cannot forge or rewrite immutable creation metadata', async () => {
   const record = doc(admin.firestore(), 'news/ownership-check');
   await assertFails(setDoc(record, { title: 'Forgery', createdBy: 'another-user', published: false }));
-  await assertSucceeds(setDoc(record, { title: 'Owned', createdBy: 'verified-admin', updatedBy: 'verified-admin', published: false }));
+  await assertSucceeds(setDoc(record, { title: 'Owned', excerpt: 'An authorized article', createdBy: 'verified-admin', updatedBy: 'verified-admin', published: false }));
   await assertFails(updateDoc(record, { createdBy: 'another-user' }));
   await assertFails(updateDoc(record, { updatedBy: 'another-user' }));
   await assertSucceeds(updateDoc(record, { title: 'Legitimate edit' }));
