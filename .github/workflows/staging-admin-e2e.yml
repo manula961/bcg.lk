@@ -1,0 +1,55 @@
+name: BCG.LK Staging Admin E2E
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: bcg-staging-admin
+  cancel-in-progress: false
+jobs:
+  staging-admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: staging
+    env:
+      BCG_STAGING_MODE: 'true'
+      BCG_PRODUCTION_PROJECT_ID: ${{ vars.PRODUCTION_FIREBASE_PROJECT_ID }}
+      BCG_STAGING_ADMIN_EMAIL: ${{ secrets.STAGING_ADMIN_EMAIL }}
+      BCG_STAGING_ADMIN_PASSWORD: ${{ secrets.STAGING_ADMIN_PASSWORD }}
+      VITE_FIREBASE_API_KEY: ${{ secrets.STAGING_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.STAGING_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ vars.STAGING_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.STAGING_FIREBASE_STORAGE_BUCKET }}
+      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.STAGING_FIREBASE_MESSAGING_SENDER_ID }}
+      VITE_FIREBASE_APP_ID: ${{ vars.STAGING_FIREBASE_APP_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Validate isolated staging configuration
+        run: |
+          test -n "$VITE_FIREBASE_PROJECT_ID"
+          test -n "$BCG_PRODUCTION_PROJECT_ID"
+          test "$VITE_FIREBASE_PROJECT_ID" != "$BCG_PRODUCTION_PROJECT_ID"
+          test -n "$BCG_STAGING_ADMIN_EMAIL"
+          test -n "$BCG_STAGING_ADMIN_PASSWORD"
+          test -n "$VITE_FIREBASE_API_KEY"
+          test -n "$VITE_FIREBASE_AUTH_DOMAIN"
+          test -n "$VITE_FIREBASE_STORAGE_BUCKET"
+          test -n "$VITE_FIREBASE_MESSAGING_SENDER_ID"
+          test -n "$VITE_FIREBASE_APP_ID"
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test authenticated admin against staging Firebase only
+        run: node tests/visual/admin-e2e.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: staging-admin-evidence
+          path: artifacts/browser/
+          if-no-files-found: warn
