@@ -50,7 +50,7 @@ test('detail pages reuse the original homepage navigation, footer and layout con
 
 test('Life detail pages render existing editorial content and CMS directories', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
-  assert.match(pages, /sections\.map/);
+  assert.match(pages, /current\.highlights\.map/);
   assert.match(pages, /normalizedSlug === 'sports-societies' && \(/);
   assert.match(pages, /<SocietiesListing \/>/);
   assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
