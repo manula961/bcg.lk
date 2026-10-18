@@ -88,3 +88,11 @@
     margin-bottom: 50px;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-init { opacity: 1; }
+  .hero-section { background-attachment: scroll; }
+  .scroll-indicator-bar { animation: none; }
+}
+@media (max-width: 375px) {
+  .hero-section h1 > span:first-child { font-size: clamp(0.95rem, 4.7vw, 1.5rem); letter-spacing: -0.015em; }
+}
