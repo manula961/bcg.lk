@@ -42,16 +42,16 @@ for (const path of changed.filter(protectedPath)) {
     const expected = before
       .replace("err?.message || 'Unable to sign in.'", "'Unable to sign in. Please check your details and try again.'")
       .replace('<label className="admin-label">Email Address</label>', '<label className="admin-label" htmlFor="admin-login-email">Email Address</label>')
-      .replace('type="email"\\n', 'id="admin-login-email"\\n              type="email"\\n')
+      .replace('type="email"\n', 'id="admin-login-email"\n              type="email"\n')
       .replace('<label className="admin-label">Password</label>', '<label className="admin-label" htmlFor="admin-login-password">Password</label>')
-      .replace('type="password"\\n', 'id="admin-login-password"\\n              type="password"\\n')
+      .replace('type="password"\n', 'id="admin-login-password"\n              type="password"\n')
       .replace('{error && <div className="admin-notice error">{error}</div>}', '{error && <div className="admin-notice error" role="alert">{error}</div>}');
     if (after !== expected) violations.push(path + ' (unexpected admin login change)');
   } else if (path === 'src/admin/AdminFrontendTheme.css') {
     const before = git('show', 'origin/' + base + ':' + path);
     const after = git('show', 'HEAD:' + path);
     if (!after.startsWith(before) || !after.slice(before.length).includes('@media (max-width: 520px)') ||
-        /:root|@import|url\\s*\\(/.test(after.slice(before.length)) ||
+        /:root|@import|url\s*\(/.test(after.slice(before.length)) ||
         !after.slice(before.length).split('{').slice(0,-1).every(chunk => {
           const selector = chunk.split('}').pop().trim();
           return selector.startsWith('@media') || selector.split(',').every(s => s.trim().startsWith('.admin-body '));
