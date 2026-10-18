@@ -6,13 +6,21 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
-    labels:
-      - dependencies
     groups:
+      react-coupled-major:
+        patterns:
+          - react
+          - react-dom
+        update-types:
+          - major
       safe-dev-updates:
         dependency-type: development
         update-types: [minor, patch]
     ignore:
+      # Keep the installed Firebase SDK 12 until the pinned rules-unit-testing
+      # tooling supports Firebase 13. This does not change our cloud project.
+      - dependency-name: firebase
+        update-types: ["version-update:semver-major"]
       - dependency-name: vite
         update-types: ["version-update:semver-major"]
       - dependency-name: tailwindcss
