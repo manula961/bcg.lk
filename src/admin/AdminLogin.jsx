@@ -24,7 +24,7 @@ export default function AdminLogin() {
         'auth/network-request-failed': 'Network error. Check your internet connection.',
         'auth/operation-not-allowed': 'Sign-in is disabled in Firebase Authentication.',
       };
-      setError(messages[err?.code] || err?.message || 'Unable to sign in.');
+      setError(messages[err?.code] || 'Unable to sign in. Please check your details and try again.');
     } finally {
       setBusy(false);
     }
@@ -41,8 +41,9 @@ export default function AdminLogin() {
 
         <div className="admin-login-fields">
           <div>
-            <label className="admin-label">Email Address</label>
+            <label className="admin-label" htmlFor="admin-login-email">Email Address</label>
             <input
+              id="admin-login-email"
               type="email"
               required
               autoComplete="username"
@@ -54,8 +55,9 @@ export default function AdminLogin() {
           </div>
 
           <div>
-            <label className="admin-label">Password</label>
+            <label className="admin-label" htmlFor="admin-login-password">Password</label>
             <input
+              id="admin-login-password"
               type="password"
               required
               autoComplete="current-password"
@@ -67,7 +69,7 @@ export default function AdminLogin() {
           </div>
         </div>
 
-        {error && <div className="admin-notice error">{error}</div>}
+        {error && <div className="admin-notice error" role="alert">{error}</div>}
 
         <button type="submit" disabled={busy} className="admin-btn-primary wide">
           {busy ? 'Signing in...' : 'Sign In'}

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&display=swap');
 
 /* Base Reset & Design Variables */
-:root {
+.admin-body, .admin-center-screen {
   --admin-bg: #09090b;
   --admin-sidebar-bg: #0d0e12;
   --admin-bg-secondary: #13151c;

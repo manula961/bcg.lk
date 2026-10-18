@@ -26,34 +26,36 @@ for (const path of changed.filter(protectedPath)) {
       .replace(/^import AboutUsPage from '\.\/pages\/AboutUsPage\.jsx';\n?/m, '')
       .replace(/^\s*if \(isAboutUsPath\) return <(?:AboutUsPage \/>|LifeDetailPage slug="about-us" \/>);\n?/m, '');
     if (normalize(before) !== normalize(after)) violations.push(path + ' (unapproved routing or UI change)');
-  } else if (path === 'src/admin/AdminDashboard.jsx' || path === 'src/admin/AdminLogin.jsx') {
+  } else if (path === 'src/admin/AdminDashboard.jsx') {
     const before = git('show', 'origin/' + base + ':' + path);
     const after = git('show', 'HEAD:' + path);
     const expected = before.replace("import './Admin.css';", "import './Admin.css';\nimport './AdminFrontendTheme.css';");
     if (after !== expected) violations.push(path + ' (admin theme import only)');
+  } else if (path === 'src/admin/Admin.css') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    if (after !== before.replace(':root {', '.admin-body, .admin-center-screen {'))
+      violations.push(path + ' (unexpected admin base style change)');
+  } else if (path === 'src/admin/AdminLogin.jsx') {
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    const expected = before
+      .replace("err?.message || 'Unable to sign in.'", "'Unable to sign in. Please check your details and try again.'")
+      .replace('<label className="admin-label">Email Address</label>', '<label className="admin-label" htmlFor="admin-login-email">Email Address</label>')
+      .replace('type="email"\\n', 'id="admin-login-email"\\n              type="email"\\n')
+      .replace('<label className="admin-label">Password</label>', '<label className="admin-label" htmlFor="admin-login-password">Password</label>')
+      .replace('type="password"\\n', 'id="admin-login-password"\\n              type="password"\\n')
+      .replace('{error && <div className="admin-notice error">{error}</div>}', '{error && <div className="admin-notice error" role="alert">{error}</div>}');
+    if (after !== expected) violations.push(path + ' (unexpected admin login change)');
   } else if (path === 'src/admin/AdminFrontendTheme.css') {
-    const css = git('show', 'HEAD:' + path);
-    // Ignore CSS comments and @media wrappers; every actual rule must
-    // target an admin root. This keeps Rule #1 protection for public UI.
-    const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
-    let pending = '';
-    let invalid = false;
-    for (const part of withoutComments.split(/([{}])/)) {
-      if (part === '{') {
-        const selector = pending.trim();
-        if (!selector.startsWith('@') &&
-            !selector.split(',').every(item => /\.admin-(?:body|center-screen)(?:[.\s:#\[]|$)/.test(item.trim())))
-          invalid = true;
-        pending = '';
-      } else if (part === '}') {
-        pending = '';
-      } else {
-        pending += part;
-      }
-    }
-    if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
-        /@import|url\s*\(|:root|!important/.test(withoutComments) || invalid)
-      violations.push(path + ' (unscoped admin theme)');
+    const before = git('show', 'origin/' + base + ':' + path);
+    const after = git('show', 'HEAD:' + path);
+    if (!after.startsWith(before) || !after.slice(before.length).includes('@media (max-width: 520px)') ||
+        /:root|@import|url\\s*\\(/.test(after.slice(before.length)) ||
+        !after.slice(before.length).split('{').slice(0,-1).every(chunk => {
+          const selector = chunk.split('}').pop().trim();
+          return selector.startsWith('@media') || selector.split(',').every(s => s.trim().startsWith('.admin-body '));
+        })) violations.push(path + ' (unexpected or unscoped admin theme change)');
   } else {
     violations.push(path);
   }
