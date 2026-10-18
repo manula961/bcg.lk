@@ -168,12 +168,13 @@ test('Firestore validates slug, HTTPS media URLs, event dates, colors and allowe
 test('required CMS fields reject empty, whitespace-only and mismatched page identifiers', async () => {
   const db = admin.firestore();
   for (const [name, valid] of Object.entries(sample)) {
-    await assertFails(setDoc(doc(db, name, 'missing-title'), { ...valid, title: '' }));
-    await assertFails(setDoc(doc(db, name, 'blank-title'), { ...valid, title: '   ' }));
-    await assertFails(setDoc(doc(db, name, 'missing-status'), Object.fromEntries(
+    const invalid = id => doc(db, name, name === 'pages' ? valid.slug : id);
+    await assertFails(setDoc(invalid('missing-title'), { ...valid, title: '' }));
+    await assertFails(setDoc(invalid('blank-title'), { ...valid, title: '   ' }));
+    await assertFails(setDoc(invalid('missing-status'), Object.fromEntries(
       Object.entries(valid).filter(([key]) => key !== 'published')
     )));
-    await assertFails(setDoc(doc(db, name, 'invalid-status'), { ...valid, published: 'true' }));
+    await assertFails(setDoc(invalid('invalid-status'), { ...valid, published: 'true' }));
     // Each collection must have all fields that its CMS editor marks required.
     const required = {
       news: ['excerpt'], events: ['description','eventDate','location'],
@@ -181,10 +182,10 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
       extracurricular: ['description'], leadership: ['role'],
     }[name];
     for (const key of required) {
-      await assertFails(setDoc(doc(db, name, 'missing-'+key), Object.fromEntries(
+      await assertFails(setDoc(invalid('missing-'+key), Object.fromEntries(
         Object.entries(valid).filter(([field]) => field !== key)
       )));
-      await assertFails(setDoc(doc(db, name, 'empty-'+key), { ...valid, [key]: '' }));
+      await assertFails(setDoc(invalid('empty-'+key), { ...valid, [key]: '' }));
     }
   }
   await assertFails(setDoc(doc(db, 'pages/slug-not-equal-id'), {
