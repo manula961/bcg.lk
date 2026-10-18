@@ -8,6 +8,7 @@ const changed = git('diff', '--name-only', '--diff-filter=ACMR', 'origin/' + bas
 // Rule #1: reject edits to existing visual source, styles, and static assets.
 // New UI files are reviewed explicitly, rather than implicitly permitted.
 const protectedPath = path =>
+  path === 'index.html' ||
   /^src\/(?:components|admin|pages)\//.test(path) ||
   /^src\/(?:App\.jsx|main\.jsx|index\.css)$/.test(path) ||
   /^public\//.test(path) ||
@@ -16,6 +17,7 @@ const protectedPath = path =>
 // User-approved fixes in PR #32. Each protected file must match this exact Git blob.
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
+  "index.html": "8e6421a10e130c855b273cc4b8097185fbefe6e2",
   "src/index.css": "35e55d5417f08f483ab41e70b9d14af2abbc65dd",
   "src/App.jsx": "a63eee44a704f032c35221a7ff82623fa48c82eb",
   "src/pages/SchoolContentListing.jsx": "59de3415d460e2b506862ef2f05796d7db6884b6",
