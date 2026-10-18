@@ -21,7 +21,7 @@ const password = staging ? process.env.BCG_STAGING_ADMIN_PASSWORD : 'test-only-p
 if (!email || !password) throw new Error('Dedicated staging administrator credentials are required.');
 const uidPrefix = 'audit-' + Date.now().toString(36);
 const newsTitle = uidPrefix + ' CMS test';
-const base = 'http://127.0.0.1:4173';
+const base = 'http://127.0.0.1:4175';
 const env = staging ? { ...process.env, VITE_USE_FIREBASE_EMULATORS: 'false' } : {
   ...process.env,
   VITE_FIREBASE_API_KEY: 'fake-web-api-key',
@@ -63,7 +63,7 @@ if (!staging) {
     });
   }
 }
-const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
+const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4175', '--strictPort'], {
   env, stdio: ['ignore', 'pipe', 'pipe'],
 });
 let serverLog = '';
