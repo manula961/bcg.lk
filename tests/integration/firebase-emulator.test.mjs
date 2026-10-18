@@ -196,3 +196,14 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
   }));
   await assertSucceeds(deleteDoc(doc(db, 'pages/matched-slug')));
 });
+
+test('multiline editorial content is allowed, but whitespace-only bodies are rejected', async () => {
+  const db = admin.firestore();
+  const record = doc(db, 'pages/multiline-page');
+  await assertSucceeds(setDoc(record, {
+    title: 'Valid multi-line page', slug: 'multiline-page',
+    body: 'First paragraph.\n\nSecond paragraph.', published: true,
+  }));
+  await assertFails(updateDoc(record, { body: ' \n \t ' }));
+  await assertSucceeds(deleteDoc(record));
+});
