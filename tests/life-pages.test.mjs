@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
 test('four Life as a Nayaken detail pages have stable paths and source-based titles', () => {
-  const pages = read('src/pages/LifeDetailPage.jsx');
+  const pages = read('src/pages/lifePageData.js');
   for (const slug of ['academic-excellence', 'sports-societies', 'about-us', 'leadership']) {
     assert.ok(pages.includes("'" + slug + "':"), 'Missing page ' + slug);
   }
@@ -13,7 +13,7 @@ test('four Life as a Nayaken detail pages have stable paths and source-based tit
     assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
   }
   assert.match(read('src/components/LifeAsNayaken.jsx'), /href=\{`\/life\/\$\{card\.slug\}`\}/);
-  assert.match(pages, /href="\/" onClick=\{handleBackToHome\}/);
+  assert.match(read('src/pages/LifeDetailPage.jsx'), /href="\/" onClick=\{handleBackToHome\}/);
 });
 
 test('homepage and admin routes remain the unchanged defaults', () => {
@@ -58,7 +58,7 @@ test('Life detail pages render existing editorial content and CMS directories', 
 
 test('replacement cards lead to current routes, never retired pages', () => {
   const source = read('src/components/LifeAsNayaken.jsx');
-  const pages = read('src/pages/LifeDetailPage.jsx');
+  const pages = read('src/pages/lifePageData.js');
   for (const slug of ['academic-excellence','sports-societies','about-us','leadership']) {
     assert.ok(source.includes("slug: '" + slug + "'"), 'Unlinked card: ' + slug);
     assert.match(source, /href=\{`\/life\/\$\{card\.slug\}`\}/);
