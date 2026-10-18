@@ -28,8 +28,18 @@ const auditedUiBlobs = Object.freeze({
   "src/pages/NotFoundPage.jsx": "e0a75db48b1bfe4789424b50e26793dd04a28458",
   "src/pages/Updates.jsx": "ff4a0ef12aa7e14ef1d8ab158162bf9f980a9cb9"
 });
+// Deletions of protected files are denied except the reviewed unused legacy stylesheet.
+const auditedUiDeletions = Object.freeze({ 'src/admin/AdminTheme.css': 'ca912562b66f5ac77da3b7a2aafd503681b15714' });
 const approvedRouteFile = 'src/main.jsx';
 const violations = [];
+const removedFiles = git('diff', '--name-only', '--diff-filter=D', 'origin/' + base + '...HEAD')
+  .split('\n').filter(Boolean);
+for (const path of removedFiles.filter(protectedPath)) {
+  if (!Object.prototype.hasOwnProperty.call(auditedUiDeletions, path) ||
+      git('rev-parse', 'origin/' + base + ':' + path) !== auditedUiDeletions[path]) {
+    violations.push(path + ' (unapproved protected UI deletion)');
+  }
+}
 for (const path of changed.filter(protectedPath)) {
   if (Object.prototype.hasOwnProperty.call(auditedUiBlobs, path)) {
     if (git('rev-parse', 'HEAD:' + path) !== auditedUiBlobs[path])

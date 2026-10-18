@@ -8,6 +8,7 @@ Draft PR #32 addresses repository-level audit findings. Changes must be reviewed
 - Conflict-aware CMS transactions to prevent overwriting or deleting content updated since an editor opened it.
 - Safe ordering that cannot reorder only a filtered subset; keyboard up/down controls and a batch size limit.
 - Generic administrator errors (avoid exposing raw provider exception details).
+- Removed the unused legacy admin-only `AdminTheme.css` stylesheet after verifying active admin imports use `Admin.css` and `AdminFrontendTheme.css`.
 - Reduced-motion hero behavior, small-screen heading sizing, title-independent news and event URLs, and a dedicated unknown-route page.
 - A precise Git blob allowlist for these specific authorized public/admin UI changes, preserving Rule #1 protection for any other UI changes.
 - Browser smoke tests at 320, 390 and 1440 pixel widths, plus existing screenshot comparison workflow requiring explicit baseline/candidate URLs.
@@ -15,7 +16,7 @@ Draft PR #32 addresses repository-level audit findings. Changes must be reviewed
 ## Requires operational verification / not implemented automatically
 
 1. In Firebase Console, confirm the target production project and deploy the reviewed Firestore rules through an approved deployment. This PR cannot prove what rules are running in production.
-2. Compare production and preview Vercel environment variables, domain restrictions, OAuth redirect URIs, and Firebase authorized domains without exposing secrets.
+2. Vercel project `bcg-lk` currently exposes the Firebase/Drive environment variable entries to **production only**. Preview needs its own test Firebase and Google OAuth configuration. Never copy production tokens directly into a test preview. Verify Firebase authorized domains and redirect URIs without disclosing secret values.
 3. Run real authenticated admin/browser tests on a preview (create, edit, conflict, publish, delete, reorder, upload and disconnect). CI Firestore emulator tests cannot prove third-party OAuth connectivity.
 4. Verify public Google Drive thumbnails across devices; Drive public links are not a guaranteed image CDN.
 5. Run visual baseline workflow for each intentionally changed public component; browser-smoke snapshots provide visual evidence but are not an approved pixel baseline.
