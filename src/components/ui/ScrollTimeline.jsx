@@ -1,130 +1,90 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
+/**
+ * Accessible scroll-progress timeline.
+ * Text stays fully visible at all times — progress animates the rail/dots only.
+ * Styling comes from Timeline.css imported by Timeline.jsx.
+ */
 export default function ScrollTimeline({ milestones = [] }) {
-  const containerRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const listRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
+    let frame = 0;
 
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+    const updateProgress = () => {
+      frame = 0;
+      if (!listRef.current) return;
 
-      const triggerPoint = windowHeight * 0.65;
-      const totalHeight = rect.height;
-      const scrolledPast = triggerPoint - rect.top;
-
-      let progress = scrolledPast / totalHeight;
-      progress = Math.max(0, Math.min(1, progress));
-      setScrollProgress(progress);
+      const rect = listRef.current.getBoundingClientRect();
+      const viewportPoint = window.innerHeight * 0.66;
+      const distance = Math.max(rect.height, 1);
+      const amount = (viewportPoint - rect.top) / distance;
+      setProgress(Math.min(1, Math.max(0, amount)));
     };
 
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateProgress);
+    };
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    scheduleUpdate();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+    };
+  }, [milestones.length]);
+
+  if (!milestones.length) return null;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-8" ref={containerRef}>
-      <div className="relative">
-        {/* Central Track Line */}
-        <div className="absolute left-4 md:left-1/2 top-8 bottom-8 w-[2px] bg-neutral-200 -translate-x-1/2" />
-
-        {/* Animated Active Track Line */}
+    <div className="timeline-container" ref={listRef}>
+      <div className="timeline-track" aria-hidden="true">
         <div
-          className="absolute left-4 md:left-1/2 top-8 w-[2px] bg-[#7B1C1C] -translate-x-1/2 transition-all duration-150 ease-out z-0"
-          style={{ height: `${scrollProgress * 100}%` }}
+          className="timeline-track-progress"
+          style={{ height: `${progress * 100}%` }}
         />
-
-        {/* Milestone Entries */}
-        <div className="flex flex-col gap-10 md:gap-12 relative z-10">
-          {milestones.map((milestone, index) => {
-            const itemThreshold = index / (milestones.length - 1 || 1);
-            const isActive = scrollProgress >= itemThreshold - 0.04;
-            const isEven = index % 2 === 0;
-
-            return (
-              <div
-                key={milestone.id || index}
-                className={`relative flex flex-col md:flex-row ${
-                  isEven ? "md:flex-row-reverse" : ""
-                } items-start w-full group`}
-              >
-                {/* Center Node Dot */}
-                <div
-                  className={`absolute left-4 md:left-1/2 top-7 w-5 h-5 rounded-full border-2 -translate-x-1/2 z-20 flex items-center justify-center transition-all duration-500 ${
-                    isActive
-                      ? "border-[#7B1C1C] bg-white scale-110 shadow-md shadow-[#7B1C1C]/30"
-                      : "border-neutral-300 bg-white scale-100"
-                  }`}
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      isActive ? "bg-[#7B1C1C]" : "bg-neutral-300"
-                    }`}
-                  />
-                </div>
-
-                {/* Connector Stem (Desktop) */}
-                <div
-                  className={`hidden md:block absolute top-9 h-[2px] z-0 transition-colors duration-500 ${
-                    isActive ? "bg-[#7B1C1C]/40" : "bg-neutral-200"
-                  } ${isEven ? "right-1/2 w-8" : "left-1/2 w-8"}`}
-                />
-
-                {/* Grid Column Spacer */}
-                <div className="hidden md:block w-1/2" />
-
-                {/* Content Card */}
-                <div
-                  className={`w-full md:w-1/2 pl-12 md:pl-0 ${
-                    isEven ? "md:pr-10 md:text-right" : "md:pl-10 md:text-left"
-                  } transition-all duration-700 ease-out ${
-                    isActive
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-35 translate-y-6"
-                  }`}
-                >
-                  <div
-                    className="p-6 sm:p-7 rounded-2xl bg-white border border-black/[0.08] shadow-[0_10px_30px_rgba(0,0,0,0.035)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.08)] hover:border-[#7B1C1C]/25 transition-all duration-300"
-                    style={{ fontFamily: "'Geologica', sans-serif" }}
-                  >
-                    {/* Date Tag */}
-                    <div className="inline-block px-3 py-1 mb-3 rounded-full border border-[#C9A84C]/40 bg-[#FAF8F5] text-xs font-semibold tracking-wider text-[#7B1C1C] uppercase">
-                      {milestone.date}
-                    </div>
-
-                    {/* Milestone Title */}
-                    <h3
-                      className="text-lg sm:text-xl font-bold tracking-tight text-[#1a1a1a] leading-snug mb-3"
-                      style={{ fontFamily: "'Google Sans Flex', sans-serif" }}
-                    >
-                      {milestone.title}
-                    </h3>
-
-                    {/* Detailed List Points */}
-                    {milestone.points && milestone.points.length > 0 ? (
-                      <ul className={`space-y-2 text-xs sm:text-sm text-[#555555] font-light leading-relaxed m-0 p-0 list-none ${isEven ? "md:text-right" : "md:text-left"}`}>
-                        {milestone.points.map((pt, pIdx) => (
-                          <li key={pIdx} className="relative">
-                            {pt}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-xs sm:text-sm text-[#555555] font-light leading-relaxed m-0">
-                        {milestone.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
+
+      <ol className="timeline-list">
+        {milestones.map((milestone, index) => {
+          const reached =
+            progress >= index / Math.max(milestones.length - 1, 1);
+
+          return (
+            <li
+              className={`timeline-entry ${reached ? 'is-reached' : ''}`}
+              key={milestone.id ?? index}
+            >
+              <span className="timeline-node" aria-hidden="true">
+                <span className="timeline-node-center" />
+              </span>
+
+              <article className="timeline-entry-card">
+                <time className="timeline-entry-date">
+                  {milestone.date}
+                </time>
+                <h3 className="timeline-entry-title">{milestone.title}</h3>
+
+                {Array.isArray(milestone.points) && milestone.points.length ? (
+                  <ul className="timeline-entry-points">
+                    {milestone.points.map((point, pointIndex) => (
+                      <li key={pointIndex}>{point}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="timeline-entry-description">
+                    {milestone.description}
+                  </p>
+                )}
+              </article>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

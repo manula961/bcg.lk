@@ -1,5 +1,6 @@
 import React from 'react';
 import ScrollTimeline from './ScrollTimeline';
+import './Timeline.css';
 
 const fullMilestones = [
   {
@@ -143,17 +144,15 @@ const fullMilestones = [
 
 export default function Timeline() {
   return (
-    <section className="timeline-section py-12" aria-labelledby="timeline-title">
-      <div className="life-detail-section-heading text-center max-w-3xl mx-auto mb-8">
-        <p className="life-detail-kicker">HERITAGE & MILESTONES</p>
-        <h2 id="timeline-title" className="text-3xl sm:text-4xl font-extrabold text-[#1a1a1a]">
-          Historical Timeline
-        </h2>
-        <p className="life-detail-description text-neutral-600 mt-2">
-          A century-long chronicle of leadership, resilience, and academic distinction at Bandaranayake College Gampaha.
+    <section className="timeline-section" aria-labelledby="timeline-title">
+      <div className="timeline-heading">
+        <p className="timeline-heading-kicker">HERITAGE & MILESTONES</p>
+        <h2 id="timeline-title">Historical Timeline</h2>
+        <p className="timeline-heading-description">
+          A century-long chronicle of leadership, resilience, and academic
+          distinction at Bandaranayake College Gampaha.
         </p>
       </div>
-
       <ScrollTimeline milestones={fullMilestones} />
     </section>
   );

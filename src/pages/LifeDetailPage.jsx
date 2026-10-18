@@ -129,7 +129,7 @@ export default function LifeDetailPage({ slug }) {
   if (!current) return null;
 
   return (
-    <main className="life-detail">
+    <main className={`life-detail life-detail--${normalizedSlug}`}>
       <a className="life-detail-skip" href="#life-detail-main">
         Skip to main content
       </a>
@@ -172,7 +172,7 @@ export default function LifeDetailPage({ slug }) {
               </section>
             )}
 
-            {/* Highlights Grid (Side-by-side on Mobile) */}
+            {/* Highlights Grid */}
             <div className="life-detail-highlights">
               {current.highlights.map((item) => (
                 <div className="life-detail-highlight" key={item.label}>
@@ -192,7 +192,6 @@ export default function LifeDetailPage({ slug }) {
                 <SchoolContentListing kind="sports" />
               </>
             )}
-
             {normalizedSlug === 'leadership' && <SchoolContentListing kind="leadership" />}
 
             {/* Shared Bento Explore More Section */}

@@ -69,7 +69,7 @@ export default function LifeAsNayakenz({ currentSlug = '' }) {
           {displayCards.map((card) => (
             <a
               key={card.id}
-              className={`bento-card bento-area-${card.area} ${card.accent}`}
+              className={`bento-card ${isDetailView ? '' : `bento-area-${card.area}`} ${card.accent}`.trim()}
               href={`/life/${card.slug}`}
               aria-label={`Learn more about ${card.title}`}
             >

@@ -1,307 +1,310 @@
-/* ==========================================
-   1. CLEAN UNIFIED TYPOGRAPHY RESET
-   ========================================== */
-@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700;800;900&display=swap");
+/* Life As A Nayaken — spacious, responsive bento cards.
+   This stylesheet works on the homepage and /life/:slug pages. */
+@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700;800&display=swap");
 
 .life-bento-section,
 .life-bento-section *,
-.life-detail,
-.life-detail * {
-  font-family: 'Geologica', sans-serif !important;
+.life-bento-section *::before,
+.life-bento-section *::after {
   box-sizing: border-box;
 }
 
-/* ==========================================
-   2. SECTION & CONTAINER STYLING
-   ========================================== */
 .life-bento-section {
-  padding: clamp(48px, 6vw, 90px) 0;
+  --bento-heading: #17191d;
+  --bento-text: #5e6570;
+  --bento-kicker: #862b2b;
   width: 100%;
-}
-
-:root[data-theme="dark"] .life-bento-section,
-body.dark-mode .life-bento-section,
-.dark .life-bento-section {
-  background-color: #0f0f11;
+  padding: clamp(68px, 7vw, 108px) 0 clamp(68px, 7vw, 104px);
+  font-family: "Geologica", sans-serif;
+  background: #ffffff;
 }
 
 .life-bento-container {
-  max-width: 1240px;
+  width: min(100%, 1360px);
   margin: 0 auto;
-  padding: 0 16px;
+  padding-inline: clamp(20px, 3.5vw, 48px);
 }
 
-@media (min-width: 640px) {
-  .life-bento-container {
-    padding: 0 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .life-bento-container {
-    padding: 0 32px;
-  }
-}
-
-/* Header Elements */
 .life-bento-header {
+  width: min(100%, 790px);
   text-align: center;
-  max-width: 680px;
-  margin: 0 auto clamp(24px, 4vw, 48px);
+  margin: 0 auto clamp(36px, 5vw, 58px);
 }
 
 .life-bento-kicker {
+  margin: 0 0 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  line-height: 1.5;
   text-transform: uppercase;
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  color: #7b1c1c;
-}
-
-:root[data-theme="dark"] .life-bento-kicker,
-body.dark-mode .life-bento-kicker,
-.dark .life-bento-kicker {
-  color: #c9a84c;
+  color: var(--bento-kicker);
 }
 
 .life-bento-title {
-  font-size: clamp(1.85rem, 5vw, 3.2rem);
+  margin: 0 0 20px;
+  font-family: "Google Sans Flex", "Geologica", sans-serif;
+  font-size: clamp(2rem, 4.2vw, 3.55rem);
   font-weight: 800;
-  color: #1a1a1a;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 0 0 12px 0;
-}
-
-:root[data-theme="dark"] .life-bento-title,
-body.dark-mode .life-bento-title,
-.dark .life-bento-title {
-  color: #ffffff;
+  letter-spacing: -0.035em;
+  line-height: 1.13;
+  text-wrap: balance;
+  color: var(--bento-heading);
 }
 
 .life-bento-subtitle {
-  font-size: clamp(0.85rem, 1.2vw, 0.98rem);
+  margin: 0 auto;
+  max-width: 720px;
+  color: var(--bento-text);
+  font-size: clamp(0.93rem, 1.18vw, 1.08rem);
   font-weight: 400;
-  color: #555861;
-  line-height: 1.6;
-  margin: 0;
+  line-height: 1.8;
+  text-wrap: pretty;
 }
 
-:root[data-theme="dark"] .life-bento-subtitle,
-body.dark-mode .life-bento-subtitle,
-.dark .life-bento-subtitle {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* ==========================================
-   3. BENTO GRID LAYOUTS
-   ========================================== */
+/* Grid: never apply homepage's named areas on a detail page. */
 .life-bento-grid {
   display: grid;
-  gap: clamp(16px, 2.5vw, 24px);
   width: 100%;
+  gap: clamp(18px, 2.1vw, 28px);
+  grid-auto-flow: row;
+  align-items: stretch;
 }
 
-@media (min-width: 901px) {
-  .life-bento-grid.full-bento-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(210px, auto));
-    grid-template-areas:
-      "about     about     sports"
-      "academic  leadership sports";
-  }
-
-  .life-bento-grid.detail-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .bento-area-about { grid-area: about; }
-  .bento-area-academic { grid-area: academic; }
-  .bento-area-leadership { grid-area: leadership; }
-  .bento-area-sports { grid-area: sports; }
+.life-bento-grid.detail-grid {
+  grid-template-areas: none;
 }
 
-@media (min-width: 641px) and (max-width: 900px) {
-  .life-bento-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.life-bento-grid.detail-grid > .bento-card {
+  grid-area: auto !important;
+  min-width: 0;
 }
 
-/* ==========================================
-   4. BENTO CARD DESIGN
-   ========================================== */
-.bento-card {
+/* Roomy landscape image cards. */
+.life-bento-section .bento-card {
   position: relative;
   isolation: isolate;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  border-radius: 20px;
-  padding: clamp(20px, 3vw, 28px);
+  min-width: 0;
+  min-height: 330px;
+  padding: clamp(25px, 2.45vw, 35px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
   overflow: hidden;
-  background: linear-gradient(135deg, #7b1c1c 0%, #5a1212 100%);
-  border: 1px solid rgba(0, 0, 0, 0.08);
   text-decoration: none;
-  min-height: 220px;
-  transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.35s ease;
+  background: linear-gradient(135deg, #7b1c1c, #4c1016);
+  box-shadow: 0 12px 30px rgba(24, 22, 22, 0.08);
+  transition: transform 280ms ease, box-shadow 280ms ease;
 }
 
-.bento-card.blue {
-  background: linear-gradient(135deg, #1a3a6b 0%, #0d2242 100%);
+.life-bento-section .bento-card.blue {
+  background: linear-gradient(135deg, #1a3a6b, #111f3d);
 }
 
-.bento-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
-}
-
-.bento-card > img,
-.bento-card-shade {
+.life-bento-section .bento-card > img,
+.life-bento-section .bento-card-shade {
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
 }
 
-.bento-card > img {
+.life-bento-section .bento-card > img {
   object-fit: cover;
-  opacity: 0.32;
-  transition:
-    transform 0.5s ease,
-    opacity 0.5s ease;
+  opacity: 0.55;
+  transition: transform 400ms ease;
 }
 
-.bento-card:hover > img {
-  transform: scale(1.05);
-  opacity: 0.42;
-}
-
-.bento-card-shade {
+.life-bento-section .bento-card-shade {
   background: linear-gradient(
-    0deg,
-    rgba(10, 5, 5, 0.92) 0%,
-    rgba(10, 5, 5, 0.3) 65%,
-    transparent 100%
+    180deg,
+    rgba(7, 8, 14, 0.04) 10%,
+    rgba(7, 8, 14, 0.35) 43%,
+    rgba(7, 8, 14, 0.93) 100%
   );
+  pointer-events: none;
 }
 
-.bento-card-content {
+.life-bento-section .bento-card-content {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 11px;
+  max-width: 100%;
+  padding-right: 2px;
   text-align: left;
-  padding-right: 36px;
 }
 
-.bento-card-tag {
-  font-size: clamp(0.62rem, 0.85vw, 0.72rem);
+.life-bento-section .bento-card-tag {
+  font-family: "Geologica", sans-serif;
+  color: #f1cd73 !important;
+  font-size: 0.73rem;
   font-weight: 700;
-  color: #c9a84c !important;
+  letter-spacing: 0.115em;
+  line-height: 1.55;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
-.bento-card-title {
-  font-family: 'Google Sans Flex', sans-serif !important;
-  font-size: clamp(1.2rem, 2vw, 1.7rem);
+.life-bento-section .bento-card-title {
+  margin: 0;
+  color: #fff !important;
+  font-family: "Google Sans Flex", "Geologica", sans-serif !important;
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
   font-weight: 800;
-  color: #ffffff !important;
-  line-height: 1.25;
-  margin: 0;
-  overflow-wrap: break-word;
+  line-height: 1.22;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
-.bento-card-desc {
-  font-size: clamp(0.8rem, 1vw, 0.88rem);
+.life-bento-section .bento-card-desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.91) !important;
+  font-family: "Geologica", sans-serif;
+  font-size: clamp(0.83rem, 1vw, 0.96rem);
+  line-height: 1.75;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.75) !important;
-  line-height: 1.5;
-  margin: 0;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
-.bento-card-arrow {
+.life-bento-section .bento-card-arrow {
   position: absolute;
-  right: clamp(16px, 2.5vw, 24px);
-  top: clamp(16px, 2.5vw, 24px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
   z-index: 2;
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.3s ease;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  transition: transform 250ms ease, background-color 250ms ease;
 }
 
-.bento-card-arrow svg {
-  width: 16px;
-  height: 16px;
+.life-bento-section .bento-card-arrow svg { width: 18px; height: 18px; }
+
+.life-bento-section .bento-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.16);
 }
 
-.bento-card:hover .bento-card-arrow {
+.life-bento-section .bento-card:hover > img { transform: scale(1.055); }
+.life-bento-section .bento-card:hover .bento-card-arrow,
+.life-bento-section .bento-card:focus-visible .bento-card-arrow {
   background: #c9a84c;
-  color: #111111;
+  color: #111;
   transform: translate(2px, -2px);
 }
 
-/* ==========================================
-   5. CLEAN MOBILE LAYOUT (< 640px)
-   ========================================== */
-@media (max-width: 640px) {
-  .life-bento-grid {
-    grid-template-columns: 1fr !important;
-    grid-template-areas: none !important;
-    gap: 16px !important;
-  }
+.life-bento-section .bento-card:focus-visible {
+  outline: 3px solid #c9a84c;
+  outline-offset: 5px;
+}
 
-  .bento-card {
-    min-height: 170px;
-    padding: 20px;
-    border-radius: 16px;
+/* Wide desktop: three comfortable columns on /life pages.
+   Homepage retains its distinct four-card bento arrangement. */
+@media (min-width: 1100px) {
+  .life-bento-grid.detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .life-bento-grid.full-bento-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(265px, auto));
+    grid-template-areas:
+      "about about sports"
+      "academic leadership sports";
+  }
+  .full-bento-grid .bento-area-about { grid-area: about; }
+  .full-bento-grid .bento-area-academic { grid-area: academic; }
+  .full-bento-grid .bento-area-leadership { grid-area: leadership; }
+  .full-bento-grid .bento-area-sports { grid-area: sports; }
+  .life-bento-grid.full-bento-grid .bento-card { min-height: 265px; }
+}
+
+/* Laptop/tablet: two columns without a narrow third card. */
+@media (min-width: 720px) and (max-width: 1099px) {
+  .life-bento-grid.detail-grid,
+  .life-bento-grid.full-bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: none;
+  }
+  .life-bento-grid.full-bento-grid > .bento-card { grid-area: auto; }
+}
+
+/* Phones: generously spaced vertical cards. */
+@media (max-width: 719px) {
+  .life-bento-section {
+    padding: 64px 0 78px;
+  }
+  .life-bento-container {
+    padding-inline: clamp(18px, 5.2vw, 26px);
+  }
+  .life-bento-header {
+    margin-bottom: 35px;
+  }
+  .life-bento-kicker {
+    margin-bottom: 12px;
+    font-size: 0.69rem;
+  }
+  .life-bento-title {
+    font-size: clamp(1.9rem, 7.2vw, 2.45rem);
+    line-height: 1.2;
+    margin-bottom: 18px;
+  }
+  .life-bento-subtitle {
+    font-size: 0.94rem;
+    line-height: 1.82;
+    max-width: 37ch;
+  }
+  .life-bento-grid,
+  .life-bento-grid.detail-grid,
+  .life-bento-grid.full-bento-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+    gap: 21px;
+  }
+  .life-bento-grid > .bento-card {
     grid-area: auto !important;
   }
-
-  .bento-card-content {
-    padding-right: 32px;
-    gap: 5px;
+  .life-bento-section .bento-card {
+    min-height: 275px;
+    border-radius: 22px;
+    padding: 26px 25px;
   }
-
-  .bento-card-tag {
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
+  .life-bento-section .bento-card-content {
+    gap: 10px;
+    padding-right: 0;
   }
+  .life-bento-section .bento-card-title { font-size: clamp(1.45rem, 5.4vw, 1.78rem); }
+  .life-bento-section .bento-card-desc { font-size: 0.89rem; line-height: 1.73; }
+  .life-bento-section .bento-card-tag { font-size: 0.66rem; line-height: 1.5; }
+  .life-bento-section .bento-card-arrow { top: 18px; right: 18px; width: 38px; height: 38px; }
+}
 
-  .bento-card-title {
-    font-size: 1.25rem;
-    line-height: 1.25;
-  }
+@media (max-width: 360px) {
+  .life-bento-section .bento-card { min-height: 294px; padding: 24px 21px; }
+  .life-bento-section .bento-card-content { gap: 9px; }
+  .life-bento-section .bento-card-tag { padding-right: 46px; }
+}
 
-  .bento-card-desc {
-    font-size: 0.82rem;
-    line-height: 1.45;
-  }
+/* Match common site dark-mode classes/attributes, not just data-theme. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-bento-section,
+.life-bento-section:is([data-theme="dark"], .dark, .dark-mode),
+.life-detail[data-theme="dark"] .life-bento-section {
+  --bento-heading: #f7f7f8;
+  --bento-text: #bfc5d0;
+  --bento-kicker: #d8b962;
+}
 
-  .bento-card-arrow {
-    width: 32px;
-    height: 32px;
-    right: 16px;
-    top: 16px;
-  }
-
-  .bento-card-arrow svg {
-    width: 14px;
-    height: 14px;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .life-bento-section .bento-card,
+  .life-bento-section .bento-card > img,
+  .life-bento-section .bento-card-arrow { transition: none; }
 }

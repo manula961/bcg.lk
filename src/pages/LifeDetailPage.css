@@ -497,7 +497,7 @@
 .content-listing-grid,
 .profile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(16px, 2.5vw, 24px);
   margin-top: clamp(20px, 3.5vw, 32px);
   width: 100%;
@@ -795,7 +795,12 @@
 
 /* Tablet Layout (<= 960px) */
 @media (max-width: 960px) {
-  .life-detail-grid {
+  .life-detail-grid,
+  .life-detail-society-grid,
+  .societies-grid,
+  .school-content-grid,
+  .content-listing-grid,
+  .profile-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -858,7 +863,6 @@
     aspect-ratio: 1 / 1;
     border-radius: 10px;
     margin-bottom: 8px;
-    /* padding: 6px; */
   }
 
   .life-detail-society-role,
@@ -952,4 +956,402 @@
   .life-content-group {
     transition: none !important;
   }
+}
+/* ================================================================
+   11. 2026 RESPONSIVE POLISH — page layout, spacing, readable cards
+   The existing styles above remain intact for compatibility.
+   ================================================================ */
+
+.life-detail {
+  --life-page-bg: #ffffff;
+  --life-page-text: #1a1c20;
+  --life-page-muted: #5c636c;
+  --life-card-surface: #ffffff;
+  --life-soft-surface: #faf8f4;
+  --life-card-border: rgba(28, 33, 39, 0.09);
+  background: var(--life-page-bg);
+  color: var(--life-page-text);
+}
+
+/* Bigger content width keeps 3-column cards comfortable on laptops. */
+.life-detail .section-container {
+  width: 100%;
+  max-width: 1340px;
+  padding-inline: clamp(20px, 3.4vw, 42px);
+}
+
+.life-detail .life-detail-top-wrapper {
+  padding-top: clamp(38px, 5.5vw, 70px);
+}
+
+.life-detail .life-detail-return {
+  margin-bottom: clamp(26px, 4vw, 46px);
+}
+
+.life-detail .life-detail-intro {
+  max-width: 950px;
+  padding: 12px 24px clamp(38px, 5vw, 64px);
+}
+
+.life-detail .life-detail-kicker {
+  margin: 0 0 14px;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  letter-spacing: 0.17em;
+}
+
+.life-detail .life-detail-intro h1 {
+  color: var(--life-page-text);
+  font-size: clamp(2.2rem, 5vw, 4.1rem);
+  line-height: 1.14;
+  margin: 0 0 22px;
+  text-wrap: balance;
+}
+
+.life-detail .life-detail-description {
+  color: var(--life-page-muted);
+  font-size: clamp(0.96rem, 1.22vw, 1.08rem);
+  font-weight: 400;
+  line-height: 1.83;
+}
+
+.life-detail .life-detail-feature {
+  min-height: clamp(330px, 35vw, 480px);
+  border-radius: 25px;
+  padding: clamp(28px, 4vw, 56px);
+  margin-bottom: clamp(28px, 4vw, 46px);
+}
+
+.life-detail .life-detail-feature-body { max-width: 760px; }
+.life-detail .life-detail-feature h2 {
+  font-size: clamp(1.65rem, 3.2vw, 2.85rem);
+  line-height: 1.24;
+  margin: 10px 0 15px;
+  text-wrap: balance;
+}
+.life-detail .life-detail-feature p {
+  font-size: clamp(0.92rem, 1.16vw, 1.04rem);
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+.life-detail .life-detail-highlights {
+  gap: clamp(15px, 2vw, 24px);
+  margin: 36px 0 clamp(55px, 6vw, 88px);
+}
+
+.life-detail .life-detail-highlight {
+  min-height: 135px;
+  padding: 24px 16px;
+  gap: 12px;
+  border-radius: 20px;
+  background: var(--life-soft-surface);
+  border-color: var(--life-card-border);
+}
+
+.life-detail .life-detail-highlight strong {
+  font-size: clamp(1.6rem, 3vw, 2.55rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.life-detail .life-detail-highlight span {
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
+  line-height: 1.6;
+  letter-spacing: 0.07em;
+}
+
+/* The bento section is already inside .section-container on detail pages. */
+.life-detail .life-bento-container {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.life-detail .life-bento-section {
+  padding-top: clamp(66px, 7vw, 100px);
+  padding-bottom: clamp(68px, 7vw, 108px);
+  margin-top: clamp(12px, 2vw, 24px);
+}
+
+.life-detail .life-detail-container {
+  padding-bottom: clamp(24px, 4vw, 56px);
+}
+
+/* Directory/society/profile cards: better whitespace and photo proportions. */
+.life-detail :is(
+  .life-detail-society-grid,
+  .societies-grid,
+  .school-content-grid,
+  .content-listing-grid,
+  .profile-grid
+) {
+  gap: clamp(18px, 2.2vw, 28px);
+  margin-top: clamp(26px, 3vw, 38px);
+}
+
+.life-detail :is(
+  .life-detail-society-card,
+  .society-card,
+  .school-content-card,
+  .content-card,
+  .profile-card
+) {
+  padding: clamp(20px, 2.2vw, 30px);
+  border-radius: 21px;
+  background: var(--life-card-surface);
+  border-color: var(--life-card-border);
+  height: auto;
+}
+
+.life-detail :is(
+  .life-detail-society-logo-wrap,
+  .society-logo-wrap,
+  .school-content-image-wrap,
+  .content-card-image-wrap
+) {
+  aspect-ratio: 1 / 1;
+  margin-bottom: 21px;
+  background: var(--life-soft-surface);
+}
+
+.life-detail :is(.life-detail-society-logo, .society-logo) {
+  object-fit: contain;
+  padding: 10px;
+}
+
+.life-detail :is(
+  .life-detail-society-title,
+  .society-title,
+  .school-content-title,
+  .content-card-title,
+  .profile-name
+) {
+  font-size: clamp(1.16rem, 1.6vw, 1.45rem);
+  line-height: 1.35;
+  margin-bottom: 11px;
+}
+
+.life-detail :is(
+  .life-detail-society-desc,
+  .society-desc,
+  .school-content-desc,
+  .content-card-desc,
+  .profile-bio
+) {
+  font-size: 0.94rem;
+  line-height: 1.78;
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+
+.life-detail .life-detail-society-link {
+  font-size: 0.79rem;
+  min-height: 42px;
+}
+
+.life-detail .house-showcase-section,
+.life-detail .life-detail-story { margin-top: clamp(48px, 6vw, 80px); }
+
+/* The site may toggle dark theme via data-theme or a class. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) {
+  --life-page-bg: #0b0e12;
+  --life-page-text: #f6f7f8;
+  --life-page-muted: #c1c7d0;
+  --life-card-surface: #181d25;
+  --life-soft-surface: #1c222b;
+  --life-card-border: rgba(255, 255, 255, 0.11);
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-intro h1, .life-detail-section-heading h2,
+      .life-detail-story-card h3, .life-detail-society-title,
+      .society-title, .school-content-title, .content-card-title, .profile-name
+    ),
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) :is(
+      .life-detail-intro h1, .life-detail-section-heading h2,
+      .life-detail-story-card h3, .life-detail-society-title,
+      .society-title, .school-content-title, .content-card-title, .profile-name
+    ) {
+  color: #f6f7f8 !important;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-highlight, .life-detail-story-card,
+      .life-detail-society-card, .society-card,
+      .school-content-card, .content-card, .profile-card
+    ) {
+  background: var(--life-card-surface);
+  border-color: var(--life-card-border);
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-highlight span, .life-detail-story-card p,
+      .life-detail-society-desc, .society-desc,
+      .school-content-desc, .content-card-desc, .profile-bio
+    ) { color: #c1c7d0 !important; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-kicker {
+  color: #d7b85c;
+}
+
+/* Tablet */
+@media (min-width: 720px) and (max-width: 1099px) {
+  .life-detail :is(
+    .life-detail-society-grid,
+    .societies-grid,
+    .school-content-grid,
+    .content-listing-grid,
+    .profile-grid
+  ) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Mobile: one clear column for directory cards and accessible-sized text. */
+@media (max-width: 719px) {
+  .life-detail .section-container { padding-inline: clamp(17px, 5vw, 24px); }
+  .life-detail .life-detail-top-wrapper { padding-top: 42px; }
+  .life-detail .life-detail-return { margin-bottom: 35px; }
+  .life-detail .life-detail-return-btn { font-size: 0.78rem; }
+
+  .life-detail .life-detail-intro {
+    padding: 0 23px 37px;
+  }
+  .life-detail .life-detail-intro h1 {
+    font-size: clamp(2.15rem, 8vw, 2.85rem);
+    line-height: 1.19;
+    margin: 0 0 20px;
+  }
+  .life-detail .life-detail-description {
+    font-size: 0.95rem;
+    line-height: 1.82;
+  }
+  .life-detail .life-detail-kicker {
+    font-size: 0.69rem;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .life-detail .life-detail-feature {
+    min-height: 320px;
+    border-radius: 21px;
+    padding: 26px 24px;
+    margin-bottom: 27px;
+  }
+  .life-detail .life-detail-feature h2 {
+    font-size: clamp(1.5rem, 6.4vw, 2.06rem);
+    line-height: 1.25;
+  }
+  .life-detail .life-detail-feature p {
+    font-size: 0.9rem;
+    line-height: 1.74;
+  }
+
+  /* One metric per row avoids the awkward 2+1 asymmetry. */
+  .life-detail .life-detail-highlights {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 13px;
+    margin: 30px 0 52px;
+  }
+  .life-detail .life-detail-highlight,
+  .life-detail .life-detail-highlight:nth-child(3):last-child {
+    grid-column: auto;
+    min-height: 106px;
+    padding: 22px 18px;
+    border-radius: 17px;
+    gap: 8px;
+  }
+  .life-detail .life-detail-highlight strong { font-size: 1.9rem; }
+  .life-detail .life-detail-highlight span { font-size: 0.72rem; }
+
+  .life-detail :is(
+    .life-detail-society-grid,
+    .societies-grid,
+    .school-content-grid,
+    .content-listing-grid,
+    .profile-grid
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .life-detail :is(
+    .life-detail-society-card,
+    .society-card,
+    .school-content-card,
+    .content-card,
+    .profile-card
+  ) { padding: 22px; border-radius: 18px; }
+
+  .life-detail :is(
+    .life-detail-society-logo-wrap,
+    .society-logo-wrap,
+    .school-content-image-wrap,
+    .content-card-image-wrap
+  ) {
+    aspect-ratio: 1 / 1;
+    margin-bottom: 20px;
+    border-radius: 14px;
+  }
+
+  .life-detail :is(
+    .life-detail-society-title,
+    .society-title,
+    .school-content-title,
+    .content-card-title,
+    .profile-name
+  ) { font-size: 1.22rem; line-height: 1.36; margin-bottom: 10px; }
+
+  .life-detail :is(
+    .life-detail-society-desc,
+    .society-desc,
+    .school-content-desc,
+    .content-card-desc,
+    .profile-bio
+  ) {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    margin-bottom: 18px;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+
+  .life-detail .life-detail-society-link { font-size: 0.78rem; min-height: 42px; }
+  .life-detail .life-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .life-detail .life-detail-card { min-height: 270px; }
+  .life-detail .life-bento-section { margin-top: 4px; padding: 66px 0 70px; }
+}
+
+@media (max-width: 360px) {
+  .life-detail .life-detail-intro { padding-inline: 9px; }
+  .life-detail .life-detail-feature { padding: 24px 20px; min-height: 340px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .life-detail .life-detail-highlight,
+  .life-detail .life-detail-feature,
+  .life-detail .life-detail-society-card { transition: none; }
+}
+
+/* Additional contrast safeguards for dark-mode metrics and navigation. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight strong {
+  color: #e8b975;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight:nth-child(even) strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight:nth-child(even) strong {
+  color: #9bc6fc;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-return-btn,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-return-btn {
+  color: #e0c575;
 }
