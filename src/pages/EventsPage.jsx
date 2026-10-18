@@ -12,6 +12,9 @@ export default function EventsPage() {
   const [hoveredEvent, setHoveredEvent] = useState(null);
   const tooltipRef = useRef(null);
   const rafId = useRef(null);
+  const modalRef = useRef(null);
+  const closeRef = useRef(null);
+  const priorFocusRef = useRef(null);
 
   // Mobile modal popup state
   const [activeMobileEvent, setActiveMobileEvent] = useState(null);
@@ -81,20 +84,42 @@ export default function EventsPage() {
     });
   };
 
-  const handleCellInteraction = (ev, e, isToday) => {
-    if (isToday) {
-      jumpToToday();
-    }
-    if (!ev) return;
-    const isMobile = window.innerWidth <= 640;
-    if (isMobile) {
-      e.stopPropagation();
-      setActiveMobileEvent(ev);
-    } else {
-      const slug = encodeURIComponent(ev.id);
-      window.location.href = `/events/${slug}`;
-    }
+  const openEvent = (event, trigger) => {
+    priorFocusRef.current = trigger;
+    setActiveMobileEvent(event);
   };
+
+  const closeEvent = () => setActiveMobileEvent(null);
+
+  useEffect(() => {
+    if (!activeMobileEvent) return undefined;
+    closeRef.current?.focus();
+    const onKeyDown = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeEvent();
+      }
+      if (event.key === 'Tab') {
+        const focusable = [...(modalRef.current?.querySelectorAll('button:not(:disabled), a[href]') || [])];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      priorFocusRef.current?.focus();
+    };
+  }, [activeMobileEvent]);
+
 
   return (
     <main className="events-page" onMouseMove={handleMouseMove}>
@@ -171,7 +196,6 @@ export default function EventsPage() {
                   <div
                     key={dayNumber}
                     className={`calendar-day-cell ${dayEvents.length > 0 ? 'has-events' : ''} ${isToday ? 'is-today' : ''}`}
-                    onClick={(e) => handleCellInteraction(primaryEvent, e, isToday)}
                     onMouseEnter={() => {
                       if (primaryEvent && window.innerWidth > 640) {
                         setHoveredEvent(primaryEvent);
@@ -190,11 +214,22 @@ export default function EventsPage() {
                         return (
                           <React.Fragment key={ev.id}>
                             {/* Desktop Pill View */}
-                            <div className={`calendar-event-pill ${isPassed ? 'passed' : ''}`}>
+                            <a
+                              className={`calendar-event-pill ${isPassed ? 'passed' : ''}`}
+                              href={`/events/${encodeURIComponent(ev.id)}`}
+                              aria-label={`View ${ev.title} on ${ev.eventDate}`}
+                              onFocus={() => setHoveredEvent(ev)}
+                              onBlur={() => setHoveredEvent(null)}
+                            >
                               {ev.title}
-                            </div>
-                            {/* Mobile Indicator Dot View */}
-                            <div className={`calendar-event-dot ${isPassed ? 'passed' : ''}`} />
+                            </a>
+                            {/* Mobile event button: independently reachable for every event. */}
+                            <button
+                              type="button"
+                              className={`calendar-event-dot ${isPassed ? 'passed' : ''}`}
+                              aria-label={`View ${ev.title} on ${ev.eventDate}`}
+                              onClick={(event) => openEvent(ev, event.currentTarget)}
+                            />
                           </React.Fragment>
                         );
                       })}
@@ -235,11 +270,20 @@ export default function EventsPage() {
 
       {/* Mobile Event Popup Modal with SVG Icons */}
       {activeMobileEvent && (
-        <div className="mobile-event-modal-overlay" onClick={() => setActiveMobileEvent(null)}>
-          <div className="mobile-event-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="mobile-event-modal-overlay" onMouseDown={event => {
+          if (event.target === event.currentTarget) closeEvent();
+        }}>
+          <div
+            className="mobile-event-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="event-modal-title"
+            ref={modalRef}
+          >
             <button
+              ref={closeRef}
               className="mobile-modal-close"
-              onClick={() => setActiveMobileEvent(null)}
+              onClick={closeEvent}
               aria-label="Close modal"
             >
               ✕
@@ -253,7 +297,7 @@ export default function EventsPage() {
               </svg>
               {activeMobileEvent.eventDate}
             </p>
-            <h3 className="mobile-modal-title">{activeMobileEvent.title}</h3>
+            <h3 id="event-modal-title" className="mobile-modal-title">{activeMobileEvent.title}</h3>
             <p className="mobile-modal-desc">{activeMobileEvent.description}</p>
             {activeMobileEvent.location && (
               <p className="mobile-modal-location">

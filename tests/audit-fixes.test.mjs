@@ -44,3 +44,18 @@ test('unknown routes and reduced motion are handled', () => {
   assert.match(hero, /prefers-reduced-motion: reduce/);
   assert.match(read('src/pages/NotFoundPage.jsx'), /Page not found/);
 });
+
+test('calendar exposes individual accessible events, keyboard modal and dialogs', () => {
+  const page = read('src/pages/EventsPage.jsx');
+  assert.match(page, /href=\{\`\/events\/\$\{encodeURIComponent\(ev.id\)\}\`\}/);
+  assert.match(page, /aria-label=\{\`View \$\{ev.title\}/);
+  assert.match(page, /role="dialog"/);
+  assert.match(page, /aria-modal="true"/);
+  assert.match(page, /event.key === 'Escape'/);
+});
+test('routes are split into asynchronous modules and share route data', () => {
+  const main = read('src/main.jsx');
+  assert.match(main, /lazy\(\(\) => import\('\.\/admin\/AdminApp\.jsx'\)\)/);
+  assert.match(main, /<Suspense fallback=/);
+  assert.match(main, /pages\/lifePageData\.js/);
+});

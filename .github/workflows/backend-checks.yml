@@ -1,7 +1,7 @@
 name: Backend checks
 on:
   push:
-    branches: [backend-updates]
+    branches: [main, backend-updates]
   pull_request:
     branches: [main, backend-updates]
 permissions:
@@ -25,6 +25,8 @@ jobs:
       - run: npm ci
       - run: npm run test
       - run: npm run build
+      - name: Check route entry size
+        run: node scripts/check-bundle-budget.mjs
   firebase-emulator:
     runs-on: ubuntu-latest
     timeout-minutes: 20

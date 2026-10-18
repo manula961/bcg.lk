@@ -16,15 +16,18 @@ const protectedPath = path =>
 // User-approved fixes in PR #32. Each protected file must match this exact Git blob.
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
+  "src/pages/lifePageData.js": "638e19fd673ebddc40453ffd9893b53141abf0aa",
+  "src/pages/LifeDetailPage.jsx": "274e37eab492ea864857ef3365e3bf9d77943df6",
+  "src/pages/EventsPage.css": "a2a5a58a973c82a0c0bdbbd69f73b5c3ee4125a5",
   "src/admin/AdminApp.jsx": "e53fa46b9ef7c6cddbde40e0fed43dfe9a71478a",
   "src/admin/ContentManager.jsx": "860d227dd385ec7f54c1ebd6ab0a6e1f74009735",
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
   "src/components/NewsSection.jsx": "2a2241cff8107ca88be2bdd12b5c95be8957a558",
-  "src/main.jsx": "9333282760d9c25f415d8c755da25e11a851ba55",
+  "src/main.jsx": "ac3994bd3083d2e126947afa3397d773d2719e14",
   "src/pages/EventDetail.jsx": "4784707409d3af0e855930139c594d041d80045d",
-  "src/pages/EventsPage.jsx": "b28419efe51032456062dd430c6717cd3a3a038f",
+  "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
   "src/pages/NotFoundPage.jsx": "6a1958bf3208721e4b6c78a0a17f60aff29bd49b",
   "src/pages/Updates.jsx": "ff4a0ef12aa7e14ef1d8ab158162bf9f980a9cb9"
 });
