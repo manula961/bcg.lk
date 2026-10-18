@@ -125,6 +125,7 @@ try {
   await page.getByRole('button', { name: 'Edit', exact: true }).click();
   const otherContext = await browser.newContext({ viewport: { width: 1200, height: 820 } });
   const otherPage = await otherContext.newPage();
+  otherPage.on('dialog', dialog => dialog.accept());
   await otherPage.goto(base + '/admin');
   await otherPage.getByLabel('Email Address').fill(email);
   await otherPage.getByLabel('Password').fill(password);
