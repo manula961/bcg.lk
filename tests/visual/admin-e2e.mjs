@@ -4,25 +4,21 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 
-const staging = process.env.BCG_STAGING_MODE === 'true';
-const project = staging ? process.env.VITE_FIREBASE_PROJECT_ID : 'demo-bcg-e2e';
-if (staging) {
-  if (!project || !process.env.BCG_PRODUCTION_PROJECT_ID ||
-      project === process.env.BCG_PRODUCTION_PROJECT_ID ||
-      project.startsWith('demo-')) {
-    throw new Error('Staging requires a separate, non-demo Firebase project that differs from production.');
-  }
-} else if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_HOST) {
-  throw new Error('Do not run this test against real Firebase without BCG_STAGING_MODE.');
+// End-to-end writes must stay inside disposable local Firebase emulators.
+if (process.env.BCG_STAGING_MODE === 'true' ||
+    process.env.VITE_USE_FIREBASE_EMULATORS === 'false') {
+  throw new Error('Cloud Firebase E2E mode is disabled. Use local Firebase emulators.');
 }
-
-const email = staging ? process.env.BCG_STAGING_ADMIN_EMAIL : 'automation-admin@example.test';
-const password = staging ? process.env.BCG_STAGING_ADMIN_PASSWORD : 'test-only-passphrase-123';
-if (!email || !password) throw new Error('Dedicated staging administrator credentials are required.');
+for (const key of ['FIRESTORE_EMULATOR_HOST', 'FIREBASE_AUTH_EMULATOR_HOST', 'FIREBASE_STORAGE_EMULATOR_HOST']) {
+  if (!process.env[key]) throw new Error(key + ' is required for isolated admin E2E.');
+}
+const project = 'demo-bcg-e2e';
+const email = 'automation-admin@example.test';
+const password = 'test-only-passphrase-123';
 const uidPrefix = 'audit-' + Date.now().toString(36);
 const newsTitle = uidPrefix + ' CMS test';
 const base = 'http://127.0.0.1:4175';
-const env = staging ? { ...process.env, VITE_USE_FIREBASE_EMULATORS: 'false' } : {
+const env = {
   ...process.env,
   VITE_FIREBASE_API_KEY: 'fake-web-api-key',
   VITE_FIREBASE_AUTH_DOMAIN: 'demo-bcg-e2e.firebaseapp.com',
@@ -39,8 +35,7 @@ async function json(url, options) {
   if (!res.ok) throw new Error('Emulator fixture setup failed: ' + res.status + ': ' + JSON.stringify(body));
   return body;
 }
-if (!staging) {
-  const identity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-web-api-key', {
+const identity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-web-api-key', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, returnSecureToken: true }),
   });
@@ -62,7 +57,6 @@ if (!staging) {
       } }),
     });
   }
-}
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '4175', '--strictPort'], {
   env, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32',
 });
@@ -96,7 +90,7 @@ try {
   await page.getByLabel('Password').fill(password);
   await page.getByRole('button', { name: 'Sign In' }).click();
   await page.getByRole('heading', { name: 'News', exact: true }).waitFor({ timeout: 20000 });
-  if (!staging) {
+  {
     const calendar = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await calendar.goto(base + '/events');
     const today = new Date().toISOString().slice(0, 10);
