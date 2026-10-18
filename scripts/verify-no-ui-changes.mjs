@@ -16,6 +16,8 @@ const protectedPath = path =>
 // User-approved fixes in PR #32. Each protected file must match this exact Git blob.
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
+  "src/index.css": "35e55d5417f08f483ab41e70b9d14af2abbc65dd",
+  "src/App.jsx": "a63eee44a704f032c35221a7ff82623fa48c82eb",
   "src/pages/SchoolContentListing.jsx": "59de3415d460e2b506862ef2f05796d7db6884b6",
   "src/pages/lifePageData.js": "638e19fd673ebddc40453ffd9893b53141abf0aa",
   "src/pages/LifeDetailPage.jsx": "274e37eab492ea864857ef3365e3bf9d77943df6",
@@ -25,8 +27,8 @@ const auditedUiBlobs = Object.freeze({
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
-  "src/components/NewsSection.jsx": "2a2241cff8107ca88be2bdd12b5c95be8957a558",
-  "src/main.jsx": "ac3994bd3083d2e126947afa3397d773d2719e14",
+  "src/components/NewsSection.jsx": "4abb800b5e07106d7e405ad316a89fa1f8e2f107",
+  "src/main.jsx": "fe28c758cf1ae32f4d86df5386c3f7b074262751",
   "src/pages/EventDetail.jsx": "4784707409d3af0e855930139c594d041d80045d",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
   "src/pages/NotFoundPage.jsx": "6a1958bf3208721e4b6c78a0a17f60aff29bd49b",

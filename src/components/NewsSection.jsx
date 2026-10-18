@@ -148,14 +148,11 @@ const NewsSection = () => {
     setIsDragging(false);
   };
 
-  const handleCardClick = (post, e) => {
-    if (hasDragged) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
+  const handleCardClick = (event) => {
+    if (hasDragged || isMouseDown.current) {
+      event.preventDefault();
+      event.stopPropagation();
     }
-    const slug = encodeURIComponent(post.id);
-    window.location.href = `/updates/${slug}`;
   };
 
   const dotsList = filtered.length > 0 ? filtered : [null];
@@ -222,19 +219,13 @@ const NewsSection = () => {
             onMouseMove={handleMouseMove}
           >
             {filtered.map((post) => (
-              <div
+              <a
                 key={post.id}
                 className="news-card"
-                tabIndex={0}
-                role="article"
+                href={`/updates/${encodeURIComponent(post.id)}`}
                 aria-label={`Read ${post.title}`}
-                onClick={(e) => handleCardClick(post, e)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleCardClick(post, e);
-                  }
-                }}
+                style={{ color: 'inherit', textDecoration: 'none' }}
+                onClick={handleCardClick}
               >
                 {post.image ? (
                   <div
@@ -274,7 +265,7 @@ const NewsSection = () => {
                     </svg>
                   </span>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
 

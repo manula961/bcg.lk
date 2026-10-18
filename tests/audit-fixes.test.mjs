@@ -70,3 +70,13 @@ test('admin form fields have explicit labels and content ordering checks revisio
   assert.match(repository, /transaction\.get\(ref\)/);
   assert.match(repository, /assertCurrentRevision\(snapshot, expectedUpdatedAtById\[orderedIds\[index\]\]\)/);
 });
+
+test('news cards use semantic links and both scrolling layers respect reduced-motion', () => {
+  const news = read('src/components/NewsSection.jsx');
+  const main = read('src/main.jsx');
+  const home = read('src/App.jsx');
+  assert.match(news, /href=\{\`\/updates\/\$\{encodeURIComponent\(post\.id\)\}\`\}/);
+  assert.doesNotMatch(news, /role="article"/);
+  assert.match(main, /prefers-reduced-motion: reduce/);
+  assert.match(home, /prefers-reduced-motion: reduce/);
+});
