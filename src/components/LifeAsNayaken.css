@@ -114,7 +114,7 @@
 
 .life-bento-section .bento-card > img {
   object-fit: cover;
-  opacity: 0.55;
+  opacity: 0.25;
   transition: transform 400ms ease;
 }
 

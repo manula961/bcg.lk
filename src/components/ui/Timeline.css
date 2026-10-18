@@ -76,8 +76,12 @@
 
 .timeline-track-progress {
   width: 100%;
-  background: linear-gradient(180deg, #83292e, #c9a84c 75%, #193d69);
-  transition: height 180ms linear;
+  height: 100%;
+  transform: scaleY(0);
+  transform-origin: center top;
+  background: linear-gradient(180deg, #83292e 0%, #c9a84c 52%, #193d69 100%);
+  transition: transform 140ms linear;
+  will-change: transform;
 }
 
 .timeline-list {

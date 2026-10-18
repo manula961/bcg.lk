@@ -18,15 +18,26 @@ const collegeLinks = [
 // Add confirmed profile URLs below when available. Icons without URLs are decorative,
 // not dead links. Replace null with a verified URL to activate an icon.
 const socials = [
-  { name: "Facebook", url: "https://www.facebook.com/bc.gampaha", icon: "facebook" },
-  { name: "Instagram", url: "https://www.instagram.com/bc.gampaha", icon: "instagram" },
+  {
+    name: "Facebook",
+    url: "https://web.facebook.com/bandaranayakecollege/",
+    icon: "facebook",
+  },
+  {
+    name: "Instagram",
+    url: "https://www.instagram.com/bandaranayake_college/",
+    icon: "instagram",
+  },
   {
     name: "LinkedIn",
     url: "https://www.linkedin.com/school/bc-gampaha/",
     icon: "linkedin",
   },
-  { name: "YouTube", url: "https://www.youtube.com/@bc.gampaha", icon: "youtube" },
-  { name: "TikTok", url: "https://www.tiktok.com/@bc.gampaha", icon: "tiktok" },
+  {
+    name: "YouTube",
+    url: "https://www.youtube.com/@bandaranayakecollege",
+    icon: "youtube",
+  }
 ];
 const paths = {
   facebook: (

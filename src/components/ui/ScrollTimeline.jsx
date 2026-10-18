@@ -7,7 +7,9 @@ import React, { useEffect, useRef, useState } from 'react';
  */
 export default function ScrollTimeline({ milestones = [] }) {
   const listRef = useRef(null);
+  const trackRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const [reachedCount, setReachedCount] = useState(0);
 
   useEffect(() => {
     let frame = 0;
@@ -18,9 +20,21 @@ export default function ScrollTimeline({ milestones = [] }) {
 
       const rect = listRef.current.getBoundingClientRect();
       const viewportPoint = window.innerHeight * 0.66;
-      const distance = Math.max(rect.height, 1);
-      const amount = (viewportPoint - rect.top) / distance;
-      setProgress(Math.min(1, Math.max(0, amount)));
+      const track = trackRef.current;
+      if (!track) return;
+      const trackRect = track.getBoundingClientRect();
+      const distance = Math.max(trackRect.height, 1);
+      const amount = (viewportPoint - trackRect.top) / distance;
+      const nodes = listRef.current.querySelectorAll('.timeline-node');
+      let count = 0;
+      nodes.forEach((node) => {
+        if (node.getBoundingClientRect().top + node.offsetHeight / 2 <= viewportPoint) count++;
+      });
+      setReachedCount((previous) => previous === count ? previous : count);
+      setProgress((previous) => {
+        const next = Math.min(1, Math.max(0, amount));
+        return Math.abs(previous - next) > 0.001 ? next : previous;
+      });
     };
 
     const scheduleUpdate = () => {
@@ -30,11 +44,16 @@ export default function ScrollTimeline({ milestones = [] }) {
     scheduleUpdate();
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('resize', scheduleUpdate);
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(scheduleUpdate)
+      : null;
+    if (listRef.current) resizeObserver?.observe(listRef.current);
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('resize', scheduleUpdate);
+      resizeObserver?.disconnect();
     };
   }, [milestones.length]);
 
@@ -42,17 +61,16 @@ export default function ScrollTimeline({ milestones = [] }) {
 
   return (
     <div className="timeline-container" ref={listRef}>
-      <div className="timeline-track" aria-hidden="true">
+      <div className="timeline-track" ref={trackRef} aria-hidden="true">
         <div
           className="timeline-track-progress"
-          style={{ height: `${progress * 100}%` }}
+          style={{ transform: `scaleY(${progress})` }}
         />
       </div>
 
       <ol className="timeline-list">
         {milestones.map((milestone, index) => {
-          const reached =
-            progress >= index / Math.max(milestones.length - 1, 1);
+          const reached = index < reachedCount;
 
           return (
             <li
