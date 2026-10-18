@@ -13,9 +13,29 @@ const protectedPath = path =>
   /^public\//.test(path) ||
   /\.(?:css|scss|svg|png|jpe?g|webp|woff2?)$/i.test(path);
 
+// User-approved fixes in PR #32. Each protected file must match this exact Git blob.
+// Unlisted frontend edits remain prohibited. Changes require explicit re-review.
+const auditedUiBlobs = Object.freeze({
+  "src/admin/AdminApp.jsx": "e53fa46b9ef7c6cddbde40e0fed43dfe9a71478a",
+  "src/admin/ContentManager.jsx": "860d227dd385ec7f54c1ebd6ab0a6e1f74009735",
+  "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
+  "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
+  "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
+  "src/components/NewsSection.jsx": "2a2241cff8107ca88be2bdd12b5c95be8957a558",
+  "src/main.jsx": "9333282760d9c25f415d8c755da25e11a851ba55",
+  "src/pages/EventDetail.jsx": "4784707409d3af0e855930139c594d041d80045d",
+  "src/pages/EventsPage.jsx": "b28419efe51032456062dd430c6717cd3a3a038f",
+  "src/pages/NotFoundPage.jsx": "e0a75db48b1bfe4789424b50e26793dd04a28458",
+  "src/pages/Updates.jsx": "ff4a0ef12aa7e14ef1d8ab158162bf9f980a9cb9"
+});
 const approvedRouteFile = 'src/main.jsx';
 const violations = [];
 for (const path of changed.filter(protectedPath)) {
+  if (Object.prototype.hasOwnProperty.call(auditedUiBlobs, path)) {
+    if (git('rev-parse', 'HEAD:' + path) !== auditedUiBlobs[path])
+      violations.push(path + ' (differs from explicitly audited UI blob)');
+    continue;
+  }
   if (path === approvedRouteFile) {
     // Route-only edits are allowed when existing imports/components and routing
     // branches are preserved. Any other change needs explicit review.
