@@ -8,6 +8,7 @@ import PublishedContentPage from './pages/PublishedContentPage.jsx';
 import Updates from './pages/Updates.jsx';
 import EventDetail from './pages/EventDetail.jsx';
 import EventsPage from './pages/EventsPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 import './index.css';
 
 function Root() {
@@ -37,7 +38,8 @@ function Root() {
   if (updatesSlug) return <Updates titleSlug={updatesSlug} />;
   if (lifeSlug) return <LifeDetailPage slug={lifeSlug} />;
   if (pageSlug) return <PublishedContentPage slug={pageSlug} />;
-  return <App />;
+  if (pathname === '/' || pathname === '/index.html') return <App />;
+  return <NotFoundPage />;
 }
 
 if (window.location.pathname !== '/admin' && window.location.pathname !== '/admin/') {

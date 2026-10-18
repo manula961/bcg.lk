@@ -136,3 +136,21 @@ test('auditor has read-only draft visibility without publication or role managem
   await assertFails(updateDoc(doc(auditor.firestore(), 'news/draft-news'), { published: true }));
   await assertFails(setDoc(doc(auditor.firestore(), 'admins/security-auditor'), { role: 'admin' }));
 });
+
+
+test('Firestore validates slug, HTTPS media URLs, event dates, colors and allowed enums', async () => {
+  const db = admin.firestore();
+  await assertFails(setDoc(doc(db, 'pages/bad-slug'), { title: 'Bad slug', slug: 'Not Allowed!', published: false }));
+  await assertFails(setDoc(doc(db, 'pages/bad-url'), { title: 'Bad URL', imageUrl: 'javascript:alert(1)', published: false }));
+  await assertFails(setDoc(doc(db, 'news/bad-category'), { title: 'Bad category', category: 'Injected', published: false }));
+  await assertFails(setDoc(doc(db, 'news/bad-image'), { title: 'Bad image', imageUrl: 'http://example.com/image.png', published: false }));
+  await assertFails(setDoc(doc(db, 'societies/bad-website'), { title: 'Bad site', websiteUrl: 'http://example.org', published: false }));
+  await assertFails(setDoc(doc(db, 'events/bad-date'), { title: 'Invalid date', eventDate: '2026-15-40', published: false }));
+  await assertFails(setDoc(doc(db, 'events/bad-color'), { title: 'Invalid color', color: 'red', published: false }));
+  await assertFails(setDoc(doc(db, 'leadership/bad-role'), { title: 'Invalid role', role: 'Administrator Supreme', published: false }));
+  await assertSucceeds(setDoc(doc(db, 'pages/valid-slug'), { title: 'Valid', slug: 'valid-slug', published: false }));
+  await assertSucceeds(setDoc(doc(db, 'events/valid-date'), { title: 'Valid event', eventDate: '2026-10-18', color: '#7B1C1C', published: false }));
+  await assertFails(updateDoc(doc(db, 'events/valid-date'), { eventDate: '2026-02-40' }));
+  await assertSucceeds(deleteDoc(doc(db, 'pages/valid-slug')));
+  await assertSucceeds(deleteDoc(doc(db, 'events/valid-date')));
+});

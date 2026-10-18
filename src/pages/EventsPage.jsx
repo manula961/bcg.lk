@@ -91,9 +91,7 @@ export default function EventsPage() {
       e.stopPropagation();
       setActiveMobileEvent(ev);
     } else {
-      const slug = encodeURIComponent(
-        (ev.title || '').toLowerCase().trim().replace(/\s+/g, '-')
-      );
+      const slug = encodeURIComponent(ev.id);
       window.location.href = `/events/${slug}`;
     }
   };
@@ -267,9 +265,7 @@ export default function EventsPage() {
               </p>
             )}
             <a
-              href={`/events/${encodeURIComponent(
-                (activeMobileEvent.title || '').toLowerCase().trim().replace(/\s+/g, '-')
-              )}`}
+              href={`/events/${encodeURIComponent(activeMobileEvent.id)}`}
               className="mobile-modal-btn"
             >
               VIEW EVENT

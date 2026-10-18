@@ -19,7 +19,7 @@ export default function Updates({ titleSlug }) {
               .trim()
               .replace(/\s+/g, '-')
           );
-          return slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
+          return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
         });
         setArticle(match || null);
         setLoading(false);

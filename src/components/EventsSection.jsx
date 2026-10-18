@@ -61,12 +61,7 @@ const EventsSection = () => {
   }, []);
 
   const handleEventClick = (eventItem) => {
-    const slug = encodeURIComponent(
-      (eventItem.title || "")
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "-")
-    );
+    const slug = encodeURIComponent(eventItem.id);
     window.location.href = `/events/${slug}`;
   };
 

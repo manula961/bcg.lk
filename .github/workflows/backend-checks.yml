@@ -17,6 +17,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Check UI guard JavaScript syntax
+        run: node --check scripts/verify-no-ui-changes.mjs
       - name: Confirm no UI files changed
         if: github.event_name == 'pull_request'
         run: node scripts/verify-no-ui-changes.mjs

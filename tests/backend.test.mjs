@@ -60,3 +60,11 @@ test('source files must not contain unresolved Git conflict markers', async () =
   visit(root);
   assert.deepEqual(conflicts, [], 'Unresolved merge markers detected in: ' + conflicts.join(', '));
 });
+
+
+test('Firestore validates important content formats beyond text lengths', () => {
+  const rules = read('firestore.rules');
+  for (const policy of ['validHttpsUrl', 'validSlug', 'validEventDate', 'validHexColor', 'validNewsCategory', 'validLeaderRole']) {
+    assert.ok(rules.includes('function ' + policy + '('), 'Missing validation: ' + policy);
+  }
+});
