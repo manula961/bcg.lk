@@ -33,12 +33,27 @@ for (const path of changed.filter(protectedPath)) {
     if (after !== expected) violations.push(path + ' (admin theme import only)');
   } else if (path === 'src/admin/AdminFrontendTheme.css') {
     const css = git('show', 'HEAD:' + path);
+    // Ignore CSS comments and @media wrappers; every actual rule must
+    // target an admin root. This keeps Rule #1 protection for public UI.
+    const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+    let pending = '';
+    let invalid = false;
+    for (const part of withoutComments.split(/([{}])/)) {
+      if (part === '{') {
+        const selector = pending.trim();
+        if (!selector.startsWith('@') &&
+            !selector.split(',').every(item => /\.admin-(?:body|center-screen)(?:[.\s:#\[]|$)/.test(item.trim())))
+          invalid = true;
+        pending = '';
+      } else if (part === '}') {
+        pending = '';
+      } else {
+        pending += part;
+      }
+    }
     if (!css.includes('.admin-body') || !css.includes('.admin-center-screen') ||
-        /@import|url\s*\(|:root|!important/.test(css) ||
-        css.split('{').slice(0,-1).some((chunk, i) => {
-          const selector = chunk.split('}').pop().trim();
-          return !selector.startsWith('@') && !selector.split(',').every(s => /\.admin-(?:body|center-screen)/.test(s));
-        })) violations.push(path + ' (unscoped admin theme)');
+        /@import|url\s*\(|:root|!important/.test(withoutComments) || invalid)
+      violations.push(path + ' (unscoped admin theme)');
   } else {
     violations.push(path);
   }
