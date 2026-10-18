@@ -56,7 +56,7 @@ export default function AdminApp() {
         message:
           error?.code === 'permission-denied'
             ? 'Firestore denied access to your admin record. Check the deployed Firestore rules.'
-            : error?.message || 'Could not verify administrator access.',
+            : 'Could not verify administrator access. Check your connection and try again.',
       });
     } finally {
       clearTimeout(timeout);
@@ -68,7 +68,7 @@ export default function AdminApp() {
     mounted.current = true;
     const unsubscribe = onAuthStateChanged(auth, verifyAdmin, (error) => {
       if (mounted.current)
-        setSession({ status: 'error', user: null, message: error?.message || 'Unable to restore your session.' });
+        setSession({ status: 'error', user: null, message: 'Unable to restore your session. Please sign in again.' });
     });
     return () => {
       mounted.current = false;

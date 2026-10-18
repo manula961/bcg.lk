@@ -21,6 +21,17 @@ const HeroSection = () => {
       { el: scrollRef.current, delay: 1400 },
     ];
 
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      elements.forEach(({ el }) => {
+        if (el) {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+          el.style.transition = 'none';
+        }
+      });
+      return undefined;
+    }
+
     elements.forEach(({ el, delay }) => {
       if (!el) return;
       el.style.opacity = '0';

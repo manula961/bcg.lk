@@ -12,6 +12,12 @@ service cloud.firestore {
     function optionalString(data, key, max) {
       return !(key in data) || (data[key] is string && data[key].size() <= max);
     }
+    // The CMS requires real, nonempty content, even when a direct SDK is used.
+    function requiredString(data, key, max) {
+      return key in data && data[key] is string &&
+        data[key].size() > 0 && data[key].size() <= max &&
+        data[key].matches('(?s).*\\S.*');
+    }
     function optionalBool(data, key) {
       return !(key in data) || data[key] is bool;
     }
@@ -21,11 +27,37 @@ service cloud.firestore {
     function optionalTimestamp(data, key) {
       return !(key in data) || data[key] == null || data[key] is timestamp;
     }
+    // Enforce content data formats even for direct Firestore SDK requests.
+    // Calendar date validity is additionally checked by the CMS client.
+    function validHttpsUrl(data, key) {
+      return !(key in data) || data[key] == '' ||
+        (data[key] is string && data[key].matches('^https://[^@ ]+$'));
+    }
+    function validSlug(data) {
+      return !('slug' in data) ||
+        (data.slug is string && data.slug.matches('^[a-z0-9]+(-[a-z0-9]+)*$'));
+    }
+    function validEventDate(data) {
+      return !('eventDate' in data) ||
+        (data.eventDate is string &&
+         data.eventDate.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$'));
+    }
+    function validHexColor(data) {
+      return !('color' in data) ||
+        (data.color is string && data.color.matches('^#[0-9a-fA-F]{6}$'));
+    }
+    function validNewsCategory(data) {
+      return !('category' in data) || data.category in ['News', 'Announcements'];
+    }
+    function validLeaderRole(data) {
+      return !('role' in data) ||
+        data.role in ['Principal', 'Deputy Principal', 'Assistant Principal', 'Sectional Head', 'Other Senior Staff'];
+    }
     function validCommon(data) {
-      return optionalString(data, 'title', 180)
-        && optionalBool(data, 'published')
+      return requiredString(data, 'title', 180)
+        && ('published' in data) && data.published is bool
         && optionalNumber(data, 'rank')
-        && optionalString(data, 'imageUrl', 2048)
+        && optionalString(data, 'imageUrl', 2048) && validHttpsUrl(data, 'imageUrl')
         && optionalTimestamp(data, 'createdAt')
         && optionalTimestamp(data, 'updatedAt')
         && optionalTimestamp(data, 'publishedAt')
@@ -44,35 +76,36 @@ service cloud.firestore {
         && (!('updatedBy' in request.resource.data) ||
         request.resource.data.updatedBy == request.auth.uid);
     }
-    function validRecord(data, collectionName) {
+    function validRecord(data, collectionName, id) {
       return validCommon(data) &&
         (
           (collectionName == 'news' &&
             data.keys().hasOnly(['title','excerpt','body','category','tag','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'excerpt',500) && optionalString(data,'body',30000) &&
-            optionalString(data,'category',32) && optionalString(data,'tag',80))
+            requiredString(data,'excerpt',500) && optionalString(data,'body',30000) &&
+            optionalString(data,'category',32) && validNewsCategory(data) && optionalString(data,'tag',80))
           || (collectionName == 'events' &&
             data.keys().hasOnly(['title','description','eventDate','location','color','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'description',3000) && optionalString(data,'eventDate',10) &&
-            optionalString(data,'location',200) && optionalString(data,'color',7))
+            requiredString(data,'description',3000) && requiredString(data,'eventDate',10) &&
+            requiredString(data,'location',200) && optionalString(data,'color',7) &&
+            validEventDate(data) && validHexColor(data))
           || (collectionName == 'pages' &&
             data.keys().hasOnly(['slug','title','body','seoDescription','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'slug',120) && optionalString(data,'body',50000) &&
-            optionalString(data,'seoDescription',320))
+            requiredString(data,'slug',120) && data.slug == id && requiredString(data,'body',50000) &&
+            optionalString(data,'seoDescription',320) && validSlug(data))
           || (collectionName == 'societies' &&
             data.keys().hasOnly(['title','description','category','imageUrl','websiteUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'description',1200) && optionalString(data,'category',80) &&
-            optionalString(data,'websiteUrl',2048))
+            requiredString(data,'description',1200) && optionalString(data,'category',80) &&
+            optionalString(data,'websiteUrl',2048) && validHttpsUrl(data,'websiteUrl'))
           || (collectionName == 'sports' &&
             data.keys().hasOnly(['title','description','category','achievements','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'description',3000) && optionalString(data,'category',80) &&
+            requiredString(data,'description',3000) && optionalString(data,'category',80) &&
             optionalString(data,'achievements',2000))
           || (collectionName == 'extracurricular' &&
             data.keys().hasOnly(['title','description','category','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'description',3000) && optionalString(data,'category',80))
+            requiredString(data,'description',3000) && optionalString(data,'category',80))
           || (collectionName == 'leadership' &&
             data.keys().hasOnly(['title','description','role','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            optionalString(data,'description',1200) && optionalString(data,'role',80))
+            optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
         );
     }
     match /admins/{uid} {
@@ -83,10 +116,10 @@ service cloud.firestore {
       allow get, list: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
         && (canReview() || resource.data.published == true);
       allow create: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
-        && isAdmin() && validRecord(request.resource.data, collectionName)
+        && isAdmin() && validRecord(request.resource.data, collectionName, id)
         && validOwnership(request.resource.data);
       allow update: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
-        && isAdmin() && validRecord(request.resource.data, collectionName)
+        && isAdmin() && validRecord(request.resource.data, collectionName, id)
         && validUpdateOwnership();
       allow delete: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
         && isAdmin();

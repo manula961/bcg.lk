@@ -1,7 +1,7 @@
 name: Backend checks
 on:
   push:
-    branches: [backend-updates]
+    branches: [main, backend-updates]
   pull_request:
     branches: [main, backend-updates]
 permissions:
@@ -17,12 +17,16 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Check UI guard JavaScript syntax
+        run: node --check scripts/verify-no-ui-changes.mjs
       - name: Confirm no UI files changed
         if: github.event_name == 'pull_request'
         run: node scripts/verify-no-ui-changes.mjs
       - run: npm ci
       - run: npm run test
       - run: npm run build
+      - name: Check route entry size
+        run: node scripts/check-bundle-budget.mjs
   firebase-emulator:
     runs-on: ubuntu-latest
     timeout-minutes: 20

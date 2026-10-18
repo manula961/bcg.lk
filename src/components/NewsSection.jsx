@@ -154,12 +154,7 @@ const NewsSection = () => {
       e.stopPropagation();
       return;
     }
-    const slug = encodeURIComponent(
-      (post.title || "")
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, "-")
-    );
+    const slug = encodeURIComponent(post.id);
     window.location.href = `/updates/${slug}`;
   };
 

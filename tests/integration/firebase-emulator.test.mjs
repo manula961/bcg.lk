@@ -7,6 +7,16 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes, deleteObject } from 'firebase/storage';
 
+const sample = {
+  news: { title: 'New', excerpt: 'Summary', category: 'News', published: false },
+  events: { title: 'New', description: 'Event details', eventDate: '2026-10-18', location: 'Main Hall', published: false },
+  pages: { title: 'New', slug: 'integration-pages', body: 'Page body', published: false },
+  societies: { title: 'New', description: 'Society details', published: false },
+  sports: { title: 'New', description: 'Sport details', published: false },
+  extracurricular: { title: 'New', description: 'Activity details', published: false },
+  leadership: { title: 'New', role: 'Principal', published: false },
+};
+
 let environment;
 let admin, editor, visitor;
 
@@ -72,7 +82,7 @@ test('non-admin writes fail; administrator can create, edit, publish, unpublish,
     const record = doc(admin.firestore(), name, id);
     await assertFails(setDoc(doc(visitor.firestore(), name, id), { title: 'Unauthorized', published: true }));
     await assertFails(setDoc(doc(editor.firestore(), name, id), { title: 'Unauthorized', published: true }));
-    await assertSucceeds(setDoc(record, { title: 'New', published: false }));
+    await assertSucceeds(setDoc(record, sample[name]));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
     await assertSucceeds(updateDoc(record, { title: 'Edited', published: true }));
     await assertSucceeds(getDoc(doc(visitor.firestore(), name, id)));
@@ -118,7 +128,7 @@ test('administrator cannot inject unsupported CMS fields or oversized text', asy
 test('administrator cannot forge or rewrite immutable creation metadata', async () => {
   const record = doc(admin.firestore(), 'news/ownership-check');
   await assertFails(setDoc(record, { title: 'Forgery', createdBy: 'another-user', published: false }));
-  await assertSucceeds(setDoc(record, { title: 'Owned', createdBy: 'verified-admin', updatedBy: 'verified-admin', published: false }));
+  await assertSucceeds(setDoc(record, { title: 'Owned', excerpt: 'An authorized article', createdBy: 'verified-admin', updatedBy: 'verified-admin', published: false }));
   await assertFails(updateDoc(record, { createdBy: 'another-user' }));
   await assertFails(updateDoc(record, { updatedBy: 'another-user' }));
   await assertSucceeds(updateDoc(record, { title: 'Legitimate edit' }));
@@ -135,4 +145,65 @@ test('auditor has read-only draft visibility without publication or role managem
   await assertFails(setDoc(doc(auditor.firestore(), 'news/unauthorized'), { title: 'No', published: true }));
   await assertFails(updateDoc(doc(auditor.firestore(), 'news/draft-news'), { published: true }));
   await assertFails(setDoc(doc(auditor.firestore(), 'admins/security-auditor'), { role: 'admin' }));
+});
+
+
+test('Firestore validates slug, HTTPS media URLs, event dates, colors and allowed enums', async () => {
+  const db = admin.firestore();
+  await assertFails(setDoc(doc(db, 'pages/bad-slug'), { title: 'Bad slug', slug: 'Not Allowed!', published: false }));
+  await assertFails(setDoc(doc(db, 'pages/bad-url'), { title: 'Bad URL', imageUrl: 'javascript:alert(1)', published: false }));
+  await assertFails(setDoc(doc(db, 'news/bad-category'), { title: 'Bad category', category: 'Injected', published: false }));
+  await assertFails(setDoc(doc(db, 'news/bad-image'), { title: 'Bad image', imageUrl: 'http://example.com/image.png', published: false }));
+  await assertFails(setDoc(doc(db, 'societies/bad-website'), { title: 'Bad site', websiteUrl: 'http://example.org', published: false }));
+  await assertFails(setDoc(doc(db, 'events/bad-date'), { title: 'Invalid date', eventDate: '2026-15-40', published: false }));
+  await assertFails(setDoc(doc(db, 'events/bad-color'), { title: 'Invalid color', color: 'red', published: false }));
+  await assertFails(setDoc(doc(db, 'leadership/bad-role'), { title: 'Invalid role', role: 'Administrator Supreme', published: false }));
+  await assertSucceeds(setDoc(doc(db, 'pages/valid-slug'), { title: 'Valid', slug: 'valid-slug', body: 'Valid page body', published: false }));
+  await assertSucceeds(setDoc(doc(db, 'events/valid-date'), { title: 'Valid event', description: 'Event details', location: 'Hall', eventDate: '2026-10-18', color: '#7B1C1C', published: false }));
+  await assertFails(updateDoc(doc(db, 'events/valid-date'), { eventDate: '2026-02-40' }));
+  await assertSucceeds(deleteDoc(doc(db, 'pages/valid-slug')));
+  await assertSucceeds(deleteDoc(doc(db, 'events/valid-date')));
+});
+
+test('required CMS fields reject empty, whitespace-only and mismatched page identifiers', async () => {
+  const db = admin.firestore();
+  for (const [name, valid] of Object.entries(sample)) {
+    const invalid = id => doc(db, name, name === 'pages' ? valid.slug : id);
+    await assertFails(setDoc(invalid('missing-title'), { ...valid, title: '' }));
+    await assertFails(setDoc(invalid('blank-title'), { ...valid, title: '   ' }));
+    await assertFails(setDoc(invalid('missing-status'), Object.fromEntries(
+      Object.entries(valid).filter(([key]) => key !== 'published')
+    )));
+    await assertFails(setDoc(invalid('invalid-status'), { ...valid, published: 'true' }));
+    // Each collection must have all fields that its CMS editor marks required.
+    const required = {
+      news: ['excerpt'], events: ['description','eventDate','location'],
+      pages: ['slug','body'], societies: ['description'], sports: ['description'],
+      extracurricular: ['description'], leadership: ['role'],
+    }[name];
+    for (const key of required) {
+      await assertFails(setDoc(invalid('missing-'+key), Object.fromEntries(
+        Object.entries(valid).filter(([field]) => field !== key)
+      )));
+      await assertFails(setDoc(invalid('empty-'+key), { ...valid, [key]: '' }));
+    }
+  }
+  await assertFails(setDoc(doc(db, 'pages/slug-not-equal-id'), {
+    title: 'Page', body: 'Real body', slug: 'different-slug', published: true,
+  }));
+  await assertSucceeds(setDoc(doc(db, 'pages/matched-slug'), {
+    title: 'Page', body: 'Real body', slug: 'matched-slug', published: true,
+  }));
+  await assertSucceeds(deleteDoc(doc(db, 'pages/matched-slug')));
+});
+
+test('multiline editorial content is allowed, but whitespace-only bodies are rejected', async () => {
+  const db = admin.firestore();
+  const record = doc(db, 'pages/multiline-page');
+  await assertSucceeds(setDoc(record, {
+    title: 'Valid multi-line page', slug: 'multiline-page',
+    body: 'First paragraph.\n\nSecond paragraph.', published: true,
+  }));
+  await assertFails(updateDoc(record, { body: ' \n \t ' }));
+  await assertSucceeds(deleteDoc(record));
 });

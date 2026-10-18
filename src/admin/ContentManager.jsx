@@ -167,6 +167,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   const [status, setStatus] = useState('all');
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editingRevision, setEditingRevision] = useState(null);
   const [form, setForm] = useState(() => ({ ...config.defaults }));
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -227,6 +228,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
     drafts: items.filter(item => item.published !== true).length,
   }), [items]);
 
+  // Avoid assigning duplicate ranks while items are filtered.
+  const canReorder = status === 'all' && search.trim() === '' && actionId === null;
+
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
     return items.filter(item => {
@@ -243,6 +247,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   function openNew() {
     setForm({ ...config.defaults, rank: items.length + 1 });
     setEditingId(null);
+    setEditingRevision(null);
     setDirty(false);
     setNotice(null);
     setEditorOpen(true);
@@ -251,6 +256,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   function openExisting(item) {
     setForm(copyRecord(item, config.defaults));
     setEditingId(item.id);
+    setEditingRevision(item.updatedAt ?? null);
     setDirty(false);
     setNotice(null);
     setEditorOpen(true);
@@ -281,31 +287,28 @@ export default function ContentManager({ kind, onDirtyChange }) {
     }
   }
 
-  async function handleDrop(targetIndex) {
-    if (draggedIndex === null || draggedIndex === targetIndex) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
-
-    const reorderedList = [...visible];
-    const [movedItem] = reorderedList.splice(draggedIndex, 1);
-    reorderedList.splice(targetIndex, 0, movedItem);
-
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-
-    const orderedIds = reorderedList.map((item) => item.id);
-
+  async function reorderPositions(startIndex, targetIndex) {
+    if (!canReorder || startIndex === null || startIndex === targetIndex ||
+        startIndex < 0 || targetIndex < 0 || targetIndex >= items.length) return;
+    const reordered = [...items];
+    const [moved] = reordered.splice(startIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
     setActionId('reordering');
     try {
-      await config.reorder(orderedIds);
+      await config.reorder(reordered.map(item => item.id));
       setNotice({ type: 'success', text: 'Item positions updated.' });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
     } finally {
       setActionId(null);
     }
+  }
+
+  async function handleDrop(targetIndex) {
+    const sourceIndex = draggedIndex;
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    await reorderPositions(sourceIndex, targetIndex);
   }
 
   async function startDriveConnection() {
@@ -353,7 +356,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
         payload.color = itemNumber % 2 !== 0 ? '#7B1C1C' : '#1a3a6b';
       }
       if (editingId) {
-        await config.update(editingId, payload);
+        await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
       } else {
         await config.create(payload);
       }
@@ -377,7 +380,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
     setNotice(null);
     try {
       const next = item.published !== true;
-      await config.update(item.id, { published: next });
+      await config.update(item.id, { published: next }, { expectedUpdatedAt: item.updatedAt ?? null });
       setNotice({ type: 'success', text: next ? 'Published live.' : 'Moved to drafts.' });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -392,7 +395,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
     setActionId(item.id);
     setNotice(null);
     try {
-      await config.remove(item.id);
+      await config.remove(item.id, { expectedUpdatedAt: item.updatedAt ?? null });
       setNotice({ type: 'success', text: 'Deleted successfully.' });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -479,14 +482,14 @@ export default function ContentManager({ kind, onDirtyChange }) {
                   return (
                     <article
                       key={item.id}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDrop={() => handleDrop(index)}
+                      draggable={canReorder}
+                      onDragStart={() => { if (canReorder) handleDragStart(index); }}
+                      onDragOver={(e) => { if (canReorder) handleDragOver(e, index); }}
+                      onDrop={() => { if (canReorder) handleDrop(index); }}
                       className={`admin-row ${isBeingDragged ? 'dragging' : ''} ${isDragTarget ? 'drag-target' : ''}`}
                     >
                       {/* Drag Handle (Far Left) */}
-                      <div className="admin-drag-handle" title="Click and drag to reorder">
+                      <div className="admin-drag-handle" title={canReorder ? "Drag to reorder" : "Clear filters to reorder"} aria-hidden="true">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                           <circle cx="9" cy="5" r="2" />
                           <circle cx="15" cy="5" r="2" />
@@ -518,6 +521,12 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       </div>
 
                       <div className="admin-row-actions">
+                        <button type="button" className="admin-btn-ghost" disabled={!canReorder || index === 0}
+                          aria-label={`Move ${item.title || 'item'} up`}
+                          onClick={() => reorderPositions(index, index - 1)}>↑</button>
+                        <button type="button" className="admin-btn-ghost" disabled={!canReorder || index === items.length - 1}
+                          aria-label={`Move ${item.title || 'item'} down`}
+                          onClick={() => reorderPositions(index, index + 1)}>↓</button>
                         <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
                           <span className="admin-status-dot" />
                           {item.published ? 'Published' : 'Draft'}

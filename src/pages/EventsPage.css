@@ -286,6 +286,10 @@
 }
 
 .calendar-event-pill {
+  display: block;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
   background: #7B1C1C;
   color: #ffffff;
   font-family: 'Geologica', sans-serif;
@@ -590,4 +594,32 @@
     height: 6px;
     margin-top: 3px;
   }
+}
+/* Preserve the original pills and dots while exposing keyboard focus. */
+.calendar-event-pill:focus-visible,
+.calendar-event-dot:focus-visible {
+  outline: 3px solid #1a3a6b;
+  outline-offset: 2px;
+}
+.calendar-event-dot { border: 0; padding: 0; cursor: pointer; }
+@media (max-width: 640px) {
+  .calendar-event-dot {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .calendar-event-dot::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7B1C1C;
+  }
+  .calendar-event-dot.passed::before { background: #a09d9a; }
 }

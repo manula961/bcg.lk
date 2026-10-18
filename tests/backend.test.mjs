@@ -14,9 +14,9 @@ test('Firestore denies unknown paths and protects administrator records', () => 
 test('Firestore content writes require administrator authorization and schema validation', () => {
   const rules = read('firestore.rules');
   assert.match(rules, /function isAdmin\(\)/);
-  assert.match(rules, /function validRecord\(data, collectionName\)/);
+  assert.match(rules, /function validRecord\(data, collectionName, id\)/);
   assert.match(rules, /allow create: if collectionName in/);
-  assert.match(rules, /&& isAdmin\(\) && validRecord\(request\.resource\.data, collectionName\)/);
+  assert.match(rules, /&& isAdmin\(\) && validRecord\(request\.resource\.data, collectionName, id\)/);
   assert.match(rules, /allow update: if collectionName in/);
   assert.match(rules, /&& validUpdateOwnership\(\)/);
   for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
@@ -59,4 +59,12 @@ test('source files must not contain unresolved Git conflict markers', async () =
   }
   visit(root);
   assert.deepEqual(conflicts, [], 'Unresolved merge markers detected in: ' + conflicts.join(', '));
+});
+
+
+test('Firestore validates important content formats beyond text lengths', () => {
+  const rules = read('firestore.rules');
+  for (const policy of ['validHttpsUrl', 'validSlug', 'validEventDate', 'validHexColor', 'validNewsCategory', 'validLeaderRole']) {
+    assert.ok(rules.includes('function ' + policy + '('), 'Missing validation: ' + policy);
+  }
 });
