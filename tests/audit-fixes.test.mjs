@@ -80,3 +80,10 @@ test('news cards use semantic links and both scrolling layers respect reduced-mo
   assert.match(main, /prefers-reduced-motion: reduce/);
   assert.match(home, /prefers-reduced-motion: reduce/);
 });
+
+test('initial entry and shared chunk budgets are both enforced', () => {
+  const source = read('scripts/check-bundle-budget.mjs');
+  assert.match(source, /300 \* 1024/);
+  assert.match(source, /800 \* 1024/);
+  assert.match(source, /Largest route-shared JavaScript chunk/);
+});
