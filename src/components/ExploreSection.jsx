@@ -41,6 +41,7 @@ const ExploreSection = () => {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -54,12 +55,19 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused) return;
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!visible || isPaused || reducedMotion) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [visible, isPaused]);
+  }, [visible, isPaused, reducedMotion]);
 
   return (
     <section
@@ -88,7 +96,18 @@ const ExploreSection = () => {
               {places.map((place, i) => (
                 <div key={place.id} className="explore-tab-wrapper">
                   <button
+                    type="button"
                     role="tab"
+                    tabIndex={active === i ? 0 : -1}
+                    onKeyDown={event => {
+                      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                      event.preventDefault();
+                      const next = event.key === 'Home' ? 0
+                        : event.key === 'End' ? places.length - 1
+                        : (i + (event.key === 'ArrowRight' ? 1 : -1) + places.length) % places.length;
+                      setActive(next);
+                      document.getElementById('place-tab-' + places[next].id)?.focus();
+                    }}
                     aria-selected={active === i}
                     aria-controls={`place-panel-${place.id}`}
                     id={`place-tab-${place.id}`}
