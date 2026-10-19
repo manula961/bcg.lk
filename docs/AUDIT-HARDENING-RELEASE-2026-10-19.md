@@ -11,6 +11,7 @@ This change is a **review-only remediation** for the October 19 audit. **No prod
 - [x] Google Drive uploads require explicit acknowledgement that files become public immediately.
 - [x] Generate route-specific static HTML metadata for /events, /about-us and /life/*, with canonical and Open Graph URLs. Preserve the React UI and homepage HTML. Dynamic CMS SEO **still requires a separately authenticated server rendering/data-export solution**.
 - [x] Independent-review GitHub Actions check for a fresh non-author approval on ready-for-review PRs.
+- [x] Vercel anti-clickjacking, nosniff, referrer and device-permission headers; explicit noindex for admin and API routes.
 - [ ] Exact PR head commit must pass build, unit, Firebase emulator, browser and audit checks. Confirm Vercel preview.
 - [ ] Execute baseline-vs-preview screenshots and inspect differences before merge. This workflow is manual and requires authorized accessible deployments.
 
