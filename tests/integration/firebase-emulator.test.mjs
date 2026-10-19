@@ -5,7 +5,7 @@ import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebas
 import {
   collection, doc, getDoc, getDocs, query, where, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from 'firebase/firestore';
-import { ref, uploadBytes, getBytes, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getBytes, listAll, deleteObject } from 'firebase/storage';
 
 const sample = {
   news: { title: 'New', excerpt: 'Summary', category: 'News', published: false },
@@ -116,6 +116,14 @@ test('Storage enforces authorized media uploads, allowed image types and 10 MiB 
   await assertFails(uploadBytes(ref(admin.storage(), 'public/oversized.png'), new Uint8Array(10 * 1024 * 1024 + 1), { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(admin.storage(), path), image, { contentType: 'image/png' }));
   await assertSucceeds(getBytes(ref(visitor.storage(), path)));
+  // Preserve PR #44 privacy checks while exercising RBAC permissions.
+  await assertFails(listAll(ref(visitor.storage(), 'public')));
+  await assertFails(listAll(ref(editor.storage(), 'public')));
+  await assertFails(listAll(ref(publisher.storage(), 'public')));
+  const adminListing = await assertSucceeds(listAll(ref(admin.storage(), 'public')));
+  assert.ok(adminListing.items.some(item => item.fullPath === path));
+  const ownerListing = await assertSucceeds(listAll(ref(superAdmin.storage(), 'public')));
+  assert.ok(ownerListing.items.some(item => item.fullPath === path));
   await assertFails(deleteObject(ref(editor.storage(), path)));
   await assertSucceeds(deleteObject(ref(admin.storage(), path)));
 });
