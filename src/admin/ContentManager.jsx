@@ -21,6 +21,7 @@ import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader, reorderLeadership,
 } from '../lib/leadershipService';
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
+import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
 import './Admin.css';
 
 const collections = {
@@ -157,8 +158,12 @@ function formatError(error) {
   return message || 'Something went wrong. Please try again.';
 }
 
-export default function ContentManager({ kind, onDirtyChange }) {
+export default function ContentManager({ kind, onDirtyChange, role }) {
   const config = collections[kind];
+  const canCreate = hasPermission(role, 'content.create');
+  const canPublish = hasPermission(role, 'content.publish');
+  const canDelete = hasPermission(role, 'content.delete');
+  const canUpload = hasPermission(role, 'media.upload');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -181,9 +186,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
 
   useEffect(() => {
     let active = true;
-    getDriveStatus().then(status => { if (active) setDrive(status); }).catch(() => {});
+    if (canUpload) getDriveStatus().then(status => { if (active) setDrive(status); }).catch(() => {});
     return () => { active = false; };
-  }, []);
+  }, [canUpload]);
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -229,7 +234,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }), [items]);
 
   // Avoid assigning duplicate ranks while items are filtered.
-  const canReorder = status === 'all' && search.trim() === '' && actionId === null;
+  const canReorder = status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
 
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
@@ -245,6 +250,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }, [items, search, status]);
 
   function openNew() {
+    if (!canCreate) return;
     setForm({ ...config.defaults, rank: items.length + 1 });
     setEditingId(null);
     setEditingRevision(null);
@@ -254,6 +260,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   function openExisting(item) {
+    if (!canEditRecord(role, item)) return;
     setForm(copyRecord(item, config.defaults));
     setEditingId(item.id);
     setEditingRevision(item.updatedAt ?? null);
@@ -314,6 +321,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   async function startDriveConnection() {
+    if (!canUpload) return;
     if (dirty && !window.confirm('Connecting Google Drive reloads the editor. Continue without saving changes?')) return;
     setNotice(null);
     try { await connectDrive(); }
@@ -323,7 +331,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   async function handleDriveUpload(event) {
     const file = event.target.files?.[0];
     event.target.value = '';
-    if (!file || busy || uploadingImage) return;
+    if (!canUpload || !file || busy || uploadingImage) return;
     setUploadingImage(true);
     setNotice(null);
     try {
@@ -346,6 +354,11 @@ export default function ContentManager({ kind, onDirtyChange }) {
   async function save(event) {
     event.preventDefault();
     if (busy || uploadingImage) return;
+    if (editingId ? !hasPermission(role, 'content.edit') : !canCreate) return;
+    if (!canPublish && (form.published || (editingId && items.find(item => item.id === editingId)?.published))) {
+      setNotice({ type: 'error', text: 'Editors can save drafts only.' });
+      return;
+    }
     setBusy(true);
     setNotice(null);
     try {
@@ -377,7 +390,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   async function togglePublished(item) {
-    if (actionId !== null) return;
+    if (!canPublish || actionId !== null) return;
     setActionId(item.id);
     setNotice(null);
     try {
@@ -392,7 +405,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
   }
 
   async function remove(item) {
-    if (actionId !== null) return;
+    if (!canDelete || actionId !== null) return;
     if (!window.confirm('Permanently delete "' + (item.title || 'item') + '"?')) return;
     setActionId(item.id);
     setNotice(null);
@@ -451,9 +464,9 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <option value="published">Published ({totals.published})</option>
                 <option value="drafts">Drafts ({totals.drafts})</option>
               </select>
-              <button type="button" onClick={openNew} className="admin-btn-primary">
+              {canCreate && <button type="button" onClick={openNew} className="admin-btn-primary">
                 + New {config.singular}
-              </button>
+              </button>}
             </div>
           </div>
 
@@ -469,7 +482,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <p className="admin-empty-sub">
                   {items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
                 </p>
-                {!items.length && (
+                {!items.length && canCreate && (
                   <button type="button" onClick={openNew} className="admin-btn-primary">
                     Create {config.singular}
                   </button>
@@ -533,30 +546,30 @@ export default function ContentManager({ kind, onDirtyChange }) {
                           <span className="admin-status-dot" />
                           {item.published ? 'Published' : 'Draft'}
                         </span>
-                        <button
+                        {canEditRecord(role, item) && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => openExisting(item)}
                           className="admin-btn-ghost"
                         >
                           Edit
-                        </button>
-                        <button
+                        </button>}
+                        {canPublish && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
                           className="admin-btn-ghost"
                         >
                           {actionId === item.id ? '...' : item.published ? 'Unpublish' : 'Publish'}
-                        </button>
-                        <button
+                        </button>}
+                        {canDelete && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => remove(item)}
                           className="admin-btn-ghost-danger"
                         >
                           Delete
-                        </button>
+                        </button>}
                       </div>
                     </article>
                   );
@@ -636,7 +649,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                       Generate slug from title
                     </button>
                   )}
-                  {field.key === 'imageUrl' && drive.configured && (
+                  {field.key === 'imageUrl' && canUpload && drive.configured && (
                     <div className="flex flex-wrap items-center gap-3">
                       {drive.connected ? (
                         <>
@@ -665,7 +678,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <img src={form.imageUrl} alt="Preview" className="admin-preview-img" />
               </div>
             )}
-            <div className="admin-publish-row">
+            {canPublish && <div className="admin-publish-row">
               <div>
                 <span className="admin-publish-title">Publishing Status</span>
                 <p className="admin-publish-desc">
@@ -684,6 +697,7 @@ export default function ContentManager({ kind, onDirtyChange }) {
                 <span>Published</span>
               </label>
             </div>
+            </div>}
             <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
                 Cancel
