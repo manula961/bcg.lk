@@ -12,6 +12,12 @@ test('Firebase compatibility audit is read-only and requires explicit local cons
   for (const kind of ['news','events','pages','societies','sports','extracurricular','leadership'])
     assert.match(script, new RegExp(kind));
 });
+test('public Storage downloads do not imply anonymous directory listing', () => {
+  const rules = read('storage.rules');
+  assert.match(rules, /allow get: if true;/);
+  assert.match(rules, /allow list: if isAdmin\(\);/);
+  assert.doesNotMatch(rules, /allow read: if true;/);
+});
 test('public deployment smoke is GET-only and does not request admin secrets', () => {
   const script = read('scripts/check-public-deployment.mjs');
   assert.match(script, /method: 'GET'/);
