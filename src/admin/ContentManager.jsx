@@ -696,7 +696,6 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                 />
                 <span>Published</span>
               </label>
-            </div>
             </div>}
             <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
