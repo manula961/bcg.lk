@@ -145,6 +145,51 @@ service cloud.firestore {
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
         );
     }
+    // Append-only role activity ledger for changes made in the admin console.
+    // No client (including a super-admin) can update or delete prior entries.
+    // Trusted Admin SDK operations bypass rules and require separate audit controls.
+    match /roleAudit/{eventId} {
+      allow get, list: if isSuperAdmin();
+      allow create: if isSuperAdmin()
+        && request.resource.data.keys().hasOnly([
+          'actorUid','targetUid','action','beforeRole','afterRole','createdAt'
+        ])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.targetUid is string
+        && request.resource.data.targetUid.matches('^[A-Za-z0-9_-]{1,128}
+      allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSuperAdmin() && validRoleProvision(uid);
+      allow update: if isSuperAdmin() && validRoleUpdate(uid);
+      allow delete: if isSuperAdmin() && uid != request.auth.uid
+        && resource.data.role != 'super_admin';
+    }
+    match /{collectionName}/{id} {
+      allow get, list: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && (canReview() || resource.data.published == true);
+      allow create: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validOwnership(request.resource.data)
+        && (canPublishContent() || (request.resource.data.published == false
+          && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
+      allow update: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validUpdateOwnership()
+        && (canPublishContent() || editorDraftUpdateOnly());
+      allow delete: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+        && canDeleteContent();
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
+)
+        && request.resource.data.targetUid != request.auth.uid
+        && request.resource.data.action in ['grant','change','revoke']
+        && (request.resource.data.beforeRole == null || validManagedRole(request.resource.data.beforeRole))
+        && (request.resource.data.afterRole == null || validManagedRole(request.resource.data.afterRole))
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
     match /admins/{uid} {
       allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
       allow list: if isSuperAdmin();
