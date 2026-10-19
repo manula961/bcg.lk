@@ -244,7 +244,7 @@ test('RBAC: super-admin alone can manage nonprivileged role grants', async () =>
   }));
   await assertFails(deleteDoc(doc(superAdmin.firestore(), 'admins/other-owner')));
   await assertFails(updateDoc(target, { role: 'super_admin', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
-  await assertFails(updateDoc(target, { role: 'admin', createdBy: 'verified-owner', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
+  await assertFails(updateDoc(target, { role: 'admin', createdBy: 'forged-actor', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
   await assertSucceeds(updateDoc(target, { role: 'publisher', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
   await assertFails(deleteDoc(doc(admin.firestore(), 'admins/new-staff-uid')));
   await assertSucceeds(deleteDoc(target));
