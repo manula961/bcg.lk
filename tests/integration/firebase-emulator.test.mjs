@@ -18,7 +18,7 @@ const sample = {
 };
 
 let environment;
-let admin, editor, publisher, superAdmin, visitor;
+let admin, editor, publisher, superAdmin, auditor, visitor;
 
 const firestoreRules = readFileSync(new URL('../../firestore.rules', import.meta.url), 'utf8');
 const storageRules = readFileSync(new URL('../../storage.rules', import.meta.url), 'utf8');
@@ -38,12 +38,14 @@ before(async () => {
   editor = environment.authenticatedContext('ordinary-editor');
   publisher = environment.authenticatedContext('verified-publisher');
   superAdmin = environment.authenticatedContext('verified-owner');
+  auditor = environment.authenticatedContext('security-auditor');
   visitor = environment.unauthenticatedContext();
   await environment.withSecurityRulesDisabled(async context => {
     await setDoc(doc(context.firestore(), 'admins/verified-admin'), { role: 'admin' });
     await setDoc(doc(context.firestore(), 'admins/ordinary-editor'), { role: 'editor' });
     await setDoc(doc(context.firestore(), 'admins/verified-publisher'), { role: 'publisher' });
     await setDoc(doc(context.firestore(), 'admins/verified-owner'), { role: 'super_admin' });
+    await setDoc(doc(context.firestore(), 'admins/security-auditor'), { role: 'auditor' });
     await setDoc(doc(context.firestore(), 'admins/other-owner'), { role: 'super_admin' });
     await setDoc(doc(context.firestore(), 'news/published-news'), {
       title: 'Published', excerpt: 'Visible', category: 'News', published: true,
@@ -104,11 +106,11 @@ test('unknown Firestore paths are denied by default', async () => {
   await assertFails(setDoc(doc(admin.firestore(), 'internal/private'), { value: 1 }));
 });
 
-test('Storage enforces admin uploads, allowed image types and 10 MiB size limit', async () => {
+test('Storage enforces authorized media uploads, allowed image types and 10 MiB size limit', async () => {
   const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
   const path = 'public/integration-upload.png';
   await assertFails(uploadBytes(ref(visitor.storage(), path), image, { contentType: 'image/png' }));
-  await assertFails(uploadBytes(ref(editor.storage(), path), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(auditor.storage(), path), image, { contentType: 'image/png' }));
   await assertFails(uploadBytes(ref(admin.storage(), 'private/no.png'), image, { contentType: 'image/png' }));
   await assertFails(uploadBytes(ref(admin.storage(), 'public/not-image.txt'), image, { contentType: 'text/plain' }));
   await assertFails(uploadBytes(ref(admin.storage(), 'public/oversized.png'), new Uint8Array(10 * 1024 * 1024 + 1), { contentType: 'image/png' }));
@@ -141,10 +143,6 @@ test('administrator cannot forge or rewrite immutable creation metadata', async 
 });
 
 test('auditor has read-only draft visibility without publication or role management', async () => {
-  await environment.withSecurityRulesDisabled(async context => {
-    await setDoc(doc(context.firestore(), 'admins/security-auditor'), { role: 'auditor' });
-  });
-  const auditor = environment.authenticatedContext('security-auditor');
   await assertSucceeds(getDoc(doc(auditor.firestore(), 'news/draft-news')));
   await assertSucceeds(getDocs(collection(auditor.firestore(), 'news')));
   await assertFails(setDoc(doc(auditor.firestore(), 'news/unauthorized'), { title: 'No', published: true }));
@@ -278,7 +276,6 @@ test('RBAC: only media-capable roles may upload images', async () => {
   await assertSucceeds(uploadBytes(ref(editor.storage(), id), image, { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(publisher.storage(), id), image, { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(superAdmin.storage(), id), image, { contentType: 'image/png' }));
-  const auditor = environment.authenticatedContext('security-auditor');
   await assertFails(uploadBytes(ref(auditor.storage(), id), image, { contentType: 'image/png' }));
   await assertFails(deleteObject(ref(editor.storage(), id)));
   await assertFails(deleteObject(ref(publisher.storage(), id)));
