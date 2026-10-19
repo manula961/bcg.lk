@@ -17,7 +17,11 @@ service firebase.storage {
       // Keep known public asset URLs readable but prevent public enumeration.
       allow get: if true;
       allow list: if isAdmin();
-      allow create, update: if canUploadMedia() && request.resource.size < 10 * 1024 * 1024
+      // Draft editors/publishers may add new assets, but cannot replace an
+      // existing public image that may already appear on the live website.
+      allow create: if canUploadMedia() && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
+      allow update: if isAdmin() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow delete: if isAdmin();
     }
