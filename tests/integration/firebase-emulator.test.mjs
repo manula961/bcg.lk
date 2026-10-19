@@ -280,5 +280,7 @@ test('RBAC: only media-capable roles may upload images', async () => {
   await assertSucceeds(uploadBytes(ref(superAdmin.storage(), id), image, { contentType: 'image/png' }));
   const auditor = environment.authenticatedContext('security-auditor');
   await assertFails(uploadBytes(ref(auditor.storage(), id), image, { contentType: 'image/png' }));
+  await assertFails(deleteObject(ref(editor.storage(), id)));
+  await assertFails(deleteObject(ref(publisher.storage(), id)));
   await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
 });
