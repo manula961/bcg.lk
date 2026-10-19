@@ -200,6 +200,57 @@ try {
   await otherContext.close();
   assert.deepEqual(failures, [], 'Browser exceptions in authenticated CMS');
   console.log('PASS authenticated administrator login, draft, publish, stale edit rejection, delete');
+
+  // Exercise real RBAC controls and live revocation in the disposable Firebase
+  // Auth/Firestore emulators. This never touches production users or content.
+  const ownerEmail = 'automation-owner@example.test';
+  const ownerIdentity = await json('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-web-api-key', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: ownerEmail, password, returnSecureToken: true }),
+  });
+  await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/admins?documentId=' +
+    encodeURIComponent(ownerIdentity.localId), {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+    body: JSON.stringify({ fields: { role: { stringValue: 'super_admin' } } }),
+  });
+  const ownerContext = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  const ownerPage = await ownerContext.newPage();
+  ownerPage.on('dialog', dialog => dialog.accept());
+  const ownerErrors = [];
+  ownerPage.on('pageerror', error => ownerErrors.push(error.message));
+  try {
+    await ownerPage.goto(base + '/admin');
+    await ownerPage.getByLabel('Email Address').fill(ownerEmail);
+    await ownerPage.getByLabel('Password').fill(password);
+    await ownerPage.getByRole('button', { name: 'Sign In' }).click();
+    await ownerPage.getByRole('button', { name: /Users & Roles/ }).waitFor({ timeout: 15000 });
+    await ownerPage.getByRole('button', { name: /Users & Roles/ }).click();
+    await ownerPage.getByRole('heading', { name: 'Role-Based Access Control' }).waitFor();
+
+    await ownerPage.getByLabel('Existing Firebase user UID').fill(identity.localId);
+    await ownerPage.getByLabel('Assign role').selectOption('editor');
+    await ownerPage.getByRole('button', { name: 'Assign Role' }).click();
+    await ownerPage.getByText(/Role saved\. Permission changes/).waitFor({ timeout: 15000 });
+
+    await page.waitForFunction(
+      () => document.querySelector('.admin-user-email')?.textContent?.includes('Editor'),
+      null, { timeout: 15000 },
+    );
+    assert.equal(await page.getByRole('button', { name: /Users & Roles/ }).count(), 0,
+      'Editors must not see privileged role management');
+    await page.getByRole('button', { name: /New article/ }).click();
+    assert.equal(await page.getByRole('checkbox', { name: 'Published' }).count(), 0,
+      'Editors must not have a Publish checkbox');
+    await page.getByRole('button', { name: 'Cancel', exact: true }).first().click();
+
+    const accountRow = ownerPage.locator('.admin-row').filter({ hasText: identity.localId });
+    await accountRow.getByRole('button', { name: 'Revoke' }).click();
+    await page.getByText('Your console access has been removed.').waitFor({ timeout: 15000 });
+    assert.deepEqual(ownerErrors, [], 'Browser exceptions while using super-admin role controls');
+    console.log('PASS super-admin grants editor role, UI hides publish, and live revocation removes console access');
+  } finally {
+    await ownerContext.close();
+  }
 } finally {
   if (page) await page.screenshot({ path: output + '/admin-e2e-final.png' }).catch(() => {});
   if (context) await context.close().catch(() => {});

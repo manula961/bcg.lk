@@ -7,8 +7,45 @@ service cloud.firestore {
         ? get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role
         : null;
     }
-    function isAdmin() { return role() == 'admin'; }
-    function canReview() { return isAdmin() || role() == 'auditor'; }
+    // Existing "admin" accounts keep full content permissions.
+    function isAdmin() { return role() in ['admin', 'super_admin']; }
+    function isSuperAdmin() { return role() == 'super_admin'; }
+    function canReview() { return role() in ['super_admin', 'admin', 'publisher', 'editor', 'auditor']; }
+    function canWriteContent() { return role() in ['super_admin', 'admin', 'publisher', 'editor']; }
+    function canPublishContent() { return role() in ['super_admin', 'admin', 'publisher']; }
+    function canDeleteContent() { return isAdmin(); }
+    function validManagedRole(name) {
+      return name in ['admin', 'publisher', 'editor', 'auditor'];
+    }
+    // The first super_admin is assigned by a trusted console or Admin SDK.
+    // No client may grant super_admin, edit their own role, or change another super_admin.
+    function validRoleProvision(uid) {
+      return uid.matches('^[A-Za-z0-9_-]{1,128}$')
+        && uid != request.auth.uid
+        && request.resource.data.keys().hasOnly(['role','createdAt','createdBy','updatedAt','updatedBy'])
+        && validManagedRole(request.resource.data.role)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    function validRoleUpdate(uid) {
+      return uid != request.auth.uid
+        && resource.data.role != 'super_admin'
+        && validManagedRole(request.resource.data.role)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','updatedAt','updatedBy'])
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    function editorDraftUpdateOnly() {
+      return resource.data.published == false
+        && request.resource.data.published == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title','excerpt','body','category','tag','imageUrl','description',
+          'eventDate','location','color','slug','seoDescription',
+          'websiteUrl','achievements','role','updatedAt','updatedBy'
+        ]);
+    }
     function optionalString(data, key, max) {
       return !(key in data) || (data[key] is string && data[key].size() <= max);
     }
@@ -109,20 +146,27 @@ service cloud.firestore {
         );
     }
     match /admins/{uid} {
-      allow get: if request.auth != null && request.auth.uid == uid;
-      allow list, create, update, delete: if false;
+      allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSuperAdmin() && validRoleProvision(uid);
+      allow update: if isSuperAdmin() && validRoleUpdate(uid);
+      allow delete: if isSuperAdmin() && uid != request.auth.uid
+        && resource.data.role != 'super_admin';
     }
     match /{collectionName}/{id} {
       allow get, list: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
         && (canReview() || resource.data.published == true);
       allow create: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
-        && isAdmin() && validRecord(request.resource.data, collectionName, id)
-        && validOwnership(request.resource.data);
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validOwnership(request.resource.data)
+        && (canPublishContent() || (request.resource.data.published == false
+          && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
       allow update: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
-        && isAdmin() && validRecord(request.resource.data, collectionName, id)
-        && validUpdateOwnership();
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validUpdateOwnership()
+        && (canPublishContent() || editorDraftUpdateOnly());
       allow delete: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
-        && isAdmin();
+        && canDeleteContent();
     }
     match /{document=**} { allow read, write: if false; }
   }

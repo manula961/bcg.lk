@@ -26,7 +26,8 @@ test('all three CMS services expose their public and admin operations', () => {
 test('admin console verifies the role before displaying the dashboard', () => {
   const app = source('src/admin/AdminApp.jsx');
   assert.match(app, /getDocFromServer\(doc\(db,\s*'admins',\s*user\.uid\)\)/);
-  assert.match(app, /record\.exists\(\)\s*&&\s*record\.data\(\)\?\.role\s*===\s*'admin'/);
+  assert.match(app, /record\.exists\(\)\s*&&\s*isConsoleRole\(record\.data\(\)\?\.role\)/);
+  assert.match(app, /onSnapshot\(doc\(db, 'admins', user\.uid\)/);
   assert.match(app, /session\.status\s*===\s*'authorized'/);
 });
 

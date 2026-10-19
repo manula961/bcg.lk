@@ -48,10 +48,18 @@ test('Firebase Auth token is checked and admin role must match the exact UID', a
     assert.equal(requests.length, 2);
     assert.ok(requests[1].url.includes('/documents/admins/verified-admin'));
     assert.equal(requests[1].options.headers.Authorization, 'Bearer valid.firebase.token');
+    // Media-capable roles (not auditors) may reach the Drive OAuth/upload API.
+    for (const role of ['super_admin', 'publisher', 'editor']) {
+      globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
+        ? json({ users: [{ localId: 'verified-admin' }] })
+        : json({ fields: { role: { stringValue: role } } });
+      assert.equal(await requireAdmin({ headers: { authorization: 'Bearer valid.firebase.token' } }), 'verified-admin');
+    }
+
 
     globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
       ? json({ users: [{ localId: 'verified-admin' }] })
-      : json({ fields: { role: { stringValue: 'editor' } } });
+      : json({ fields: { role: { stringValue: 'auditor' } } });
     await assert.rejects(() => requireAdmin({ headers: { authorization: 'Bearer valid.firebase.token' } }), { status: 403 });
 
     globalThis.fetch = async () => json({}, 401);
@@ -188,7 +196,7 @@ test('admin boundary rejects malformed Firebase account identities and roles', a
       await assert.rejects(() => requireAdmin(req), { status: 401 });
       assert.equal(calls, 1, 'invalid identity must not reach Firestore');
     }
-    for (const role of ['auditor', 'editor', '', undefined]) {
+    for (const role of ['auditor', '', undefined]) {
       globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
         ? json({ users: [{ localId: 'admin' }] })
         : json(role === undefined ? {} : { fields: { role: { stringValue: role } } });

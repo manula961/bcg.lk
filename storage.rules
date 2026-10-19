@@ -1,16 +1,23 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Existing admins retain their permissions; super-admins are also privileged.
     function isAdmin() {
       return request.auth != null &&
         firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
-        firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+        firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role in ['super_admin','admin'];
+    }
+    // Editors and publishers may upload without receiving delete/list privileges.
+    function canUploadMedia() {
+      return request.auth != null &&
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role in ['super_admin','admin','publisher','editor'];
     }
     match /public/{allPaths=**} {
-      // Published asset URLs remain publicly fetchable, but public bucket enumeration is denied.
+      // Keep known public asset URLs readable but prevent public enumeration.
       allow get: if true;
       allow list: if isAdmin();
-      allow create, update: if isAdmin() && request.resource.size < 10 * 1024 * 1024
+      allow create, update: if canUploadMedia() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow delete: if isAdmin();
     }

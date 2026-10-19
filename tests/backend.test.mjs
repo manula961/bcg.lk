@@ -7,7 +7,9 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 test('Firestore denies unknown paths and protects administrator records', () => {
   const rules = read('firestore.rules');
   assert.match(rules, /match \/admins\/\{uid\}/);
-  assert.match(rules, /allow list, create, update, delete: if false;/);
+  assert.match(rules, /allow list: if isSuperAdmin\(\);/);
+  assert.match(rules, /allow create: if isSuperAdmin\(\) && validRoleProvision\(uid\);/);
+  assert.match(rules, /allow update: if isSuperAdmin\(\) && validRoleUpdate\(uid\);/);
   assert.match(rules, /match \/\{document=\*\*\} \{ allow read, write: if false; \}/);
 });
 
@@ -16,7 +18,8 @@ test('Firestore content writes require administrator authorization and schema va
   assert.match(rules, /function isAdmin\(\)/);
   assert.match(rules, /function validRecord\(data, collectionName, id\)/);
   assert.match(rules, /allow create: if collectionName in/);
-  assert.match(rules, /&& isAdmin\(\) && validRecord\(request\.resource\.data, collectionName, id\)/);
+  assert.match(rules, /&& canWriteContent\(\) && validRecord\(request\.resource\.data, collectionName, id\)/);
+  assert.match(rules, /canPublishContent\(\) \|\| editorDraftUpdateOnly\(\)/);
   assert.match(rules, /allow update: if collectionName in/);
   assert.match(rules, /&& validUpdateOwnership\(\)/);
   for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
