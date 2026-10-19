@@ -48,6 +48,14 @@ test('Firebase Auth token is checked and admin role must match the exact UID', a
     assert.equal(requests.length, 2);
     assert.ok(requests[1].url.includes('/documents/admins/verified-admin'));
     assert.equal(requests[1].options.headers.Authorization, 'Bearer valid.firebase.token');
+    // Media-capable roles (not auditors) may reach the Drive OAuth/upload API.
+    for (const role of ['super_admin', 'publisher', 'editor']) {
+      globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
+        ? json({ users: [{ localId: 'verified-admin' }] })
+        : json({ fields: { role: { stringValue: role } } });
+      assert.equal(await requireAdmin({ headers: { authorization: 'Bearer valid.firebase.token' } }), 'verified-admin');
+    }
+
 
     globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
       ? json({ users: [{ localId: 'verified-admin' }] })
