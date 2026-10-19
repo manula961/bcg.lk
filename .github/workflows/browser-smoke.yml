@@ -48,3 +48,63 @@ jobs:
           name: audit-browser-screenshots
           path: artifacts/browser/
           if-no-files-found: warn
+
+  visual-compare:
+    if: github.event_name == 'pull_request'
+    needs: browser-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: baseline
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - name: Build approved baseline with unchanged public assets
+        working-directory: baseline
+        run: npm ci && npm run build
+      - name: Build proposed candidate
+        working-directory: candidate
+        run: npm ci && npm run build
+      - name: Install pinned visual comparison dependencies
+        working-directory: candidate
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1 pixelmatch@6.0.0 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Start both local Vite previews
+        run: |
+          (cd baseline && npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/bcg-baseline.log 2>&1) &
+          (cd candidate && npm run preview -- --host 127.0.0.1 --port 4174 > /tmp/bcg-candidate.log 2>&1) &
+          for port in 4173 4174; do
+            ready=0
+            for i in $(seq 1 45); do
+              if curl --fail --silent "http://127.0.0.1:${port}/" > /dev/null; then ready=1; break; fi
+              sleep 1
+            done
+            if [ "$ready" != 1 ]; then
+              cat /tmp/bcg-baseline.log /tmp/bcg-candidate.log
+              exit 1
+            fi
+          done
+      - name: Pixel-compare approved and candidate desktop/mobile routes
+        working-directory: candidate
+        env:
+          VISUAL_BASELINE_URL: http://127.0.0.1:4173
+          VISUAL_CANDIDATE_URL: http://127.0.0.1:4174
+          VISUAL_MAX_DIFFERENCE: '0.005'
+        run: node tests/visual/compare.mjs
+      - name: Upload public UI comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-visual-comparison
+          path: candidate/artifacts/visual/
+          if-no-files-found: warn
