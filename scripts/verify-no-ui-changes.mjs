@@ -47,7 +47,6 @@ const auditedUiBlobs = Object.freeze({
   "src/pages/EventDetail.jsx": "03ce7db756f8d51f19a06b60083de3985d343f94",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
   "src/pages/NotFoundPage.jsx": "6a1958bf3208721e4b6c78a0a17f60aff29bd49b",
-  "src/pages/Updates.jsx": "ff4a0ef12aa7e14ef1d8ab158162bf9f980a9cb9"
 });
 // Deletions of protected files are denied except the reviewed unused legacy stylesheet.
 const auditedUiDeletions = Object.freeze({ 'src/admin/AdminTheme.css': 'ca912562b66f5ac77da3b7a2aafd503681b15714' });
