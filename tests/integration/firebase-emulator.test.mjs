@@ -300,3 +300,23 @@ test('RBAC: only media-capable roles may upload images', async () => {
   await assertFails(deleteObject(ref(publisher.storage(), publisherId)));
   for (const id of [editorId, publisherId, ownerId]) await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
 });
+
+test('role audit records are append-only, actor-bound and super-admin readable', async () => {
+  const record = doc(superAdmin.firestore(), 'roleAudit/integration-role-grant');
+  const sampleAudit = {
+    actorUid: 'verified-owner', targetUid: 'verified-admin', action: 'grant',
+    beforeRole: null, afterRole: 'editor', createdAt: serverTimestamp(),
+  };
+  await assertFails(getDocs(collection(admin.firestore(), 'roleAudit')));
+  await assertFails(setDoc(doc(admin.firestore(), 'roleAudit/forged'), sampleAudit));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'roleAudit/impersonated'), {
+    ...sampleAudit, actorUid: 'other-owner',
+  }));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'roleAudit/invalid-promotion'), {
+    ...sampleAudit, afterRole: 'super_admin',
+  }));
+  await assertSucceeds(setDoc(record, sampleAudit));
+  await assertSucceeds(getDocs(collection(superAdmin.firestore(), 'roleAudit')));
+  await assertFails(updateDoc(record, { afterRole: 'admin' }));
+  await assertFails(deleteDoc(record));
+});
