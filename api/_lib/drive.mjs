@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
+import { hasPermission } from '../../src/lib/rbac.mjs';
 
 export const cookies = { state: 'bcg_drive_oauth', session: 'bcg_drive_session' };
 const maximumBytes = 4 * 1024 * 1024;
@@ -79,7 +80,8 @@ export async function requireAdmin(req) {
   if (!roleResponse.ok) throw Object.assign(new Error('Administrator access required'),{status:403});
   const record = await roleResponse.json();
   // The role document is looked up using the verified Firebase UID only.
-  if (record?.fields?.role?.stringValue !== 'admin') throw Object.assign(new Error('Administrator access required'),{status:403});
+  if (!hasPermission(record?.fields?.role?.stringValue, 'media.upload'))
+    throw Object.assign(new Error('Media-upload role required'), { status: 403 });
   return uid;
 }
 export function verifySession(req, uid) {
