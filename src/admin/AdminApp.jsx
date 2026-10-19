@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDocFromServer } from 'firebase/firestore';
+import { doc, getDocFromServer, onSnapshot } from 'firebase/firestore';
+import { isConsoleRole } from '../lib/rbac.mjs';
 import { auth, db, firebaseConfigured } from '../lib/firebase';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
@@ -13,10 +14,13 @@ export default function AdminApp() {
   const currentUser = useRef(null);
   const checkId = useRef(0);
   const mounted = useRef(false);
+  const stopRoleWatch = useRef(() => {});
 
   const verifyAdmin = useCallback(async (user) => {
     const id = ++checkId.current;
     currentUser.current = user;
+    stopRoleWatch.current();
+    stopRoleWatch.current = () => {};
 
     if (!user) {
       if (mounted.current) setSession({ status: 'signedOut', user: null, message: '' });
@@ -39,13 +43,26 @@ export default function AdminApp() {
 
       if (!mounted.current || id !== checkId.current) return;
 
-      if (record.exists() && record.data()?.role === 'admin') {
-        setSession({ status: 'authorized', user, message: '' });
+      if (record.exists() && isConsoleRole(record.data()?.role)) {
+        setSession({ status: 'authorized', user, role: record.data().role, message: '' });
+        // React to role changes or revocation while the administrator is signed in.
+        stopRoleWatch.current = onSnapshot(doc(db, 'admins', user.uid), snapshot => {
+          if (!mounted.current || id !== checkId.current) return;
+          const nextRole = snapshot.exists() ? snapshot.data()?.role : null;
+          if (isConsoleRole(nextRole)) {
+            setSession({ status: 'authorized', user, role: nextRole, message: '' });
+          } else {
+            setSession({ status: 'denied', user: null, message: 'Your console access has been removed.' });
+          }
+        }, () => {
+          if (!mounted.current || id !== checkId.current) return;
+          setSession({ status: 'error', user: null, message: 'Could not confirm your current role. Retry after checking your connection.' });
+        });
       } else {
         setSession({
           status: 'denied',
           user: null,
-          message: 'This account is not an administrator. Confirm that admins/<your Firebase UID> exists with role set to admin.',
+          message: 'This account has no authorized console role. Ask a super administrator to check your Firebase UID.',
         });
       }
     } catch (error) {
@@ -73,6 +90,7 @@ export default function AdminApp() {
     return () => {
       mounted.current = false;
       ++checkId.current;
+      stopRoleWatch.current();
       unsubscribe();
     };
   }, [verifyAdmin]);
@@ -103,7 +121,7 @@ export default function AdminApp() {
     );
   }
 
-  if (session.status === 'authorized') return <AdminDashboard user={session.user} />;
+  if (session.status === 'authorized') return <AdminDashboard user={session.user} role={session.role} />;
 
   if (session.status === 'denied' || session.status === 'error') {
     return (
