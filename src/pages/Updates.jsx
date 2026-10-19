@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MenuBar from '../components/MenuBar';
 import Footer from '../components/Footer';
-import { subscribePublishedNews } from '../lib/newsService';
+import { subscribePublishedNews, subscribePublishedNewsById } from '../lib/newsService';
 import './Updates.css';
 
 export default function Updates({ titleSlug }) {
@@ -16,25 +16,38 @@ export default function Updates({ titleSlug }) {
     setLoading(true);
     setLoadError(false);
     try {
-      unsubscribe = subscribePublishedNews((newsList) => {
-        if (!active) return;
-        const match = newsList.find((item) => {
-          const slug = encodeURIComponent(
-            (item.title || '')
-              .toLowerCase()
-              .trim()
-              .replace(/\s+/g, '-')
-          );
-          return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
-        });
-        setArticle(match || null);
-        setLoading(false);
-      }, (error) => {
+      const onFailure = error => {
         if (!active) return;
         console.error('News subscription failed:', error);
         setLoadError(true);
         setLoading(false);
-      });
+      };
+      // Standard public links use generated Firestore document IDs. Watching
+      // just that document avoids subscribing to every published news entry.
+      // Preserve full-collection lookup only for legacy title-based URLs.
+      const id = decodeURIComponent(titleSlug);
+      if (/^[A-Za-z0-9]{20}$/.test(id)) {
+        unsubscribe = subscribePublishedNewsById(id, record => {
+          if (!active) return;
+          setArticle(record || null);
+          setLoading(false);
+        }, onFailure);
+      } else {
+        unsubscribe = subscribePublishedNews((newsList) => {
+          if (!active) return;
+          const match = newsList.find((item) => {
+            const slug = encodeURIComponent(
+              (item.title || '')
+                .toLowerCase()
+                .trim()
+                .replace(/\\s+/g, '-')
+            );
+            return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
+          });
+          setArticle(match || null);
+          setLoading(false);
+        }, onFailure);
+      }
     } catch (error) {
       console.error('Error fetching news item:', error);
       if (active) { setLoadError(true); setLoading(false); }
