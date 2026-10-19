@@ -44,7 +44,7 @@ test('Drive endpoints reject incorrect HTTP methods without executing external r
   } finally { globalThis.fetch=before; }
 });
 
-test('Upload denies invalid Origin, anonymous users, and non-admin Firebase accounts', async () => {
+test('Upload denies invalid Origin, anonymous users, and read-only Firebase accounts', async () => {
   const cleanup=setup();
   const originalFetch=globalThis.fetch;
   const originalError=console.error;
@@ -65,9 +65,9 @@ test('Upload denies invalid Origin, anonymous users, and non-admin Firebase acco
     globalThis.fetch=async url=>{
       called++;
       if(String(url).includes('identitytoolkit.googleapis.com'))
-        return {ok:true,json:async()=>({users:[{localId:'ordinary-editor'}]})};
+        return {ok:true,json:async()=>({users:[{localId:'auditor-account'}]})};
       if(String(url).includes('firestore.googleapis.com'))
-        return {ok:true,json:async()=>({fields:{role:{stringValue:'editor'}}})};
+        return {ok:true,json:async()=>({fields:{role:{stringValue:'auditor'}}})};
       throw Error('Unexpected endpoint');
     };
     reply=res();
