@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MenuBar.css';
 
 const menuItems = [
@@ -12,6 +12,8 @@ const menuItems = [
 const MenuBar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const toggleRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     let ticking = false;
@@ -37,6 +39,32 @@ const MenuBar = () => {
     };
   }, [open]);
 
+  // Keep keyboard focus inside the open navigation panel and restore it on close.
+  useEffect(() => {
+    if (!open) return;
+    const toggle = toggleRef.current;
+    const panel = menuRef.current;
+    const elements = () => [...(panel?.querySelectorAll('button:not([disabled]), a[href]') || [])];
+    elements()[0]?.focus();
+    const trap = event => {
+      if (event.key !== 'Tab') return;
+      const focusables = elements();
+      if (!focusables.length) { event.preventDefault(); return; }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+        event.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => {
+      document.removeEventListener('keydown', trap);
+      toggle?.focus();
+    };
+  }, [open]);
+
   const handleNav = (item) => {
     setOpen(false);
 
@@ -50,7 +78,7 @@ const MenuBar = () => {
       setTimeout(() => {
         const el = document.getElementById(item.href);
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
+          el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         }
         if (window.history.pushState) {
           window.history.pushState(null, '', window.location.pathname);
@@ -66,6 +94,9 @@ const MenuBar = () => {
   return (
     <>
       <button
+        ref={toggleRef}
+        type="button"
+        aria-controls="site-navigation-panel"
         onClick={() => setOpen(!open)}
         aria-label="Toggle Navigation Menu"
         aria-expanded={open}
@@ -75,11 +106,16 @@ const MenuBar = () => {
         <span className="hamburger-line line-2" />
         <span className="hamburger-line line-3" />
       </button>
-      <div className={`menu-overlay ${open ? 'is-open' : ''}`}>
+      <div id="site-navigation-panel" ref={menuRef}
+        role={open ? 'dialog' : undefined} aria-modal={open ? 'true' : undefined}
+        aria-label={open ? 'Main navigation' : undefined}
+        aria-hidden={!open}
+        className={`menu-overlay ${open ? 'is-open' : ''}`}>
         <div className="menu-container">
           <nav className="menu-nav-list" aria-label="Main Navigation">
             {menuItems.map((item, i) => (
               <button
+                type="button"
                 key={item.label}
                 onClick={() => handleNav(item)}
                 className="menu-nav-item"
