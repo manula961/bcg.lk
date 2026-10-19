@@ -17,6 +17,7 @@ const news = createContentRepository('news', fields, {
 export const listPublishedNews = news.listPublished;
 export const subscribePublishedNews = news.subscribePublished;
 export const getPublishedNews = news.getPublished;
+export const subscribePublishedNewsById = news.subscribePublishedById;
 export const listAdminNews = news.listAdmin;
 export const subscribeAdminNews = news.subscribeAdmin;
 export const getAdminNews = news.getAdmin;
