@@ -6,6 +6,7 @@ This change is a **review-only remediation** for the October 19 audit. **No prod
 
 - [x] Storage Rules v2: media-capable roles may **create** public images; only Admin and Super Admin can **replace or delete** existing public images. Anonymous GET remains allowed and anonymous listing remains blocked.
 - [x] Firebase emulator regression tests cover Editor/Publisher blocked overwrites and privileged replacements.
+- [x] Super-admin grants, changes and revocations append role activity documents in the same Firestore transaction; client-side modification/deletion is denied. This is not a substitute for immutable server-side audit logs.
 - [x] News/Event details and CMS public pages expose retriable network-error states without altering the successful rendering path.
 - [x] Menu retains keyboard focus when open and obeys reduced-motion scrolling. Explore tabs support arrow/home/end navigation; automatic rotation stops under reduced motion.
 - [x] Google Drive uploads require explicit acknowledgement that files become public immediately.
@@ -17,7 +18,7 @@ This change is a **review-only remediation** for the October 19 audit. **No prod
 
 ## Production owner actions — NOT completed by this PR
 
-- [ ] Compare live deployed Firestore and Storage Rules releases with repository sources using the authorized GET-only audit script, **and verify any intended RBAC changes are actually live**. A Vercel deployment does not deploy Firebase rules.
+- [ ] **Deploy reviewed Firestore RBAC audit rules before the new role UI**, so role assignments will not be blocked by an unknown collection. Ensure backups and rollback.\n- [ ] Compare live deployed Firestore and Storage Rules releases with repository sources using the authorized GET-only audit script, **and verify any intended RBAC changes are actually live**. A Vercel deployment does not deploy Firebase rules.
 - [ ] Independently review and approve this PR, then enforce **required passing CI + one independent approval** for the main branch in GitHub Settings → Rulesets/Branches. The workflow check alone cannot guarantee blocked merges without a protected-branch requirement.
 - [ ] Deploy the reviewed Storage rules separately, after backup, project/bucket confirmation, evidence, and rollback plan. Test existing image URLs and no unauthorized overwrites.
 - [ ] Test scheduled backups and restore of Firestore content, Auth roles, Storage and Drive-linked assets in a nonproduction environment. Record a recovery point and restore procedure.
