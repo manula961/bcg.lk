@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import ContentManager from './ContentManager';
+import RoleManager from './RoleManager';
+import { hasPermission, ROLE_LABELS } from '../lib/rbac.mjs';
 import './Admin.css';
 import './AdminFrontendTheme.css';
 
@@ -88,7 +90,19 @@ const sections = [
   },
 ];
 
-export default function AdminDashboard({ user }) {
+const roleSection = {
+  id: 'users',
+  label: 'Users & Roles',
+  description: 'Manage console roles for existing Firebase accounts',
+  icon: (
+    <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="8" cy="8" r="3" /><circle cx="17" cy="9" r="2" />
+      <path d="M2 20v-2a6 6 0 0 1 12 0v2M15 15a5 5 0 0 1 7 5" />
+    </svg>
+  ),
+};
+
+export default function AdminDashboard({ user, role }) {
   const [section, setSection] = useState('news');
   const [editorDirty, setEditorDirty] = useState(false);
 
@@ -99,7 +113,9 @@ export default function AdminDashboard({ user }) {
     setSection(next);
   }
 
-  const currentSection = sections.find((s) => s.id === section);
+  const visibleSections = hasPermission(role, 'users.manage') ? [...sections, roleSection] : sections;
+  const selectedSection = visibleSections.some(item => item.id === section) ? section : 'news';
+  const currentSection = visibleSections.find((s) => s.id === selectedSection);
 
   return (
     <main className="admin-body">
@@ -119,13 +135,13 @@ export default function AdminDashboard({ user }) {
           <div className="admin-sidebar-nav-container">
             <div className="admin-sidebar-section-label">Navigation</div>
             <nav aria-label="Admin content sections" className="admin-sidebar-nav">
-              {sections.map((item) => (
+              {visibleSections.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => changeSection(item.id)}
-                  aria-pressed={section === item.id}
-                  className={`admin-nav-item ${section === item.id ? 'active' : ''}`}
+                  aria-pressed={selectedSection === item.id}
+                  className={`admin-nav-item ${selectedSection === item.id ? 'active' : ''}`}
                 >
                   <span className="admin-nav-icon">{item.icon}</span>
                   <div className="admin-nav-text">
@@ -139,7 +155,7 @@ export default function AdminDashboard({ user }) {
 
           <div className="admin-sidebar-footer">
             <div className="admin-user-info">
-              <span className="admin-user-email">{user?.email}</span>
+              <span className="admin-user-email">{user?.email} · {ROLE_LABELS[role] || 'No role'}</span>
             </div>
             <button
               type="button"
@@ -177,7 +193,9 @@ export default function AdminDashboard({ user }) {
           </header>
 
           <div className="admin-content-area">
-            <ContentManager key={section} kind={section} onDirtyChange={setEditorDirty} />
+            {selectedSection === 'users'
+              ? <RoleManager currentUid={user?.uid} />
+              : <ContentManager key={selectedSection + ':' + role} kind={selectedSection} role={role} onDirtyChange={setEditorDirty} />}
           </div>
         </div>
       </div>
