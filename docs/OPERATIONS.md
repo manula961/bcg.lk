@@ -32,7 +32,7 @@ The last command requires a completed `dist/` build. GitHub Actions performs add
 - **BCG.LK Build:** build and JavaScript size budget.
 - **Backend checks:** test suite, UI-preservation guard and Firebase Firestore/Storage emulator tests, including denial of anonymous Storage directory listing.
 - **Dependency security audit:** block high/critical advisories in production dependencies, while reporting development advisories.
-- **BCG.LK Browser Smoke:** responsive routes, keyboard calendar interactions, and a disposable Auth/Firestore/Storage emulator-backed CMS test.
+- **BCG.LK Browser Smoke:** responsive routes, keyboard calendar interactions, and a disposable Auth/Firestore/Storage emulator-backed CMS test. Pull requests also build a fresh `main` baseline and candidate and pixel-compare desktop/mobile screenshots before reporting visual success.
 
 CI uses Node 24 to match the connected Vercel project's production runtime. Updating Node or workflow action versions requires a new PR check run; do not infer compatibility solely from configuration.
 
@@ -73,10 +73,10 @@ For an **authorized manual** Firestore export, verify the active project and des
 ```bash
 gcloud config set project YOUR_EXISTING_FIREBASE_PROJECT_ID
 gcloud firestore export gs://YOUR_PRIVATE_BACKUP_BUCKET/bcg-backup \
-  --collection-ids=news,events,pages,societies,sports,extracurricular,leadership
+  --collection-ids=news,events,pages,societies,sports,extracurricular,leadership,admins,roleAudit
 ```
 
-A Firestore export does **not** back up Auth users, the administrators' permissions, Firebase Storage objects, Google Drive files or every deployment setting. Include those systems in the recovery inventory. Never run a production import/overwrite based only on this example; obtain approval and practice a restore first.
+A Firestore export containing `admins` and `roleAudit` preserves the Firestore role records and role-activity documents, but does **not** back up Firebase Authentication user identities, Firebase Storage objects, Google Drive files or every deployment setting. Include those systems in the recovery inventory. Never run a production import/overwrite based only on this example; obtain approval and practice a restore first. Store the Authentication export with encryption and narrow IAM access; take separate inventories/backups of Firebase Storage and publicly shared Drive images. **Practice a restore in a distinct nonproduction Firebase/GCP project** and record a date, successful record counts, roles retained and tested image links before considering recovery verified.
 
 ## 7. Google Drive image uploads
 
@@ -86,7 +86,7 @@ Only an authorized site administrator should connect the intended Google account
 
 ## 8. Public site health, SEO and dependencies
 
-`public/robots.txt` and `public/sitemap.xml` describe the known static public pages. Dynamic Firestore-backed pages may need further server-side metadata/sitemap improvements. Validate the canonical hostname before editing SEO tags. Unknown static routes should return HTTP 404 from Vercel middleware; unknown dynamic CMS IDs may still require separate handling.
+The Vite build now generates unique static-page HTML metadata for `/events`, `/about-us`, and `/life/*`, plus a sitemap of known static pages. Do not confuse these with **dynamic** Firestore-backed articles/events/pages: their server-rendered metadata and published-content sitemap entries still require a trusted server-side content feed. Validate the canonical hostname before editing SEO tags. Unknown static routes should return HTTP 404 from Vercel middleware; unknown dynamic CMS IDs may still require separate handling.
 
 After an approved deployment, perform read-only HTTP checks:
 
