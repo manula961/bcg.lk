@@ -26,8 +26,11 @@ const auditedUiBlobs = Object.freeze({
   "src/pages/lifePageData.js": "638e19fd673ebddc40453ffd9893b53141abf0aa",
   "src/pages/LifeDetailPage.jsx": "f6d3765edfec7d207798cb98afd717746328efb1",
   "src/pages/EventsPage.css": "a2a5a58a973c82a0c0bdbbd69f73b5c3ee4125a5",
-  "src/admin/AdminApp.jsx": "e53fa46b9ef7c6cddbde40e0fed43dfe9a71478a",
-  "src/admin/ContentManager.jsx": "47995288a9ca9427396e57f7e284588ca7aa0507",
+  // RBAC-only admin-console behavior, reviewed as part of this PR.
+  "src/admin/AdminApp.jsx": "0f59da69988f92c77021fa9542a2f921cbfa7e66",
+  "src/admin/AdminDashboard.jsx": "b5f3d54fc17d14e67d8a98747c4e8e75ce0b688e",
+  "src/admin/RoleManager.jsx": "0eb4a551a96833259eb7b145c627d3572c2bef33",
+  "src/admin/ContentManager.jsx": "962dc93e3912eb2470929843baa9d08c0f5ffc5b",
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
