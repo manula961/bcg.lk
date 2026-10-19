@@ -59,7 +59,7 @@ try {
         scrollWidth: document.documentElement.scrollWidth,
       }));
       if (overflow.scrollWidth > overflow.width + 2) {
-        console.warn(route.label + ': potential horizontal overflow ' + JSON.stringify(overflow));
+        throw new Error(route.label + ': horizontal overflow ' + JSON.stringify(overflow));
       }
       console.log('PASS ' + route.label);
     } catch (error) {
