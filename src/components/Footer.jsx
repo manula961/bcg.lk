@@ -3,16 +3,15 @@ import "./Footer.css";
 
 const quickLinks = [
   ["Home", "/"],
-  ["About Us", "/about-us"],
-  ["News & Updates", "/#news"],
-  ["Events & Calendar", "/events"],
+  ["News", "/#news"],
+  ["Events", "/#events"],
   ["Explore", "/#explore"],
 ];
 const collegeLinks = [
-  ["Academic Excellence", "/life/academic-excellence"],
+  ["Academics", "/life/academic-excellence"],
   ["Sports & Societies", "/life/sports-societies"],
   ["School Leadership", "/life/leadership"],
-  ["College History", "/life/about-us"],
+  ["About Us", "/life/about-us"],
 ];
 
 // Add confirmed profile URLs below when available. Icons without URLs are decorative,
@@ -162,7 +161,7 @@ export default function Footer() {
             </div>
           </div>
           <LinkColumn title="Quick Links" items={quickLinks} />
-          <LinkColumn title="Explore College" items={collegeLinks} />
+          <LinkColumn title="Explore More" items={collegeLinks} />
           <div className="footer-column footer-contact">
             <h2 className="footer-col-title">Find Us</h2>
             <a
