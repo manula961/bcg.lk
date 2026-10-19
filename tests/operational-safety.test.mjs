@@ -7,6 +7,8 @@ test('Firebase compatibility audit is read-only and requires explicit local cons
   const script = read('scripts/audit-firestore-readonly.mjs');
   assert.match(script, /BCG_READONLY_AUDIT/);
   assert.match(script, /FIREBASE_AUDIT_ACCESS_TOKEN/);
+  assert.match(script, /FIREBASE_STORAGE_BUCKET/);
+  assert.match(script, /storageRulesVerified/);
   assert.match(script, /method: 'GET'/);
   assert.doesNotMatch(script, /method: '(?:POST|PUT|PATCH|DELETE)'/);
   for (const kind of ['news','events','pages','societies','sports','extracurricular','leadership'])
@@ -29,4 +31,18 @@ test('dependabot schedules safe dev updates without silent major framework migra
   assert.match(yaml, /interval: weekly/);
   assert.match(yaml, /dependency-name: vite/);
   assert.match(yaml, /semver-major/);
+});
+
+test('CI builds against Vercel production Node 24 and maintained action majors', () => {
+  for (const file of [
+    'build.yml', 'backend-checks.yml', 'browser-smoke.yml',
+    'dependency-security.yml', 'production-readonly-smoke.yml',
+    'visual-regression.yml',
+  ]) {
+    const workflow = read('.github/workflows/' + file);
+    assert.match(workflow, /node-version: '24'/);
+    assert.doesNotMatch(workflow, /actions\/(?:checkout|setup-node|setup-java)@v4/);
+    assert.match(workflow, /actions\/checkout@v5/);
+    assert.match(workflow, /actions\/setup-node@v5/);
+  }
 });
