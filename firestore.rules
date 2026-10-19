@@ -18,9 +18,34 @@ service cloud.firestore {
       return name in ['admin', 'publisher', 'editor', 'auditor'];
     }
     // The first super_admin is assigned by a trusted console or Admin SDK.
-    // Never allow granting super_admin or changing any super_admin via the client.
+    // No client may grant super_admin, edit their own role, or change another super_admin.
     function validRoleProvision(uid) {
-      return uid.matches('^[A-Za-z0-9_-]{1,128}
+      return uid.matches('^[A-Za-z0-9_-]{1,128}$')
+        && uid != request.auth.uid
+        && request.resource.data.keys().hasOnly(['role','createdAt','createdBy','updatedAt','updatedBy'])
+        && validManagedRole(request.resource.data.role)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    function validRoleUpdate(uid) {
+      return uid != request.auth.uid
+        && resource.data.role != 'super_admin'
+        && validManagedRole(request.resource.data.role)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','updatedAt','updatedBy'])
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    function editorDraftUpdateOnly() {
+      return resource.data.published == false
+        && request.resource.data.published == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title','excerpt','body','category','tag','imageUrl','description',
+          'eventDate','location','color','slug','seoDescription',
+          'websiteUrl','achievements','role','updatedAt','updatedBy'
+        ]);
+    }
     function optionalString(data, key, max) {
       return !(key in data) || (data[key] is string && data[key].size() <= max);
     }
