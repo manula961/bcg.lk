@@ -16,6 +16,17 @@ test('public CMS detail subscriptions have asynchronous error paths and retry co
   assert.match(page, /setRetry\(value => value \+ 1\)/);
 });
 
+test('Firestore-generated article/event links watch only one published document', () => {
+  const repo = read('src/lib/contentRepository.js');
+  const news = read('src/pages/Updates.jsx');
+  const event = read('src/pages/EventDetail.jsx');
+  assert.match(repo, /subscribePublishedById\(id, callback, handleError\)/);
+  assert.match(news, /subscribePublishedNewsById\(id, record/);
+  assert.match(event, /subscribePublishedEventById\(id, record/);
+  assert.match(news, /subscribePublishedNews\(\(newsList\)/);
+  assert.match(event, /subscribePublishedEvents\(\(eventsList\)/);
+});
+
 test('menu protects keyboard focus and scrolls instantly when reduced motion requested', () => {
   const menu = read('src/components/MenuBar.jsx');
   assert.match(menu, /aria-controls="site-navigation-panel"/);
