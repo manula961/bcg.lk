@@ -50,3 +50,15 @@ test('build postprocessor emits valid static route pages and does not overwrite 
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('deployment adds anti-clickjacking, MIME and admin-indexing headers', () => {
+  const config = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
+  const global = config.headers.find(x => x.source === '/(.*)')?.headers || [];
+  const entries = Object.fromEntries(global.map(x => [x.key.toLowerCase(), x.value]));
+  assert.equal(entries['x-content-type-options'], 'nosniff');
+  assert.equal(entries['x-frame-options'], 'DENY');
+  assert.equal(entries['referrer-policy'], 'strict-origin-when-cross-origin');
+  assert.match(entries['permissions-policy'], /camera=\(\)/);
+  const admin = config.headers.find(x => x.source === '/admin')?.headers || [];
+  assert.ok(admin.some(x => x.key.toLowerCase() === 'x-robots-tag' && x.value.includes('noindex')));
+});
