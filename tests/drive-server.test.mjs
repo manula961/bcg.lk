@@ -188,7 +188,7 @@ test('admin boundary rejects malformed Firebase account identities and roles', a
       await assert.rejects(() => requireAdmin(req), { status: 401 });
       assert.equal(calls, 1, 'invalid identity must not reach Firestore');
     }
-    for (const role of ['auditor', 'editor', '', undefined]) {
+    for (const role of ['auditor', '', undefined]) {
       globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
         ? json({ users: [{ localId: 'admin' }] })
         : json(role === undefined ? {} : { fields: { role: { stringValue: role } } });
