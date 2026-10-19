@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import {
-  collection, doc, getDoc, getDocs, query, where, setDoc, updateDoc, deleteDoc
+  collection, doc, getDoc, getDocs, query, where, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes, deleteObject } from 'firebase/storage';
 
@@ -18,7 +18,7 @@ const sample = {
 };
 
 let environment;
-let admin, editor, visitor;
+let admin, editor, publisher, superAdmin, visitor;
 
 const firestoreRules = readFileSync(new URL('../../firestore.rules', import.meta.url), 'utf8');
 const storageRules = readFileSync(new URL('../../storage.rules', import.meta.url), 'utf8');
@@ -36,10 +36,15 @@ before(async () => {
   await environment.clearFirestore();
   admin = environment.authenticatedContext('verified-admin');
   editor = environment.authenticatedContext('ordinary-editor');
+  publisher = environment.authenticatedContext('verified-publisher');
+  superAdmin = environment.authenticatedContext('verified-owner');
   visitor = environment.unauthenticatedContext();
   await environment.withSecurityRulesDisabled(async context => {
     await setDoc(doc(context.firestore(), 'admins/verified-admin'), { role: 'admin' });
     await setDoc(doc(context.firestore(), 'admins/ordinary-editor'), { role: 'editor' });
+    await setDoc(doc(context.firestore(), 'admins/verified-publisher'), { role: 'publisher' });
+    await setDoc(doc(context.firestore(), 'admins/verified-owner'), { role: 'super_admin' });
+    await setDoc(doc(context.firestore(), 'admins/other-owner'), { role: 'super_admin' });
     await setDoc(doc(context.firestore(), 'news/published-news'), {
       title: 'Published', excerpt: 'Visible', category: 'News', published: true,
     });
@@ -206,4 +211,74 @@ test('multiline editorial content is allowed, but whitespace-only bodies are rej
   }));
   await assertFails(updateDoc(record, { body: ' \n \t ' }));
   await assertSucceeds(deleteDoc(record));
+});
+
+test('RBAC: super-admin alone can manage nonprivileged role grants', async () => {
+  const accounts = collection(superAdmin.firestore(), 'admins');
+  await assertSucceeds(getDocs(accounts));
+  await assertFails(getDocs(collection(publisher.firestore(), 'admins')));
+  await assertFails(getDocs(collection(editor.firestore(), 'admins')));
+  await assertFails(getDocs(collection(admin.firestore(), 'admins')));
+  await assertFails(getDoc(doc(editor.firestore(), 'admins/verified-owner')));
+  await assertSucceeds(getDoc(doc(superAdmin.firestore(), 'admins/verified-admin')));
+
+  const target = doc(superAdmin.firestore(), 'admins/new-staff-uid');
+  await assertFails(setDoc(doc(admin.firestore(), 'admins/another-staff'), { role: 'editor' }));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'admins/other-elevated'), {
+    role: 'super_admin', createdAt: serverTimestamp(), createdBy: 'verified-owner',
+    updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  }));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'admins/verified-owner'), {
+    role: 'admin', createdAt: serverTimestamp(), createdBy: 'verified-owner',
+    updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  }));
+  await assertSucceeds(setDoc(target, {
+    role: 'editor', createdAt: serverTimestamp(), createdBy: 'verified-owner',
+    updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  }));
+  await assertFails(updateDoc(doc(superAdmin.firestore(), 'admins/verified-owner'), {
+    role: 'admin', updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  }));
+  await assertFails(updateDoc(doc(superAdmin.firestore(), 'admins/other-owner'), {
+    role: 'admin', updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  }));
+  await assertFails(deleteDoc(doc(superAdmin.firestore(), 'admins/other-owner')));
+  await assertFails(updateDoc(target, { role: 'super_admin', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
+  await assertFails(updateDoc(target, { role: 'admin', createdBy: 'verified-owner', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
+  await assertSucceeds(updateDoc(target, { role: 'publisher', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
+  await assertFails(deleteDoc(doc(admin.firestore(), 'admins/new-staff-uid')));
+  await assertSucceeds(deleteDoc(target));
+});
+
+test('RBAC: editors manage drafts only, publishers can publish but cannot delete', async () => {
+  const id = 'draft-editor-rbac';
+  const refEditor = doc(editor.firestore(), 'news', id);
+  const refPublisher = doc(publisher.firestore(), 'news', id);
+  const refAdmin = doc(admin.firestore(), 'news', id);
+  await assertFails(setDoc(doc(editor.firestore(), 'news/editor-published'), {
+    title: 'Cannot publish directly', excerpt: 'Draft only', published: true,
+  }));
+  await assertSucceeds(setDoc(refEditor, {
+    title: 'Draft title', excerpt: 'Draft excerpt', published: false,
+  }));
+  await assertSucceeds(updateDoc(refEditor, { title: 'Edited draft' }));
+  await assertFails(updateDoc(refEditor, { published: true }));
+  await assertFails(updateDoc(refEditor, { rank: 7 }));
+  await assertFails(updateDoc(refEditor, { publishedAt: serverTimestamp() }));
+  await assertFails(deleteDoc(refEditor));
+  await assertSucceeds(updateDoc(refPublisher, { published: true }));
+  await assertFails(updateDoc(refEditor, { title: 'Published content changed by editor' }));
+  await assertFails(deleteDoc(refPublisher));
+  await assertSucceeds(deleteDoc(refAdmin));
+});
+
+test('RBAC: only media-capable roles may upload images', async () => {
+  const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+  const id = 'public/rbac-image-test.png';
+  await assertSucceeds(uploadBytes(ref(editor.storage(), id), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(publisher.storage(), id), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), id), image, { contentType: 'image/png' }));
+  const auditor = environment.authenticatedContext('security-auditor');
+  await assertFails(uploadBytes(ref(auditor.storage(), id), image, { contentType: 'image/png' }));
+  await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
 });
