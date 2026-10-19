@@ -37,7 +37,7 @@ const auditedUiBlobs = Object.freeze({
   // RBAC-only admin-console behavior, reviewed as part of this PR.
   "src/admin/AdminApp.jsx": "0f59da69988f92c77021fa9542a2f921cbfa7e66",
   "src/admin/AdminDashboard.jsx": "b5f3d54fc17d14e67d8a98747c4e8e75ce0b688e",
-  "src/admin/RoleManager.jsx": "0eb4a551a96833259eb7b145c627d3572c2bef33",
+  "src/admin/RoleManager.jsx": "08c4f9fe8811b013a44d2ea5461c11dad34565f7",
   "src/admin/ContentManager.jsx": "6b696b1997339399f7196c27db5d7b3d1e78f92d",
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
