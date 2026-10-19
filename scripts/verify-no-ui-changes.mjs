@@ -24,7 +24,7 @@ const auditedUiBlobs = Object.freeze({
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
   "src/pages/PublishedContentPage.jsx": "99af8ea869b3c76f0c59a63737c6cdf3f50c63b6",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
-  "src/pages/Updates.jsx": "2feedffdfece1c290fc1fe5e1b04f150dc3f4d89",
+  "src/pages/Updates.jsx": "3d5e21ceb2629d1184a742fc0df2b2798a43a0ac",
   "public/sitemap.xml": "a794bbe90c130970abd057344a97cec18a6559a1",
   "public/robots.txt": "67e4697aed7c6374a137916b11104e712e3eddf9",
   "index.html": "8e6421a10e130c855b273cc4b8097185fbefe6e2",
@@ -44,7 +44,7 @@ const auditedUiBlobs = Object.freeze({
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
   "src/components/NewsSection.jsx": "4abb800b5e07106d7e405ad316a89fa1f8e2f107",
   "src/main.jsx": "fe28c758cf1ae32f4d86df5386c3f7b074262751",
-  "src/pages/EventDetail.jsx": "03ce7db756f8d51f19a06b60083de3985d343f94",
+  "src/pages/EventDetail.jsx": "eba0eaacdd8cb40691cd92f266829cc073b51e04",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
   "src/pages/NotFoundPage.jsx": "6a1958bf3208721e4b6c78a0a17f60aff29bd49b",
 });
