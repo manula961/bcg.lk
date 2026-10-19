@@ -22,6 +22,12 @@ const cases = [
   { name: 'mobile-home', path: '/', width: 390, height: 844 },
   { name: 'desktop-admin', path: '/admin', width: 1440, height: 900 },
   { name: 'mobile-admin', path: '/admin', width: 390, height: 844 },
+  { name: 'desktop-events', path: '/events', width: 1440, height: 900 },
+  { name: 'mobile-events', path: '/events', width: 390, height: 844 },
+  { name: 'mobile-sports-societies', path: '/life/sports-societies', width: 390, height: 844 },
+  { name: 'desktop-sports-societies', path: '/life/sports-societies', width: 1440, height: 900 },
+  { name: 'mobile-leadership', path: '/life/leadership', width: 390, height: 844 },
+  { name: 'mobile-about-us', path: '/about-us', width: 390, height: 844 },
 ];
 const threshold = Number(process.env.VISUAL_MAX_DIFFERENCE ?? '0.005');
 if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) throw new Error('Invalid VISUAL_MAX_DIFFERENCE');
