@@ -59,7 +59,7 @@ test('Firebase Auth token is checked and admin role must match the exact UID', a
 
     globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
       ? json({ users: [{ localId: 'verified-admin' }] })
-      : json({ fields: { role: { stringValue: 'editor' } } });
+      : json({ fields: { role: { stringValue: 'auditor' } } });
     await assert.rejects(() => requireAdmin({ headers: { authorization: 'Bearer valid.firebase.token' } }), { status: 403 });
 
     globalThis.fetch = async () => json({}, 401);
