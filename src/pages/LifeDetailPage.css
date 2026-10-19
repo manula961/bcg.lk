@@ -1355,3 +1355,83 @@
 .life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-return-btn {
   color: #e0c575;
 }
+
+
+/* Academic Excellence: past papers preview */
+.life-detail .life-detail-past-papers {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(20px, 5vw, 64px);
+  margin: clamp(30px, 5vw, 58px) 0;
+  padding: clamp(26px, 4vw, 48px);
+  border: 1px solid rgba(123, 28, 28, 0.12);
+  border-radius: 22px;
+  background: linear-gradient(115deg, #fcf8f4 0%, #f5eee7 100%);
+  overflow: hidden;
+}
+.life-detail .life-detail-past-papers-copy { max-width: 650px; }
+.life-detail .life-detail-past-papers-eyebrow {
+  display: block;
+  color: #8c2929;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  margin-bottom: 12px;
+}
+.life-detail .life-detail-past-papers h2 {
+  color: #251e1e;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 14px;
+}
+.life-detail .life-detail-past-papers p {
+  color: #615858;
+  font-size: clamp(0.9rem, 1.4vw, 1rem);
+  line-height: 1.8;
+  margin: 0 0 24px;
+}
+.life-detail .life-detail-past-papers-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 12px 20px;
+  color: #fff;
+  background: #7b1c1c;
+  border-radius: 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.life-detail .life-detail-past-papers-link:hover {
+  background: #571313;
+  transform: translateY(-2px);
+}
+.life-detail .life-detail-past-papers-link svg { width: 18px; height: 18px; }
+.life-detail .life-detail-past-papers-art {
+  width: clamp(110px, 18vw, 185px);
+  flex-shrink: 0;
+  color: #8c2929;
+  opacity: 0.8;
+}
+.life-detail .life-detail-past-papers-art svg { display: block; width: 100%; }
+@media (max-width: 600px) {
+  .life-detail .life-detail-past-papers { padding: 26px 22px; }
+  .life-detail .life-detail-past-papers-art { display: none; }
+  .life-detail .life-detail-past-papers-link { width: 100%; }
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers {
+  background: linear-gradient(115deg, #2a2222, #201b1b);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers h2 { color: #f8f3ed; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers p { color: #d9cfca; }

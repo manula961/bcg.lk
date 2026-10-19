@@ -6,7 +6,7 @@ const menuItems = [
   { label: 'News', href: 'news', sub: 'Latest Updates & Announcements' },
   { label: 'Events', href: 'events', sub: 'Upcoming Events Calendar' },
   { label: 'Explore', href: 'explore', sub: 'Discover Our Campus' },
-  { label: 'Nayakenz Pride', href: 'NayakenzPride', sub: 'Life As A Nayaken' },
+  { label: 'Explore More', href: 'NayakenzPride', sub: 'Life As A Nayaken' },
 ];
 
 const MenuBar = () => {

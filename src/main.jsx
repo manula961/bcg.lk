@@ -12,6 +12,7 @@ const PublishedContentPage = lazy(() => import('./pages/PublishedContentPage.jsx
 const Updates = lazy(() => import('./pages/Updates.jsx'));
 const EventDetail = lazy(() => import('./pages/EventDetail.jsx'));
 const EventsPage = lazy(() => import('./pages/EventsPage.jsx'));
+const PastPapersPage = lazy(() => import('./pages/PastPapersPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
 import './index.css';
 
@@ -35,6 +36,7 @@ function Root() {
   const eventsMatch = pathname.match(/^\/events\/([^/]+)\/?$/);
   const eventsSlug = eventsMatch ? eventsMatch[1] : null;
 
+  if (pathname === '/past-papers' || pathname === '/past-papers/') return <PastPapersPage />;
   if (isAdminPath) return <AdminApp />;
   if (isAboutUsPath) return <LifeDetailPage slug="about-us" />;
   if (isEventsIndex) return <EventsPage />;

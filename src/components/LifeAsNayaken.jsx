@@ -17,7 +17,7 @@ export const bentoCards = [
     slug: 'academic-excellence',
     area: 'academic',
     tag: 'THE NAYAKENZ WAY',
-    title: 'Academic Excellence',
+    title: 'Academics',
     description: 'Top-tier standings in national A/L & O/L examinations and discovery across all streams.',
     accent: 'blue',
     image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80', // Replace with Academic image
