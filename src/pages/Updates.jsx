@@ -40,7 +40,7 @@ export default function Updates({ titleSlug }) {
               (item.title || '')
                 .toLowerCase()
                 .trim()
-                .replace(/\\s+/g, '-')
+                .replace(/\s+/g, '-')
             );
             return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
           });
