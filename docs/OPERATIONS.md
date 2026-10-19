@@ -30,9 +30,11 @@ node scripts/check-bundle-budget.mjs
 
 The last command requires a completed `dist/` build. GitHub Actions performs additional checks:
 - **BCG.LK Build:** build and JavaScript size budget.
-- **Backend checks:** test suite, UI-preservation guard and Firebase Firestore/Storage emulator tests.
+- **Backend checks:** test suite, UI-preservation guard and Firebase Firestore/Storage emulator tests, including denial of anonymous Storage directory listing.
 - **Dependency security audit:** block high/critical advisories in production dependencies, while reporting development advisories.
 - **BCG.LK Browser Smoke:** responsive routes, keyboard calendar interactions, and a disposable Auth/Firestore/Storage emulator-backed CMS test.
+
+CI uses Node 24 to match the connected Vercel project's production runtime. Updating Node or workflow action versions requires a new PR check run; do not infer compatibility solely from configuration.
 
 The browser tests use a fixed `demo-bcg-e2e` emulator project and **must not be pointed at live Firebase**. The manual **BCG.LK Visual Regression** workflow requires reviewable baseline and candidate deployment URLs; a passing code test does not replace pixel comparison or accessibility review.
 
@@ -50,16 +52,17 @@ GitHub branch protection and mandatory PR reviews must be checked in repository 
 
 The current rules validate required fields on writes; old records missing `title`, boolean `published`, or collection-specific required fields can become uneditable until corrected. A page's `slug` must match its Firestore document ID. First back up and audit **all seven** collections, then correct incompatible legacy records through an approved process.
 
-Use `scripts/audit-firestore-readonly.mjs` to check the **existing** Firebase project and compare deployed Firestore rules with the repo source, with authorized *read-only* Google Cloud access:
+Use `scripts/audit-firestore-readonly.mjs` to check the **existing** Firebase project and compare deployed Firestore rules with the repo source. It can also compare deployed Storage rules when `FIREBASE_STORAGE_BUCKET` is supplied. Use authorized *read-only* Google Cloud access:
 
 ```bash
 export FIREBASE_PROJECT_ID="YOUR_EXISTING_FIREBASE_PROJECT_ID"
+export FIREBASE_STORAGE_BUCKET="YOUR_EXISTING_STORAGE_BUCKET_HOSTNAME"
 export FIREBASE_AUDIT_ACCESS_TOKEN="$(gcloud auth print-access-token)"
 BCG_READONLY_AUDIT=YES node scripts/audit-firestore-readonly.mjs
 unset FIREBASE_AUDIT_ACCESS_TOKEN
 ```
 
-The script makes GET requests and reports counts and incompatibilities, not document contents. If the deployed rules cannot be read or differ, do not assume production matches source. Review backup integrity, affected documents and a rollback procedure before an authorized `firebase deploy --only firestore:rules,storage` directed to the **intended existing project**. Never trigger that deployment automatically from documentation-only work.
+The script makes GET requests and reports counts and incompatibilities, not document contents. An unset Storage bucket skips that comparison; inaccessible or mismatched releases produce a nonzero exit code. **A GitHub merge does not deploy the updated Storage rules.** In this remediation, the repository rules keep image GETs public but restrict Storage `list` to administrators. Only deploy after an authorized reviewer checks expected bucket behavior, the correct Firebase project, backups, and a rollback plan. If deployed rules cannot be read or differ, do not assume production matches source. Review backup integrity, affected documents and a rollback procedure before an authorized `firebase deploy --only firestore:rules,storage` directed to the **intended existing project**. Never trigger that deployment automatically from documentation-only work.
 
 ## 6. Backup and recovery
 
