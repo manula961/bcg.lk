@@ -8,6 +8,7 @@ This change is a **review-only remediation** for the October 19 audit. **No prod
 - [x] Firebase emulator regression tests cover Editor/Publisher blocked overwrites and privileged replacements.
 - [x] Super-admin grants, changes and revocations append role activity documents in the same Firestore transaction; client-side modification/deletion is denied. This is not a substitute for immutable server-side audit logs.
 - [x] News/Event details and CMS public pages expose retriable network-error states without altering the successful rendering path.
+- [x] Standard 20-character Firestore News/Event document links now subscribe to a single published record; legacy title URLs preserve their existing collection lookup.
 - [x] Menu retains keyboard focus when open and obeys reduced-motion scrolling. Explore tabs support arrow/home/end navigation; automatic rotation stops under reduced motion.
 - [x] Google Drive uploads require explicit acknowledgement that files become public immediately.
 - [x] Generate route-specific static HTML metadata for /events, /about-us and /life/*, with canonical and Open Graph URLs. Preserve the React UI and homepage HTML. Dynamic CMS SEO **still requires a separately authenticated server rendering/data-export solution**.
