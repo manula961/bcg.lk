@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/about-us",
+      "destination": "/about-us/index.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/events/index.html"
+    },
+    {
+      "source": "/life/about-us",
+      "destination": "/life/about-us/index.html"
+    },
+    {
+      "source": "/life/academic-excellence",
+      "destination": "/life/academic-excellence/index.html"
+    },
+    {
+      "source": "/life/sports-societies",
+      "destination": "/life/sports-societies/index.html"
+    },
+    {
+      "source": "/life/leadership",
+      "destination": "/life/leadership/index.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
