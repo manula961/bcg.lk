@@ -7,11 +7,17 @@ import './Updates.css';
 export default function Updates({ titleSlug }) {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    let active = true;
     let unsubscribe = () => {};
+    setLoading(true);
+    setLoadError(false);
     try {
       unsubscribe = subscribePublishedNews((newsList) => {
+        if (!active) return;
         const match = newsList.find((item) => {
           const slug = encodeURIComponent(
             (item.title || '')
@@ -23,13 +29,18 @@ export default function Updates({ titleSlug }) {
         });
         setArticle(match || null);
         setLoading(false);
+      }, (error) => {
+        if (!active) return;
+        console.error('News subscription failed:', error);
+        setLoadError(true);
+        setLoading(false);
       });
     } catch (error) {
       console.error('Error fetching news item:', error);
-      setLoading(false);
+      if (active) { setLoadError(true); setLoading(false); }
     }
-    return () => unsubscribe();
-  }, [titleSlug]);
+    return () => { active = false; unsubscribe(); };
+  }, [titleSlug, retry]);
 
   useEffect(() => {
     if (article?.title) {
@@ -81,10 +92,11 @@ export default function Updates({ titleSlug }) {
           <MenuBar />
         </div>
         <div className="updates-not-found">
-          <h1 className="updates-not-found-title">Update Not Found</h1>
+          <h1 className="updates-not-found-title">{loadError ? 'Unable to Load Update' : 'Update Not Found'}</h1>
           <p className="updates-not-found-desc">
-            The news update you are looking for does not exist or has been removed.
+            {loadError ? 'The news service could not be reached. Please try again.' : 'The news update you are looking for does not exist or has been removed.'}
           </p>
+          {loadError && <button type="button" className="updates-return-btn" onClick={() => setRetry(n => n + 1)}>TRY AGAIN</button>}
           <a href="/" onClick={handleBackToHome} className="updates-return-btn">
             <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
