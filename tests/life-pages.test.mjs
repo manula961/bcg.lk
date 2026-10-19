@@ -54,6 +54,7 @@ test('Life detail pages render existing editorial content and CMS directories', 
   assert.match(pages, /normalizedSlug === 'sports-societies' && \(/);
   assert.match(pages, /<SocietiesListing \/>/);
   assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
+  assert.match(pages, /<SchoolContentListing kind="extracurricular" \/>/);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {

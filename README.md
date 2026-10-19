@@ -1,6 +1,6 @@
 # BCG.LK — Bandaranayake College
 
-The Bandaranayake College, Gampaha website, built with React 18, Vite, Tailwind CSS and Firebase. The existing public design is protected by the project's UI-preservation checks.
+The Bandaranayake College, Gampaha website, built with React 19, Vite, Tailwind CSS and the existing Firebase 12 SDK. The existing public design is protected by the project's UI-preservation checks.
 
 ## Project overview
 

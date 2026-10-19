@@ -30,7 +30,21 @@ try {
     try {
       const response = await page.goto(baseUrl + route.route, { waitUntil: 'domcontentloaded', timeout: 30000 });
       assert.equal(response?.status(), 200, route.label + ' must serve HTML');
-      await page.waitForTimeout(1800);
+      // Route chunks and the intentional homepage loading sequence can take
+      // longer on shared CI runners. Wait for a real page instead of sleeping
+      // for a fixed 1.8s; keep a strict timeout so regressions still fail.
+      await page.waitForFunction(
+        () => (document.querySelector('#root')?.innerText || '').trim().length > 10,
+        null,
+        { timeout: 15000 },
+      );
+      if (route.label.startsWith('home-')) {
+        await page.waitForFunction(
+          () => (document.querySelector('#root')?.innerText || '').includes('BANDARANAYAKE COLLEGE'),
+          null,
+          { timeout: 15000 },
+        );
+      }
       const pageContent = await page.locator('#root').innerText();
       assert.ok(pageContent.trim().length > 10, route.label + ' renders meaningful content');
       if (route.label === 'unknown-route') assert.match(pageContent, /Page not found/);

@@ -10,6 +10,7 @@ test('Sports and Societies directory remains in its canonical page', () => {
     "{normalizedSlug === 'sports-societies' && (",
     "<SocietiesListing />",
     "<SchoolContentListing kind=\"sports\" />",
+    "<SchoolContentListing kind=\"extracurricular\" />",
   ];
   let previous = -1;
   for (const entry of directory) {
@@ -18,6 +19,7 @@ test('Sports and Societies directory remains in its canonical page', () => {
     previous = index;
   }
   assert.equal(source.match(/<SchoolContentListing kind="sports" \/>/g)?.length, 1);
+  assert.equal(source.match(/<SchoolContentListing kind="extracurricular" \/>/g)?.length, 1);
   assert.doesNotMatch(source, /slug === 'societies' && <SchoolContentListing kind="extracurricular"/);
   assert.doesNotMatch(source, /slug === 'sports-athletics' && <SchoolContentListing kind="extracurricular"/);
 });
