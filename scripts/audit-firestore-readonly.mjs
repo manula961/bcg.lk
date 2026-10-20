@@ -14,7 +14,6 @@ const collections = {
   pages: ['title', 'slug', 'body'],
   societies: ['title', 'description'],
   sports: ['title', 'description'],
-  extracurricular: ['title', 'description'],
   leadership: ['title', 'role'],
 };
 const project = process.env.FIREBASE_PROJECT_ID || '';
