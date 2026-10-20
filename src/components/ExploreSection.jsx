@@ -41,6 +41,7 @@ const ExploreSection = () => {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
@@ -62,12 +63,12 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused || reducedMotion) return;
+    if (!visible || isPaused || userPaused || reducedMotion) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [visible, isPaused, reducedMotion]);
+  }, [visible, isPaused, userPaused, reducedMotion]);
 
   return (
     <section
@@ -84,6 +85,7 @@ const ExploreSection = () => {
           <div className="explore-header">
             <div className="explore-subtitle">Discover BCG</div>
             <h2 className="explore-title">Explore The School</h2>
+            <button type="button" aria-pressed={userPaused} onClick={() => setUserPaused(value => !value)} className="explore-autoplay-control">{userPaused ? "Resume automatic rotation" : "Pause automatic rotation"}</button>
             <div className="explore-divider-wrap">
               <div className="explore-divider-maroon" />
               <div className="explore-divider-blue" />
