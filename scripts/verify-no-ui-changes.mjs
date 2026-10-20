@@ -19,7 +19,7 @@ const protectedPath = path =>
 const auditedUiBlobs = Object.freeze({
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
   "src/components/ExploreSection.css": "1cb55dacacd4acde044ea80f59e0fd3f0026a00a",
-  "src/components/ExploreSection.jsx": "9252408a8ac08af73f827f4fc6748d749be07a86",
+  "src/components/ExploreSection.jsx": "6fb506b8214149555f678199cc327da9eae0c31e",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
   "src/components/MenuBar.jsx": "f195827db4c025991582ea6693f96b740a35c922",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
