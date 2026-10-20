@@ -9,6 +9,10 @@
       "destination": "/events/index.html"
     },
     {
+      "source": "/past-papers",
+      "destination": "/past-papers/index.html"
+    },
+    {
       "source": "/life/about-us",
       "destination": "/life/about-us/index.html"
     },
