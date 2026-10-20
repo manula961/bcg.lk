@@ -435,6 +435,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
               </svg>
               <input
                 type="search"
+                aria-label={`Search ${config.title}`}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={`Search ${kind}...`}
@@ -443,6 +444,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
             </div>
             <div className="admin-filter-wrap">
               <select
+                aria-label={`Filter ${config.title} by publication status`}
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="admin-select"
