@@ -39,7 +39,8 @@ test('campus tabs are keyboard navigable and do not auto-rotate in reduced-motio
   const code = read('src/components/ExploreSection.jsx');
   assert.match(code, /event\.key === 'ArrowRight'/);
   assert.match(code, /tabIndex=\{active === i \? 0 : -1\}/);
-  assert.match(code, /isPaused \|\| reducedMotion/);
+  assert.match(code, /isPaused \|\| userPaused \|\| reducedMotion/);
+  assert.match(code, /setUserPaused\(true\)/);
 });
 
 test('Google Drive uploads explicitly warn of immediate public sharing', () => {
