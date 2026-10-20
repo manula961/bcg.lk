@@ -1,19 +1,19 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import Lenis from 'lenis';
-import { lifePages } from './pages/lifePageData.js';
+import { lifePages } from './pages/life/lifePageData.js';
 
 // Load only the route being visited. Admin Firebase and editor code stays out
 // of the public homepage's initial JavaScript download.
 const App = lazy(() => import('./App.jsx'));
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
-const LifeDetailPage = lazy(() => import('./pages/LifeDetailPage.jsx'));
-const PublishedContentPage = lazy(() => import('./pages/PublishedContentPage.jsx'));
-const Updates = lazy(() => import('./pages/Updates.jsx'));
-const EventDetail = lazy(() => import('./pages/EventDetail.jsx'));
-const EventsPage = lazy(() => import('./pages/EventsPage.jsx'));
-const PastPapersPage = lazy(() => import('./pages/PastPapersPage.jsx'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
+const LifeDetailPage = lazy(() => import('./pages/life/LifeDetailPage.jsx'));
+const PublishedContentPage = lazy(() => import('./pages/content/PublishedContentPage.jsx'));
+const Updates = lazy(() => import('./pages/news/Updates.jsx'));
+const EventDetail = lazy(() => import('./pages/events/EventDetail.jsx'));
+const EventsPage = lazy(() => import('./pages/events/EventsPage.jsx'));
+const PastPapersPage = lazy(() => import('./pages/academics/PastPapersPage.jsx'));
+const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage.jsx'));
 import './index.css';
 
 function Root() {

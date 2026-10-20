@@ -1,0 +1,336 @@
+.explore-section {
+  padding: 60px 0;
+  position: relative;
+  overflow: hidden;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(123, 28, 28, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(26, 58, 107, 0.1), transparent 40%);
+}
+
+@media (min-width: 1024px) {
+  .explore-section {
+    padding: 100px 0;
+  }
+}
+
+.section-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .section-container {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-container {
+    padding: 0 40px;
+  }
+}
+
+.explore-content-group {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.explore-content-group.visible {
+  opacity: 1;
+  transform: translateY(0) !important;
+}
+
+.explore-header {
+  margin-bottom: 32px;
+}
+
+@media (min-width: 869px) {
+  .explore-header {
+    margin-bottom: 56px;
+  }
+}
+
+.explore-subtitle {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.explore-title {
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 3.2rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.explore-divider-wrap {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.explore-divider-maroon {
+  width: 50px;
+  height: 3px;
+  background: #7B1C1C;
+  border-radius: 2px;
+}
+
+.explore-divider-blue {
+  width: 15px;
+  height: 3px;
+  background: #2a5298;
+  border-radius: 2px;
+}
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.explore-tabs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.explore-tab-btn {
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  border-radius: 0 16px 16px 0;
+}
+
+@media (min-width: 869px) {
+  .explore-tab-btn {
+    padding: 20px 24px;
+    margin-left: -24px;
+  }
+}
+
+.explore-tab-btn.active {
+  background: rgba(123, 28, 28, 0.25);
+  border-left-color: #7B1C1C;
+}
+
+.explore-tab-tag {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: rgba(201, 168, 76, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+  font-weight: 600;
+}
+
+.explore-tab-btn.active .explore-tab-tag {
+  color: #C9A84C;
+}
+
+.explore-tab-title {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.3s ease;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.explore-tab-btn.active .explore-tab-title {
+  color: #ffffff;
+}
+
+.explore-display-card {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  height: 480px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.explore-display-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fadeIn 0.4s ease;
+}
+
+.explore-display-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(10, 5, 5, 0.95) 0%, rgba(10, 5, 5, 0.3) 60%, transparent 100%);
+}
+
+.explore-display-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+}
+
+@media (min-width: 640px) {
+  .explore-display-content {
+    padding: 36px;
+  }
+}
+
+.explore-display-subtitle {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.explore-display-title {
+  font-family: 'Google Sans Flex', sans-serif !important;
+  font-size: clamp(1.3rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.explore-display-desc {
+  font-family: 'Geologica', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.55;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.explore-accordion-content {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.explore-desktop-card {
+  display: none;
+}
+
+/* Screen size breakpoint adjustments */
+@media (max-width: 868px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .explore-tab-btn {
+    border-radius: 12px;
+    border-left: none;
+  }
+
+  .explore-display-card {
+    height: 320px;
+  }
+}
+
+@media (min-width: 869px) {
+  .explore-accordion-content {
+    display: none;
+  }
+
+  .explore-desktop-card {
+    display: block;
+  }
+}
+
+@media (max-width: 868px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .explore-tabs-list {
+    gap: 4px;
+  }
+
+  .explore-tab-btn {
+    padding: 10px 14px;
+    margin-left: 0;
+    border-radius: 10px;
+  }
+
+  .explore-tab-tag {
+    font-size: 0.58rem;
+    margin-bottom: 2px;
+  }
+
+  .explore-tab-title {
+    font-size: 0.92rem;
+  }
+
+  .explore-display-card {
+    height: 300px;
+  }
+
+  .explore-display-content {
+    padding: 18px;
+  }
+
+  .explore-display-title {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+  }
+
+  .explore-display-desc {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+}
+/* User-controlled campus motion; preserves the existing card and tab design. */
+.explore-autoplay-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(123, 28, 28, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: #7b1c1c;
+  font: 600 0.78rem 'Geologica', sans-serif;
+  cursor: pointer;
+}
+.explore-autoplay-toggle:focus-visible {
+  outline: 3px solid #c9a84c;
+  outline-offset: 3px;
+}
+.explore-autoplay-toggle:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

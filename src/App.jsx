@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import LoadingAnimation from './components/LoadingAnimation';
-import MenuBar from './components/MenuBar';
-import HeroSection from './components/HeroSection';
-import NewsSection from './components/NewsSection';
-import EventsSection from './components/EventsSection';
-import ExploreSection from './components/ExploreSection';
-import LifeAsNayaken from './components/LifeAsNayaken';
-import Footer from './components/Footer';
+import LoadingAnimation from './components/layout/LoadingAnimation';
+import MenuBar from './components/layout/MenuBar';
+import HeroSection from './components/home/HeroSection';
+import NewsSection from './components/home/NewsSection';
+import EventsSection from './components/home/EventsSection';
+import ExploreSection from './components/home/ExploreSection';
+import LifeAsNayaken from './components/home/LifeAsNayaken';
+import Footer from './components/layout/Footer';
 import './index.css';
 
 function App() {
