@@ -19,9 +19,8 @@ service firebase.storage {
       allow list: if isAdmin();
       // Draft editors/publishers may add new assets, but cannot replace an
       // existing public image that may already appear on the live website.
-      // The 'create' operation already requires a new object; existing files use 'update'.
-      // Do not inspect the absent resource during creation (Firebase emulator parity).
-      allow create: if canUploadMedia() && request.resource.size < 10 * 1024 * 1024
+      // Defense-in-depth for Storage operations that appear as 'create' on overwrite.
+      allow create: if resource == null && canUploadMedia() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow update: if isAdmin() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
