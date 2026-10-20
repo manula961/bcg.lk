@@ -66,5 +66,7 @@ test('RBAC controls both UI and backend APIs rather than only hiding buttons', (
   assert.match(rules, /editorDraftUpdateOnly/);
   assert.match(rules, /canPublishContent/);
   assert.match(rules, /canDeleteContent/);
-  assert.match(storage, /function canUploadMedia\(\)/);
+  assert.match(storage, /allow create: if isAdmin\(\)/);
+  assert.match(storage, /allow update: if isAdmin\(\)/);
+  assert.doesNotMatch(storage, /canUploadMedia/);
 });
