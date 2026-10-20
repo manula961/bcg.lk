@@ -11,6 +11,7 @@ const routes = [
   { label: 'home-390', route: '/', width: 390, height: 844 },
   { label: 'home-tablet', route: '/', width: 768, height: 1024 },
   { label: 'home-laptop', route: '/', width: 1024, height: 768 },
+  { label: 'home-news-anchor-390', route: '/#news', width: 390, height: 844 },
   { label: 'home-desktop', route: '/', width: 1440, height: 900 },
   { label: 'events-mobile', route: '/events', width: 390, height: 844 },
   { label: 'events-narrow', route: '/events', width: 320, height: 760 },
@@ -58,6 +59,15 @@ try {
         assert.match(pageContent, /BANDARANAYAKE COLLEGE/);
         const opacity = await page.locator('.hero-fade-init').first().evaluate(el => getComputedStyle(el).opacity);
         assert.equal(opacity, '1', 'reduced motion must keep hero content visible');
+      }
+      if (route.label === 'home-news-anchor-390') {
+        await page.waitForFunction(() => {
+          const section = document.getElementById('news');
+          return section && window.scrollY > 150 &&
+            Math.abs(section.getBoundingClientRect().top) < 200;
+        }, null, { timeout: 10000 });
+        assert.equal(await page.locator('.loading-container').count(), 0,
+          'Direct homepage anchors must not show an opening curtain.');
       }
       assert.deepEqual(exceptions, [], route.label + ' browser exceptions: ' + exceptions.join('; '));
       const overflow = await page.evaluate(() => ({

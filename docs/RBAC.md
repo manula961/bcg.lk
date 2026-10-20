@@ -13,6 +13,8 @@ RBAC protects the existing seven Firestore CMS collections, Firebase Storage upl
 | `auditor` | Yes | No | No | No | No | No | No |
 | No role / signed out | Published only | No | No | No | No | No | No |
 
+**Media provider distinction:** The `media.upload` permission authorizes the role-checked **Google Drive upload API** for Admins, Publishers and Editors. For the separate Firebase Storage bucket, direct client writes are restricted to Admin and Super Admin, because Firebase Storage emulator tests cannot reliably distinguish an overwrite from a create. This prevents draft editors from changing published file paths. Public Storage image GET remains available and anonymous listing remains denied. The UI currently uploads through Google Drive; don't treat the two storage services as interchangeable.
+
 Editors cannot change published documents or set `published=true`, `publishedAt`, or `rank` from the client. The backend enforces this even if a user bypasses the interface. Existing `admin` role assignments continue to have full editorial privileges.
 
 ## How to enable on the existing Firebase project

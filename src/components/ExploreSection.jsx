@@ -41,7 +41,8 @@ const ExploreSection = () => {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [userPaused, setUserPaused] = useState(false);
+  // Don't start moving campus panels until the visitor explicitly opts in.
+  const [userPaused, setUserPaused] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
@@ -63,36 +64,46 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused || userPaused || reducedMotion) return;
+    if (!visible || isPaused || reducedMotion || userPaused) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [visible, isPaused, userPaused, reducedMotion]);
+  }, [visible, isPaused, reducedMotion, userPaused]);
 
   return (
     <section
       id="explore"
       ref={sectionRef}
       className="explore-section"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
+      onFocus={event => { if (event.target.closest('[role="tab"]')) setIsPaused(true); }}
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false); }}
     >
       <div className="section-container">
         <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
           <div className="explore-header">
             <div className="explore-subtitle">Discover BCG</div>
             <h2 className="explore-title">Explore The School</h2>
-            <button type="button" aria-pressed={userPaused} onClick={() => setUserPaused(value => !value)} className="explore-autoplay-control">{userPaused ? "Resume automatic rotation" : "Pause automatic rotation"}</button>
             <div className="explore-divider-wrap">
               <div className="explore-divider-maroon" />
               <div className="explore-divider-blue" />
             </div>
+            <button
+              type="button"
+              className="explore-autoplay-toggle"
+              aria-pressed={!userPaused && !reducedMotion}
+              onClick={() => setUserPaused(value => !value)}
+              disabled={reducedMotion}
+              title={reducedMotion ? 'Automatic motion disabled by your device settings' : undefined}
+            >
+              {reducedMotion ? 'Motion off' : userPaused ? 'Play highlights' : 'Pause highlights'}
+            </button>
           </div>
 
-          <div className="explore-grid">
+          <div className="explore-grid"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             {/* Tabs List */}
             <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
@@ -108,13 +119,12 @@ const ExploreSection = () => {
                         : event.key === 'End' ? places.length - 1
                         : (i + (event.key === 'ArrowRight' ? 1 : -1) + places.length) % places.length;
                       setActive(next);
-                      setUserPaused(true);
                       document.getElementById('place-tab-' + places[next].id)?.focus();
                     }}
                     aria-selected={active === i}
-                    aria-controls="place-panel"
+                    aria-controls={`place-panel-${place.id}`}
                     id={`place-tab-${place.id}`}
-                    onClick={() => { setActive(i); setUserPaused(true); }}
+                    onClick={() => setActive(i)}
                     className={`explore-tab-btn ${active === i ? 'active' : ''}`}
                   >
                     <div className="explore-tab-tag">{place.tag}</div>
@@ -128,8 +138,6 @@ const ExploreSection = () => {
                         <img
                           src={place.image}
                           alt={place.title}
-                          loading="lazy"
-                          decoding="async"
                           className="explore-display-img"
                         />
                         <div className="explore-display-overlay" />
@@ -148,17 +156,14 @@ const ExploreSection = () => {
             {/* Main Display Card for Desktop */}
             <div
               className="explore-display-card explore-desktop-card"
-              id="place-panel"
+              id={`place-panel-${places[active].id}`}
               role="tabpanel"
-              aria-live="polite"
               aria-labelledby={`place-tab-${places[active].id}`}
             >
               <img
                 key={active}
                 src={places[active].image}
                 alt={places[active].title}
-                loading="lazy"
-                decoding="async"
                 className="explore-display-img"
               />
               <div className="explore-display-overlay" />

@@ -30,8 +30,8 @@ const NewsSection = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [visible, setVisible] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [loadError, setLoadError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadState, setLoadState] = useState('loading');
+  const [retry, setRetry] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Drag-to-scroll State
@@ -54,18 +54,21 @@ const NewsSection = () => {
 
   useEffect(() => {
     let unsubscribe = () => {};
+    setLoadState('loading');
+    const onError = error => {
+      console.error('Unable to load published news:', error);
+      setLoadState('error');
+    };
     try {
-      unsubscribe = subscribePublishedNews(
-        (fetchedPosts) => { setPosts(fetchedPosts.map(toNewsCard)); setLoadError(false); setIsLoading(false); },
-        (error) => { console.error("Unable to load published news:", error); setLoadError(true); setIsLoading(false); }
-      );
+      unsubscribe = subscribePublishedNews(fetchedPosts => {
+        setPosts(fetchedPosts.map(toNewsCard));
+        setLoadState('ready');
+      }, onError);
     } catch (error) {
-      console.error("Unable to subscribe to published news:", error);
-      setLoadError(true);
-      setIsLoading(false);
+      onError(error);
     }
     return () => unsubscribe();
-  }, []);
+  }, [retry]);
 
   useEffect(() => {
     const handleGlobalMouseUp = () => {
@@ -159,7 +162,7 @@ const NewsSection = () => {
     }
   };
 
-  const dotsList = filtered;
+  const dotsList = filtered.length > 1 ? filtered : [];
 
   return (
     <section id="news" ref={sectionRef} className="news-section">
@@ -181,6 +184,7 @@ const NewsSection = () => {
                   <button
                     key={f}
                     onClick={() => handleFilterChange(f)}
+                    aria-pressed={activeFilter === f}
                     className={`filter-btn ${
                       activeFilter === f ? "active" : ""
                     }`}
@@ -191,20 +195,20 @@ const NewsSection = () => {
               </div>
               <div className="news-scroll-arrows">
                 <button
-                  disabled={filtered.length === 0}
                   onClick={() => handleScroll("left")}
                   className="scroll-arrow-btn"
                   aria-label="Scroll left"
+                  disabled={filtered.length < 2}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <polyline points="15 18 9 12 15 6" />
                   </svg>
                 </button>
                 <button
-                  disabled={filtered.length === 0}
                   onClick={() => handleScroll("right")}
                   className="scroll-arrow-btn"
                   aria-label="Scroll right"
+                  disabled={filtered.length < 2}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <polyline points="9 18 15 12 9 6" />
@@ -214,6 +218,20 @@ const NewsSection = () => {
             </div>
           </div>
 
+          {loadState === 'loading' && (
+            <p role="status" className="text-white/70 py-8">Loading published updates…</p>
+          )}
+          {loadState === 'error' && (
+            <div role="alert" className="text-white/80 py-8">
+              <p>Updates could not be loaded. Please check your connection.</p>
+              <button type="button" className="filter-btn mt-3" onClick={() => setRetry(n => n + 1)}>Try again</button>
+            </div>
+          )}
+          {loadState === 'ready' && filtered.length === 0 && (
+            <p role="status" className="text-white/70 py-8">
+              {posts.length ? 'No updates match this filter.' : 'No published updates yet.'}
+            </p>
+          )}
           <div
             key={activeFilter}
             ref={gridRef}
@@ -224,9 +242,6 @@ const NewsSection = () => {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {isLoading && <p className="news-card-excerpt" role="status">Loading latest updates...</p>}
-            {loadError && <p className="news-card-excerpt" role="alert">News could not be loaded. Please try again later.</p>}
-            {!isLoading && !loadError && filtered.length === 0 && <p className="news-card-excerpt">No published updates are available.</p>}
             {filtered.map((post) => (
               <a
                 key={post.id}
@@ -278,7 +293,7 @@ const NewsSection = () => {
             ))}
           </div>
 
-          <div className="news-dots-container">
+          {dotsList.length > 0 && <div className="news-dots-container">
             {dotsList.map((_, i) => (
               <button
                 key={i}
@@ -287,7 +302,7 @@ const NewsSection = () => {
                 aria-label={`Jump to article ${i + 1}`}
               />
             ))}
-          </div>
+          </div>}
         </div>
       </div>
     </section>

@@ -288,12 +288,16 @@ test('RBAC: editors manage drafts only, publishers can publish but cannot delete
   await assertSucceeds(deleteDoc(refAdmin));
 });
 
-test('Storage restricts all direct media writes to administrators', async () => {
+test('RBAC: direct Firebase Storage writes are admin-only; editors use the Drive API', async () => {
   const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
   const adminId = 'public/rbac-admin-create.png';
   const ownerId = 'public/rbac-owner-create.png';
-  await assertFails(uploadBytes(ref(editor.storage(), 'public/rbac-editor-create.png'), image, { contentType: 'image/png' }));
-  await assertFails(uploadBytes(ref(publisher.storage(), 'public/rbac-publisher-create.png'), image, { contentType: 'image/png' }));
+  const editorId = 'public/rbac-editor-create.png';
+  const publisherId = 'public/rbac-publisher-create.png';
+  // An emulator overwrite can be evaluated as CREATE; do not allow any
+  // non-admin Storage write while that distinction is unreliable.
+  await assertFails(uploadBytes(ref(editor.storage(), editorId), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(publisher.storage(), publisherId), image, { contentType: 'image/png' }));
   await assertFails(uploadBytes(ref(auditor.storage(), 'public/rbac-auditor.png'), image, { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(admin.storage(), adminId), image, { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(superAdmin.storage(), ownerId), image, { contentType: 'image/png' }));
@@ -304,8 +308,7 @@ test('Storage restricts all direct media writes to administrators', async () => 
   await assertSucceeds(uploadBytes(ref(superAdmin.storage(), adminId), image, { contentType: 'image/png' }));
   await assertFails(deleteObject(ref(editor.storage(), adminId)));
   await assertFails(deleteObject(ref(publisher.storage(), ownerId)));
-  await assertSucceeds(deleteObject(ref(admin.storage(), adminId)));
-  await assertSucceeds(deleteObject(ref(superAdmin.storage(), ownerId)));
+  for (const id of [adminId, ownerId]) await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
 });
 
 test('role audit records are append-only, actor-bound and super-admin readable', async () => {

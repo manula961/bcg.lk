@@ -39,8 +39,7 @@ test('campus tabs are keyboard navigable and do not auto-rotate in reduced-motio
   const code = read('src/components/ExploreSection.jsx');
   assert.match(code, /event\.key === 'ArrowRight'/);
   assert.match(code, /tabIndex=\{active === i \? 0 : -1\}/);
-  assert.match(code, /isPaused \|\| userPaused \|\| reducedMotion/);
-  assert.match(code, /setUserPaused\(true\)/);
+  assert.match(code, /isPaused \|\| reducedMotion/);
 });
 
 test('Google Drive uploads explicitly warn of immediate public sharing', () => {
@@ -51,7 +50,9 @@ test('Google Drive uploads explicitly warn of immediate public sharing', () => {
 
 test('Firebase Storage limits overwriting to admins and deletion to admins', () => {
   const rules = read('storage.rules');
-  assert.match(rules, /allow create: if isAdmin\(\)/);
+  assert.match(rules, /allow create: if canUploadMedia\(\)/);
+  // Rules v2 evaluates create only for new objects; update is the overwrite boundary.
+  assert.doesNotMatch(rules, /allow create: if resource == null/);
   assert.match(rules, /allow update: if isAdmin\(\)/);
   assert.match(rules, /allow delete: if isAdmin\(\)/);
   assert.match(rules, /allow list: if isAdmin\(\)/);

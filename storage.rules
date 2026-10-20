@@ -7,15 +7,19 @@ service firebase.storage {
         firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
         firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role in ['super_admin','admin'];
     }
+    // Direct Storage writes are admin-only. Publishers and draft editors can
+    // still upload approved media through the role-checked Google Drive API.
+    // This avoids relying on Storage emulator create/overwrite distinctions
+    // that may allow a non-admin to replace an existing public asset.
+    function canUploadMedia() {
+      return isAdmin();
+    }
     match /public/{allPaths=**} {
       // Keep known public asset URLs readable but prevent public enumeration.
       allow get: if true;
       allow list: if isAdmin();
-      // Direct Firebase Storage writes are administrator-only. The Storage
-      // emulator can incorrectly categorize overwrites as 'create', so allowing
-      // editors to create here could permit overwrites. Editors/publishers
-      // still upload approved images via the separately authorized Drive API.
-      allow create: if isAdmin() && request.resource.size < 10 * 1024 * 1024
+      // Both new objects and updates require privileged credentials.
+      allow create: if canUploadMedia() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow update: if isAdmin() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
