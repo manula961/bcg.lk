@@ -30,6 +30,7 @@ const NewsSection = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [visible, setVisible] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [loadError, setLoadError] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Drag-to-scroll State
@@ -54,11 +55,12 @@ const NewsSection = () => {
     let unsubscribe = () => {};
     try {
       unsubscribe = subscribePublishedNews(
-        (fetchedPosts) => setPosts(fetchedPosts.map(toNewsCard)),
-        (error) => console.error("Unable to load published news:", error)
+        (fetchedPosts) => { setPosts(fetchedPosts.map(toNewsCard)); setLoadError(false); },
+        (error) => { console.error("Unable to load published news:", error); setLoadError(true); }
       );
     } catch (error) {
       console.error("Unable to subscribe to published news:", error);
+      setLoadError(true);
     }
     return () => unsubscribe();
   }, []);
@@ -155,7 +157,7 @@ const NewsSection = () => {
     }
   };
 
-  const dotsList = filtered.length > 0 ? filtered : [null];
+  const dotsList = filtered;
 
   return (
     <section id="news" ref={sectionRef} className="news-section">
@@ -218,6 +220,8 @@ const NewsSection = () => {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
+            {loadError && <p role="alert">News could not be loaded. Please try again later.</p>}
+            {!loadError && filtered.length === 0 && <p>No published updates are available.</p>}
             {filtered.map((post) => (
               <a
                 key={post.id}
