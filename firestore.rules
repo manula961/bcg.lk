@@ -137,9 +137,6 @@ service cloud.firestore {
             data.keys().hasOnly(['title','description','category','achievements','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
             requiredString(data,'description',3000) && optionalString(data,'category',80) &&
             optionalString(data,'achievements',2000))
-          || (collectionName == 'extracurricular' &&
-            data.keys().hasOnly(['title','description','category','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
-            requiredString(data,'description',3000) && optionalString(data,'category',80))
           || (collectionName == 'leadership' &&
             data.keys().hasOnly(['title','description','role','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
@@ -170,18 +167,18 @@ service cloud.firestore {
         && resource.data.role != 'super_admin';
     }
     match /{collectionName}/{id} {
-      allow get, list: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+      allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership']
         && (canReview() || resource.data.published == true);
-      allow create: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+      allow create: if collectionName in ['news','events','pages','societies','sports','leadership']
         && canWriteContent() && validRecord(request.resource.data, collectionName, id)
         && validOwnership(request.resource.data)
         && (canPublishContent() || (request.resource.data.published == false
           && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
-      allow update: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+      allow update: if collectionName in ['news','events','pages','societies','sports','leadership']
         && canWriteContent() && validRecord(request.resource.data, collectionName, id)
         && validUpdateOwnership()
         && (canPublishContent() || editorDraftUpdateOnly());
-      allow delete: if collectionName in ['news','events','pages','societies','sports','extracurricular','leadership']
+      allow delete: if collectionName in ['news','events','pages','societies','sports','leadership']
         && canDeleteContent();
     }
     match /{document=**} { allow read, write: if false; }
