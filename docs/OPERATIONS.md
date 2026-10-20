@@ -8,7 +8,7 @@ This document replaces old step-by-step setup drafts, redundant CMS notes, merge
 - Admin: `/admin`, Firebase Authentication email/password and Firestore `admins/{uid}` role checks.
 - Active Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports` and `leadership`. Extracurricular has been retired from the UI and active collection policies; existing documents are not deleted.
 - Public queries only request `published == true` documents. Writes are authorized by Firestore rules, not merely by hidden admin buttons.
-- `storage.rules` governs Firebase Storage access. Optional Google Drive uploads use `api/drive/*` Vercel functions, not client-held Google tokens.
+- `storage.rules` permits **direct Firebase Storage writes only to administrators**, avoiding emulator create-on-overwrite ambiguities. Publishers and editors retain image uploads through the role-checked Google Drive `api/drive/*` Vercel functions (when Google Drive is configured), never through client-held Google tokens.
 - Production credentials/environment settings belong to the **existing** Firebase and Vercel projects. The Firebase demo IDs in tests are **local emulators only**.
 
 ## 2. Configure local development

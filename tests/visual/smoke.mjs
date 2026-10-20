@@ -9,13 +9,19 @@ mkdirSync(out, { recursive: true });
 const routes = [
   { label: 'home-320', route: '/', width: 320, height: 800 },
   { label: 'home-390', route: '/', width: 390, height: 844 },
+  { label: 'home-tablet', route: '/', width: 768, height: 1024 },
+  { label: 'home-laptop', route: '/', width: 1024, height: 768 },
   { label: 'home-news-anchor-390', route: '/#news', width: 390, height: 844 },
   { label: 'home-desktop', route: '/', width: 1440, height: 900 },
   { label: 'events-mobile', route: '/events', width: 390, height: 844 },
+  { label: 'events-narrow', route: '/events', width: 320, height: 760 },
+  { label: 'past-papers-mobile', route: '/past-papers', width: 390, height: 844 },
+  { label: 'past-papers-narrow', route: '/past-papers', width: 320, height: 760 },
   { label: 'sports-life-mobile', route: '/life/sports-societies', width: 390, height: 844 },
   { label: 'leadership-life-mobile', route: '/life/leadership', width: 390, height: 844 },
   { label: 'about-us-mobile', route: '/about-us', width: 390, height: 844 },
   { label: 'admin-mobile', route: '/admin', width: 390, height: 844 },
+  { label: 'admin-narrow', route: '/admin', width: 320, height: 760 },
   { label: 'unknown-route', route: '/does-not-exist', width: 390, height: 844 },
 ];
 const browser = await chromium.launch({ headless: true });

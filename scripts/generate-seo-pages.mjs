@@ -13,6 +13,7 @@ const organization = 'Bandaranayake College, Gampaha';
 export const seoRoutes = Object.freeze([
   { path: '/about-us', title: 'About Bandaranayake College', description: lifePages['about-us'].description },
   { path: '/events', title: 'College Events', description: 'Discover upcoming events, celebrations and activities at Bandaranayake College, Gampaha.' },
+  { path: '/past-papers', title: 'Past Papers', description: 'Browse verified school examination past papers and academic study resources at Bandaranayake College, Gampaha.' },
   ...Object.entries(lifePages).map(([slug, entry]) => ({
     path: '/life/' + slug,
     title: entry.title + ' | Bandaranayake College',

@@ -3,7 +3,7 @@
 // Dynamic CMS document paths remain resolved client-side because published
 // Firestore documents cannot be checked at the edge without a live read.
 const publicRoutes = new Set([
-  '/', '/index.html', '/about-us', '/events',
+  '/', '/index.html', '/about-us', '/events', '/past-papers',
   '/life/about-us', '/life/academic-excellence',
   '/life/sports-societies', '/life/leadership',
 ]);

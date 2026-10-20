@@ -29,6 +29,7 @@ test('generated sitemap excludes unpublished CMS routes and duplicate About Us a
   const sitemap = staticSitemap();
   assert.match(sitemap, /<urlset/);
   assert.match(sitemap, /https:\/\/bcglk\.devoraid\.com\/events/);
+  assert.match(sitemap, /https:\/\/bcglk\.devoraid\.com\/past-papers/);
   assert.doesNotMatch(sitemap, /https:\/\/bcglk\.devoraid\.com\/life\/about-us</);
   assert.doesNotMatch(sitemap, /\/admin|\/api\//);
   assert.equal((sitemap.match(/<url>/g) || []).length, seoRoutes.filter(route => !route.excludeSitemap).length + 1);
