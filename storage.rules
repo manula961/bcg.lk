@@ -7,20 +7,15 @@ service firebase.storage {
         firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
         firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role in ['super_admin','admin'];
     }
-    // Editors and publishers may upload without receiving delete/list privileges.
-    function canUploadMedia() {
-      return request.auth != null &&
-        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
-        firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.role in ['super_admin','admin','publisher','editor'];
-    }
     match /public/{allPaths=**} {
       // Keep known public asset URLs readable but prevent public enumeration.
       allow get: if true;
       allow list: if isAdmin();
-      // Draft editors/publishers may add new assets, but cannot replace an
-      // existing public image that may already appear on the live website.
-      // Defense-in-depth for Storage operations that appear as 'create' on overwrite.
-      allow create: if resource == null && canUploadMedia() && request.resource.size < 10 * 1024 * 1024
+      // Direct Firebase Storage writes are administrator-only. The Storage
+      // emulator can incorrectly categorize overwrites as 'create', so allowing
+      // editors to create here could permit overwrites. Editors/publishers
+      // still upload approved images via the separately authorized Drive API.
+      allow create: if isAdmin() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
       allow update: if isAdmin() && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
