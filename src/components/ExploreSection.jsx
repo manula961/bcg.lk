@@ -76,8 +76,6 @@ const ExploreSection = () => {
       id="explore"
       ref={sectionRef}
       className="explore-section"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       onFocus={event => { if (event.target.closest('[role="tab"]')) setIsPaused(true); }}
       onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false); }}
     >
@@ -102,7 +100,10 @@ const ExploreSection = () => {
             </button>
           </div>
 
-          <div className="explore-grid">
+          <div className="explore-grid"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             {/* Tabs List */}
             <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
