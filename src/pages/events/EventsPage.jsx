@@ -38,13 +38,6 @@ export default function EventsPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleBackToHome = (e) => {
-    e.preventDefault();
-    sessionStorage.setItem('skipLoading', 'true');
-    sessionStorage.setItem('scrollToSection', 'top');
-    window.location.assign('/');
-  };
-
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
@@ -127,7 +120,7 @@ export default function EventsPage() {
       <div className="events-page-top">
         <div className="events-page-container">
           <div className="events-page-return">
-            <a href="/" onClick={handleBackToHome} className="events-page-return-btn">
+            <a href="/" className="events-page-return-btn">
               <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>

@@ -1,7 +1,9 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Lenis from 'lenis';
 import { lifePages } from './pages/life/lifePageData.js';
+import { listenForNavigation } from './navigation/clientNavigation.js';
+import RouteScroll from './navigation/RouteScroll.jsx';
 
 // Load only the route being visited. Admin Firebase and editor code stays out
 // of the public homepage's initial JavaScript download.
@@ -17,7 +19,27 @@ const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage.jsx'));
 import './index.css';
 
 function Root() {
-  const pathname = window.location.pathname;
+  const [route, setRoute] = useState(() => ({
+    location: window.location.pathname + window.location.search + window.location.hash,
+    type: 'initial',
+    revision: 0,
+    savedScroll: null,
+  }));
+  useEffect(() => {
+    // Admin keeps its original standalone navigation and scroll handling.
+    if (window.location.pathname === '/admin' || window.location.pathname === '/admin/') return undefined;
+    return listenForNavigation((type, savedScroll = null) => {
+      setRoute(previous => ({
+        location: window.location.pathname + window.location.search + window.location.hash,
+        type,
+        savedScroll,
+        revision: previous.revision + 1,
+      }));
+    });
+  }, []);
+
+  const pathname = new URL(route.location, window.location.origin).pathname;
+  let page;
   const isAdminPath = pathname === '/admin' || pathname === '/admin/';
   const isAboutUsPath = pathname === '/about-us' || pathname === '/about-us/';
 
@@ -36,16 +58,25 @@ function Root() {
   const eventsMatch = pathname.match(/^\/events\/([^/]+)\/?$/);
   const eventsSlug = eventsMatch ? eventsMatch[1] : null;
 
-  if (pathname === '/past-papers' || pathname === '/past-papers/') return <PastPapersPage />;
-  if (isAdminPath) return <AdminApp />;
-  if (isAboutUsPath) return <LifeDetailPage slug="about-us" />;
-  if (isEventsIndex) return <EventsPage />;
-  if (eventsSlug) return <EventDetail titleSlug={eventsSlug} />;
-  if (updatesSlug) return <Updates titleSlug={updatesSlug} />;
-  if (lifeSlug) return <LifeDetailPage slug={lifeSlug} />;
-  if (pageSlug) return <PublishedContentPage slug={pageSlug} />;
-  if (pathname === '/' || pathname === '/index.html') return <App />;
-  return <NotFoundPage />;
+  if (pathname === '/past-papers' || pathname === '/past-papers/') page = <PastPapersPage />;
+  else if (isAdminPath) page = <AdminApp />;
+  else if (isAboutUsPath) page = <LifeDetailPage slug="about-us" />;
+  else if (isEventsIndex) page = <EventsPage />;
+  else if (eventsSlug) page = <EventDetail titleSlug={eventsSlug} />;
+  else if (updatesSlug) page = <Updates titleSlug={updatesSlug} />;
+  else if (lifeSlug) page = <LifeDetailPage slug={lifeSlug} />;
+  else if (pageSlug) page = <PublishedContentPage slug={pageSlug} />;
+  else if (pathname === '/' || pathname === '/index.html') page = <App />;
+  else page = <NotFoundPage />;
+
+  // The path key resets local page state when moving between two CMS records.
+  // Hash-only navigation keeps its current page mounted.
+  return (
+    <Suspense fallback={<main aria-busy="true" aria-label="Loading page" className="min-h-screen bg-[#0a0a0a]" />}>
+      {!isAdminPath && <RouteScroll key={route.revision} location={route.location} navigationType={route.type} savedScroll={route.savedScroll} />}
+      {React.cloneElement(page, { key: pathname })}
+    </Suspense>
+  );
 }
 
 if (window.location.pathname !== '/admin' && window.location.pathname !== '/admin/' &&
@@ -67,8 +98,6 @@ if (window.location.pathname !== '/admin' && window.location.pathname !== '/admi
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Suspense fallback={<main aria-busy="true" aria-label="Loading page" className="min-h-screen bg-[#0a0a0a]" />}>
-      <Root />
-    </Suspense>
+    <Root />
   </React.StrictMode>
 );

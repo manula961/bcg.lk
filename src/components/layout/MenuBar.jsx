@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './MenuBar.css';
+import { navigate, isHomePath, NAVIGATION_EVENT } from '../../navigation/clientNavigation';
 
 const menuItems = [
   { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
@@ -14,6 +15,7 @@ const MenuBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const toggleRef = useRef(null);
   const menuRef = useRef(null);
+  const [activeSection, setActiveSection] = useState(() => window.location.hash.slice(1) || 'home');
 
   useEffect(() => {
     let ticking = false;
@@ -21,6 +23,14 @@ const MenuBar = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           setScrolled(window.scrollY > 80);
+          if (isHomePath(window.location.pathname)) {
+            const visible = menuItems.reduce((last, item) => {
+              const section = document.getElementById(item.href);
+              return section && section.getBoundingClientRect().top <= window.innerHeight * 0.4
+                ? item.href : last;
+            }, 'home');
+            setActiveSection(visible);
+          }
           ticking = false;
         });
         ticking = true;
@@ -31,6 +41,7 @@ const MenuBar = () => {
         setOpen(false);
       }
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleKeyDown);
     return () => {
@@ -38,6 +49,17 @@ const MenuBar = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
+
+  // Mobile browser Back / Forward also dismisses an already open menu.
+  useEffect(() => {
+    const closeOnRouteChange = () => setOpen(false);
+    window.addEventListener('popstate', closeOnRouteChange);
+    window.addEventListener(NAVIGATION_EVENT, closeOnRouteChange);
+    return () => {
+      window.removeEventListener('popstate', closeOnRouteChange);
+      window.removeEventListener(NAVIGATION_EVENT, closeOnRouteChange);
+    };
+  }, []);
 
   // Prevent the page behind the mobile/full-screen menu from scrolling.
   useEffect(() => {
@@ -75,23 +97,9 @@ const MenuBar = () => {
 
   const handleNav = (item) => {
     setOpen(false);
-
-    const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
-    if (isHomePage) {
-      setTimeout(() => {
-        const el = document.getElementById(item.href);
-        if (el) {
-          el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-        }
-        if (window.history.pushState) {
-          window.history.pushState(null, '', window.location.pathname);
-        }
-      }, 300);
-    } else {
-      sessionStorage.setItem('skipLoading', 'true');
-      sessionStorage.setItem('scrollToSection', item.href);
-      window.location.assign('/');
-    }
+    setActiveSection(item.href);
+    // Same navigation on every page; existing menu button markup/styles stay.
+    navigate(`/#${item.href}`);
   };
 
   return (
@@ -113,7 +121,8 @@ const MenuBar = () => {
         role={open ? 'dialog' : undefined} aria-modal={open ? 'true' : undefined}
         aria-label={open ? 'Main navigation' : undefined}
         aria-hidden={!open}
-        className={`menu-overlay ${open ? 'is-open' : ''}`}>
+        className={`menu-overlay ${open ? 'is-open' : ''}`}
+        onClick={event => { if (event.target === event.currentTarget) setOpen(false); }}>
         <div className="menu-container">
           <nav className="menu-nav-list" aria-label="Main Navigation">
             {menuItems.map((item, i) => (
@@ -122,6 +131,7 @@ const MenuBar = () => {
                 key={item.label}
                 onClick={() => handleNav(item)}
                 className="menu-nav-item"
+                aria-current={isHomePath(window.location.pathname) && activeSection === item.href ? 'location' : undefined}
               >
                 <span className="menu-num">0{i + 1}</span>
                 <div className="menu-text-wrap">

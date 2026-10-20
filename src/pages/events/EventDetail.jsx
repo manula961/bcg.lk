@@ -62,35 +62,10 @@ export default function EventDetail({ titleSlug }) {
     window.scrollTo(0, 0);
   }, [eventData]);
 
-  const handleBackToHome = (e) => {
-    e.preventDefault();
-    sessionStorage.setItem('skipLoading', 'true');
-    sessionStorage.setItem('scrollToSection', 'top');
-    window.location.assign('/');
-  };
-
-  const handleMenuNavigation = (event) => {
-    const item = event.target.closest?.('.menu-nav-item');
-    if (!item) return;
-    const label = item.querySelector('.menu-title')?.textContent;
-    const destinations = {
-      Home: 'home',
-      News: 'news',
-      Events: 'events',
-      Explore: 'explore',
-      'Extra Curricular': 'extracurricular',
-    };
-    if (destinations[label]) {
-      event.stopPropagation();
-      sessionStorage.setItem('skipLoading', 'true');
-      sessionStorage.setItem('scrollToSection', destinations[label]);
-      window.location.assign('/');
-    }
-  };
-
   if (loading) {
     return (
       <main className="event-detail-page">
+        <MenuBar />
         <div className="event-detail-loading">
           <p className="text-gray-500">Loading event details...</p>
         </div>
@@ -101,16 +76,14 @@ export default function EventDetail({ titleSlug }) {
   if (!eventData) {
     return (
       <main className="event-detail-page">
-        <div onClickCapture={handleMenuNavigation}>
-          <MenuBar />
-        </div>
+        <div><MenuBar /></div>
         <div className="event-detail-not-found">
           <h1 className="event-detail-not-found-title">{loadError ? 'Unable to Load Event' : 'Event Not Found'}</h1>
           <p className="event-detail-not-found-desc">
             {loadError ? 'The events service could not be reached. Please try again.' : 'The event you are looking for does not exist or has been removed.'}
           </p>
           {loadError && <button type="button" className="event-detail-return-btn" onClick={() => setRetry(n => n + 1)}>TRY AGAIN</button>}
-          <a href="/" onClick={handleBackToHome} className="event-detail-return-btn">
+          <a href="/" className="event-detail-return-btn">
             <svg
               className="return-arrow-icon"
               viewBox="0 0 24 24"
@@ -132,13 +105,11 @@ export default function EventDetail({ titleSlug }) {
 
   return (
     <main className="event-detail-page">
-      <div onClickCapture={handleMenuNavigation}>
-        <MenuBar />
-      </div>
+      <div><MenuBar /></div>
       <div className="event-detail-top-wrapper">
         <div className="event-detail-container">
           <div className="event-detail-return">
-            <a href="/" onClick={handleBackToHome} className="event-detail-return-btn">
+            <a href="/" className="event-detail-return-btn">
               <svg
                 className="return-arrow-icon"
                 viewBox="0 0 24 24"

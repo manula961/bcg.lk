@@ -1022,9 +1022,7 @@
   margin-bottom: clamp(28px, 4vw, 46px);
 }
 
-.life-detail .life-detail-feature-body {
-  max-width: 760px;
-}
+.life-detail .life-detail-feature-body { max-width: 760px; }
 .life-detail .life-detail-feature h2 {
   font-size: clamp(1.65rem, 3.2vw, 2.85rem);
   line-height: 1.24;
@@ -1080,26 +1078,24 @@
 }
 
 /* Directory/society/profile cards: better whitespace and photo proportions. */
-.life-detail
-  :is(
-    .life-detail-society-grid,
-    .societies-grid,
-    .school-content-grid,
-    .content-listing-grid,
-    .profile-grid
-  ) {
+.life-detail :is(
+  .life-detail-society-grid,
+  .societies-grid,
+  .school-content-grid,
+  .content-listing-grid,
+  .profile-grid
+) {
   gap: clamp(18px, 2.2vw, 28px);
   margin-top: clamp(26px, 3vw, 38px);
 }
 
-.life-detail
-  :is(
-    .life-detail-society-card,
-    .society-card,
-    .school-content-card,
-    .content-card,
-    .profile-card
-  ) {
+.life-detail :is(
+  .life-detail-society-card,
+  .society-card,
+  .school-content-card,
+  .content-card,
+  .profile-card
+) {
   padding: clamp(20px, 2.2vw, 30px);
   border-radius: 21px;
   background: var(--life-card-surface);
@@ -1107,13 +1103,12 @@
   height: auto;
 }
 
-.life-detail
-  :is(
-    .life-detail-society-logo-wrap,
-    .society-logo-wrap,
-    .school-content-image-wrap,
-    .content-card-image-wrap
-  ) {
+.life-detail :is(
+  .life-detail-society-logo-wrap,
+  .society-logo-wrap,
+  .school-content-image-wrap,
+  .content-card-image-wrap
+) {
   aspect-ratio: 1 / 1;
   margin-bottom: 21px;
   background: var(--life-soft-surface);
@@ -1124,27 +1119,25 @@
   padding: 10px;
 }
 
-.life-detail
-  :is(
-    .life-detail-society-title,
-    .society-title,
-    .school-content-title,
-    .content-card-title,
-    .profile-name
-  ) {
+.life-detail :is(
+  .life-detail-society-title,
+  .society-title,
+  .school-content-title,
+  .content-card-title,
+  .profile-name
+) {
   font-size: clamp(1.16rem, 1.6vw, 1.45rem);
   line-height: 1.35;
   margin-bottom: 11px;
 }
 
-.life-detail
-  :is(
-    .life-detail-society-desc,
-    .society-desc,
-    .school-content-desc,
-    .content-card-desc,
-    .profile-bio
-  ) {
+.life-detail :is(
+  .life-detail-society-desc,
+  .society-desc,
+  .school-content-desc,
+  .content-card-desc,
+  .profile-bio
+) {
   font-size: 0.94rem;
   line-height: 1.78;
   font-weight: 400;
@@ -1157,22 +1150,11 @@
 }
 
 .life-detail .house-showcase-section,
-.life-detail .life-detail-story {
-  margin-top: clamp(48px, 6vw, 80px);
-}
+.life-detail .life-detail-story { margin-top: clamp(48px, 6vw, 80px); }
 
 /* The site may toggle dark theme via data-theme or a class. */
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail,
 .life-detail:is(.dark, .dark-mode, [data-theme="dark"]) {
   --life-page-bg: #0b0e12;
   --life-page-text: #f6f7f8;
@@ -1182,131 +1164,59 @@
   --life-card-border: rgba(255, 255, 255, 0.11);
 }
 
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  :is(
-    .life-detail-intro h1,
-    .life-detail-section-heading h2,
-    .life-detail-story-card h3,
-    .life-detail-society-title,
-    .society-title,
-    .school-content-title,
-    .content-card-title,
-    .profile-name
-  ),
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
-  :is(
-    .life-detail-intro h1,
-    .life-detail-section-heading h2,
-    .life-detail-story-card h3,
-    .life-detail-society-title,
-    .society-title,
-    .school-content-title,
-    .content-card-title,
-    .profile-name
-  ) {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-intro h1, .life-detail-section-heading h2,
+      .life-detail-story-card h3, .life-detail-society-title,
+      .society-title, .school-content-title, .content-card-title, .profile-name
+    ),
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) :is(
+      .life-detail-intro h1, .life-detail-section-heading h2,
+      .life-detail-story-card h3, .life-detail-society-title,
+      .society-title, .school-content-title, .content-card-title, .profile-name
+    ) {
   color: #f6f7f8 !important;
 }
 
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  :is(
-    .life-detail-highlight,
-    .life-detail-story-card,
-    .life-detail-society-card,
-    .society-card,
-    .school-content-card,
-    .content-card,
-    .profile-card
-  ) {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-highlight, .life-detail-story-card,
+      .life-detail-society-card, .society-card,
+      .school-content-card, .content-card, .profile-card
+    ) {
   background: var(--life-card-surface);
   border-color: var(--life-card-border);
 }
 
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  :is(
-    .life-detail-highlight span,
-    .life-detail-story-card p,
-    .life-detail-society-desc,
-    .society-desc,
-    .school-content-desc,
-    .content-card-desc,
-    .profile-bio
-  ) {
-  color: #c1c7d0 !important;
-}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
+      .life-detail-highlight span, .life-detail-story-card p,
+      .life-detail-society-desc, .society-desc,
+      .school-content-desc, .content-card-desc, .profile-bio
+    ) { color: #c1c7d0 !important; }
 
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-kicker {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-kicker {
   color: #d7b85c;
 }
 
 /* Tablet */
 @media (min-width: 720px) and (max-width: 1099px) {
-  .life-detail
-    :is(
-      .life-detail-society-grid,
-      .societies-grid,
-      .school-content-grid,
-      .content-listing-grid,
-      .profile-grid
-    ) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .life-detail :is(
+    .life-detail-society-grid,
+    .societies-grid,
+    .school-content-grid,
+    .content-listing-grid,
+    .profile-grid
+  ) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* Mobile: one clear column for directory cards and accessible-sized text. */
 @media (max-width: 719px) {
-  .life-detail .section-container {
-    padding-inline: clamp(17px, 5vw, 24px);
-  }
-  .life-detail .life-detail-top-wrapper {
-    padding-top: 42px;
-  }
-  .life-detail .life-detail-return {
-    margin-bottom: 35px;
-  }
-  .life-detail .life-detail-return-btn {
-    font-size: 0.78rem;
-  }
+  .life-detail .section-container { padding-inline: clamp(17px, 5vw, 24px); }
+  .life-detail .life-detail-top-wrapper { padding-top: 42px; }
+  .life-detail .life-detail-return { margin-bottom: 35px; }
+  .life-detail .life-detail-return-btn { font-size: 0.78rem; }
 
   .life-detail .life-detail-intro {
     padding: 0 23px 37px;
@@ -1355,71 +1265,55 @@
     border-radius: 17px;
     gap: 8px;
   }
-  .life-detail .life-detail-highlight strong {
-    font-size: 1.9rem;
-  }
-  .life-detail .life-detail-highlight span {
-    font-size: 0.72rem;
-  }
+  .life-detail .life-detail-highlight strong { font-size: 1.9rem; }
+  .life-detail .life-detail-highlight span { font-size: 0.72rem; }
 
-  .life-detail
-    :is(
-      .life-detail-society-grid,
-      .societies-grid,
-      .school-content-grid,
-      .content-listing-grid,
-      .profile-grid
-    ) {
+  .life-detail :is(
+    .life-detail-society-grid,
+    .societies-grid,
+    .school-content-grid,
+    .content-listing-grid,
+    .profile-grid
+  ) {
     grid-template-columns: minmax(0, 1fr) !important;
     gap: 18px;
     margin-top: 24px;
   }
 
-  .life-detail
-    :is(
-      .life-detail-society-card,
-      .society-card,
-      .school-content-card,
-      .content-card,
-      .profile-card
-    ) {
-    padding: 22px;
-    border-radius: 18px;
-  }
+  .life-detail :is(
+    .life-detail-society-card,
+    .society-card,
+    .school-content-card,
+    .content-card,
+    .profile-card
+  ) { padding: 22px; border-radius: 18px; }
 
-  .life-detail
-    :is(
-      .life-detail-society-logo-wrap,
-      .society-logo-wrap,
-      .school-content-image-wrap,
-      .content-card-image-wrap
-    ) {
+  .life-detail :is(
+    .life-detail-society-logo-wrap,
+    .society-logo-wrap,
+    .school-content-image-wrap,
+    .content-card-image-wrap
+  ) {
     aspect-ratio: 1 / 1;
     margin-bottom: 20px;
     border-radius: 14px;
   }
 
-  .life-detail
-    :is(
-      .life-detail-society-title,
-      .society-title,
-      .school-content-title,
-      .content-card-title,
-      .profile-name
-    ) {
-    font-size: 1.22rem;
-    line-height: 1.36;
-    margin-bottom: 10px;
-  }
+  .life-detail :is(
+    .life-detail-society-title,
+    .society-title,
+    .school-content-title,
+    .content-card-title,
+    .profile-name
+  ) { font-size: 1.22rem; line-height: 1.36; margin-bottom: 10px; }
 
-  .life-detail
-    :is(
-      .life-detail-society-desc,
-      .society-desc,
-      .school-content-desc,
-      .content-card-desc,
-      .profile-bio
-    ) {
+  .life-detail :is(
+    .life-detail-society-desc,
+    .society-desc,
+    .school-content-desc,
+    .content-card-desc,
+    .profile-bio
+  ) {
     display: block;
     font-size: 0.9rem;
     line-height: 1.72;
@@ -1428,93 +1322,40 @@
     -webkit-line-clamp: unset;
   }
 
-  .life-detail .life-detail-society-link {
-    font-size: 0.78rem;
-    min-height: 42px;
-  }
-  .life-detail .life-detail-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .life-detail .life-detail-card {
-    min-height: 270px;
-  }
-  .life-detail .life-bento-section {
-    margin-top: 4px;
-    padding: 66px 0 70px;
-  }
+  .life-detail .life-detail-society-link { font-size: 0.78rem; min-height: 42px; }
+  .life-detail .life-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .life-detail .life-detail-card { min-height: 270px; }
+  .life-detail .life-bento-section { margin-top: 4px; padding: 66px 0 70px; }
 }
 
 @media (max-width: 360px) {
-  .life-detail .life-detail-intro {
-    padding-inline: 9px;
-  }
-  .life-detail .life-detail-feature {
-    padding: 24px 20px;
-    min-height: 340px;
-  }
+  .life-detail .life-detail-intro { padding-inline: 9px; }
+  .life-detail .life-detail-feature { padding: 24px 20px; min-height: 340px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .life-detail .life-detail-highlight,
   .life-detail .life-detail-feature,
-  .life-detail .life-detail-society-card {
-    transition: none;
-  }
+  .life-detail .life-detail-society-card { transition: none; }
 }
 
 /* Additional contrast safeguards for dark-mode metrics and navigation. */
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-highlight
-  strong,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
-  .life-detail-highlight
-  strong {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight strong {
   color: #e8b975;
 }
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-highlight:nth-child(even)
-  strong,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
-  .life-detail-highlight:nth-child(even)
-  strong {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight:nth-child(even) strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight:nth-child(even) strong {
   color: #9bc6fc;
 }
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-return-btn,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
-  .life-detail-return-btn {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-return-btn,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-return-btn {
   color: #e0c575;
 }
+
 
 /* Academic Excellence: past papers preview */
 .life-detail .life-detail-past-papers {
@@ -1529,9 +1370,7 @@
   background: linear-gradient(115deg, #fcf8f4 0%, #f5eee7 100%);
   overflow: hidden;
 }
-.life-detail .life-detail-past-papers-copy {
-  max-width: 650px;
-}
+.life-detail .life-detail-past-papers-copy { max-width: 650px; }
 .life-detail .life-detail-past-papers-eyebrow {
   display: block;
   color: #8c2929;
@@ -1565,81 +1404,34 @@
   border-radius: 16px;
   font-size: 0.88rem;
   font-weight: 700;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 .life-detail .life-detail-past-papers-link:hover {
   background: #571313;
   transform: translateY(-2px);
 }
-.life-detail .life-detail-past-papers-link svg {
-  width: 18px;
-  height: 18px;
-}
+.life-detail .life-detail-past-papers-link svg { width: 18px; height: 18px; }
 .life-detail .life-detail-past-papers-art {
   width: clamp(110px, 18vw, 185px);
   flex-shrink: 0;
   color: #8c2929;
   opacity: 0.8;
 }
-.life-detail .life-detail-past-papers-art svg {
-  display: block;
-  width: 100%;
-}
+.life-detail .life-detail-past-papers-art svg { display: block; width: 100%; }
 @media (max-width: 600px) {
-  .life-detail .life-detail-past-papers {
-    padding: 26px 22px;
-  }
-  .life-detail .life-detail-past-papers-art {
-    display: none;
-  }
-  .life-detail .life-detail-past-papers-link {
-    width: 100%;
-  }
+  .life-detail .life-detail-past-papers { padding: 26px 22px; }
+  .life-detail .life-detail-past-papers-art { display: none; }
+  .life-detail .life-detail-past-papers-link { width: 100%; }
 }
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-past-papers {
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers {
   background: linear-gradient(115deg, #2a2222, #201b1b);
   border-color: rgba(255, 255, 255, 0.12);
 }
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-past-papers
-  h2 {
-  color: #f8f3ed;
-}
-:is(
-    html[data-theme="dark"],
-    body[data-theme="dark"],
-    html.dark,
-    body.dark,
-    body.dark-mode,
-    .dark,
-    .dark-mode,
-    .dark-theme
-  )
-  .life-detail
-  .life-detail-past-papers
-  p {
-  color: #d9cfca;
-}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers h2 { color: #f8f3ed; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+  body.dark-mode, .dark, .dark-mode, .dark-theme)
+  .life-detail .life-detail-past-papers p { color: #d9cfca; }

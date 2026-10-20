@@ -10,21 +10,10 @@ export default function NotFoundPage() {
     return () => { document.title = previous; };
   }, []);
 
-  function handleNavigation(event) {
-    const item = event.target.closest?.('.menu-nav-item');
-    const label = item?.querySelector('.menu-title')?.textContent;
-    const anchors = { Home: 'home', News: 'news', Academics: 'academics',
-      Explore: 'explore', 'Extra Curricular': 'extracurricular' };
-    if (anchors[label]) {
-      event.stopPropagation();
-      window.location.assign('/#' + anchors[label]);
-    }
-  }
-
   return (
     <main className="life-detail">
       <a className="life-detail-skip" href="#not-found-main">Skip to content</a>
-      <div onClickCapture={handleNavigation}><MenuBar /></div>
+      <MenuBar />
       <div className="section-container life-detail-container">
         <div className="life-detail-return">
           <a className="life-detail-return-btn" href="/">← Back to home</a>

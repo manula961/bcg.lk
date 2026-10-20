@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './EventsSection.css';
 import { subscribePublishedEvents } from '../../lib/eventsService';
+import { navigate } from '../../navigation/clientNavigation';
 
 function parseEventDate(eventDateStr) {
   const date = /^\d{4}-(\d{2})-(\d{2})$/.exec(eventDateStr || "");
@@ -70,11 +71,11 @@ const EventsSection = () => {
 
   const handleEventClick = (eventItem) => {
     const slug = encodeURIComponent(eventItem.id);
-    window.location.href = `/events/${slug}`;
+    navigate(`/events/${slug}`);
   };
 
   const handleViewAllEvents = () => {
-    window.location.href = '/events';
+    navigate('/events');
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import './LifeDetailPage.css';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
@@ -42,13 +42,6 @@ export default function LifeDetailPage({ slug }) {
     };
   }, [normalizedSlug]);
 
-  const handleBackToHome = useCallback((e) => {
-    e.preventDefault();
-    sessionStorage.setItem('skipLoading', 'true');
-    sessionStorage.setItem('scrollToSection', 'top');
-    window.location.assign('/');
-  }, []);
-
   if (!current) return null;
 
   return (
@@ -60,7 +53,7 @@ export default function LifeDetailPage({ slug }) {
       <div ref={pageRef} className="life-detail-top-wrapper">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="section-container life-detail-return">
-            <a href="/" onClick={handleBackToHome} className="life-detail-return-btn">
+            <a href="/" className="life-detail-return-btn">
               <svg
                 className="return-arrow-icon"
                 viewBox="0 0 24 24"
