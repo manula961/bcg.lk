@@ -31,6 +31,7 @@ const NewsSection = () => {
   const [visible, setVisible] = useState(false);
   const [posts, setPosts] = useState([]);
   const [loadError, setLoadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Drag-to-scroll State
@@ -55,12 +56,13 @@ const NewsSection = () => {
     let unsubscribe = () => {};
     try {
       unsubscribe = subscribePublishedNews(
-        (fetchedPosts) => { setPosts(fetchedPosts.map(toNewsCard)); setLoadError(false); },
-        (error) => { console.error("Unable to load published news:", error); setLoadError(true); }
+        (fetchedPosts) => { setPosts(fetchedPosts.map(toNewsCard)); setLoadError(false); setIsLoading(false); },
+        (error) => { console.error("Unable to load published news:", error); setLoadError(true); setIsLoading(false); }
       );
     } catch (error) {
       console.error("Unable to subscribe to published news:", error);
       setLoadError(true);
+      setIsLoading(false);
     }
     return () => unsubscribe();
   }, []);
@@ -189,6 +191,7 @@ const NewsSection = () => {
               </div>
               <div className="news-scroll-arrows">
                 <button
+                  disabled={filtered.length === 0}
                   onClick={() => handleScroll("left")}
                   className="scroll-arrow-btn"
                   aria-label="Scroll left"
@@ -198,6 +201,7 @@ const NewsSection = () => {
                   </svg>
                 </button>
                 <button
+                  disabled={filtered.length === 0}
                   onClick={() => handleScroll("right")}
                   className="scroll-arrow-btn"
                   aria-label="Scroll right"
@@ -220,8 +224,9 @@ const NewsSection = () => {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {loadError && <p role="alert">News could not be loaded. Please try again later.</p>}
-            {!loadError && filtered.length === 0 && <p>No published updates are available.</p>}
+            {isLoading && <p className="news-card-excerpt" role="status">Loading latest updates...</p>}
+            {loadError && <p className="news-card-excerpt" role="alert">News could not be loaded. Please try again later.</p>}
+            {!isLoading && !loadError && filtered.length === 0 && <p className="news-card-excerpt">No published updates are available.</p>}
             {filtered.map((post) => (
               <a
                 key={post.id}
