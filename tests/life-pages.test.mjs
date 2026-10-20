@@ -48,13 +48,14 @@ test('detail pages reuse the original homepage navigation, footer and layout con
 });
 
 
-test('Life detail pages render existing editorial content and CMS directories', () => {
+test('Life detail pages render editorial content and supported CMS directories', () => {
   const pages = read('src/pages/LifeDetailPage.jsx');
   assert.match(pages, /current\.highlights\.map/);
   assert.match(pages, /normalizedSlug === 'sports-societies' && \(/);
   assert.match(pages, /<SocietiesListing \/>/);
   assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
-  assert.match(pages, /<SchoolContentListing kind="extracurricular" \/>/);
+  const listings = read('src/pages/SchoolContentListing.jsx');
+  assert.match(listings, /extracurricular:\s*\{[\s\S]*?subscribe: subscribePublishedExtracurricular/);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {
