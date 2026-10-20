@@ -108,12 +108,13 @@ const ExploreSection = () => {
                         : event.key === 'End' ? places.length - 1
                         : (i + (event.key === 'ArrowRight' ? 1 : -1) + places.length) % places.length;
                       setActive(next);
+                      setUserPaused(true);
                       document.getElementById('place-tab-' + places[next].id)?.focus();
                     }}
                     aria-selected={active === i}
                     aria-controls={`place-panel-${place.id}`}
                     id={`place-tab-${place.id}`}
-                    onClick={() => setActive(i)}
+                    onClick={() => { setActive(i); setUserPaused(true); }}
                     className={`explore-tab-btn ${active === i ? 'active' : ''}`}
                   >
                     <div className="explore-tab-tag">{place.tag}</div>
