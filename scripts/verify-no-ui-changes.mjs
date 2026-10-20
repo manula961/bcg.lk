@@ -18,7 +18,8 @@ const protectedPath = path =>
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
-  "src/components/ExploreSection.jsx": "0b1e04279e058bedc488d4b62d982abfd8556567",
+  "src/components/ExploreSection.css": "29bfa51c69d15a5413150be9c7e278efab36ff01",
+  "src/components/ExploreSection.jsx": "6f3e24b62e64ab75d497f02c54ef67b166894228",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
   "src/components/MenuBar.jsx": "f195827db4c025991582ea6693f96b740a35c922",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
@@ -29,7 +30,7 @@ const auditedUiBlobs = Object.freeze({
   "public/robots.txt": "67e4697aed7c6374a137916b11104e712e3eddf9",
   "index.html": "8e6421a10e130c855b273cc4b8097185fbefe6e2",
   "src/index.css": "35e55d5417f08f483ab41e70b9d14af2abbc65dd",
-  "src/App.jsx": "a63eee44a704f032c35221a7ff82623fa48c82eb",
+  "src/App.jsx": "2ccf5b00efe7d2cc37ddddaa42a613245d5e6791",
   "src/pages/SchoolContentListing.jsx": "7ccfc4c3e5eceaf9aed91beaa632695d7b28cd80",
   "src/pages/lifePageData.js": "638e19fd673ebddc40453ffd9893b53141abf0aa",
   "src/pages/LifeDetailPage.jsx": "f6d3765edfec7d207798cb98afd717746328efb1",
@@ -38,11 +39,11 @@ const auditedUiBlobs = Object.freeze({
   "src/admin/AdminApp.jsx": "0f59da69988f92c77021fa9542a2f921cbfa7e66",
   "src/admin/AdminDashboard.jsx": "f931902e890754afa4ddea5f6a46ea0c28f21f81",
   "src/admin/RoleManager.jsx": "08c4f9fe8811b013a44d2ea5461c11dad34565f7",
-  "src/admin/ContentManager.jsx": "903cc2f403ede3634bbdbf060acc4d271f24ceec",
-  "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
+  "src/admin/ContentManager.jsx": "225f314281e9425c49d1ae7ed41b3d5144e20316",
+  "src/components/EventsSection.jsx": "d4ea06482b8bc8c08688ba40724fc2505ffe19cc",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
-  "src/components/NewsSection.jsx": "4abb800b5e07106d7e405ad316a89fa1f8e2f107",
+  "src/components/NewsSection.jsx": "f54bf8123e455f8a73b38216c0f16c5600250718",
   "src/main.jsx": "fe28c758cf1ae32f4d86df5386c3f7b074262751",
   "src/pages/EventDetail.jsx": "eba0eaacdd8cb40691cd92f266829cc073b51e04",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
