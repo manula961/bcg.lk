@@ -41,6 +41,8 @@ const ExploreSection = () => {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  // Don't start moving campus panels until the visitor explicitly opts in.
+  const [userPaused, setUserPaused] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
@@ -62,12 +64,12 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused || reducedMotion) return;
+    if (!visible || isPaused || reducedMotion || userPaused) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [visible, isPaused, reducedMotion]);
+  }, [visible, isPaused, reducedMotion, userPaused]);
 
   return (
     <section
@@ -76,8 +78,8 @@ const ExploreSection = () => {
       className="explore-section"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
+      onFocus={event => { if (event.target.closest('[role="tab"]')) setIsPaused(true); }}
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false); }}
     >
       <div className="section-container">
         <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
@@ -88,6 +90,16 @@ const ExploreSection = () => {
               <div className="explore-divider-maroon" />
               <div className="explore-divider-blue" />
             </div>
+            <button
+              type="button"
+              className="explore-autoplay-toggle"
+              aria-pressed={!userPaused && !reducedMotion}
+              onClick={() => setUserPaused(value => !value)}
+              disabled={reducedMotion}
+              title={reducedMotion ? 'Automatic motion disabled by your device settings' : undefined}
+            >
+              {reducedMotion ? 'Motion off' : userPaused ? 'Play highlights' : 'Pause highlights'}
+            </button>
           </div>
 
           <div className="explore-grid">
