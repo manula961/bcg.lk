@@ -55,16 +55,6 @@ const sections = [
     ),
   },
   {
-    id: 'extracurricular',
-    label: 'Extracurricular',
-    description: 'Activities & programmes',
-    icon: (
-      <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M3 4h18v16H3zM7 9h10M7 13h8M7 17h6" />
-      </svg>
-    ),
-  },
-  {
     id: 'leadership',
     label: 'Leadership',
     description: 'Senior administration',
