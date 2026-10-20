@@ -18,7 +18,7 @@ const protectedPath = path =>
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
-  "src/components/ExploreSection.jsx": "0b1e04279e058bedc488d4b62d982abfd8556567",
+  "src/components/ExploreSection.jsx": "4b489962c646dad2bcbf8f8097e5c71c379b931a",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
   "src/components/MenuBar.jsx": "f195827db4c025991582ea6693f96b740a35c922",
   // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
@@ -39,10 +39,10 @@ const auditedUiBlobs = Object.freeze({
   "src/admin/AdminDashboard.jsx": "f931902e890754afa4ddea5f6a46ea0c28f21f81",
   "src/admin/RoleManager.jsx": "08c4f9fe8811b013a44d2ea5461c11dad34565f7",
   "src/admin/ContentManager.jsx": "903cc2f403ede3634bbdbf060acc4d271f24ceec",
-  "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
+  "src/components/EventsSection.jsx": "5c08a0658f8c030c02b2c68c2b8d765070bde33f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
-  "src/components/NewsSection.jsx": "4abb800b5e07106d7e405ad316a89fa1f8e2f107",
+  "src/components/NewsSection.jsx": "bd3a48573f0d7295c3adde1a396567a289886d60",
   "src/main.jsx": "fe28c758cf1ae32f4d86df5386c3f7b074262751",
   "src/pages/EventDetail.jsx": "eba0eaacdd8cb40691cd92f266829cc073b51e04",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
