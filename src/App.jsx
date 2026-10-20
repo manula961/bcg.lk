@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LoadingAnimation from './components/LoadingAnimation';
 import MenuBar from './components/MenuBar';
 import HeroSection from './components/HeroSection';
@@ -10,6 +10,8 @@ import Footer from './components/Footer';
 import './index.css';
 
 function App() {
+  // Capture the requested anchor before the loading curtain delays mounting the homepage.
+  const pendingSection = useRef(sessionStorage.getItem('scrollToSection') || window.location.hash.slice(1));
   const [loading, setLoading] = useState(() => {
     // Check if returning from sub-pages or back buttons
     return !sessionStorage.getItem('skipLoading');
@@ -30,33 +32,6 @@ function App() {
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('pageshow', handlePageShow);
 
-    const targetSection = sessionStorage.getItem('scrollToSection') || window.location.hash.replace('#', '');
-
-    if (targetSection) {
-      // Clear hash from address bar immediately
-      if (window.location.hash && window.history.replaceState) {
-        window.history.replaceState(null, '', window.location.pathname);
-      }
-
-      // Scroll smoothly to target once elements are mounted
-      setTimeout(() => {
-        if (targetSection === 'top' || targetSection === 'home') {
-          window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-        } else {
-          const el = document.getElementById(targetSection);
-          if (el) {
-            el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-          } else {
-            window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-          }
-        }
-        sessionStorage.removeItem('scrollToSection');
-      }, 200);
-    } else if (sessionStorage.getItem('skipLoading')) {
-      // If returning from a back action without a explicit section, ensure we scroll to top
-      window.scrollTo(0, 0);
-    }
-
     // Reset skip loading flag for future fresh visits
     sessionStorage.removeItem('skipLoading');
 
@@ -65,6 +40,24 @@ function App() {
       window.removeEventListener('pageshow', handlePageShow);
     };
   }, []);
+
+  useEffect(() => {
+    // Hash links from another page must wait until the homepage sections exist.
+    if (loading) return undefined;
+    const target = pendingSection.current;
+    if (!target) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+      if (target === 'top' || target === 'home') {
+        window.scrollTo({ top: 0, behavior });
+      } else {
+        document.getElementById(target)?.scrollIntoView({ behavior });
+      }
+      sessionStorage.removeItem('scrollToSection');
+      pendingSection.current = '';
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loading]);
 
   return (
     <>
