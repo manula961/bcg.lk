@@ -311,3 +311,6 @@
     line-height: 1.45;
   }
 }
+/* Accessible autoplay control, aligned with the existing campus palette. */
+.explore-autoplay-control { margin-top: 0.75rem; border: 1px solid currentColor; border-radius: 0.5rem; padding: 0.5rem 0.75rem; background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.explore-autoplay-control:focus-visible { outline: 3px solid #b58b37; outline-offset: 3px; }
