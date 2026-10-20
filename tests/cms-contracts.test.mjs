@@ -43,6 +43,8 @@ test('admin CMS uses the shared services for active collections', () => {
   assert.match(manager, /subscribeAdminSports/);
   assert.match(manager, /subscribeAdminLeadership/);
   assert.doesNotMatch(manager, /subscribeAdminExtracurricular|extracurricularService/);
+  assert.doesNotMatch(source('src/admin/AdminDashboard.jsx'), /extracurricular/i);
+  assert.doesNotMatch(source('src/pages/SchoolContentListing.jsx'), /extracurricular/i);
 });
 
 test('page IDs remain stable slugs and content writes include server timestamps', () => {
