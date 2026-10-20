@@ -5,7 +5,7 @@ const menuItems = [
   { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
   { label: 'News', href: 'news', sub: 'Latest Updates & Announcements' },
   { label: 'Events', href: 'events', sub: 'Upcoming Events Calendar' },
-  { label: 'Explore', href: 'explore', sub: 'Discover Our Campus' },
+  { label: 'Discover', href: 'explore', sub: 'Discover Our School' },
   { label: 'Explore More', href: 'NayakenzPride', sub: 'Life As A Nayaken' },
 ];
 
@@ -37,6 +37,14 @@ const MenuBar = () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
     };
+  }, [open]);
+
+  // Prevent the page behind the mobile/full-screen menu from scrolling.
+  useEffect(() => {
+    if (!open) return undefined;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = originalOverflow; };
   }, [open]);
 
   // Keep keyboard focus inside the open navigation panel and restore it on close.
@@ -98,7 +106,7 @@ const MenuBar = () => {
         type="button"
         aria-controls="site-navigation-panel"
         onClick={() => setOpen(!open)}
-        aria-label="Toggle Navigation Menu"
+        aria-label={open ? "Close navigation menu" : "Open navigation menu"}
         aria-expanded={open}
         className={`menu-toggle-btn ${open ? 'open' : scrolled ? 'scrolled' : 'default'}`}
       >

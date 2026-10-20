@@ -88,16 +88,6 @@ const ExploreSection = () => {
               <div className="explore-divider-maroon" />
               <div className="explore-divider-blue" />
             </div>
-            <button
-              type="button"
-              className="explore-autoplay-toggle"
-              aria-pressed={!userPaused && !reducedMotion}
-              onClick={() => setUserPaused(value => !value)}
-              disabled={reducedMotion}
-              title={reducedMotion ? 'Automatic motion disabled by your device settings' : undefined}
-            >
-              {reducedMotion ? 'Motion off' : userPaused ? 'Play highlights' : 'Pause highlights'}
-            </button>
           </div>
 
           <div className="explore-grid"

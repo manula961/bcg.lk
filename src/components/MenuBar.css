@@ -194,3 +194,20 @@
     font-size: 0.75rem;
   }
 }
+/* Full-height navigation must remain usable on short/touch viewports. */
+.menu-overlay { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.menu-container { margin: auto; padding-block: max(28px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-bottom)); }
+.menu-toggle-btn { top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); }
+.menu-nav-item:focus-visible { outline: 2px solid #c9a84c; outline-offset: -2px; }
+@media (max-width: 640px) {
+  .menu-container { padding-inline: 20px; }
+  .menu-nav-list { gap: 3px; }
+  .menu-nav-item { min-height: 66px; }
+  .menu-title { font-size: clamp(1.35rem, 5.3vw, 2rem); }
+  .menu-sub { font-size: .72rem; }
+}
+@media (max-height: 540px) {
+  .menu-overlay { align-items: flex-start; }
+  .menu-container { margin: 0 auto; }
+  .menu-nav-item { padding-block: 9px; }
+}
