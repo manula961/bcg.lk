@@ -51,7 +51,7 @@ test('Google Drive uploads explicitly warn of immediate public sharing', () => {
 
 test('Firebase Storage limits overwriting to admins and deletion to admins', () => {
   const rules = read('storage.rules');
-  assert.match(rules, /allow create: if resource == null && canUploadMedia\(\)/);
+  assert.match(rules, /allow create: if isAdmin\(\)/);
   assert.match(rules, /allow update: if isAdmin\(\)/);
   assert.match(rules, /allow delete: if isAdmin\(\)/);
   assert.match(rules, /allow list: if isAdmin\(\)/);
