@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import { subscribePublishedNews, subscribePublishedNewsById } from '../../lib/newsService';
 import './Updates.css';
 
@@ -83,12 +84,7 @@ export default function Updates({ titleSlug }) {
             {loadError ? 'The news service could not be reached. Please try again.' : 'The news update you are looking for does not exist or has been removed.'}
           </p>
           {loadError && <button type="button" className="updates-return-btn" onClick={() => setRetry(n => n + 1)}>TRY AGAIN</button>}
-          <a href="/#news" className="updates-return-btn">
-            <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            <span>HOME</span>
-          </a>
+          <BackButton className="updates-return-btn" fallback="/#news">BACK</BackButton>
         </div>
         <Footer />
       </main>
@@ -109,12 +105,7 @@ export default function Updates({ titleSlug }) {
       <div className="updates-top-wrapper">
         <div className="updates-container">
           <div className="updates-return">
-            <a href="/#news" className="updates-return-btn">
-              <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              <span>BACK</span>
-            </a>
+            <BackButton className="updates-return-btn" fallback="/#news">BACK</BackButton>
           </div>
           <header className="updates-header">
             {article.category && <p className="updates-category">{article.category}</p>}

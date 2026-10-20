@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import { getPublishedPage } from '../../lib/pagesService';
 import '../life/LifeDetailPage.css';
 
@@ -40,9 +41,7 @@ export default function PublishedContentPage({ slug }) {
       <MenuBar />
       <div className="section-container life-detail-container">
         <div className="life-detail-return">
-          <a href="/" className="life-detail-return-btn">
-            <span aria-hidden="true">←</span> Back to home
-          </a>
+          <BackButton className="life-detail-return-btn" fallback="/">BACK</BackButton>
         </div>
         <section id="published-page-main" className="life-detail-intro" aria-live="polite">
           {state.loading ? (

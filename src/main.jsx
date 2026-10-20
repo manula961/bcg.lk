@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import Lenis from 'lenis';
 import { lifePages } from './pages/life/lifePageData.js';
-import { listenForNavigation } from './navigation/clientNavigation.js';
+import { listenForNavigation, setSmoothScroller } from './navigation/clientNavigation.js';
 import RouteScroll from './navigation/RouteScroll.jsx';
 
 // Load only the route being visited. Admin Firebase and editor code stays out
@@ -87,6 +87,8 @@ if (window.location.pathname !== '/admin' && window.location.pathname !== '/admi
     smoothWheel: true,
     smoothTouch: false,
   });
+
+  setSmoothScroller(lenis);
 
   function raf(time) {
     lenis.raf(time);

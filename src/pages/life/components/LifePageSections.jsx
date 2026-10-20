@@ -2,14 +2,26 @@ import React from 'react';
 import Timeline from './timeline/Timeline';
 import PastPapersPreview from './PastPapersPreview';
 import ContentDirectory from './ContentDirectory';
+import SchoolAnthemSection from './SchoolAnthemSection';
+import AcademicLearningSection from './AcademicLearningSection';
 
 /** Content selection for the four /life/:slug pages; shared layout stays in LifeDetailPage. */
 export default function LifePageSections({ slug }) {
   switch (slug) {
     case 'about-us':
-      return <Timeline />;
+      return (
+        <>
+          <SchoolAnthemSection />
+          <Timeline />
+        </>
+      );
     case 'academic-excellence':
-      return <PastPapersPreview />;
+      return (
+        <>
+          <AcademicLearningSection />
+          <PastPapersPreview />
+        </>
+      );
     case 'sports-societies':
       return (
         <>

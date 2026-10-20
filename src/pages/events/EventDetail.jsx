@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import { subscribePublishedEvents, subscribePublishedEventById } from '../../lib/eventsService';
 import './EventDetail.css';
 
@@ -83,20 +84,7 @@ export default function EventDetail({ titleSlug }) {
             {loadError ? 'The events service could not be reached. Please try again.' : 'The event you are looking for does not exist or has been removed.'}
           </p>
           {loadError && <button type="button" className="event-detail-return-btn" onClick={() => setRetry(n => n + 1)}>TRY AGAIN</button>}
-          <a href="/" className="event-detail-return-btn">
-            <svg
-              className="return-arrow-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-            <span>HOME</span>
-          </a>
+          <BackButton className="event-detail-return-btn" fallback="/events">BACK</BackButton>
         </div>
         <Footer />
       </main>
@@ -109,20 +97,7 @@ export default function EventDetail({ titleSlug }) {
       <div className="event-detail-top-wrapper">
         <div className="event-detail-container">
           <div className="event-detail-return">
-            <a href="/" className="event-detail-return-btn">
-              <svg
-                className="return-arrow-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              <span>HOME</span>
-            </a>
+            <BackButton className="event-detail-return-btn" fallback="/events">BACK</BackButton>
           </div>
 
           <header className="event-detail-header">

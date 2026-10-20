@@ -623,3 +623,6 @@
   }
   .calendar-event-dot.passed::before { background: #a09d9a; }
 }
+
+/* Keep the shared history-aware back control's arrow at the original size. */
+.events-page-return-btn .return-arrow-icon { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }

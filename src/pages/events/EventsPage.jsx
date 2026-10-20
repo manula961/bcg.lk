@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import { subscribePublishedEvents } from '../../lib/eventsService';
 import './EventsPage.css';
 
@@ -120,12 +121,7 @@ export default function EventsPage() {
       <div className="events-page-top">
         <div className="events-page-container">
           <div className="events-page-return">
-            <a href="/" className="events-page-return-btn">
-              <svg className="return-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              <span>HOME</span>
-            </a>
+            <BackButton className="events-page-return-btn" fallback="/#events">BACK</BackButton>
           </div>
 
           <header className="events-page-header">

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import './LifeDetailPage.css';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import LifePageSections from './components/LifePageSections';
 import LifeAsNayakenz from '../../components/home/LifeAsNayaken';
 
@@ -53,18 +54,7 @@ export default function LifeDetailPage({ slug }) {
       <div ref={pageRef} className="life-detail-top-wrapper">
         <div className={`life-content-group ${visible ? 'visible' : ''}`}>
           <div className="section-container life-detail-return">
-            <a href="/" className="life-detail-return-btn">
-              <svg
-                className="return-arrow-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-              >
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              <span>HOME</span>
-            </a>
+            <BackButton className="life-detail-return-btn" fallback="/">BACK</BackButton>
           </div>
 
           {/* Intro Section */}

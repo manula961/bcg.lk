@@ -1,10 +1,17 @@
-/**
- * Lightweight navigation for the public pages. Links remain real <a href>
- * elements, so direct visits, refreshes and opening links in a new tab work.
- * Admin/auth routes keep full-page navigation and are deliberately isolated.
- */
+/** Client-side navigation for public routes; native anchors and downloads still work. */
 export const NAVIGATION_EVENT = 'bcg:public-navigation';
-const SCROLL_STATE = '__bcgScroll';
+const PREVIOUS_ROUTE = '__bcgPreviousRoute';
+let smoothScroller = null;
+
+export function setSmoothScroller(instance) {
+  smoothScroller = instance;
+}
+
+export function scrollToPageTop() {
+  // Lenis has its own target scroll position; reset that as well as the browser.
+  smoothScroller?.scrollTo(0, { immediate: true, force: true });
+  window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+}
 
 export function isHomePath(pathname) {
   return pathname === '/' || pathname === '/index.html';
@@ -14,7 +21,6 @@ function isAdminPath(pathname) {
   return pathname === '/admin' || pathname.startsWith('/admin/');
 }
 
-// Static assets, downloads and API URLs must keep their native behavior.
 export function isPublicRoute(pathname) {
   return isHomePath(pathname) || pathname === '/about-us' || pathname === '/about-us/' ||
     pathname === '/past-papers' || pathname === '/past-papers/' ||
@@ -22,20 +28,7 @@ export function isPublicRoute(pathname) {
     /^\/(?:life|pages|updates|events)\/[^/]+\/?$/.test(pathname);
 }
 
-function saveScrollPosition() {
-  const previous = window.history.state || {};
-  window.history.replaceState(
-    { ...previous, [SCROLL_STATE]: { x: window.scrollX, y: window.scrollY } },
-    '',
-    window.location.href,
-  );
-}
-
-export function getSavedScroll() {
-  return window.history.state?.[SCROLL_STATE] || { x: 0, y: 0 };
-}
-
-/** Returns true if a same-origin public URL was handled without a reload. */
+/** Returns true when a same-origin public URL was handled without a reload. */
 export function navigate(to, { replace = false } = {}) {
   const url = new URL(to, window.location.href);
   if (url.origin !== window.location.origin || !isPublicRoute(url.pathname) || isAdminPath(url.pathname)) {
@@ -46,42 +39,64 @@ export function navigate(to, { replace = false } = {}) {
   const from = window.location.pathname + window.location.search + window.location.hash;
   const next = url.pathname + url.search + url.hash;
   if (from === next) {
-    // A second click on the current anchor should still bring it into view.
     window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { type: 'same' } }));
     return true;
   }
 
-  saveScrollPosition();
   if (isHomePath(url.pathname) && !isHomePath(window.location.pathname)) {
-    // The original homepage intro remains for fresh visits, but not returns.
-    window.sessionStorage.setItem('skipLoading', 'true');
+    sessionStorage.setItem('skipLoading', 'true');
   }
 
-  const state = { [SCROLL_STATE]: { x: 0, y: 0 } };
+  const previous = window.history.state || {};
+  const state = replace
+    ? { ...previous, [PREVIOUS_ROUTE]: previous[PREVIOUS_ROUTE] || null }
+    : { [PREVIOUS_ROUTE]: from };
   if (replace) window.history.replaceState(state, '', next);
   else window.history.pushState(state, '', next);
+
+  // Reset immediately to avoid displaying the new page at the old scroll offset.
+  if (url.pathname !== new URL(from, window.location.origin).pathname) scrollToPageTop();
   window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { type: 'push' } }));
   return true;
 }
 
-/** Called once from the public React root. No UI styles or markup are added. */
+/**
+ * Return to the actual previous page when this entry was created by an
+ * internal navigation. A direct link/new tab uses the supplied safe fallback.
+ */
+export function navigateBack(fallback = '/') {
+  if (window.history.state?.[PREVIOUS_ROUTE]) {
+    window.history.back();
+    return;
+  }
+  // A full document visit from another same-origin page can use its referrer.
+  try {
+    const referrer = document.referrer && new URL(document.referrer);
+    if (referrer && referrer.origin === window.location.origin &&
+        isPublicRoute(referrer.pathname) &&
+        referrer.href !== window.location.href) {
+      navigate(referrer.href, { replace: true });
+      return;
+    }
+  } catch { /* Missing or invalid referrer: use the fallback. */ }
+  navigate(fallback, { replace: true });
+}
+
 export function listenForNavigation(onNavigate) {
   let previousPathname = window.location.pathname;
   const previousRestoration = window.history.scrollRestoration;
   window.history.scrollRestoration = 'manual';
 
   const handleClick = (event) => {
-    if (isAdminPath(window.location.pathname) || event.defaultPrevented ||
-        event.button !== 0 || event.metaKey ||
-        event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (isAdminPath(window.location.pathname) || event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = event.target.closest?.('a[href]');
     if (!anchor || anchor.hasAttribute('download') ||
         (anchor.target && anchor.target !== '_self') ||
         anchor.relList?.contains('external')) return;
     const url = new URL(anchor.href, window.location.href);
-    if (!['http:', 'https:'].includes(url.protocol) ||
-        url.origin !== window.location.origin || !isPublicRoute(url.pathname) ||
-        isAdminPath(url.pathname)) return;
+    if (!['http:', 'https:'].includes(url.protocol) || url.origin !== window.location.origin ||
+        !isPublicRoute(url.pathname) || isAdminPath(url.pathname)) return;
     event.preventDefault();
     navigate(url.href);
   };
@@ -92,37 +107,20 @@ export function listenForNavigation(onNavigate) {
   };
   const handlePopState = () => {
     if (isHomePath(window.location.pathname) && !isHomePath(previousPathname)) {
-      window.sessionStorage.setItem('skipLoading', 'true');
+      sessionStorage.setItem('skipLoading', 'true');
     }
+    if (window.location.pathname !== previousPathname) scrollToPageTop();
     previousPathname = window.location.pathname;
-    onNavigate('pop', getSavedScroll());
-  };
-
-  // Throttled position storage also captures history entries left via the
-  // browser's Back / Forward controls, not only links initiated by the site.
-  let scrollTimer = null;
-  const handleScroll = () => {
-    if (scrollTimer !== null) return;
-    const expectedState = window.history.state;
-    scrollTimer = window.setTimeout(() => {
-      scrollTimer = null;
-      if (window.history.state !== expectedState) return;
-      saveScrollPosition();
-    }, 120);
+    onNavigate('pop');
   };
 
   document.addEventListener('click', handleClick);
   window.addEventListener(NAVIGATION_EVENT, handleNavigation);
   window.addEventListener('popstate', handlePopState);
-  window.addEventListener('scroll', handleScroll, { passive: true });
-  window.addEventListener('pagehide', saveScrollPosition);
   return () => {
     document.removeEventListener('click', handleClick);
     window.removeEventListener(NAVIGATION_EVENT, handleNavigation);
     window.removeEventListener('popstate', handlePopState);
-    window.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('pagehide', saveScrollPosition);
-    if (scrollTimer !== null) window.clearTimeout(scrollTimer);
     window.history.scrollRestoration = previousRestoration;
   };
 }

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
+import BackButton from '../../navigation/BackButton';
 import '../life/LifeDetailPage.css';
 
 export default function NotFoundPage() {
@@ -16,7 +17,7 @@ export default function NotFoundPage() {
       <MenuBar />
       <div className="section-container life-detail-container">
         <div className="life-detail-return">
-          <a className="life-detail-return-btn" href="/">← Back to home</a>
+          <BackButton className="life-detail-return-btn" fallback="/">BACK</BackButton>
         </div>
         <section id="not-found-main" className="life-detail-intro">
           <p className="life-detail-kicker">BANDARANAYAKE COLLEGE</p>
