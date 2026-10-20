@@ -4,13 +4,11 @@ import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
   sports: {
-    title: 'Sports',
-    intro: 'Discover college sports, teams and achievements published by the administration.',
+    title: 'School Sports',
     subscribe: subscribePublishedSports,
   },
   leadership: {
     title: 'School Leadership',
-    intro: 'Verified senior school administrative staff, displayed in the order set by the administration.',
     subscribe: subscribePublishedLeadership,
   },
 };
