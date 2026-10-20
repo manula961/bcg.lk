@@ -332,6 +332,9 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!canUpload || !file || busy || uploadingImage) return;
+    // Google Drive gives every uploaded image an anyone-with-link public grant.
+    // Explicitly obtain confirmation before putting student/staff images online.
+    if (!window.confirm('This image will be publicly accessible on Google Drive immediately, even before the content is published. Confirm it is approved for public use.')) return;
     setUploadingImage(true);
     setNotice(null);
     try {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, onSnapshot, runTransaction, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { ASSIGNABLE_ROLES, ROLE_LABELS } from '../lib/rbac.mjs';
 
@@ -13,6 +13,7 @@ const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
  */
 export default function RoleManager({ currentUid }) {
   const [accounts, setAccounts] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState({});
   const [newUid, setNewUid] = useState('');
   const [newRole, setNewRole] = useState('editor');
@@ -29,6 +30,12 @@ export default function RoleManager({ currentUid }) {
     setNotice({ type: 'error', text: error?.code === 'permission-denied'
       ? 'Super-admin listing is unavailable. Deploy and verify the reviewed Firestore RBAC rules.'
       : 'Could not load console roles. Check your connection and retry.' });
+  }), []);
+
+  useEffect(() => onSnapshot(query(collection(db, 'roleAudit'), orderBy('createdAt', 'desc'), limit(25)), snapshot => {
+    setRecentActivity(snapshot.docs.map(item => ({ id: item.id, ...item.data() })));
+  }, () => {
+    setNotice({ type: 'error', text: 'Role changes remain protected, but the activity log could not be loaded. Check deployed Firestore rules.' });
   }), []);
 
   const totals = useMemo(() => accounts.reduce((result, account) => {
@@ -60,6 +67,12 @@ export default function RoleManager({ currentUid }) {
         if (current.exists() && current.data()?.role === 'super_admin') {
           throw new Error('Super-admin role changes require a trusted Firebase administrator.');
         }
+        transaction.set(doc(collection(db, 'roleAudit')), {
+          actorUid, targetUid: uid,
+          action: current.exists() ? 'change' : 'grant',
+          beforeRole: current.exists() ? current.data().role : null,
+          afterRole: nextRole, createdAt: serverTimestamp(),
+        });
         if (current.exists()) {
           transaction.update(reference, {
             role: nextRole, updatedAt: serverTimestamp(), updatedBy: actorUid,
@@ -100,6 +113,11 @@ export default function RoleManager({ currentUid }) {
         if (current.data()?.role === 'super_admin') {
           throw new Error('Cannot revoke a Super Admin from this panel.');
         }
+        transaction.set(doc(collection(db, 'roleAudit')), {
+          actorUid, targetUid: uid, action: 'revoke',
+          beforeRole: current.data().role, afterRole: null,
+          createdAt: serverTimestamp(),
+        });
         transaction.delete(reference);
       });
       setNotice({ type: 'success', text: 'Console access revoked for the selected UID.' });
@@ -198,6 +216,22 @@ export default function RoleManager({ currentUid }) {
           </div>}
         <p className="admin-help-text">Assigned: {Object.entries(totals).map(([role, count]) =>
           (ROLE_LABELS[role] || role) + ' ' + count).join(' · ') || 'none'}</p>
+      </section>
+      <section className="admin-table-card" aria-label="Recent role activity">
+        <div className="admin-editor-header">
+          <div><h2 className="admin-editor-title">Recent Role Activity</h2>
+            <p className="admin-header-desc">Last 25 recorded console changes. Older records remain in Firestore.</p></div>
+        </div>
+        {recentActivity.length === 0 ? <p className="admin-state-msg">No role changes have been recorded.</p> :
+          <div className="admin-list-container">{recentActivity.map(entry => (
+            <article className="admin-row" key={entry.id}>
+              <div className="admin-row-details">
+                <h3 className="admin-row-title">{entry.action} · {entry.targetUid}</h3>
+                <p className="admin-row-snippet">{ROLE_LABELS[entry.beforeRole] || 'No role'} → {ROLE_LABELS[entry.afterRole] || 'No role'}</p>
+                <p className="admin-row-meta">By {entry.actorUid}</p>
+              </div>
+            </article>
+          ))}</div>}
       </section>
     </div>
   );

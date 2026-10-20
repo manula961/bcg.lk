@@ -1,35 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import MenuBar from '../components/MenuBar';
 import Footer from '../components/Footer';
-import { subscribePublishedEvents } from '../lib/eventsService';
+import { subscribePublishedEvents, subscribePublishedEventById } from '../lib/eventsService';
 import './EventDetail.css';
 
 export default function EventDetail({ titleSlug }) {
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    let active = true;
     let unsubscribe = () => {};
+    setLoading(true);
+    setLoadError(false);
     try {
-      unsubscribe = subscribePublishedEvents((eventsList) => {
-        const match = eventsList.find((item) => {
-          const slug = encodeURIComponent(
-            (item.title || '')
-              .toLowerCase()
-              .trim()
-              .replace(/\s+/g, '-')
-          );
-          return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
-        });
-        setEventData(match || null);
+      const onFailure = error => {
+        if (!active) return;
+        console.error('Event subscription failed:', error);
+        setLoadError(true);
         setLoading(false);
-      });
+      };
+      // Standard public links use generated Firestore document IDs. Watching
+      // just that document avoids subscribing to every published event entry.
+      // Preserve full-collection lookup only for legacy title-based URLs.
+      const id = decodeURIComponent(titleSlug);
+      if (/^[A-Za-z0-9]{20}$/.test(id)) {
+        unsubscribe = subscribePublishedEventById(id, record => {
+          if (!active) return;
+          setEventData(record || null);
+          setLoading(false);
+        }, onFailure);
+      } else {
+        unsubscribe = subscribePublishedEvents((eventsList) => {
+          if (!active) return;
+          const match = eventsList.find((item) => {
+            const slug = encodeURIComponent(
+              (item.title || '')
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+            );
+            return encodeURIComponent(item.id) === titleSlug || slug === titleSlug || encodeURIComponent(item.title) === titleSlug;
+          });
+          setEventData(match || null);
+          setLoading(false);
+        }, onFailure);
+      }
     } catch (error) {
       console.error('Error fetching event item:', error);
-      setLoading(false);
+      if (active) { setLoadError(true); setLoading(false); }
     }
-    return () => unsubscribe();
-  }, [titleSlug]);
+    return () => { active = false; unsubscribe(); };
+  }, [titleSlug, retry]);
 
   useEffect(() => {
     if (eventData?.title) {
@@ -81,10 +105,11 @@ export default function EventDetail({ titleSlug }) {
           <MenuBar />
         </div>
         <div className="event-detail-not-found">
-          <h1 className="event-detail-not-found-title">Event Not Found</h1>
+          <h1 className="event-detail-not-found-title">{loadError ? 'Unable to Load Event' : 'Event Not Found'}</h1>
           <p className="event-detail-not-found-desc">
-            The event you are looking for does not exist or has been removed.
+            {loadError ? 'The events service could not be reached. Please try again.' : 'The event you are looking for does not exist or has been removed.'}
           </p>
+          {loadError && <button type="button" className="event-detail-return-btn" onClick={() => setRetry(n => n + 1)}>TRY AGAIN</button>}
           <a href="/" onClick={handleBackToHome} className="event-detail-return-btn">
             <svg
               className="return-arrow-icon"

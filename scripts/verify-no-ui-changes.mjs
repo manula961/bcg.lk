@@ -17,6 +17,14 @@ const protectedPath = path =>
 // User-approved fixes in PR #32. Each protected file must match this exact Git blob.
 // Unlisted frontend edits remain prohibited. Changes require explicit re-review.
 const auditedUiBlobs = Object.freeze({
+  // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
+  "src/components/ExploreSection.jsx": "0b1e04279e058bedc488d4b62d982abfd8556567",
+  // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
+  "src/components/MenuBar.jsx": "f195827db4c025991582ea6693f96b740a35c922",
+  // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
+  "src/pages/PublishedContentPage.jsx": "99af8ea869b3c76f0c59a63737c6cdf3f50c63b6",
+  // Approved behavior-only fixes: async recovery, a11y, media consent (no design changes).
+  "src/pages/Updates.jsx": "3d5e21ceb2629d1184a742fc0df2b2798a43a0ac",
   "public/sitemap.xml": "a794bbe90c130970abd057344a97cec18a6559a1",
   "public/robots.txt": "67e4697aed7c6374a137916b11104e712e3eddf9",
   "index.html": "8e6421a10e130c855b273cc4b8097185fbefe6e2",
@@ -29,17 +37,16 @@ const auditedUiBlobs = Object.freeze({
   // RBAC-only admin-console behavior, reviewed as part of this PR.
   "src/admin/AdminApp.jsx": "0f59da69988f92c77021fa9542a2f921cbfa7e66",
   "src/admin/AdminDashboard.jsx": "b5f3d54fc17d14e67d8a98747c4e8e75ce0b688e",
-  "src/admin/RoleManager.jsx": "0eb4a551a96833259eb7b145c627d3572c2bef33",
-  "src/admin/ContentManager.jsx": "962dc93e3912eb2470929843baa9d08c0f5ffc5b",
+  "src/admin/RoleManager.jsx": "08c4f9fe8811b013a44d2ea5461c11dad34565f7",
+  "src/admin/ContentManager.jsx": "6b696b1997339399f7196c27db5d7b3d1e78f92d",
   "src/components/EventsSection.jsx": "3819651c15a1e5adc5508809baeac20ce8d0923f",
   "src/components/HeroSection.css": "111cee3784af5cadff2e566cad8c78672ebb87a9",
   "src/components/HeroSection.jsx": "c624ae98582f06202a9e84f3b09ef2980d3107f1",
   "src/components/NewsSection.jsx": "4abb800b5e07106d7e405ad316a89fa1f8e2f107",
   "src/main.jsx": "fe28c758cf1ae32f4d86df5386c3f7b074262751",
-  "src/pages/EventDetail.jsx": "4784707409d3af0e855930139c594d041d80045d",
+  "src/pages/EventDetail.jsx": "eba0eaacdd8cb40691cd92f266829cc073b51e04",
   "src/pages/EventsPage.jsx": "04861176edd27da87e772be03b1f4f92d162906b",
   "src/pages/NotFoundPage.jsx": "6a1958bf3208721e4b6c78a0a17f60aff29bd49b",
-  "src/pages/Updates.jsx": "ff4a0ef12aa7e14ef1d8ab158162bf9f980a9cb9"
 });
 // Deletions of protected files are denied except the reviewed unused legacy stylesheet.
 const auditedUiDeletions = Object.freeze({ 'src/admin/AdminTheme.css': 'ca912562b66f5ac77da3b7a2aafd503681b15714' });

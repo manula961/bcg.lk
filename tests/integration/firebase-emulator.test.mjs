@@ -116,6 +116,10 @@ test('Storage enforces authorized media uploads, allowed image types and 10 MiB 
   await assertFails(uploadBytes(ref(admin.storage(), 'public/oversized.png'), new Uint8Array(10 * 1024 * 1024 + 1), { contentType: 'image/png' }));
   await assertSucceeds(uploadBytes(ref(admin.storage(), path), image, { contentType: 'image/png' }));
   await assertSucceeds(getBytes(ref(visitor.storage(), path)));
+  // Known public paths must not be replaceable by draft-only editors/publishers.
+  await assertFails(uploadBytes(ref(editor.storage(), path), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(publisher.storage(), path), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(admin.storage(), path), image, { contentType: 'image/png' }));
   // Preserve PR #44 privacy checks while exercising RBAC permissions.
   await assertFails(listAll(ref(visitor.storage(), 'public')));
   await assertFails(listAll(ref(editor.storage(), 'public')));
@@ -280,12 +284,39 @@ test('RBAC: editors manage drafts only, publishers can publish but cannot delete
 
 test('RBAC: only media-capable roles may upload images', async () => {
   const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
-  const id = 'public/rbac-image-test.png';
-  await assertSucceeds(uploadBytes(ref(editor.storage(), id), image, { contentType: 'image/png' }));
-  await assertSucceeds(uploadBytes(ref(publisher.storage(), id), image, { contentType: 'image/png' }));
-  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), id), image, { contentType: 'image/png' }));
-  await assertFails(uploadBytes(ref(auditor.storage(), id), image, { contentType: 'image/png' }));
-  await assertFails(deleteObject(ref(editor.storage(), id)));
-  await assertFails(deleteObject(ref(publisher.storage(), id)));
-  await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
+  const editorId = 'public/rbac-editor-create.png';
+  const publisherId = 'public/rbac-publisher-create.png';
+  const ownerId = 'public/rbac-owner-create.png';
+  await assertSucceeds(uploadBytes(ref(editor.storage(), editorId), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(publisher.storage(), publisherId), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), ownerId), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(auditor.storage(), 'public/rbac-auditor.png'), image, { contentType: 'image/png' }));
+  for (const id of [editorId, publisherId, ownerId]) {
+    await assertFails(uploadBytes(ref(editor.storage(), id), image, { contentType: 'image/png' }));
+    await assertFails(uploadBytes(ref(publisher.storage(), id), image, { contentType: 'image/png' }));
+  }
+  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), editorId), image, { contentType: 'image/png' }));
+  await assertFails(deleteObject(ref(editor.storage(), editorId)));
+  await assertFails(deleteObject(ref(publisher.storage(), publisherId)));
+  for (const id of [editorId, publisherId, ownerId]) await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
+});
+
+test('role audit records are append-only, actor-bound and super-admin readable', async () => {
+  const record = doc(superAdmin.firestore(), 'roleAudit/integration-role-grant');
+  const sampleAudit = {
+    actorUid: 'verified-owner', targetUid: 'verified-admin', action: 'grant',
+    beforeRole: null, afterRole: 'editor', createdAt: serverTimestamp(),
+  };
+  await assertFails(getDocs(collection(admin.firestore(), 'roleAudit')));
+  await assertFails(setDoc(doc(admin.firestore(), 'roleAudit/forged'), sampleAudit));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'roleAudit/impersonated'), {
+    ...sampleAudit, actorUid: 'other-owner',
+  }));
+  await assertFails(setDoc(doc(superAdmin.firestore(), 'roleAudit/invalid-promotion'), {
+    ...sampleAudit, afterRole: 'super_admin',
+  }));
+  await assertSucceeds(setDoc(record, sampleAudit));
+  await assertSucceeds(getDocs(collection(superAdmin.firestore(), 'roleAudit')));
+  await assertFails(updateDoc(record, { afterRole: 'admin' }));
+  await assertFails(deleteDoc(record));
 });

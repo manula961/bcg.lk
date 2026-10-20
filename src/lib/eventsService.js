@@ -17,6 +17,7 @@ const events = createContentRepository('events', fields, {
 export const listPublishedEvents = events.listPublished;
 export const subscribePublishedEvents = events.subscribePublished;
 export const getPublishedEvent = events.getPublished;
+export const subscribePublishedEventById = events.subscribePublishedById;
 export const listAdminEvents = events.listAdmin;
 export const subscribeAdminEvents = events.subscribeAdmin;
 export const getAdminEvent = events.getAdmin;

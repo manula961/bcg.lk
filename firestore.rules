@@ -145,6 +145,22 @@ service cloud.firestore {
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
         );
     }
+    // Client append-only log: trusted Admin SDK changes need separate audit coverage.
+    match /roleAudit/{eventId} {
+      allow get, list: if isSuperAdmin();
+      allow create: if isSuperAdmin()
+        && request.resource.data.keys().hasAll(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
+        && request.resource.data.keys().hasOnly(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.targetUid is string
+        && request.resource.data.targetUid.matches('^[A-Za-z0-9_-]{1,128}$')
+        && request.resource.data.targetUid != request.auth.uid
+        && request.resource.data.action in ['grant','change','revoke']
+        && (request.resource.data.beforeRole == null || validManagedRole(request.resource.data.beforeRole))
+        && (request.resource.data.afterRole == null || validManagedRole(request.resource.data.afterRole))
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
     match /admins/{uid} {
       allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
       allow list: if isSuperAdmin();

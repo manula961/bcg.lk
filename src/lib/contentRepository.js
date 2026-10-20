@@ -171,6 +171,14 @@ export function createContentRepository(name, fields, options = {}) {
       if (typeof callback !== 'function') throw new TypeError('callback is required.');
       return onSnapshot(publishedQuery(), snapshot => callback(documents(snapshot, true)), onError(handleError));
     },
+    // Detail links use Firestore-generated IDs; watch one published document
+    // instead of subscribing to the entire published collection.
+    subscribePublishedById(id, callback, handleError) {
+      if (typeof callback !== 'function') throw new TypeError('callback is required.');
+      return onSnapshot(record(id), snapshot => {
+        callback(snapshot.exists() && snapshot.data().published === true ? fromSnapshot(snapshot) : null);
+      }, onError(handleError));
+    },
     async getPublished(id) {
       const snapshot = await getDoc(record(id));
       return snapshot.exists() && snapshot.data().published === true ? fromSnapshot(snapshot) : null;

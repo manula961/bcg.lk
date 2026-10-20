@@ -6,16 +6,21 @@ import './LifeDetailPage.css';
 
 /** Public route for a published CMS page. Never renders drafts or raw HTML. */
 export default function PublishedContentPage({ slug }) {
-  const [state, setState] = useState({ loading: true, page: null });
+  const [state, setState] = useState({ loading: true, page: null, error: false });
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let active = true;
     const oldTitle = document.title;
+    setState({ loading: true, page: null, error: false });
     getPublishedPage(slug)
-      .then(page => { if (active) setState({ loading: false, page }); })
-      .catch(() => { if (active) setState({ loading: false, page: null }); });
+      .then(page => { if (active) setState({ loading: false, page, error: false }); })
+      .catch(error => {
+        console.error('Failed to load published page:', error);
+        if (active) setState({ loading: false, page: null, error: true });
+      });
     return () => { active = false; document.title = oldTitle; };
-  }, [slug]);
+  }, [slug, retry]);
 
   useEffect(() => {
     if (!state.page) return;
@@ -57,8 +62,11 @@ export default function PublishedContentPage({ slug }) {
             <p className="life-detail-description" role="status">Loading page…</p>
           ) : !page ? (
             <>
-              <h1>Page unavailable</h1>
-              <p className="life-detail-description">This page has not been published or cannot be found.</p>
+              <h1>{state.error ? 'Unable to load page' : 'Page unavailable'}</h1>
+              <p className="life-detail-description" role={state.error ? 'alert' : undefined}>
+                {state.error ? 'The page service could not be reached. Please try again.' : 'This page has not been published or cannot be found.'}
+              </p>
+              {state.error && <button className="life-detail-return-btn" type="button" onClick={() => setRetry(value => value + 1)}>Try again</button>}
             </>
           ) : (
             <>

@@ -1,8 +1,73 @@
 {
   "rewrites": [
     {
+      "source": "/about-us",
+      "destination": "/about-us/index.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/events/index.html"
+    },
+    {
+      "source": "/life/about-us",
+      "destination": "/life/about-us/index.html"
+    },
+    {
+      "source": "/life/academic-excellence",
+      "destination": "/life/academic-excellence/index.html"
+    },
+    {
+      "source": "/life/sports-societies",
+      "destination": "/life/sports-societies/index.html"
+    },
+    {
+      "source": "/life/leadership",
+      "destination": "/life/leadership/index.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/admin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }
