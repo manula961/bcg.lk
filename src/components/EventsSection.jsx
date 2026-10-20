@@ -17,6 +17,7 @@ const EventsSection = () => {
   const [visible, setVisible] = useState(false);
   const [events, setEvents] = useState([]);
   const [loadError, setLoadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -53,12 +54,14 @@ const EventsSection = () => {
           });
           setEvents(mapped);
           setLoadError(false);
+          setIsLoading(false);
         },
-        (error) => { console.error('Unable to load published events:', error); setLoadError(true); },
+        (error) => { console.error('Unable to load published events:', error); setLoadError(true); setIsLoading(false); },
       );
     } catch (error) {
       console.error('Unable to subscribe to published events:', error);
       setLoadError(true);
+      setIsLoading(false);
     }
     return () => unsubscribe();
   }, []);
@@ -88,7 +91,7 @@ const EventsSection = () => {
           </div>
 
           <div className="events-list">
-            {loadError ? <p className="events-empty-msg" role="alert">Events could not be loaded. Please try again later.</p> : events.length === 0 ? (
+            {isLoading ? <p className="events-empty-msg" role="status">Loading upcoming events...</p> : loadError ? <p className="events-empty-msg" role="alert">Events could not be loaded. Please try again later.</p> : events.length === 0 ? (
               <p className="events-empty-msg">No scheduled public events at this time.</p>
             ) : (
               events.map((event) => (
