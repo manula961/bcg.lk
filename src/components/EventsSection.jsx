@@ -16,6 +16,8 @@ const EventsSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [events, setEvents] = useState([]);
+  const [loadState, setLoadState] = useState('loading');
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,6 +34,11 @@ const EventsSection = () => {
 
   useEffect(() => {
     let unsubscribe = () => {};
+    setLoadState('loading');
+    const onError = error => {
+      console.error('Unable to load published events:', error);
+      setLoadState('error');
+    };
     try {
       unsubscribe = subscribePublishedEvents(
         (publishedEvents) => {
@@ -51,14 +58,15 @@ const EventsSection = () => {
             };
           });
           setEvents(mapped);
+          setLoadState('ready');
         },
-        (error) => console.error('Unable to load published events:', error),
+        onError,
       );
     } catch (error) {
-      console.error('Unable to subscribe to published events:', error);
+      onError(error);
     }
     return () => unsubscribe();
-  }, []);
+  }, [retry]);
 
   const handleEventClick = (eventItem) => {
     const slug = encodeURIComponent(eventItem.id);
@@ -84,8 +92,15 @@ const EventsSection = () => {
             </div>
           </div>
 
-          <div className="events-list">
-            {events.length === 0 ? (
+          <div className="events-list" aria-live="polite">
+            {loadState === 'loading' ? (
+              <p className="events-empty-msg" role="status">Loading public events…</p>
+            ) : loadState === 'error' ? (
+              <div role="alert" className="events-empty-msg">
+                <p>Events could not be loaded. Please check your connection.</p>
+                <button type="button" className="events-btn mt-3" onClick={() => setRetry(n => n + 1)}>Try again</button>
+              </div>
+            ) : events.length === 0 ? (
               <p className="events-empty-msg">No scheduled public events at this time.</p>
             ) : (
               events.map((event) => (
