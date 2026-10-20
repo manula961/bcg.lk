@@ -112,7 +112,7 @@ const ExploreSection = () => {
                       document.getElementById('place-tab-' + places[next].id)?.focus();
                     }}
                     aria-selected={active === i}
-                    aria-controls={`place-panel-${place.id}`}
+                    aria-controls="place-panel"
                     id={`place-tab-${place.id}`}
                     onClick={() => { setActive(i); setUserPaused(true); }}
                     className={`explore-tab-btn ${active === i ? 'active' : ''}`}
@@ -128,6 +128,8 @@ const ExploreSection = () => {
                         <img
                           src={place.image}
                           alt={place.title}
+                          loading="lazy"
+                          decoding="async"
                           className="explore-display-img"
                         />
                         <div className="explore-display-overlay" />
@@ -146,14 +148,17 @@ const ExploreSection = () => {
             {/* Main Display Card for Desktop */}
             <div
               className="explore-display-card explore-desktop-card"
-              id={`place-panel-${places[active].id}`}
+              id="place-panel"
               role="tabpanel"
+              aria-live="polite"
               aria-labelledby={`place-tab-${places[active].id}`}
             >
               <img
                 key={active}
                 src={places[active].image}
                 alt={places[active].title}
+                loading="lazy"
+                decoding="async"
                 className="explore-display-img"
               />
               <div className="explore-display-overlay" />
