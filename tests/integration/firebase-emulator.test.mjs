@@ -288,23 +288,24 @@ test('RBAC: editors manage drafts only, publishers can publish but cannot delete
   await assertSucceeds(deleteDoc(refAdmin));
 });
 
-test('RBAC: only media-capable roles may upload images', async () => {
+test('Storage restricts all direct media writes to administrators', async () => {
   const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
-  const editorId = 'public/rbac-editor-create.png';
-  const publisherId = 'public/rbac-publisher-create.png';
+  const adminId = 'public/rbac-admin-create.png';
   const ownerId = 'public/rbac-owner-create.png';
-  await assertSucceeds(uploadBytes(ref(editor.storage(), editorId), image, { contentType: 'image/png' }));
-  await assertSucceeds(uploadBytes(ref(publisher.storage(), publisherId), image, { contentType: 'image/png' }));
-  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), ownerId), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(editor.storage(), 'public/rbac-editor-create.png'), image, { contentType: 'image/png' }));
+  await assertFails(uploadBytes(ref(publisher.storage(), 'public/rbac-publisher-create.png'), image, { contentType: 'image/png' }));
   await assertFails(uploadBytes(ref(auditor.storage(), 'public/rbac-auditor.png'), image, { contentType: 'image/png' }));
-  for (const id of [editorId, publisherId, ownerId]) {
+  await assertSucceeds(uploadBytes(ref(admin.storage(), adminId), image, { contentType: 'image/png' }));
+  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), ownerId), image, { contentType: 'image/png' }));
+  for (const id of [adminId, ownerId]) {
     await assertFails(uploadBytes(ref(editor.storage(), id), image, { contentType: 'image/png' }));
     await assertFails(uploadBytes(ref(publisher.storage(), id), image, { contentType: 'image/png' }));
   }
-  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), editorId), image, { contentType: 'image/png' }));
-  await assertFails(deleteObject(ref(editor.storage(), editorId)));
-  await assertFails(deleteObject(ref(publisher.storage(), publisherId)));
-  for (const id of [editorId, publisherId, ownerId]) await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
+  await assertSucceeds(uploadBytes(ref(superAdmin.storage(), adminId), image, { contentType: 'image/png' }));
+  await assertFails(deleteObject(ref(editor.storage(), adminId)));
+  await assertFails(deleteObject(ref(publisher.storage(), ownerId)));
+  await assertSucceeds(deleteObject(ref(admin.storage(), adminId)));
+  await assertSucceeds(deleteObject(ref(superAdmin.storage(), ownerId)));
 });
 
 test('role audit records are append-only, actor-bound and super-admin readable', async () => {
