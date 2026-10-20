@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { subscribePublishedSports } from '../lib/sportsService';
-import { subscribePublishedExtracurricular } from '../lib/extracurricularService';
 import { subscribePublishedLeadership } from '../lib/leadershipService';
 
 const directory = {
@@ -8,11 +7,6 @@ const directory = {
     title: 'Sports',
     intro: 'Discover college sports, teams and achievements published by the administration.',
     subscribe: subscribePublishedSports,
-  },
-  extracurricular: {
-    title: 'Extracurricular Activities',
-    intro: 'Activities and programmes published by the administration.',
-    subscribe: subscribePublishedExtracurricular,
   },
   leadership: {
     title: 'School Leadership',

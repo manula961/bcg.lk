@@ -6,7 +6,7 @@ This document replaces old step-by-step setup drafts, redundant CMS notes, merge
 
 - Frontend: React 19, Vite, Tailwind CSS, GSAP and Lenis, deployed on Vercel.
 - Admin: `/admin`, Firebase Authentication email/password and Firestore `admins/{uid}` role checks.
-- Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports`, `extracurricular` and `leadership`.
+- Active Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports` and `leadership`. Extracurricular has been retired from the UI and active collection policies; existing documents are not deleted.
 - Public queries only request `published == true` documents. Writes are authorized by Firestore rules, not merely by hidden admin buttons.
 - `storage.rules` governs Firebase Storage access. Optional Google Drive uploads use `api/drive/*` Vercel functions, not client-held Google tokens.
 - Production credentials/environment settings belong to the **existing** Firebase and Vercel projects. The Firebase demo IDs in tests are **local emulators only**.
@@ -50,7 +50,7 @@ GitHub branch protection and mandatory PR reviews must be checked in repository 
 
 **Keep the current Firebase project.** Source-controlled `firestore.rules`/`storage.rules` may differ from deployed rules. Merging code or deploying to Vercel does **not** update Firebase security rules.
 
-The current rules validate required fields on writes; old records missing `title`, boolean `published`, or collection-specific required fields can become uneditable until corrected. A page's `slug` must match its Firestore document ID. First back up and audit **all seven** collections, then correct incompatible legacy records through an approved process.
+The current rules validate required fields on writes; old records missing `title`, boolean `published`, or collection-specific required fields can become uneditable until corrected. A page's `slug` must match its Firestore document ID. First back up all existing CMS collections (including any retired Extracurricular records), then audit the **six active** CMS collections and correct incompatible records through an approved process.
 
 Use `scripts/audit-firestore-readonly.mjs` to check the **existing** Firebase project and compare deployed Firestore rules with the repo source. It can also compare deployed Storage rules when `FIREBASE_STORAGE_BUCKET` is supplied. Use authorized *read-only* Google Cloud access:
 
@@ -69,6 +69,8 @@ The script makes GET requests and reports counts and incompatibilities, not docu
 Arrange periodic Firestore exports or a suitable managed backup/point-in-time recovery plan **within the current Firebase/GCP project**. Restrict access to the backup bucket, choose retention and a suitable location, and test restoring selected data in a controlled environment.
 
 For an **authorized manual** Firestore export, verify the active project and destination first:
+
+This archive export intentionally includes the retired `extracurricular` collection to preserve historical records. Do not purge old records as part of a UI removal.
 
 ```bash
 gcloud config set project YOUR_EXISTING_FIREBASE_PROJECT_ID

@@ -73,11 +73,6 @@ for (const [collection, id, fields] of [
     description: { stringValue: 'Published society used for isolated directory testing' },
     published: { booleanValue: true },
   }],
-  ['extracurricular', 'audit-activity', {
-    title: { stringValue: 'Audit Extracurricular One' },
-    description: { stringValue: 'Published extracurricular content visible on the Sports and Societies page' },
-    published: { booleanValue: true },
-  }],
   ['leadership', 'audit-leader', {
     title: { stringValue: 'Audit Leader One' },
     role: { stringValue: 'Principal' },
@@ -145,14 +140,14 @@ try {
   await sportsPage.getByRole('heading', { name: 'Sports', exact: true }).waitFor({ timeout: 15000 });
   await sportsPage.getByText('Audit Sport One').waitFor({ timeout: 15000 });
   await sportsPage.getByText('Audit Society One').waitFor({ timeout: 15000 });
-  await sportsPage.getByText('Audit Extracurricular One').waitFor({ timeout: 15000 });
-  // The CMS directories should remain in the approved order on one page.
+  // Keep the published Societies and Sports directories in their approved order.
   const directoryHeadings = await sportsPage.locator('.life-detail-section-heading h2').allTextContents();
   const societiesIndex = directoryHeadings.findIndex(text => /Societ/i.test(text));
   const sportsIndex = directoryHeadings.findIndex(text => text.trim() === 'Sports');
-  const extracurricularIndex = directoryHeadings.findIndex(text => /Extracurricular Activities/.test(text));
-  assert.ok(societiesIndex >= 0 && societiesIndex < sportsIndex && sportsIndex < extracurricularIndex,
-    'Societies, Sports and Extracurricular Activities must appear in that order.');
+  assert.ok(societiesIndex >= 0 && societiesIndex < sportsIndex,
+    'Societies and Sports must appear in that order.');
+  assert.ok(directoryHeadings.every(text => !/Extracurricular/i.test(text)),
+    'Retired Extracurricular directory must not appear.');
   await sportsPage.goto(base + '/life/leadership');
   await sportsPage.getByText('Audit Leader One').waitFor({ timeout: 15000 });
   await sportsPage.close();

@@ -13,7 +13,6 @@ const sample = {
   pages: { title: 'New', slug: 'integration-pages', body: 'Page body', published: false },
   societies: { title: 'New', description: 'Society details', published: false },
   sports: { title: 'New', description: 'Sport details', published: false },
-  extracurricular: { title: 'New', description: 'Activity details', published: false },
   leadership: { title: 'New', role: 'Principal', published: false },
 };
 
@@ -53,7 +52,7 @@ before(async () => {
     await setDoc(doc(context.firestore(), 'news/draft-news'), {
       title: 'Draft', excerpt: 'Private', category: 'News', published: false,
     });
-    for (const name of ['events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
+    for (const name of ['events', 'pages', 'societies', 'sports', 'leadership']) {
       await setDoc(doc(context.firestore(), name + '/public-item'), { title: 'Public', published: true });
       await setDoc(doc(context.firestore(), name + '/draft-item'), { title: 'Private', published: false });
     }
@@ -70,7 +69,7 @@ test('only owner can inspect their admin document; nobody can promote themselves
 });
 
 test('public reads are published-only, and unrestricted queries are rejected', async () => {
-  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
     const publishedId = name === 'news' ? 'published-news' : 'public-item';
     const draftId = name === 'news' ? 'draft-news' : 'draft-item';
     await assertSucceeds(getDoc(doc(visitor.firestore(), name, publishedId)));
@@ -84,7 +83,7 @@ test('public reads are published-only, and unrestricted queries are rejected', a
 });
 
 test('non-admin writes fail; administrator can create, edit, publish, unpublish, delete', async () => {
-  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
     const id = 'integration-' + name;
     const record = doc(admin.firestore(), name, id);
     await assertFails(setDoc(doc(visitor.firestore(), name, id), { title: 'Unauthorized', published: true }));
@@ -99,6 +98,13 @@ test('non-admin writes fail; administrator can create, edit, publish, unpublish,
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
     await assertSucceeds(deleteDoc(record));
   }
+});
+
+test('retired Extracurricular collection is not accessible to clients', async () => {
+  const record = doc(admin.firestore(), 'extracurricular/archived-activity');
+  await assertFails(setDoc(record, { title: 'Retired', description: 'Inactive collection', published: false }));
+  await assertFails(getDoc(record));
+  await assertFails(getDoc(doc(visitor.firestore(), 'extracurricular/archived-activity')));
 });
 
 test('unknown Firestore paths are denied by default', async () => {
@@ -194,7 +200,7 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
     const required = {
       news: ['excerpt'], events: ['description','eventDate','location'],
       pages: ['slug','body'], societies: ['description'], sports: ['description'],
-      extracurricular: ['description'], leadership: ['role'],
+      leadership: ['role'],
     }[name];
     for (const key of required) {
       await assertFails(setDoc(invalid('missing-'+key), Object.fromEntries(

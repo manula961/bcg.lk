@@ -22,9 +22,10 @@ test('Firestore content writes require administrator authorization and schema va
   assert.match(rules, /canPublishContent\(\) \|\| editorDraftUpdateOnly\(\)/);
   assert.match(rules, /allow update: if collectionName in/);
   assert.match(rules, /&& validUpdateOwnership\(\)/);
-  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
     assert.ok(rules.includes("collectionName == '" + name + "'"), 'Missing collection policy: ' + name);
   }
+  assert.doesNotMatch(rules, /extracurricular/);
 });
 
 test('Storage only permits limited images to admins and denies all other paths', () => {

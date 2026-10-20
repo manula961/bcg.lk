@@ -55,7 +55,7 @@ test('Life detail pages render editorial content and supported CMS directories',
   assert.match(pages, /<SocietiesListing \/>/);
   assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
   const listings = read('src/pages/SchoolContentListing.jsx');
-  assert.match(listings, /extracurricular:\s*\{[\s\S]*?subscribe: subscribePublishedExtracurricular/);
+  assert.doesNotMatch(listings, /extracurricular/i);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {

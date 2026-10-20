@@ -11,8 +11,8 @@ test('public CMS subscriptions restrict queries to published content', () => {
   assert.match(repository, /listPublished[\s\S]*?getDocs\(publishedQuery\(\)/);
 });
 
-test('all three CMS services expose their public and admin operations', () => {
-  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society'], ['sports', 'Sport'], ['extracurricular', 'Activity'], ['leadership', 'Leader']]) {
+test('active CMS services expose their public and admin operations', () => {
+  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society'], ['sports', 'Sport'], ['leadership', 'Leader']]) {
     const service = source('src/lib/' + name + 'Service.js');
     assert.match(service, new RegExp("createContentRepository\\('" + name + "'"));
     for (const action of ['create', 'update', 'delete']) {
@@ -31,9 +31,9 @@ test('admin console verifies the role before displaying the dashboard', () => {
   assert.match(app, /session\.status\s*===\s*'authorized'/);
 });
 
-test('admin CMS uses the shared services for news, events and pages', () => {
+test('admin CMS uses the shared services for active collections', () => {
   const manager = source('src/admin/ContentManager.jsx');
-  for (const type of ['News', 'Events', 'Pages', 'Societies', 'Sports', 'Extracurricular', 'Leadership']) {
+  for (const type of ['News', 'Events', 'Pages', 'Societies', 'Sports', 'Leadership']) {
     assert.ok(manager.includes("from '../lib/" + type.toLowerCase() + "Service'"));
   }
   assert.match(manager, /subscribeAdminNews/);
@@ -41,8 +41,10 @@ test('admin CMS uses the shared services for news, events and pages', () => {
   assert.match(manager, /subscribeAdminPages/);
   assert.match(manager, /subscribeAdminSocieties/);
   assert.match(manager, /subscribeAdminSports/);
-  assert.match(manager, /subscribeAdminExtracurricular/);
   assert.match(manager, /subscribeAdminLeadership/);
+  assert.doesNotMatch(manager, /subscribeAdminExtracurricular|extracurricularService/);
+  assert.doesNotMatch(source('src/admin/AdminDashboard.jsx'), /extracurricular/i);
+  assert.doesNotMatch(source('src/pages/SchoolContentListing.jsx'), /extracurricular/i);
 });
 
 test('page IDs remain stable slugs and content writes include server timestamps', () => {

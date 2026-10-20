@@ -147,7 +147,7 @@ function documents(snapshot, publishedOnly = false) {
 }
 
 export function createContentRepository(name, fields, options = {}) {
-  if (!['news', 'events', 'pages', 'societies', 'sports', 'extracurricular', 'leadership'].includes(name)) {
+  if (!['news', 'events', 'pages', 'societies', 'sports', 'leadership'].includes(name)) {
     throw new TypeError('Unsupported collection.');
   }
 
