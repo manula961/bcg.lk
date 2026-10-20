@@ -15,9 +15,6 @@ import {
   subscribeAdminSports, createSport, updateSport, deleteSport, reorderSports,
 } from '../lib/sportsService';
 import {
-  subscribeAdminExtracurricular, createActivity, updateActivity, deleteActivity, reorderExtracurricular,
-} from '../lib/extracurricularService';
-import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader, reorderLeadership,
 } from '../lib/leadershipService';
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
@@ -82,19 +79,6 @@ const collections = {
       { key: 'imageUrl', label: 'Photo URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/photo.jpg' },
     ],
   },
-  extracurricular: {
-    title: 'Extracurricular Activities',
-    singular: 'activity',
-    description: 'Manage activities and programmes outside the classroom.',
-    subscribe: subscribeAdminExtracurricular, create: createActivity, update: updateActivity, remove: deleteActivity, reorder: reorderExtracurricular,
-    defaults: { title: '', category: '', description: '', imageUrl: '', published: false },
-    fields: [
-      { key: 'title', label: 'Activity name', required: true, maxLength: 180, wide: true, placeholder: 'e.g. Community Service' },
-      { key: 'category', label: 'Category', maxLength: 80, placeholder: 'e.g. Cadets and Service' },
-      { key: 'description', label: 'Description', required: true, type: 'textarea', rows: 5, maxLength: 3000, wide: true },
-      { key: 'imageUrl', label: 'Activity image URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/photo.jpg' },
-    ],
-  },
   leadership: {
     title: 'School Leadership',
     singular: 'leader',
@@ -138,7 +122,7 @@ function displayDate(record) {
 
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
-  if (['events', 'societies', 'sports', 'extracurricular', 'leadership'].includes(kind)) return item.description || '';
+  if (['events', 'societies', 'sports', 'leadership'].includes(kind)) return item.description || '';
   return item.seoDescription || item.slug || '';
 }
 
