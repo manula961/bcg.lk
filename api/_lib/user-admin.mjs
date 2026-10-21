@@ -305,8 +305,10 @@ async function perform(input, actor) {
         !Object.prototype.hasOwnProperty.call(body, 'displayName'))
       throw problem(400, 'Provide an email or display name to edit.');
   }
-  if (action === 'delete' && body.confirmEmail !== existing.email)
-    throw problem(400, 'Type the exact account email to confirm deletion.');
+  if (action === 'delete' && (!existing.email || body.confirmEmail !== existing.email))
+    throw problem(400, 'Type the exact account email to confirm deletion. Email-less accounts require trusted Firebase Console review.');
+  if (action === 'reset' && !existing.email)
+    throw problem(400, 'This account has no email address for a password reset.');
   const eventId = await auditRequest(actor.uid, action, targetUid, createEmail || existing?.email);
   try {
     let result;
