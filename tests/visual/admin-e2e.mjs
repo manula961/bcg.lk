@@ -220,7 +220,17 @@ try {
     await ownerPage.getByRole('button', { name: 'Sign In' }).click();
     await ownerPage.getByRole('button', { name: /Users & Roles/ }).waitFor({ timeout: 15000 });
     await ownerPage.getByRole('button', { name: /Users & Roles/ }).click();
-    await ownerPage.getByRole('heading', { name: 'Role-Based Access Control' }).waitFor();
+    try {
+      await ownerPage.getByRole('heading', { name: 'Role-Based Access Control' }).waitFor({ timeout: 10000 });
+    } catch (error) {
+      await ownerPage.screenshot({ path: output + '/super-admin-role-failure.png', fullPage: true }).catch(() => {});
+      console.error('Super Admin navigation diagnostic:', JSON.stringify({
+        pageErrors: ownerErrors,
+        visibleText: (await ownerPage.locator('main').allTextContents().catch(() => [])).join(' ').slice(0, 1800),
+        url: ownerPage.url(),
+      }));
+      throw error;
+    }
 
     await ownerPage.getByLabel('Existing Firebase user UID').fill(identity.localId);
     await ownerPage.getByLabel('Assign role').selectOption('editor');

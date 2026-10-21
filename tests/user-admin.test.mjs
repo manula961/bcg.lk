@@ -117,3 +117,11 @@ test('cross-origin account writes are rejected even from a verified Super Admin'
     }
   }
 });
+
+test('Users & Roles gracefully rejects a missing or malformed Vercel API response', () => {
+  const component = source('src/admin/UserAccountsManager.jsx');
+  assert.match(component, /const data = await res\.json\(\)\.catch\(\(\) => null\)/);
+  assert.match(component, /Array\.isArray\(data\.users\)/);
+  assert.match(component, /Firebase user-management API is unavailable/);
+  assert.match(component, /setNotice\(\{ type: 'error', text: error\.message \}\)/);
+});
