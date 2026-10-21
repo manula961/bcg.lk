@@ -5,15 +5,15 @@ import { readFileSync } from 'node:fs';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
 test('four Life as a Nayaken detail pages have stable paths and source-based titles', () => {
-  const pages = read('src/pages/lifePageData.js');
+  const pages = read('src/pages/life/lifePageData.js');
   for (const slug of ['academic-excellence', 'sports-societies', 'about-us', 'leadership']) {
     assert.ok(pages.includes("'" + slug + "':"), 'Missing page ' + slug);
   }
   for (const heading of ['Academic Excellence', 'Sports & Societies', 'About Us', 'Leadership']) {
     assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
   }
-  assert.match(read('src/components/LifeAsNayaken.jsx'), /href=\{`\/life\/\$\{card\.slug\}`\}/);
-  assert.match(read('src/pages/LifeDetailPage.jsx'), /href="\/" onClick=\{handleBackToHome\}/);
+  assert.match(read('src/components/home/LifeAsNayaken.jsx'), /href=\{`\/life\/\$\{card\.slug\}`\}/);
+  assert.match(read('src/pages/life/LifeDetailPage.jsx'), /href="\/" onClick=\{handleBackToHome\}/);
 });
 
 test('homepage and admin routes remain the unchanged defaults', () => {
@@ -27,19 +27,19 @@ test('homepage and admin routes remain the unchanged defaults', () => {
   assert.match(entry, /if \(pageSlug\) return /);
   assert.match(entry, /<PublishedContentPage slug=\{pageSlug\} \/>/);
   assert.match(entry, /Object\.prototype\.hasOwnProperty\.call\(lifePages, lifeMatch\[1\]\)/);
-  const home = read('src/components/LifeAsNayaken.jsx');
+  const home = read('src/components/home/LifeAsNayaken.jsx');
   assert.match(home, /life-bento-grid/);
   assert.match(home, /className="life-bento-section"/);
 });
 
 test('Life detail page retains its existing stylesheet and responsive rules', () => {
-  const css = read('src/pages/LifeDetailPage.css');
+  const css = read('src/pages/life/LifeDetailPage.css');
   assert.match(css, /life-detail/);
   assert.match(css, /@media/);
 });
 
 test('detail pages reuse the original homepage navigation, footer and layout container', () => {
-  const source = read('src/pages/LifeDetailPage.jsx');
+  const source = read('src/pages/life/LifeDetailPage.jsx');
   assert.match(source, /import MenuBar from '\.\.\/components\/MenuBar'/);
   assert.match(source, /import Footer from '\.\.\/components\/Footer'/);
   assert.match(source, /<MenuBar \/>/);
@@ -49,18 +49,18 @@ test('detail pages reuse the original homepage navigation, footer and layout con
 
 
 test('Life detail pages render editorial content and supported CMS directories', () => {
-  const pages = read('src/pages/LifeDetailPage.jsx');
+  const pages = read('src/pages/life/LifeDetailPage.jsx');
   assert.match(pages, /current\.highlights\.map/);
   assert.match(pages, /normalizedSlug === 'sports-societies' && \(/);
   assert.match(pages, /<SocietiesListing \/>/);
   assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
-  const listings = read('src/pages/SchoolContentListing.jsx');
+  const listings = read('src/pages/life/components/ContentDirectory.jsx');
   assert.doesNotMatch(listings, /extracurricular/i);
 });
 
 test('replacement cards lead to current routes, never retired pages', () => {
-  const source = read('src/components/LifeAsNayaken.jsx');
-  const pages = read('src/pages/lifePageData.js');
+  const source = read('src/components/home/LifeAsNayaken.jsx');
+  const pages = read('src/pages/life/lifePageData.js');
   for (const slug of ['academic-excellence','sports-societies','about-us','leadership']) {
     assert.ok(source.includes("slug: '" + slug + "'"), 'Unlinked card: ' + slug);
     assert.match(source, /href=\{`\/life\/\$\{card\.slug\}`\}/);
@@ -72,7 +72,7 @@ test('replacement cards lead to current routes, never retired pages', () => {
 });
 
 test('Sports and Societies retains admin-managed directory', () => {
-  const source = read('src/pages/LifeDetailPage.jsx');
+  const source = read('src/pages/life/LifeDetailPage.jsx');
   assert.match(source, /normalizedSlug === 'sports-societies' && \(/);
   assert.match(source, /<SocietiesListing \/>/);
   assert.match(source, /life-detail-top-wrapper/);
@@ -80,8 +80,8 @@ test('Sports and Societies retains admin-managed directory', () => {
 });
 
 test('published sports directory is connected to its existing public life page', () => {
-  const page = read('src/pages/LifeDetailPage.jsx');
-  const listing = read('src/pages/SchoolContentListing.jsx');
+  const page = read('src/pages/life/LifeDetailPage.jsx');
+  const listing = read('src/pages/life/components/ContentDirectory.jsx');
   assert.match(page, /<SchoolContentListing kind="sports" \/>/);
   assert.match(listing, /sports:\s*\{[\s\S]*?subscribe: subscribePublishedSports/);
   assert.match(listing, /items\.map|records\.map/);
