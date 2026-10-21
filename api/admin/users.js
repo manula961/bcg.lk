@@ -1,11 +1,12 @@
-import { manageUsers } from '../_lib/user-admin.mjs';
-
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Allow', 'GET, POST');
   try {
+    // Vercel compiles this .js handler to CommonJS. Dynamic import preserves
+    // compatibility with the ESM-only .mjs Firebase admin implementation.
+    const { manageUsers } = await import('../_lib/user-admin.mjs');
     const payload = await manageUsers(req);
     return res.status(200).json(payload);
   } catch (error) {
