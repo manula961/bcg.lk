@@ -137,13 +137,13 @@ try {
 
   const sportsPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await sportsPage.goto(base + '/life/sports-societies');
-  await sportsPage.getByRole('heading', { name: 'Sports', exact: true }).waitFor({ timeout: 15000 });
+  await sportsPage.getByRole('heading', { name: 'School Sports', exact: true }).waitFor({ timeout: 15000 });
   await sportsPage.getByText('Audit Sport One').waitFor({ timeout: 15000 });
   await sportsPage.getByText('Audit Society One').waitFor({ timeout: 15000 });
   // Keep the published Societies and Sports directories in their approved order.
   const directoryHeadings = await sportsPage.locator('.life-detail-section-heading h2').allTextContents();
   const societiesIndex = directoryHeadings.findIndex(text => /Societ/i.test(text));
-  const sportsIndex = directoryHeadings.findIndex(text => text.trim() === 'Sports');
+  const sportsIndex = directoryHeadings.findIndex(text => text.trim() === 'School Sports');
   assert.ok(societiesIndex >= 0 && societiesIndex < sportsIndex,
     'Societies and Sports must appear in that order.');
   assert.ok(directoryHeadings.every(text => !/Extracurricular/i.test(text)),

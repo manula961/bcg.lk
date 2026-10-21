@@ -6,7 +6,7 @@
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { lifePages } from '../src/pages/lifePageData.js';
+import { lifePages } from '../src/pages/life/lifePageData.js';
 
 export const ORIGIN = 'https://bcglk.devoraid.com';
 const organization = 'Bandaranayake College, Gampaha';

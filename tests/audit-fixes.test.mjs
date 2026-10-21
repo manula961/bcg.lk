@@ -27,10 +27,10 @@ test('CMS guards against stale writes and reordering a filtered list', () => {
 });
 
 test('stable public CMS URLs keep legacy title links working', () => {
-  const news = read('src/components/NewsSection.jsx');
-  const events = read('src/components/EventsSection.jsx');
-  const updates = read('src/pages/Updates.jsx');
-  const detail = read('src/pages/EventDetail.jsx');
+  const news = read('src/components/home/NewsSection.jsx');
+  const events = read('src/components/home/EventsSection.jsx');
+  const updates = read('src/pages/news/Updates.jsx');
+  const detail = read('src/pages/events/EventDetail.jsx');
   assert.match(news, /encodeURIComponent\(post\.id\)/);
   assert.match(events, /encodeURIComponent\(eventItem\.id\)/);
   assert.match(updates, /encodeURIComponent\(item\.id\) === titleSlug/);
@@ -39,14 +39,14 @@ test('stable public CMS URLs keep legacy title links working', () => {
 
 test('unknown routes and reduced motion are handled', () => {
   const entry = read('src/main.jsx');
-  const hero = read('src/components/HeroSection.jsx');
+  const hero = read('src/components/home/HeroSection.jsx');
   assert.match(entry, /<NotFoundPage \/>/);
   assert.match(hero, /prefers-reduced-motion: reduce/);
-  assert.match(read('src/pages/NotFoundPage.jsx'), /Page not found/);
+  assert.match(read('src/pages/errors/NotFoundPage.jsx'), /Page not found/);
 });
 
 test('calendar exposes individual accessible events, keyboard modal and dialogs', () => {
-  const page = read('src/pages/EventsPage.jsx');
+  const page = read('src/pages/events/EventsPage.jsx');
   assert.match(page, /href=\{\`\/events\/\$\{encodeURIComponent\(ev.id\)\}\`\}/);
   assert.match(page, /aria-label=\{\`View \$\{ev.title\}/);
   assert.match(page, /role="dialog"/);
@@ -57,7 +57,7 @@ test('routes are split into asynchronous modules and share route data', () => {
   const main = read('src/main.jsx');
   assert.match(main, /lazy\(\(\) => import\('\.\/admin\/AdminApp\.jsx'\)\)/);
   assert.match(main, /<Suspense fallback=/);
-  assert.match(main, /pages\/lifePageData\.js/);
+  assert.match(main, /pages\/life\/lifePageData\.js/);
 });
 
 test('admin form fields have explicit labels and content ordering checks revisions', () => {
@@ -72,7 +72,7 @@ test('admin form fields have explicit labels and content ordering checks revisio
 });
 
 test('news cards use semantic links and both scrolling layers respect reduced-motion', () => {
-  const news = read('src/components/NewsSection.jsx');
+  const news = read('src/components/home/NewsSection.jsx');
   const main = read('src/main.jsx');
   const home = read('src/App.jsx');
   assert.match(news, /href=\{\`\/updates\/\$\{encodeURIComponent\(post\.id\)\}\`\}/);
