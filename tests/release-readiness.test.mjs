@@ -81,3 +81,9 @@ test('browser quality smoke asserts language, title, viewport and main landmark'
   assert.match(code, /semantics\.mainCount/);
   assert.match(code, /navigation=/);
 });
+
+test('Vercel CommonJS handler loads ESM Firebase account backend without require()', () => {
+  const handler = read('api/admin/users.js');
+  assert.match(handler, /await import\('\.\.\/_lib\/user-admin\.mjs'\)/);
+  assert.doesNotMatch(handler, /^import \{ manageUsers \}/m);
+});
