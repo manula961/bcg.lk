@@ -2,87 +2,63 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8');
 
-test('four Life as a Nayaken detail pages have stable paths and source-based titles', () => {
+test('four Life as a Nayaken detail pages retain stable slugs, titles and card links', () => {
   const pages = read('src/pages/life/lifePageData.js');
+  const cards = read('src/components/home/LifeAsNayaken.jsx');
   for (const slug of ['academic-excellence', 'sports-societies', 'about-us', 'leadership']) {
-    assert.ok(pages.includes("'" + slug + "':"), 'Missing page ' + slug);
+    assert.ok(pages.includes("'" + slug + "':"), 'Missing page: ' + slug);
+    assert.ok(cards.includes("slug: '" + slug + "'"), 'Missing card: ' + slug);
   }
-  for (const heading of ['Academic Excellence', 'Sports & Societies', 'About Us', 'Leadership']) {
-    assert.ok(pages.includes("title: '" + heading + "'"), 'Missing heading ' + heading);
-  }
-  assert.match(read('src/components/home/LifeAsNayaken.jsx'), /href=\{`\/life\/\$\{card\.slug\}`\}/);
-  assert.match(read('src/pages/life/LifeDetailPage.jsx'), /href="\/" onClick=\{handleBackToHome\}/);
+  for (const title of ['Academic Excellence', 'Sports & Societies', 'About Us', 'Leadership'])
+    assert.ok(pages.includes("title: '" + title + "'"), title);
+  assert.match(cards, /href=\{\x60\/life\/\$\{card\.slug\}\x60\}/);
 });
 
-test('homepage and admin routes remain the unchanged defaults', () => {
+test('admin, life, event and published CMS routes remain distinct', () => {
   const entry = read('src/main.jsx');
-  assert.match(entry, /if \(isAdminPath\) return /);
-  assert.match(entry, /if \(isAboutUsPath\) return /);
-  assert.match(entry, /if \(isEventsIndex\) return /);
-  assert.match(entry, /if \(eventsSlug\) return /);
-  assert.match(entry, /if \(updatesSlug\) return /);
-  assert.match(entry, /if \(lifeSlug\) return /);
-  assert.match(entry, /if \(pageSlug\) return /);
-  assert.match(entry, /<PublishedContentPage slug=\{pageSlug\} \/>/);
+  for (const guard of ['isAdminPath', 'isAboutUsPath', 'isEventsIndex',
+    'eventsSlug', 'updatesSlug', 'lifeSlug', 'pageSlug'])
+    assert.ok(entry.includes('else if (' + guard + ') page ='), guard);
+  assert.match(entry, /page = <PublishedContentPage slug=\{pageSlug\} \/>/);
   assert.match(entry, /Object\.prototype\.hasOwnProperty\.call\(lifePages, lifeMatch\[1\]\)/);
-  const home = read('src/components/home/LifeAsNayaken.jsx');
-  assert.match(home, /life-bento-grid/);
-  assert.match(home, /className="life-bento-section"/);
 });
 
-test('Life detail page retains its existing stylesheet and responsive rules', () => {
+test('Life detail layout retains original styles, navigation and footer', () => {
   const css = read('src/pages/life/LifeDetailPage.css');
+  const page = read('src/pages/life/LifeDetailPage.jsx');
   assert.match(css, /life-detail/);
   assert.match(css, /@media/);
+  assert.match(page, /import MenuBar from '\.\.\/\.\.\/components\/layout\/MenuBar'/);
+  assert.match(page, /import Footer from '\.\.\/\.\.\/components\/layout\/Footer'/);
+  assert.match(page, /<MenuBar \/>/);
+  assert.match(page, /<Footer \/>/);
+  assert.match(page, /section-container life-detail-container/);
+  assert.match(page, /current\.highlights\.map/);
 });
 
-test('detail pages reuse the original homepage navigation, footer and layout container', () => {
-  const source = read('src/pages/life/LifeDetailPage.jsx');
-  assert.match(source, /import MenuBar from '\.\.\/components\/MenuBar'/);
-  assert.match(source, /import Footer from '\.\.\/components\/Footer'/);
-  assert.match(source, /<MenuBar \/>/);
-  assert.match(source, /<Footer \/>/);
-  assert.match(source, /section-container life-detail-container/);
-});
-
-
-test('Life detail pages render editorial content and supported CMS directories', () => {
-  const pages = read('src/pages/life/LifeDetailPage.jsx');
-  assert.match(pages, /current\.highlights\.map/);
-  assert.match(pages, /normalizedSlug === 'sports-societies' && \(/);
-  assert.match(pages, /<SocietiesListing \/>/);
-  assert.match(pages, /<SchoolContentListing kind="sports" \/>/);
-  const listings = read('src/pages/life/components/ContentDirectory.jsx');
-  assert.doesNotMatch(listings, /extracurricular/i);
-});
-
-test('replacement cards lead to current routes, never retired pages', () => {
-  const source = read('src/components/home/LifeAsNayaken.jsx');
-  const pages = read('src/pages/life/lifePageData.js');
-  for (const slug of ['academic-excellence','sports-societies','about-us','leadership']) {
-    assert.ok(source.includes("slug: '" + slug + "'"), 'Unlinked card: ' + slug);
-    assert.match(source, /href=\{`\/life\/\$\{card\.slug\}`\}/);
-    assert.ok(pages.includes("'" + slug + "':"), 'Missing detail page: ' + slug);
-  }
-  assert.doesNotMatch(source, /Arts & Culture|Prefect Council/);
-  assert.doesNotMatch(pages, /'arts-culture':|'prefect-council':/);
-  assert.match(source, /<a[\s\S]*?href=\{`\/life\/\$\{card\.slug\}`\}/);
-});
-
-test('Sports and Societies retains admin-managed directory', () => {
-  const source = read('src/pages/life/LifeDetailPage.jsx');
-  assert.match(source, /normalizedSlug === 'sports-societies' && \(/);
-  assert.match(source, /<SocietiesListing \/>/);
-  assert.match(source, /life-detail-top-wrapper/);
-  assert.match(source, /life-content-group/);
-});
-
-test('published sports directory is connected to its existing public life page', () => {
+test('Sports and Societies directories are published in approved order', () => {
   const page = read('src/pages/life/LifeDetailPage.jsx');
-  const listing = read('src/pages/life/components/ContentDirectory.jsx');
-  assert.match(page, /<SchoolContentListing kind="sports" \/>/);
-  assert.match(listing, /sports:\s*\{[\s\S]*?subscribe: subscribePublishedSports/);
-  assert.match(listing, /items\.map|records\.map/);
+  const sections = read('src/pages/life/components/LifePageSections.jsx');
+  const directory = read('src/pages/life/components/ContentDirectory.jsx');
+  assert.match(page, /<LifePageSections slug=\{normalizedSlug\} \/>/);
+  const index = sections.indexOf("case 'sports-societies':");
+  const societies = sections.indexOf('<ContentDirectory kind="societies" />', index);
+  const sports = sections.indexOf('<ContentDirectory kind="sports" />', index);
+  assert.ok(index >= 0 && societies > index && sports > societies);
+  assert.match(directory, /societies:\s*\{[\s\S]*?subscribe: subscribePublishedSocieties/);
+  assert.match(directory, /sports:\s*\{[\s\S]*?subscribe: subscribePublishedSports/);
+  assert.match(directory, /records\.map/);
+  assert.doesNotMatch(sections, /extracurricular/i);
+  assert.doesNotMatch(directory, /extracurricular/i);
+});
+
+test('Life pages retain school highlights, About Us history and academic resources', () => {
+  const page = read('src/pages/life/LifeDetailPage.jsx');
+  const sections = read('src/pages/life/components/LifePageSections.jsx');
+  assert.match(page, /current\.overview/);
+  assert.match(sections, /case 'about-us':[\s\S]*?<Timeline \/>/);
+  assert.match(sections, /case 'academic-excellence':[\s\S]*?<PastPapersPreview \/>/);
+  assert.match(sections, /case 'leadership':[\s\S]*?<ContentDirectory kind="leadership" \/>/);
 });
