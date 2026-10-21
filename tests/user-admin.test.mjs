@@ -58,3 +58,62 @@ test('backend protects self and Super Admin accounts, with append-only audit req
   assert.match(code, /requestType: 'PASSWORD_RESET'/);
   assert.match(code, /currentDocument:/);
 });
+
+
+test('valid Firebase tokens still require a live Super Admin Firestore role', async () => {
+  const previous = globalThis.fetch;
+  const settings = ['FIREBASE_PROJECT_ID', 'FIREBASE_WEB_API_KEY'];
+  const old = Object.fromEntries(settings.map(k => [k, process.env[k]]));
+  process.env.FIREBASE_PROJECT_ID = 'demo-bcg-test';
+  process.env.FIREBASE_WEB_API_KEY = 'example-key';
+  let currentRole = 'editor';
+  globalThis.fetch = async url => {
+    const value = String(url);
+    const data = value.includes('/accounts:lookup?key=')
+      ? { users: [{ localId: 'example-user', disabled: false }] }
+      : { fields: { role: { stringValue: currentRole } } };
+    return { ok: true, status: 200, json: async () => data };
+  };
+  const request = { method: 'GET', headers: { authorization: 'Bearer ' + 'x'.repeat(45) }, query: {} };
+  try {
+    await assert.rejects(() => requireSuperAdmin(request), { status: 403 });
+    currentRole = 'super_admin';
+    const session = await requireSuperAdmin(request);
+    assert.equal(session.uid, 'example-user');
+  } finally {
+    globalThis.fetch = previous;
+    for (const [key, value] of Object.entries(old)) {
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+  }
+});
+
+test('cross-origin account writes are rejected even from a verified Super Admin', async () => {
+  const previous = globalThis.fetch;
+  const keys = ['FIREBASE_PROJECT_ID', 'FIREBASE_WEB_API_KEY', 'USER_ADMIN_ORIGIN'];
+  const old = Object.fromEntries(keys.map(k => [k, process.env[k]]));
+  process.env.FIREBASE_PROJECT_ID = 'demo-bcg-test';
+  process.env.FIREBASE_WEB_API_KEY = 'example-key';
+  process.env.USER_ADMIN_ORIGIN = 'https://example.test';
+  let requests = 0;
+  globalThis.fetch = async url => {
+    requests++;
+    return { ok: true, status: 200, json: async () => String(url).includes('/accounts:lookup?key=')
+      ? { users: [{ localId: 'example-user', disabled: false }] }
+      : { fields: { role: { stringValue: 'super_admin' } } } };
+  };
+  try {
+    await assert.rejects(() => manageUsers({
+      method: 'POST', headers: {
+        authorization: 'Bearer ' + 'x'.repeat(45), origin: 'https://untrusted.test',
+        'content-type': 'application/json',
+      }, body: { action: 'delete', uid: 'example-target' },
+    }), { status: 403 });
+    assert.equal(requests, 2, 'Only token and role verification may run before origin rejection');
+  } finally {
+    globalThis.fetch = previous;
+    for (const [key, value] of Object.entries(old)) {
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+  }
+});
