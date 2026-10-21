@@ -2,6 +2,11 @@
 
 This document replaces old step-by-step setup drafts, redundant CMS notes, merged-PR audit reports and obsolete branch instructions. It describes the **current React + Firebase + Vercel architecture**. The existing Firebase project is retained.
 
+For the current owner-only release gates, Firebase staging checklist, SEO domain
+validation, accessibility/performance evidence and rollback plan, see
+[RELEASE-READINESS.md](./RELEASE-READINESS.md). Do not claim a 90+ score or
+production readiness solely from repository tests.
+
 ## 1. Architecture
 
 - Frontend: React 19, Vite, Tailwind CSS, GSAP and Lenis, deployed on Vercel.
