@@ -32,7 +32,9 @@ test('menu protects keyboard focus and scrolls instantly when reduced motion req
   assert.match(menu, /aria-controls="site-navigation-panel"/);
   assert.match(menu, /event\.key !== 'Tab'/);
   assert.match(menu, /focusables/);
-  assert.match(menu, /prefers-reduced-motion: reduce/);
+  const scroll = read('src/navigation/RouteScroll.jsx');
+  assert.match(scroll, /prefers-reduced-motion: reduce/);
+  assert.match(scroll, /scrollIntoView/);
 });
 
 test('campus tabs are keyboard navigable and do not auto-rotate in reduced-motion mode', () => {
