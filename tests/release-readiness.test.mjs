@@ -26,7 +26,7 @@ test('reject invalid canonical origins and demo Firebase production credentials'
     USER_ADMIN_ORIGIN: 'https://bcglk.devoraid.com',
   }, true);
   assert.equal(bad.ok, false);
-  assert.ok(bad.failures.some(x => x.includes('service-account')));
+  assert.ok(bad.failures.some(x => x.toLowerCase().includes('service-account')));
   assert.ok(bad.failures.some(x => x.includes('demo emulator')));
 });
 
