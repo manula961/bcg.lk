@@ -54,6 +54,21 @@ try {
       }
       const pageContent = await page.locator('#root').innerText();
       assert.ok(pageContent.trim().length > 10, route.label + ' renders meaningful content');
+      // Baseline accessibility metadata, with no visual design changes.
+      const semantics = await page.evaluate(() => ({
+        lang: document.documentElement.lang,
+        title: document.title,
+        viewport: document.querySelector('meta[name="viewport"]')?.content || '',
+        mainCount: document.querySelectorAll('main').length,
+        navMs: Math.round(performance.getEntriesByType('navigation')[0]?.duration || 0),
+      }));
+      assert.equal(semantics.lang, 'en', route.label + ' document language');
+      assert.ok(semantics.title.trim().length > 5, route.label + ' descriptive page title');
+      assert.match(semantics.viewport, /width=device-width/, route.label + ' mobile viewport');
+      assert.ok(semantics.mainCount >= 1, route.label + ' must expose a main landmark');
+      // Navigation timing is diagnostic only; shared CI runner timing is not
+      // a trustworthy field Core Web Vitals or Lighthouse score.
+      console.log('QUALITY ' + route.label + ' navigation=' + semantics.navMs + 'ms');
       if (route.label === 'unknown-route') assert.match(pageContent, /Page not found/);
       if (route.label.startsWith('home-')) {
         assert.match(pageContent, /BANDARANAYAKE COLLEGE/);
