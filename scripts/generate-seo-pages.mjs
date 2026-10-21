@@ -8,7 +8,13 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lifePages } from '../src/pages/life/lifePageData.js';
 
-export const ORIGIN = 'https://bcglk.devoraid.com';
+// Preserve the current canonical default until the school confirms its preferred
+// production domain. Deployments may override it with an approved HTTPS origin.
+export const ORIGIN = process.env.BCG_CANONICAL_ORIGIN || 'https://bcglk.devoraid.com';
+const canonical = new URL(ORIGIN);
+if (canonical.protocol !== 'https:' || canonical.origin !== ORIGIN ||
+    canonical.username || canonical.password)
+  throw Error('BCG_CANONICAL_ORIGIN must be an exact HTTPS origin');
 const organization = 'Bandaranayake College, Gampaha';
 export const seoRoutes = Object.freeze([
   { path: '/about-us', title: 'About Bandaranayake College', description: lifePages['about-us'].description },
