@@ -57,7 +57,7 @@ test('routes are split into asynchronous modules and share route data', () => {
   const main = read('src/main.jsx');
   assert.match(main, /lazy\(\(\) => import\('\.\/admin\/AdminApp\.jsx'\)\)/);
   assert.match(main, /<Suspense fallback=/);
-  assert.match(main, /pages\/lifePageData\.js/);
+  assert.match(main, /pages\/life\/lifePageData\.js/);
 });
 
 test('admin form fields have explicit labels and content ordering checks revisions', () => {
