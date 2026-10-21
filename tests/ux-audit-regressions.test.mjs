@@ -6,11 +6,13 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 
 test('homepage resolves anchor scrolling only after the curtain is gone', () => {
   const home = read('src/App.jsx');
-  assert.match(home, /if \(loading\) return undefined/);
-  assert.match(home, /window\.location\.hash/);
-  assert.match(home, /document\.getElementById\(targetSection\)/);
-  assert.match(home, /target\.scrollIntoView/);
-  assert.match(home, /sessionStorage\.removeItem\('scrollToSection'\)/);
+  const scroll = read('src/navigation/RouteScroll.jsx');
+  const entry = read('src/main.jsx');
+  assert.match(home, /sessionStorage\.removeItem\('skipLoading'\)/);
+  assert.match(scroll, /window\.location\.hash/);
+  assert.match(scroll, /document\.getElementById\(id\)/);
+  assert.match(scroll, /target\.scrollIntoView/);
+  assert.match(entry, /<RouteScroll/);
 });
 
 test('homepage CMS distinguishes loading, empty, and unavailable content', () => {
@@ -32,10 +34,9 @@ test('campus carousel motion is optional and keyboard controlled', () => {
   const section = read('src/components/home/ExploreSection.jsx');
   assert.match(section, /useState\(true\).*userPaused|\[userPaused, setUserPaused\] = useState\(true\)/);
   assert.match(section, /isPaused \|\| reducedMotion \|\| userPaused/);
-  assert.match(section, /aria-pressed=\{!userPaused && !reducedMotion\}/);
-  assert.match(section, /disabled=\{reducedMotion\}/);
-  const css = read('src/components/home/ExploreSection.css');
-  assert.match(css, /\.explore-autoplay-toggle:focus-visible/);
+  assert.match(section, /onKeyDown=\{event => \{/);
+  assert.match(section, /aria-selected=\{active === i\}/);
+  assert.match(section, /tabIndex=\{active === i \? 0 : -1\}/);
 });
 
 test('admin content-search controls are explicitly accessible', () => {
