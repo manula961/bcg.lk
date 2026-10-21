@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
 test('Sports and Societies directory remains in its canonical page', () => {
-  const source = read('src/pages/LifeDetailPage.jsx');
+  const source = read('src/pages/life/LifeDetailPage.jsx');
   const directory = [
     "{normalizedSlug === 'sports-societies' && (",
     "<SocietiesListing />",
