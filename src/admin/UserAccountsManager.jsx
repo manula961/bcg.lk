@@ -35,8 +35,15 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [] }
       ...(body === null ? {} : { body: JSON.stringify(body) }),
       cache: 'no-store',
     });
-    const data = await res.json().catch(() => ({}));
+    const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.error || 'User management could not be reached.');
+    // Local Vite fallback can return HTTP 200 with index.html instead of a
+    // Vercel API JSON response. Never let that malformed payload crash React.
+    if (!data || typeof data !== 'object' ||
+        (body === null && !(Array.isArray(data.users) ||
+          (data.user && typeof data.user.uid === 'string')))) {
+      throw new Error('Firebase user-management API is unavailable. Use a configured Vercel deployment.');
+    }
     return data;
   }, [currentUid]);
 
