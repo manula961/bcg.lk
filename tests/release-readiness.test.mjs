@@ -72,3 +72,12 @@ test('independent approval remains required on the latest PR commit', () => {
   assert.match(review, /review\.commit_id === pr\.head\.sha/);
   assert.match(review, /review\.state === 'APPROVED'/);
 });
+
+test('browser quality smoke asserts language, title, viewport and main landmark', () => {
+  const code = read('tests/visual/smoke.mjs');
+  assert.match(code, /semantics\.lang/);
+  assert.match(code, /semantics\.title/);
+  assert.match(code, /semantics\.viewport/);
+  assert.match(code, /semantics\.mainCount/);
+  assert.match(code, /navigation=/);
+});
