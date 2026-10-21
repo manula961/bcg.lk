@@ -62,17 +62,19 @@ export default function RoleManager({ currentUid }) {
     try {
       const actorUid = auth.currentUser?.uid;
       if (!actorUid || actorUid !== currentUid) throw new Error('Your signed-in account has changed. Reload the console.');
-      // Verify that the UID belongs to a real, enabled Firebase Auth account.
-      // The server validates the caller's current Super Admin role.
-      const token = await auth.currentUser.getIdToken();
-      const verification = await fetch('/api/admin/users?uid=' + encodeURIComponent(uid), {
-        headers: { Authorization: 'Bearer ' + token }, cache: 'no-store',
-      });
-      const account = await verification.json().catch(() => ({}));
-      if (!verification.ok || account.user?.uid !== uid)
-        throw new Error('Cannot verify this Firebase Authentication UID. Check server user-management configuration.');
-      if (account.user.disabled)
-        throw new Error('Enable this Firebase account before assigning a console role.');
+      // The Vite Firebase emulator runs without Vercel functions. Production
+      // role grants additionally verify the UID against the server-only Auth API.
+      if (import.meta.env.VITE_USE_FIREBASE_EMULATORS !== 'true') {
+        const token = await auth.currentUser.getIdToken();
+        const verification = await fetch('/api/admin/users?uid=' + encodeURIComponent(uid), {
+          headers: { Authorization: 'Bearer ' + token }, cache: 'no-store',
+        });
+        const account = await verification.json().catch(() => ({}));
+        if (!verification.ok || account.user?.uid !== uid)
+          throw new Error('Cannot verify this Firebase Authentication UID. Check server user-management configuration.');
+        if (account.user.disabled)
+          throw new Error('Enable this Firebase account before assigning a console role.');
+      }
       await runTransaction(db, async transaction => {
         const reference = doc(db, 'admins', uid);
         const current = await transaction.get(reference);
