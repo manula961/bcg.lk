@@ -17,7 +17,7 @@ test('published CMS route is isolated from all existing homepage and admin route
 });
 
 test('published page uses existing MenuBar and Footer and never renders raw CMS HTML',()=>{
- const component=read('src/pages/PublishedContentPage.jsx');
+ const component=read('src/pages/content/PublishedContentPage.jsx');
  assert.match(component,/getPublishedPage\(slug\)/);
  assert.match(component,/<MenuBar \/>/);
  assert.match(component,/<Footer \/>/);
