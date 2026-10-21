@@ -345,6 +345,9 @@ async function perform(input, actor) {
       await authCall('/accounts:update', { localId: targetUid, disableUser: true });
       result = { message: 'Account disabled and console role revoked.' };
     } else if (action === 'enable') {
+      // Do not restore an old Firestore role that might have survived a
+      // manual Firebase Console disable. Require explicit reapproval.
+      await setRole(actor.uid, targetUid, null);
       await authCall('/accounts:update', { localId: targetUid, disableUser: false });
       result = { message: 'Account enabled. Assign a role separately before console access.' };
     } else if (action === 'delete') {
