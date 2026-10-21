@@ -14,12 +14,21 @@ async function check(path, allowed) {
   });
   if (!allowed.includes(response.status)) throw Error(path + ' returned ' + response.status +
     ', expected ' + allowed.join('/'));
+  if (response.headers.get('x-content-type-options') !== 'nosniff')
+    throw Error(path + ' is missing X-Content-Type-Options: nosniff');
+  if (response.headers.get('x-frame-options') !== 'DENY')
+    throw Error(path + ' is missing X-Frame-Options: DENY');
+  if (path === '/admin' && !response.headers.get('x-robots-tag')?.includes('noindex'))
+    throw Error('/admin must not be indexed');
   console.log('PASS', path, response.status);
 }
 await check('/', [200]);
 await check('/events', [200]);
+await check('/past-papers', [200]);
+await check('/admin', [200]);
 await check('/robots.txt', [200]);
 await check('/sitemap.xml', [200]);
 await check('/unknown-audit-route-do-not-create', [404]);
 await check('/api/drive/status', [401]);
+await check('/api/admin/users', [401]);
 console.log('Read-only deployment checks completed; these do not verify authenticated OAuth.');
