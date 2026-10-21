@@ -6,18 +6,18 @@ const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('published CMS route is isolated from all existing homepage and admin routes',()=>{
  const entry=read('src/main.jsx');
  assert.match(entry,/pageMatch = pathname\.match/);
- assert.match(entry, /if \(pageSlug\) return /);
- assert.match(entry,/<PublishedContentPage slug=\{pageSlug\} \/>/);
- assert.match(entry,/if \(isEventsIndex\) return /);
- assert.match(entry,/if \(eventsSlug\) return /);
- assert.match(entry,/if \(updatesSlug\) return /);
- assert.match(entry,/if \(isAdminPath\) return /);
- assert.match(entry,/if \(lifeSlug\) return /);
- assert.match(entry,/<LifeDetailPage slug=\{lifeSlug\} \/>/);
+ assert.match(entry, /(?:else )?if \(pageSlug\) page = /);
+ assert.match(entry,/page = <PublishedContentPage slug=\{pageSlug\} \/>/);
+ assert.match(entry,/(?:else )?if \(isEventsIndex\) page = /);
+ assert.match(entry,/(?:else )?if \(eventsSlug\) page = /);
+ assert.match(entry,/(?:else )?if \(updatesSlug\) page = /);
+ assert.match(entry,/(?:else )?if \(isAdminPath\) page = /);
+ assert.match(entry,/(?:else )?if \(lifeSlug\) page = /);
+ assert.match(entry,/page = <LifeDetailPage slug=\{lifeSlug\} \/>/);
 });
 
 test('published page uses existing MenuBar and Footer and never renders raw CMS HTML',()=>{
- const component=read('src/pages/PublishedContentPage.jsx');
+ const component=read('src/pages/content/PublishedContentPage.jsx');
  assert.match(component,/getPublishedPage\(slug\)/);
  assert.match(component,/<MenuBar \/>/);
  assert.match(component,/<Footer \/>/);

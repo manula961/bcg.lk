@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { collection, doc, onSnapshot, runTransaction, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { ASSIGNABLE_ROLES, ROLE_LABELS } from '../lib/rbac.mjs';
+import UserAccountsManager from './UserAccountsManager';
 
 const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
@@ -61,6 +62,19 @@ export default function RoleManager({ currentUid }) {
     try {
       const actorUid = auth.currentUser?.uid;
       if (!actorUid || actorUid !== currentUid) throw new Error('Your signed-in account has changed. Reload the console.');
+      // The Vite Firebase emulator runs without Vercel functions. Production
+      // role grants additionally verify the UID against the server-only Auth API.
+      if (import.meta.env.VITE_USE_FIREBASE_EMULATORS !== 'true') {
+        const token = await auth.currentUser.getIdToken();
+        const verification = await fetch('/api/admin/users?uid=' + encodeURIComponent(uid), {
+          headers: { Authorization: 'Bearer ' + token }, cache: 'no-store',
+        });
+        const account = await verification.json().catch(() => ({}));
+        if (!verification.ok || account.user?.uid !== uid)
+          throw new Error('Cannot verify this Firebase Authentication UID. Check server user-management configuration.');
+        if (account.user.disabled)
+          throw new Error('Enable this Firebase account before assigning a console role.');
+      }
       await runTransaction(db, async transaction => {
         const reference = doc(db, 'admins', uid);
         const current = await transaction.get(reference);
@@ -130,6 +144,7 @@ export default function RoleManager({ currentUid }) {
 
   return (
     <div className="admin-cm-wrap">
+      <UserAccountsManager currentUid={currentUid} roleAssignments={accounts} />
       <section className="admin-editor-card" aria-label="Role assignment">
         <header className="admin-editor-header">
           <div>
