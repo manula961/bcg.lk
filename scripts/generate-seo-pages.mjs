@@ -8,7 +8,13 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lifePages } from '../src/pages/life/lifePageData.js';
 
-export const ORIGIN = 'https://bcglk.devoraid.com';
+// Preserve the current canonical default until the school confirms its preferred
+// production domain. Deployments may override it with an approved HTTPS origin.
+export const ORIGIN = process.env.BCG_CANONICAL_ORIGIN || 'https://bcglk.devoraid.com';
+const canonical = new URL(ORIGIN);
+if (canonical.protocol !== 'https:' || canonical.origin !== ORIGIN ||
+    canonical.username || canonical.password)
+  throw Error('BCG_CANONICAL_ORIGIN must be an exact HTTPS origin');
 const organization = 'Bandaranayake College, Gampaha';
 export const seoRoutes = Object.freeze([
   { path: '/about-us', title: 'About Bandaranayake College', description: lifePages['about-us'].description },
@@ -53,6 +59,15 @@ export function staticSitemap() {
 export function generateSeoFiles(directory = 'dist') {
   const output = resolve(directory);
   const template = readFileSync(join(output, 'index.html'), 'utf8');
+  // Only update homepage metadata when an explicitly approved origin differs.
+  // The React root, markup and public visual design remain untouched.
+  if (ORIGIN !== 'https://bcglk.devoraid.com') {
+    const home = template
+      .replace(/(<link rel="canonical" href=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b)
+      .replace(/(<meta property="og:url" content=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b);
+    if (home === template) throw Error('Homepage canonical metadata was not found');
+    writeFileSync(join(output, 'index.html'), home, 'utf8');
+  }
   for (const route of seoRoutes) {
     const location = join(output, route.path.slice(1), 'index.html');
     mkdirSync(dirname(location), { recursive: true });

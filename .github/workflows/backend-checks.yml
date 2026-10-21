@@ -23,6 +23,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: node scripts/verify-no-ui-changes.mjs
       - run: npm ci
+      - name: Validate nonsecret release configuration
+        run: node scripts/check-release-config.mjs
       - run: npm run test
       - run: npm run build
       - name: Check route entry size
