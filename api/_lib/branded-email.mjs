@@ -14,8 +14,8 @@ export function brandedPasswordEmail({ displayName = '', resetLink, purpose = 'r
     ? 'Your administration account is ready. Set your password to access the BCG.LK admin console.'
     : 'A password reset was requested for your BCG.LK administration account.';
   const cta = purpose === 'setup' ? 'Set Your Password' : 'Reset Your Password';
-  const schoolLogo = process.env.EMAIL_SCHOOL_LOGO_URL;
-  const societyLogo = process.env.EMAIL_SOCIETY_LOGO_URL;
+  const schoolLogo = process.env.EMAIL_SCHOOL_LOGO_URL || 'https://bcglk.devoraid.com/email-assets/school-logo.png';
+  const societyLogo = process.env.EMAIL_SOCIETY_LOGO_URL || 'https://bcglk.devoraid.com/email-assets/computer-society-logo.png';
   const safeLogo = (value, alt) => typeof value === 'string' && /^https:\/\/[^\s"'<>]+$/.test(value)
     ? '<img src="' + safe(value) + '" width="76" height="76" alt="' + alt +
       '" style="display:block;margin:0 auto;max-width:76px;height:auto;border:0" />'
