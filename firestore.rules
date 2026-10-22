@@ -43,7 +43,7 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'title','excerpt','body','category','tag','imageUrl','description',
           'eventDate','location','color','slug','seoDescription',
-          'websiteUrl','achievements','role','updatedAt','updatedBy'
+          'websiteUrl','achievements','role','exam','subject','year','language','term','url','updatedAt','updatedBy'
         ]);
     }
     function optionalString(data, key, max) {
@@ -137,6 +137,59 @@ service cloud.firestore {
             data.keys().hasOnly(['title','description','category','achievements','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
             requiredString(data,'description',3000) && optionalString(data,'category',80) &&
             optionalString(data,'achievements',2000))
+          || (collectionName == 'pastPapers' &&
+            data.keys().hasOnly(['title','exam','subject','year','language','term','url','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            requiredString(data,'exam',40) && requiredString(data,'subject',120) &&
+            requiredString(data,'year',4) && data.year.matches('^(19|20)[0-9]{2}
+            data.keys().hasOnly(['title','description','role','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
+            optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
+        );
+    }
+    // Client append-only log: trusted Admin SDK changes need separate audit coverage.
+    match /roleAudit/{eventId} {
+      allow get, list: if isSuperAdmin();
+      allow create: if isSuperAdmin()
+        && request.resource.data.keys().hasAll(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
+        && request.resource.data.keys().hasOnly(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.targetUid is string
+        && request.resource.data.targetUid.matches('^[A-Za-z0-9_-]{1,128}$')
+        && request.resource.data.targetUid != request.auth.uid
+        && request.resource.data.action in ['grant','change','revoke']
+        && (request.resource.data.beforeRole == null || validManagedRole(request.resource.data.beforeRole))
+        && (request.resource.data.afterRole == null || validManagedRole(request.resource.data.afterRole))
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+    match /admins/{uid} {
+      allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create: if isSuperAdmin() && validRoleProvision(uid);
+      allow update: if isSuperAdmin() && validRoleUpdate(uid);
+      allow delete: if isSuperAdmin() && uid != request.auth.uid
+        && resource.data.role != 'super_admin';
+    }
+    match /{collectionName}/{id} {
+      allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
+        && (canReview() || resource.data.published == true);
+      allow create: if collectionName in ['news','events','pages','societies','sports','leadership']
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validOwnership(request.resource.data)
+        && (canPublishContent() || (request.resource.data.published == false
+          && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
+      allow update: if collectionName in ['news','events','pages','societies','sports','leadership']
+        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && validUpdateOwnership()
+        && (canPublishContent() || editorDraftUpdateOnly());
+      allow delete: if collectionName in ['news','events','pages','societies','sports','leadership']
+        && canDeleteContent();
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
+) &&
+            requiredString(data,'language',20) && data.language in ['Sinhala','Tamil','English'] &&
+            optionalString(data,'term',80) && requiredString(data,'url',2048) && validHttpsUrl(data,'url'))
           || (collectionName == 'leadership' &&
             data.keys().hasOnly(['title','description','role','imageUrl','published','rank','createdAt','updatedAt','publishedAt','createdBy','updatedBy']) &&
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
@@ -167,7 +220,7 @@ service cloud.firestore {
         && resource.data.role != 'super_admin';
     }
     match /{collectionName}/{id} {
-      allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership']
+      allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && (canReview() || resource.data.published == true);
       allow create: if collectionName in ['news','events','pages','societies','sports','leadership']
         && canWriteContent() && validRecord(request.resource.data, collectionName, id)
