@@ -17,6 +17,7 @@ test('manual UID role grant form is removed while existing role management remai
   const source = read('src/admin/RoleManager.jsx');
   assert.doesNotMatch(source, /role-target-uid|Paste exact Firebase Authentication UID|aria-label="Role assignment"/);
   assert.match(source, /<UserAccountsManager/);
-  assert.match(source, /void assignRole\(account\.uid, selection\)/);
-  assert.match(source, /void revokeRole\(account\)/);
+  const userList = read('src/admin/UserAccountsManager.jsx');
+  assert.match(userList, /onAssignRole\(user\.uid, chosenRole\)/);
+  assert.match(userList, /onRevokeRole\(\{ uid: user\.uid, role: activeRole \}\)/);
 });
