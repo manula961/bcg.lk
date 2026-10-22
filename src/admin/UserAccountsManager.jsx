@@ -111,16 +111,16 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [], 
 
   return (
     <>
-      <section className="admin-editor-card" aria-label="Firebase Authentication user creation">
+      <section className="admin-editor-card admin-users-create" aria-label="Create staff account">
         <header className="admin-editor-header">
           <div>
-            <h2 className="admin-editor-title">Firebase User Management</h2>
-            <p className="admin-header-desc">Create and manage login accounts. Only Super Admins can use these controls.</p>
+            <h2 className="admin-editor-title">Add Staff Account</h2>
+            <p className="admin-header-desc">Create a login and automatically assign its access role.</p>
           </div>
         </header>
         {notice && <p className={'admin-notice ' + notice.type}
           role={notice.type === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
-        <form className="admin-editor-form" onSubmit={event => {
+        <form className="admin-editor-form admin-users-create-form" onSubmit={event => {
           event.preventDefault();
           if (window.confirm('Create the login for ' + createForm.email + ' with ' +
             ROLE_LABELS[createForm.role] + ' access?')) void execute({ action: 'create', ...createForm });
@@ -145,10 +145,7 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [], 
               </select>
             </div>
           </div>
-          <p className="admin-help-text">
-            The new user receives a password setup email. No password is displayed or stored here.
-            Super Admin access can only be provisioned through a trusted Firebase owner.
-          </p>
+          <p className="admin-help-text admin-users-help">A password setup email will be sent. Super Admin access is managed separately by a trusted Firebase owner.</p>
           <div className="admin-editor-footer">
             <button type="submit" className="admin-btn-primary" disabled={busy}>
               {busy ? 'Working...' : 'Add User'}
@@ -156,7 +153,7 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [], 
           </div>
         </form>
       </section>
-      <section className="admin-table-card" aria-label="Firebase Authentication users">
+      <section className="admin-table-card admin-users-list" aria-label="Firebase Authentication users">
         <header className="admin-editor-header">
           <div>
             <h2 className="admin-editor-title">Manage Users ({users.length})</h2>
@@ -185,7 +182,7 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [], 
                 <div className="admin-row-main">
                   <div className="admin-row-details">
                     <h3 className="admin-row-title">{user.displayName || user.email || user.uid}</h3>
-                    <p className="admin-row-snippet">{user.email || 'No email'} · {user.uid}</p>
+                    <p className="admin-row-snippet">{user.displayName && user.email ? user.email : 'Firebase UID: ' + user.uid}</p>
                     <p className="admin-row-meta">
                       {user.disabled ? 'Disabled' : 'Enabled'} · {ROLE_LABELS[activeRole] || 'No console role'}
                     </p>

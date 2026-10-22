@@ -134,12 +134,12 @@ export default function RoleManager({ currentUid }) {
     <div className="admin-cm-wrap">
       <UserAccountsManager currentUid={currentUid} roleAssignments={accounts} onAssignRole={assignRole} onRevokeRole={revokeRole} roleBusy={busyUid !== null} />
       {notice && <p className={'admin-notice ' + notice.type} role={notice.type === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
-      <section className="admin-table-card" aria-label="Recent role activity">
+      <section className="admin-table-card admin-role-activity" aria-label="Recent role activity">
         <div className="admin-editor-header">
           <div><h2 className="admin-editor-title">Recent Role Activity</h2>
-            <p className="admin-header-desc">Last 25 recorded console changes. Older records remain in Firestore.</p></div>
+            <p className="admin-header-desc">Latest account permission changes.</p></div>
         </div>
-        {recentActivity.length === 0 ? <p className="admin-state-msg">No role changes have been recorded.</p> :
+        {recentActivity.length === 0 ? <p className="admin-state-msg">No role changes yet. Activity will appear when accounts are updated.</p> :
           <div className="admin-list-container">{recentActivity.map(entry => (
             <article className="admin-row" key={entry.id}>
               <div className="admin-row-details">
