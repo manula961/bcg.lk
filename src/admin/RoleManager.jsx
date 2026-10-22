@@ -7,17 +7,15 @@ import UserAccountsManager from './UserAccountsManager';
 const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
 /**
- * Super-admin-only console for existing Firebase Authentication UIDs.
+ * Super-admin-only role administration for existing Firebase accounts.
  * Firestore rules independently reject unprivileged, self, and super-admin edits.
- * Creating Authentication accounts and granting the first super_admin remain trusted
- * Firebase console / Admin SDK operations.
+ * New accounts are created with an assigned role through the server-side account API.
+ * Granting the first super_admin remains a trusted Firebase console / Admin SDK operation.
  */
 export default function RoleManager({ currentUid }) {
   const [accounts, setAccounts] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState({});
-  const [newUid, setNewUid] = useState('');
-  const [newRole, setNewRole] = useState('editor');
   const [busyUid, setBusyUid] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState(null);
@@ -99,7 +97,6 @@ export default function RoleManager({ currentUid }) {
           });
         }
       });
-      setNewUid('');
       setNotice({ type: 'success', text: 'Role saved. Permission changes take effect for active sessions.' });
     } catch (error) {
       setNotice({ type: 'error', text: error?.code === 'permission-denied'
@@ -145,49 +142,11 @@ export default function RoleManager({ currentUid }) {
   return (
     <div className="admin-cm-wrap">
       <UserAccountsManager currentUid={currentUid} roleAssignments={accounts} />
-      <section className="admin-editor-card" aria-label="Role assignment">
-        <header className="admin-editor-header">
-          <div>
-            <h2 className="admin-editor-title">Role-Based Access Control</h2>
-            <p className="admin-header-desc">Grant access only to verified, existing Firebase Authentication UIDs.</p>
-          </div>
-        </header>
-        {notice && <p role={notice.type === 'error' ? 'alert' : 'status'}
-          className={`admin-notice ${notice.type}`}>{notice.text}</p>}
-        <form className="admin-editor-form" onSubmit={event => {
-          event.preventDefault();
-          void assignRole(newUid, newRole);
-        }}>
-          <div className="admin-form-grid">
-            <div className="admin-field-wrap">
-              <label className="admin-label" htmlFor="role-target-uid">Existing Firebase user UID</label>
-              <input id="role-target-uid" className="admin-input" value={newUid} onChange={e => setNewUid(e.target.value)}
-                placeholder="Paste exact Firebase Authentication UID" required maxLength={128} autoComplete="off" />
-            </div>
-            <div className="admin-field-wrap">
-              <label className="admin-label" htmlFor="role-target-role">Assign role</label>
-              <select id="role-target-role" className="admin-input" value={newRole}
-                onChange={e => setNewRole(e.target.value)}>
-                {ASSIGNABLE_ROLES.map(role => <option key={role} value={role}>{ROLE_LABELS[role]}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="admin-editor-footer">
-            <button type="submit" className="admin-btn-primary" disabled={busyUid !== null}>
-              {busyUid === newUid.trim() ? 'Saving...' : 'Assign Role'}
-            </button>
-          </div>
-        </form>
-        <p className="admin-help-text">
-          Super Admin roles can only be created or transferred through a trusted Firebase console/Admin SDK.
-          Assigning a role does not create a login. Never grant access based on an unverified UID.
-        </p>
-      </section>
       <section className="admin-table-card" aria-label="Console access list">
         <div className="admin-editor-header">
           <div>
             <h2 className="admin-editor-title">Authorized Accounts ({accounts.length})</h2>
-            <p className="admin-header-desc">Live role records. Super Admin accounts are protected against client-side changes.</p>
+            <p className="admin-header-desc">Roles are assigned automatically when you add a user above. Change or revoke an existing account's role here. Super Admin accounts remain protected.</p>
           </div>
         </div>
         {loading ? <p className="admin-state-msg" role="status">Loading role assignments...</p>
