@@ -59,12 +59,9 @@ export default function PastPapersPage() {
           </div>
 
           <header className="papers-hero">
-            <div className="papers-hero-copy">
-              <span className="papers-eyebrow"><span className="papers-eyebrow-line" /> ACADEMIC RESOURCES</span>
-              <h1>Past <em>Papers.</em></h1>
-              <p>Explore previous examination papers and prepare for your next exam with confidence. Find resources by subject, exam, year and medium.</p>
-              <a href="#papers-library" className="papers-primary-link">Browse papers <span aria-hidden="true">↗</span></a>
-            </div>
+            <div className="papers-hero-copy">  
+              <h1>School <em>Past Papers</em></h1>
+              <p>Explore previous examination papers and prepare for your next exam with confidence. Find resources by subject, exam, year and medium.</p>            </div>
             <div className="papers-hero-mark" aria-hidden="true">
               <svg viewBox="0 0 150 160" fill="none"><rect x="36" y="16" width="84" height="112" rx="10" stroke="currentColor" strokeWidth="3"/><path d="M53 45h49M53 62h49M53 79h32" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M26 39v99a10 10 0 0 0 10 10h72" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M94 99v22m-10-10 10 10 10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
@@ -134,11 +131,6 @@ export default function PastPapersPage() {
               </div>
             )}
           </section>
-
-          <aside className="papers-notice">
-            <div><span className="papers-kicker">STUDY TIP</span><h2>Practice makes progress.</h2><p>Set a timer, complete a paper under exam conditions and review the questions that challenged you.</p></div>
-            <a href="/life/academic-excellence">Explore academics <span aria-hidden="true">↗</span></a>
-          </aside>
         </div>
       </div>
       <Footer />

@@ -1116,7 +1116,7 @@
 
 .life-detail :is(.life-detail-society-logo, .society-logo) {
   object-fit: contain;
-  padding: 10px;
+  /* padding: 10px; */
 }
 
 .life-detail :is(
