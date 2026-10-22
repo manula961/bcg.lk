@@ -141,3 +141,11 @@
   .admin-body .admin-search-wrap { min-width: 0; max-width: 100%; }
   .admin-body .admin-row-actions { justify-content: flex-start; }
 }
+
+/* Users & Roles: make search label readable and role actions fit across widths. */
+.admin-body .admin-user-search { display: grid; grid-template-columns: 1fr; align-items: stretch; gap: 8px; padding: 14px 20px; }
+.admin-body .admin-user-search .admin-label { display: block; white-space: normal; }
+.admin-body .admin-user-search .admin-input { width: 100%; min-width: 0; }
+.admin-body .admin-user-role-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.admin-body .admin-user-role-actions .admin-select { min-width: 130px; }
+@media (max-width: 640px) { .admin-body .admin-user-search { padding: 12px; } .admin-body .admin-user-role-actions { width: 100%; } }

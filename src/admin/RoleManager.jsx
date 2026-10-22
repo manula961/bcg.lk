@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { collection, doc, onSnapshot, runTransaction, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { ASSIGNABLE_ROLES, ROLE_LABELS } from '../lib/rbac.mjs';
@@ -15,17 +15,13 @@ const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 export default function RoleManager({ currentUid }) {
   const [accounts, setAccounts] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState({});
   const [busyUid, setBusyUid] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState(null);
 
   useEffect(() => onSnapshot(collection(db, 'admins'), snapshot => {
     setAccounts(snapshot.docs.map(item => ({ uid: item.id, ...item.data() }))
       .sort((a, b) => a.uid.localeCompare(b.uid)));
-    setLoading(false);
   }, error => {
-    setLoading(false);
     setNotice({ type: 'error', text: error?.code === 'permission-denied'
       ? 'Super-admin listing is unavailable. Deploy and verify the reviewed Firestore RBAC rules.'
       : 'Could not load console roles. Check your connection and retry.' });
@@ -36,11 +32,6 @@ export default function RoleManager({ currentUid }) {
   }, () => {
     setNotice({ type: 'error', text: 'Role changes remain protected, but the activity log could not be loaded. Check deployed Firestore rules.' });
   }), []);
-
-  const totals = useMemo(() => accounts.reduce((result, account) => {
-    result[account.role] = (result[account.role] || 0) + 1;
-    return result;
-  }, {}), [accounts]);
 
   async function assignRole(uidText, nextRole) {
     const uid = uidText.trim();
@@ -141,56 +132,8 @@ export default function RoleManager({ currentUid }) {
 
   return (
     <div className="admin-cm-wrap">
-      <UserAccountsManager currentUid={currentUid} roleAssignments={accounts} />
-      <section className="admin-table-card" aria-label="Console access list">
-        <div className="admin-editor-header">
-          <div>
-            <h2 className="admin-editor-title">Authorized Accounts ({accounts.length})</h2>
-            <p className="admin-header-desc">Roles are assigned automatically when you add a user above. Change or revoke an existing account's role here. Super Admin accounts remain protected.</p>
-          </div>
-        </div>
-        {loading ? <p className="admin-state-msg" role="status">Loading role assignments...</p>
-          : accounts.length === 0 ? <p className="admin-state-msg">No role records available.</p>
-          : <div className="admin-list-container">
-            {accounts.map(account => {
-              const locked = account.uid === currentUid || account.role === 'super_admin';
-              const selection = selectedRoles[account.uid] || (ASSIGNABLE_ROLES.includes(account.role) ? account.role : 'auditor');
-              const busy = busyUid !== null;
-              return (
-                <article className="admin-row" key={account.uid}>
-                  <div className="admin-row-main">
-                    <div className="admin-row-details">
-                      <h3 className="admin-row-title">{account.uid === currentUid ? 'Your account' : 'Firebase UID'}</h3>
-                      <p className="admin-row-snippet" style={{ overflowWrap: 'anywhere' }}>{account.uid}</p>
-                      <div className="admin-row-meta">
-                        <span>{ROLE_LABELS[account.role] || 'Unknown role'}</span>
-                        {account.updatedBy && <span>Last changed by {account.updatedBy}</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="admin-row-actions">
-                    {locked ? <span className="admin-status-badge published">Protected</span> : (
-                      <>
-                        <label className="admin-label" htmlFor={`role-select-${account.uid}`}>Role</label>
-                        <select id={`role-select-${account.uid}`} className="admin-select"
-                          value={selection} disabled={busy}
-                          onChange={e => setSelectedRoles(old => ({ ...old, [account.uid]: e.target.value }))}>
-                          {ASSIGNABLE_ROLES.map(role => <option key={role} value={role}>{ROLE_LABELS[role]}</option>)}
-                        </select>
-                        <button type="button" className="admin-btn-secondary" disabled={busy || selection === account.role}
-                          onClick={() => void assignRole(account.uid, selection)}>Save Role</button>
-                        <button type="button" className="admin-btn-ghost-danger" disabled={busy}
-                          onClick={() => void revokeRole(account)}>Revoke</button>
-                      </>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-          </div>}
-        <p className="admin-help-text">Assigned: {Object.entries(totals).map(([role, count]) =>
-          (ROLE_LABELS[role] || role) + ' ' + count).join(' · ') || 'none'}</p>
-      </section>
+      <UserAccountsManager currentUid={currentUid} roleAssignments={accounts} onAssignRole={assignRole} onRevokeRole={revokeRole} roleBusy={busyUid !== null} />
+      {notice && <p className={'admin-notice ' + notice.type} role={notice.type === 'error' ? 'alert' : 'status'}>{notice.text}</p>}
       <section className="admin-table-card" aria-label="Recent role activity">
         <div className="admin-editor-header">
           <div><h2 className="admin-editor-title">Recent Role Activity</h2>

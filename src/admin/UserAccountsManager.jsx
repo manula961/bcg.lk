@@ -7,7 +7,7 @@ import { ROLE_LABELS, ASSIGNABLE_ROLES } from '../lib/rbac.mjs';
  * This component never creates service credentials or stores passwords.
  * Existing role controls below this panel still use Firestore transactions.
  */
-export default function UserAccountsManager({ currentUid, roleAssignments = [] }) {
+export default function UserAccountsManager({ currentUid, roleAssignments = [], onAssignRole, onRevokeRole, roleBusy = false }) {
   const [users, setUsers] = useState([]);
   const [nextPage, setNextPage] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -16,6 +16,7 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [] }
   const [createForm, setCreateForm] = useState({ email: '', displayName: '', role: 'editor' });
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState('');
+  const [roleChoices, setRoleChoices] = useState({});
   const roleByUid = useMemo(() => Object.fromEntries(
     roleAssignments.map(account => [account.uid, account.role])
   ), [roleAssignments]);
@@ -158,16 +159,16 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [] }
       <section className="admin-table-card" aria-label="Firebase Authentication users">
         <header className="admin-editor-header">
           <div>
-            <h2 className="admin-editor-title">Authentication Users ({users.length} loaded)</h2>
+            <h2 className="admin-editor-title">Manage Users ({users.length})</h2>
             <p className="admin-header-desc">
-              Login status is separate from console roles. Disabling an account revokes its console role.
+              Manage user accounts and roles together. Account creation automatically assigns the selected role.
             </p>
           </div>
           <button type="button" className="admin-btn-secondary" disabled={busy || loading}
             onClick={() => void load()}>Refresh</button>
         </header>
-        <div className="admin-filter-wrap">
-          <label className="admin-label" htmlFor="auth-user-search">Search loaded users</label>
+        <div className="admin-filter-wrap admin-user-search">
+          <label className="admin-label" htmlFor="auth-user-search">Search users</label>
           <input id="auth-user-search" className="admin-input" value={search}
             placeholder="Email, name or UID" onChange={event => setSearch(event.target.value)}/>
         </div>
@@ -177,6 +178,8 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [] }
         <div className="admin-list-container">
           {filtered.map(user => {
             const protectedUser = user.uid === currentUid || roleByUid[user.uid] === 'super_admin';
+            const activeRole = roleByUid[user.uid];
+            const chosenRole = roleChoices[user.uid] || (ASSIGNABLE_ROLES.includes(activeRole) ? activeRole : 'editor');
             return (
               <article className="admin-row" key={user.uid}>
                 <div className="admin-row-main">
@@ -184,12 +187,26 @@ export default function UserAccountsManager({ currentUid, roleAssignments = [] }
                     <h3 className="admin-row-title">{user.displayName || user.email || user.uid}</h3>
                     <p className="admin-row-snippet">{user.email || 'No email'} · {user.uid}</p>
                     <p className="admin-row-meta">
-                      {user.disabled ? 'Disabled' : 'Enabled'} · {ROLE_LABELS[roleByUid[user.uid]] || 'No console role'}
+                      {user.disabled ? 'Disabled' : 'Enabled'} · {ROLE_LABELS[activeRole] || 'No console role'}
                     </p>
                   </div>
                 </div>
                 {protectedUser ? <span className="admin-status-badge published">Protected</span> : (
                   <div className="admin-row-actions">
+                    {!user.disabled && <div className="admin-user-role-actions">
+                      <label className="admin-label" htmlFor={`role-user-${user.uid}`}>Access role</label>
+                      <select id={`role-user-${user.uid}`} className="admin-select" value={chosenRole}
+                        disabled={busy || roleBusy}
+                        onChange={event => setRoleChoices(previous => ({ ...previous, [user.uid]: event.target.value }))}>
+                        {ASSIGNABLE_ROLES.map(role => <option key={role} value={role}>{ROLE_LABELS[role]}</option>)}
+                      </select>
+                      <button className="admin-btn-secondary" type="button"
+                        disabled={busy || roleBusy || chosenRole === activeRole}
+                        onClick={() => void onAssignRole(user.uid, chosenRole)}>Save Role</button>
+                      {activeRole && <button className="admin-btn-ghost-danger" type="button"
+                        disabled={busy || roleBusy}
+                        onClick={() => void onRevokeRole({ uid: user.uid, role: activeRole })}>Revoke Role</button>}
+                    </div>}
                     <button className="admin-btn-secondary" type="button" disabled={busy}
                       onClick={() => setEditing({ uid: user.uid, email: user.email, displayName: user.displayName })}>Edit</button>
                     <button className="admin-btn-secondary" type="button" disabled={busy}
