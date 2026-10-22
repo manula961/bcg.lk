@@ -14,10 +14,23 @@ export function brandedPasswordEmail({ displayName = '', resetLink, purpose = 'r
     ? 'Your administration account is ready. Set your password to access the BCG.LK admin console.'
     : 'A password reset was requested for your BCG.LK administration account.';
   const cta = purpose === 'setup' ? 'Set Your Password' : 'Reset Your Password';
+  const schoolLogo = process.env.EMAIL_SCHOOL_LOGO_URL;
+  const societyLogo = process.env.EMAIL_SOCIETY_LOGO_URL;
+  const safeLogo = (value, alt) => typeof value === 'string' && /^https:\/\/[^\s"'<>]+$/.test(value)
+    ? '<img src="' + safe(value) + '" width="76" height="76" alt="' + alt +
+      '" style="display:block;margin:0 auto;max-width:76px;height:auto;border:0" />'
+    : '';
+  const logos = [safeLogo(schoolLogo, 'Bandaranayake College crest'),
+    safeLogo(societyLogo, 'Bandaranayake College Computer Society logo')].filter(Boolean);
+  const logoHeader = logos.length
+    ? '<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:0 auto 14px"><tr>' +
+      logos.map(logo => '<td style="padding:0 14px;vertical-align:middle">' + logo + '</td>').join('') +
+      '</tr></table>'
+    : '';
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body style="margin:0;padding:32px 12px;background:#f5f1e9;font-family:Arial,Helvetica,sans-serif;color:#261b1d">
 <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;background:white;border-collapse:collapse">
-<tr><td style="background:#4b101b;padding:28px 30px;text-align:center">
+<tr><td style="background:#4b101b;padding:28px 30px;text-align:center">\${logoHeader}
 <div style="font-size:28px;font-weight:bold;color:#e7c779;letter-spacing:1px">BCG.LK</div>
 <div style="font-size:12px;color:#f3e4bb;margin-top:6px">BANDARANAYAKE COLLEGE · GAMPAHA</div></td></tr>
 <tr><td style="padding:30px">
