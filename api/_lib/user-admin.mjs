@@ -1,4 +1,5 @@
 import { createSign, randomUUID } from 'node:crypto';
+import { sendViaResend } from './branded-email.mjs';
 
 /**
  * Server-only Firebase Authentication management.
@@ -262,13 +263,29 @@ function assertProtected(target, actor, targetRole) {
   if (target.uid === actor || targetRole === 'super_admin')
     throw problem(403, 'Your own account and all Super Admin accounts are protected.');
 }
-async function sendReset(emailAddress) {
-  const { apiKey } = configuration();
-  // Firebase Authentication delivers the email; no temporary passwords or
-  // reset links are returned to a browser or written into the audit log.
-  await jsonPost('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=' +
-    encodeURIComponent(apiKey), { requestType: 'PASSWORD_RESET', email: emailAddress });
+async function sendReset(emailAddress, displayName = '', purpose = 'reset') {
+  // Preserve Firebase's built-in email when Resend is not configured.
+  if (!process.env.RESEND_API_KEY && !process.env.RESEND_FROM_EMAIL) {
+    const { apiKey } = configuration();
+    await jsonPost('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=' +
+      encodeURIComponent(apiKey), { requestType: 'PASSWORD_RESET', email: emailAddress });
+    return;
+  }
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL)
+    throw problem(503, 'Branded email configuration is incomplete.');
+
+  // Privileged Identity Toolkit call creates a Firebase-managed, expiring link
+  // without triggering the standard Firebase email message.
+  const result = await authCall('/accounts:sendOobCode', {
+    requestType: 'PASSWORD_RESET',
+    email: emailAddress,
+    returnOobLink: true,
+  });
+  if (typeof result.oobLink !== 'string' || !result.oobLink.startsWith('https://'))
+    throw problem(502, 'Firebase could not generate a secure password link.');
+  await sendViaResend({ to: emailAddress, displayName, resetLink: result.oobLink, purpose });
 }
+
 async function loadPage(req) {
   const query = req?.query || {};
   if (query.uid) return { user: await lookup(uid(query.uid)) };
@@ -328,7 +345,7 @@ async function perform(input, actor) {
       }
       result = { user: await lookup(createdUid), message: 'Account created.' };
       try {
-        await sendReset(createEmail);
+        await sendReset(createEmail, displayName, 'setup');
         result.message = 'Account created and password setup email sent.';
       } catch {
         result.message = 'Account created, but password setup email failed. Use Reset Password to retry.';
@@ -357,7 +374,7 @@ async function perform(input, actor) {
       await authCall('/accounts:delete', { localId: targetUid });
       result = { message: 'Authentication account deleted and console role revoked.' };
     } else if (action === 'reset') {
-      await sendReset(existing.email);
+      await sendReset(existing.email, existing.displayName, 'reset');
       result = { message: 'Password reset email requested.' };
     }
     await auditFinish(eventId, 'completed');
