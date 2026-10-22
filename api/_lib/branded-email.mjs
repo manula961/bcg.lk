@@ -30,7 +30,7 @@ export function brandedPasswordEmail({ displayName = '', resetLink, purpose = 'r
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body style="margin:0;padding:32px 12px;background:#f5f1e9;font-family:Arial,Helvetica,sans-serif;color:#261b1d">
 <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;background:white;border-collapse:collapse">
-<tr><td style="background:#4b101b;padding:28px 30px;text-align:center">\${logoHeader}
+<tr><td style="background:#4b101b;padding:28px 30px;text-align:center">${logoHeader}
 <div style="font-size:28px;font-weight:bold;color:#e7c779;letter-spacing:1px">BCG.LK</div>
 <div style="font-size:12px;color:#f3e4bb;margin-top:6px">BANDARANAYAKE COLLEGE · GAMPAHA</div></td></tr>
 <tr><td style="padding:30px">
