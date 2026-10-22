@@ -223,3 +223,17 @@ export async function driveUpload(token,file) {
   }
   return {id:created.id,imageUrl:'https://drive.google.com/thumbnail?id='+encodeURIComponent(created.id)+'&sz=w1200'};
 }
+
+/** Read and signature-check public examination PDFs; image upload limits are unchanged. */
+export async function readPdf(req) {
+  if ((req.headers['content-type'] || '').split(';')[0].toLowerCase() !== 'application/pdf') throw Object.assign(new Error('PDF files only'),{status:400});
+  const chunks=[]; let size=0;
+  for await (const chunk of req) { size+=chunk.length; if(size>10*1024*1024) throw Object.assign(new Error('PDF exceeds 10 MB'),{status:413}); chunks.push(chunk); }
+  const bytes=Buffer.concat(chunks);
+  if (bytes.length<8 || bytes.toString('ascii',0,5)!=='%PDF-') throw Object.assign(new Error('Invalid PDF file signature'),{status:400});
+  return {type:'application/pdf',name:'bcg-past-paper-'+randomUUID()+'.pdf',bytes};
+}
+export async function driveUploadPaper(token,file) {
+  const uploaded=await driveUpload(token,file);
+  return {id:uploaded.id,url:'https://drive.google.com/file/d/'+encodeURIComponent(uploaded.id)+'/view'};
+}

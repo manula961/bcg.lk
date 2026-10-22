@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
 import BackButton from '../../navigation/BackButton';
-import { pastPapers } from './pastPapersData';
+import { subscribePublishedPastPapers } from '../../lib/pastPapersService';
 import './PastPapersPage.css';
 
 const ALL = 'All';
@@ -12,16 +12,19 @@ const searchable = (paper) => [paper.title, paper.subject, paper.year, paper.exa
   .filter(Boolean).join(' ').toLowerCase();
 
 export default function PastPapersPage() {
+  const [pastPapers, setPastPapers] = useState([]);
+  const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState('');
+  useEffect(() => subscribePublishedPastPapers(items => {setPastPapers(items);setLoadError(false);}, () => setLoadError(true)), []);
   const [exam, setExam] = useState(ALL);
   const [subject, setSubject] = useState(ALL);
   const [year, setYear] = useState(ALL);
   const [language, setLanguage] = useState(ALL);
 
-  const exams = useMemo(() => unique(pastPapers.map((p) => p.exam)), []);
-  const subjects = useMemo(() => unique(pastPapers.map((p) => p.subject)), []);
-  const years = useMemo(() => unique(pastPapers.map((p) => p.year)), []);
-  const languages = useMemo(() => unique(pastPapers.map((p) => p.language)), []);
+  const exams = useMemo(() => unique(pastPapers.map((p) => p.exam)), [pastPapers]);
+  const subjects = useMemo(() => unique(pastPapers.map((p) => p.subject)), [pastPapers]);
+  const years = useMemo(() => unique(pastPapers.map((p) => p.year)), [pastPapers]);
+  const languages = useMemo(() => unique(pastPapers.map((p) => p.language)), [pastPapers]);
 
   const filtered = useMemo(() => pastPapers.filter((paper) =>
     (exam === ALL || String(paper.exam) === exam) &&
@@ -29,7 +32,7 @@ export default function PastPapersPage() {
     (year === ALL || String(paper.year) === year) &&
     (language === ALL || String(paper.language) === language) &&
     searchable(paper).includes(search.trim().toLowerCase())
-  ).sort((a, b) => Number(b.year || 0) - Number(a.year || 0)), [search, exam, subject, year, language]);
+  ).sort((a, b) => Number(b.year || 0) - Number(a.year || 0)), [pastPapers, search, exam, subject, year, language]);
 
   const isFiltering = Boolean(search || [exam, subject, year, language].some((value) => value !== ALL));
   const reset = () => { setSearch(''); setExam(ALL); setSubject(ALL); setYear(ALL); setLanguage(ALL); };
@@ -77,6 +80,7 @@ export default function PastPapersPage() {
               <span className="papers-count">{filtered.length} {filtered.length === 1 ? 'paper' : 'papers'} available</span>
             </div>
 
+            {loadError && <p role="alert">Could not load papers. Please retry later.</p>}
             {pastPapers.length > 0 && (
               <>
                 <div className="papers-tools">

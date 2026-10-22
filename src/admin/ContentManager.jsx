@@ -17,11 +17,26 @@ import {
 import {
   subscribeAdminLeadership, createLeader, updateLeader, deleteLeader, reorderLeadership,
 } from '../lib/leadershipService';
-import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage } from '../lib/googleDriveUpload';
+import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
+import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
 import './Admin.css';
 
 const collections = {
+  pastPapers: {
+    title: 'Past Papers', singular: 'paper', description: 'Publish school examination PDFs from Google Drive.',
+    subscribe: subscribeAdminPastPapers, create: createPastPaper, update: updatePastPaper, remove: deletePastPaper, reorder: reorderPastPapers,
+    defaults: { title:'', exam:'O/L', subject:'', year:'', language:'Sinhala', term:'', url:'', published:false },
+    fields: [
+      { key:'title', label:'Paper title', required:true, maxLength:180, wide:true },
+      { key:'exam', label:'Exam', type:'select', options:['O/L','A/L','Grade 6-9','Term Test','Other'] },
+      { key:'subject', label:'Subject', required:true, maxLength:120 },
+      { key:'year', label:'Year', type:'text', required:true, maxLength:4, help:'Four-digit examination year' },
+      { key:'language', label:'Medium', type:'select', options:['Sinhala','Tamil','English'] },
+      { key:'term', label:'Term / session', maxLength:80 },
+      { key:'url', label:'Public PDF URL', type:'url', required:true, maxLength:2048, wide:true, help:'Use the Drive upload below or a trusted HTTPS PDF URL.' },
+    ],
+  },
   news: {
     title: 'News & Announcements',
     singular: 'article',
@@ -122,6 +137,7 @@ function displayDate(record) {
 
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
+  if (kind === 'pastPapers') return [item.exam, item.subject, item.year, item.language].filter(Boolean).join(' · ');
   if (['events', 'societies', 'sports', 'leadership'].includes(kind)) return item.description || '';
   return item.seoDescription || item.slug || '';
 }
@@ -228,7 +244,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
       if (!term) return true;
       return [
         item.title, item.slug, item.category, item.location, item.eventDate,
-        item.excerpt, item.description, item.websiteUrl, item.role, item.achievements,
+        item.excerpt, item.description, item.websiteUrl, item.role, item.achievements, item.exam, item.subject, item.year, item.language,
       ].some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term));
     });
   }, [items, search, status]);
@@ -329,6 +345,15 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     finally { setUploadingImage(false); }
   }
 
+  async function handlePaperUpload(event) {
+    const file=event.target.files?.[0]; event.target.value='';
+    if (!canUpload || !file || busy || uploadingImage) return;
+    if (!window.confirm('This PDF will become publicly accessible immediately on Google Drive. Confirm it is approved for publication and contains no private student information.')) return;
+    setUploadingImage(true); setNotice(null);
+    try { const url=await uploadDrivePaper(file); updateField('url',url); setNotice({type:'success',text:'PDF uploaded. Save or publish this paper to list it on the website.'}); }
+    catch(error){setNotice({type:'error',text:formatError(error)});} finally{setUploadingImage(false);}
+  }
+
   async function stopDriveConnection() {
     if (uploadingImage) return;
     try {
@@ -350,6 +375,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     setNotice(null);
     try {
       const payload = { ...form };
+      if (kind === 'pastPapers' && !/^(19|20)\d{2}$/.test(form.year)) throw new Error('Enter a four-digit year (1900–2099).');
       if (kind === 'events') {
         const itemIndex = editingId
           ? items.findIndex((i) => i.id === editingId)
@@ -638,15 +664,15 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                       Generate slug from title
                     </button>
                   )}
-                  {field.key === 'imageUrl' && canUpload && drive.configured && (
+                  {(field.key === 'imageUrl' || (kind === 'pastPapers' && field.key === 'url')) && canUpload && drive.configured && (
                     <div className="flex flex-wrap items-center gap-3">
                       {drive.connected ? (
                         <>
                           <label className="admin-btn-secondary cursor-pointer">
-                            {uploadingImage ? 'Uploading...' : 'Upload to Google Drive'}
-                            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
-                              disabled={uploadingImage || busy} onChange={handleDriveUpload}
-                              className="sr-only" aria-label="Upload image to Google Drive" />
+                            {uploadingImage ? 'Uploading...' : kind === 'pastPapers' ? 'Upload PDF to Google Drive' : 'Upload to Google Drive'}
+                            <input type="file" accept={kind === 'pastPapers' ? 'application/pdf,.pdf' : 'image/jpeg,image/png,image/webp,image/gif'}
+                              disabled={uploadingImage || busy} onChange={kind === 'pastPapers' ? handlePaperUpload : handleDriveUpload}
+                              className="sr-only" aria-label={kind === 'pastPapers' ? 'Upload PDF to Google Drive' : 'Upload image to Google Drive'} />
                           </label>
                           <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
                             onClick={stopDriveConnection}>Disconnect Drive</button>
@@ -655,7 +681,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         <button type="button" className="admin-btn-secondary" disabled={uploadingImage || busy}
                           onClick={startDriveConnection}>Connect Google Drive</button>
                       )}
-                      <span className="admin-help-text">JPG, PNG, WebP or GIF · up to 4 MB</span>
+                      <span className="admin-help-text">{kind === 'pastPapers' ? 'PDF · up to 10 MB · public on upload' : 'JPG, PNG, WebP or GIF · up to 4 MB'}</span>
                     </div>
                   )}
                 </div>
