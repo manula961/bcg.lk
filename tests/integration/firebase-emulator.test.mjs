@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import {
-  collection, doc, getDoc, getDocs, query, where, setDoc, updateDoc, deleteDoc, serverTimestamp
+  collection, doc, getDoc, getDocs, query, where, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch
 } from 'firebase/firestore';
 import { ref, uploadBytes, getBytes, listAll, deleteObject } from 'firebase/storage';
 
@@ -325,7 +325,16 @@ test('role audit records are append-only, actor-bound and super-admin readable',
   await assertFails(setDoc(doc(superAdmin.firestore(), 'roleAudit/invalid-promotion'), {
     ...sampleAudit, afterRole: 'super_admin',
   }));
-  await assertSucceeds(setDoc(record, sampleAudit));
+  // An audit record without the corresponding role change must be rejected.
+  await assertFails(setDoc(record, sampleAudit));
+  const batch = writeBatch(superAdmin.firestore());
+  const target = doc(superAdmin.firestore(), 'admins/audit-tested-staff');
+  batch.set(target, {
+    role: 'editor', createdAt: serverTimestamp(), createdBy: 'verified-owner',
+    updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
+  });
+  batch.set(record, { ...sampleAudit, targetUid: 'audit-tested-staff' });
+  await assertSucceeds(batch.commit());
   await assertSucceeds(getDocs(collection(superAdmin.firestore(), 'roleAudit')));
   await assertFails(updateDoc(record, { afterRole: 'admin' }));
   await assertFails(deleteDoc(record));
