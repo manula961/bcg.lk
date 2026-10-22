@@ -40,3 +40,11 @@ export async function uploadDriveImage(file) {
   }
   return result.imageUrl;
 }
+
+export async function uploadDrivePaper(file) {
+  if (!(file instanceof File) || file.type !== 'application/pdf') throw new Error('Choose a PDF document');
+  if (!file.size || file.size > 10*1024*1024) throw new Error('PDF must be 10 MB or smaller');
+  const result=await authorized('/api/drive/papers-upload',{method:'POST',headers:{'Content-Type':'application/pdf'},body:file});
+  if (typeof result.url !== 'string' || !/^https:\/\/drive\.google\.com\/file\/d\/[\w-]+\/view$/.test(result.url)) throw new Error('Invalid Google Drive PDF link');
+  return result.url;
+}
