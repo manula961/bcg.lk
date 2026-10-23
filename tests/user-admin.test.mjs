@@ -41,11 +41,15 @@ test('only safe role selections and account actions are shown in the console', (
   assert.doesNotMatch(roles, /ASSIGNABLE_ROLES = Object\.freeze\(\[[^\]]*'super_admin'/);
 });
 
-test('the role-grant path verifies a real, enabled Firebase account', () => {
+test('role grants require privileged API, a real enabled identity and an auditable write', () => {
+  const service = source('api/_lib/user-admin.mjs');
   const code = source('src/admin/RoleManager.jsx');
-  assert.match(code, /api\/admin\/users\?uid=/);
-  assert.match(code, /account\.user\?\.uid !== uid/);
-  assert.match(code, /account\.user\.disabled/);
+  assert.match(code, /roleRequest\(/);
+  assert.match(code, /action: 'role'/);
+  assert.match(service, /existing = await lookup\(targetUid\)/);
+  assert.match(service, /action === 'role' && existing.disabled/);
+  assert.match(service, /await setRole\(actor.uid, targetUid, role\(body.role\)\)/);
+  assert.match(service, /writeAudit\(actor, targetUid/);
 });
 
 test('backend protects self and Super Admin accounts, with append-only audit requests', () => {
