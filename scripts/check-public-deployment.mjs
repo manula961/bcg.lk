@@ -27,6 +27,20 @@ await check('/events', [200]);
 await check('/past-papers', [200]);
 await check('/admin', [200]);
 await check('/robots.txt', [200]);
+for (const logoPath of ['/email-assets/school-logo.png', '/email-assets/computer-society-logo.png']) {
+  const asset = await fetch(new URL(logoPath, origin), {
+    method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(12000),
+  });
+  if (asset.status !== 200 || !asset.headers.get('content-type')?.toLowerCase().startsWith('image/png'))
+    throw Error(logoPath + ' must respond 200 with image/png, received ' +
+      asset.status + ' ' + (asset.headers.get('content-type') || '(no Content-Type)'));
+  const bytes = new Uint8Array(await asset.arrayBuffer());
+  const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  if (bytes.length < 32 || !pngSignature.every((value, index) => bytes[index] === value))
+    throw Error(logoPath + ' is not a valid PNG response');
+  console.log('PASS', logoPath, '200 image/png');
+}
+
 await check('/sitemap.xml', [200]);
 await check('/unknown-audit-route-do-not-create', [404]);
 await check('/api/drive/status', [401]);
