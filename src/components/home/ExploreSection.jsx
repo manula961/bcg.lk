@@ -41,6 +41,8 @@ const ExploreSection = () => {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  // Campus slides remain still until the visitor explicitly opts into movement.
+  const [userPaused, setUserPaused] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
@@ -62,12 +64,12 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused || reducedMotion) return;
+    if (!visible || isPaused || reducedMotion || userPaused) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [visible, isPaused, reducedMotion]);
+  }, [visible, isPaused, reducedMotion, userPaused]);
 
   return (
     <section
@@ -101,6 +103,11 @@ const ExploreSection = () => {
                     role="tab"
                     tabIndex={active === i ? 0 : -1}
                     onKeyDown={event => {
+                        if (event.key.toLowerCase() === 'p') {
+                          event.preventDefault();
+                          setUserPaused(value => !value);
+                          return;
+                        }
                       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
                       event.preventDefault();
                       const next = event.key === 'Home' ? 0
