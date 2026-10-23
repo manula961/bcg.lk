@@ -214,6 +214,37 @@ try {
   const ownerErrors = [];
   ownerPage.on('pageerror', error => ownerErrors.push(error.message));
   try {
+    // Vite previews do not run Vercel serverless functions. Mock ONLY the
+    // HTTP boundary, while applying role mutations to the disposable emulator
+    // through its privileged test-fixture REST API.
+    await ownerPage.route('**/api/admin/users**', async route => {
+      const request = route.request();
+      if (request.method() === 'GET') {
+        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
+          users: [
+            { uid: identity.localId, email, displayName: 'Automation Admin', disabled: false },
+            { uid: ownerIdentity.localId, email: ownerEmail, displayName: 'Automation Owner', disabled: false },
+          ], nextPageToken: null,
+        }) });
+      }
+      const body = request.postDataJSON();
+      if (body?.uid !== identity.localId || !['role', 'revokeRole'].includes(body.action)) {
+        return route.fulfill({ status: 400, contentType: 'application/json',
+          body: JSON.stringify({ error: 'Unsupported emulator-only role test request.' }) });
+      }
+      const url = 'http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/admins/' +
+        encodeURIComponent(identity.localId);
+      if (body.action === 'role') {
+        await json(url + '?updateMask.fieldPaths=role', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer owner' },
+          body: JSON.stringify({ fields: { role: { stringValue: body.role } } }),
+        });
+      } else {
+        await json(url, { method: 'DELETE', headers: { Authorization: 'Bearer owner' } });
+      }
+      return route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ message: body.action === 'role' ? 'Role saved.' : 'Role revoked.' }) });
+    });
     await ownerPage.goto(base + '/admin');
     await ownerPage.getByLabel('Email Address').fill(ownerEmail);
     await ownerPage.getByLabel('Password').fill(password);
@@ -232,10 +263,10 @@ try {
       throw error;
     }
 
-    await ownerPage.getByLabel('Existing Firebase user UID').fill(identity.localId);
-    await ownerPage.getByLabel('Assign role').selectOption('editor');
-    await ownerPage.getByRole('button', { name: 'Assign Role' }).click();
-    await ownerPage.getByText(/Role saved\. Permission changes/).waitFor({ timeout: 15000 });
+    const targetRow = ownerPage.locator('.admin-row').filter({ hasText: identity.localId }).first();
+    await targetRow.getByLabel('Access role').selectOption('editor');
+    await targetRow.getByRole('button', { name: 'Save Role' }).click();
+    await ownerPage.getByText('Role saved.', { exact: true }).waitFor({ timeout: 15000 });
 
     await page.waitForFunction(
       () => document.querySelector('.admin-user-email')?.textContent?.includes('Editor'),
@@ -249,10 +280,10 @@ try {
     await page.getByRole('button', { name: 'Cancel', exact: true }).first().click();
 
     const accountRow = ownerPage.locator('.admin-row').filter({ hasText: identity.localId });
-    await accountRow.getByRole('button', { name: 'Revoke' }).click();
+    await accountRow.getByRole('button', { name: 'Revoke Role' }).click();
     await page.getByText('Your console access has been removed.').waitFor({ timeout: 15000 });
     assert.deepEqual(ownerErrors, [], 'Browser exceptions while using super-admin role controls');
-    console.log('PASS super-admin grants editor role, UI hides publish, and live revocation removes console access');
+    console.log('PASS role API UI boundary, emulator role changes, and editor permissions; production API verified separately');
   } finally {
     await ownerContext.close();
   }

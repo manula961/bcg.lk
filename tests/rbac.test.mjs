@@ -37,14 +37,17 @@ test('RBAC grants least privilege by role and preserves legacy administrator rig
 test('RBAC role manager does not expose Super Admin provisioning in the browser', () => {
   assert.ok(!ASSIGNABLE_ROLES.includes('super_admin'));
   const manager = source('src/admin/RoleManager.jsx');
-  assert.match(manager, /runTransaction\(db,/);
+  assert.doesNotMatch(manager, /runTransaction\(db,/);
+  assert.match(manager, /roleRequest\(/);
+  assert.match(manager, /action: 'role'/);
+  assert.match(manager, /action: 'revokeRole'/);
   assert.match(manager, /UID_PATTERN/);
   assert.match(manager, /account\.role === 'super_admin'/);
   assert.match(manager, /currentUid/);
-  assert.match(manager, /createdAt: serverTimestamp\(\)/);
+  assert.match(manager, /getIdToken\(\)/);
   const rules = source('firestore.rules');
-  assert.match(rules, /resource\.data\.role != 'super_admin'/);
-  assert.match(rules, /uid != request\.auth\.uid/);
+  assert.match(rules, /allow create, update, delete: if false/);
+  assert.match(rules, /allow list: if isSuperAdmin\(\)/);
 });
 
 test('RBAC controls both UI and backend APIs rather than only hiding buttons', () => {

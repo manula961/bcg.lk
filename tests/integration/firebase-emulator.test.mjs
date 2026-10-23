@@ -229,7 +229,7 @@ test('multiline editorial content is allowed, but whitespace-only bodies are rej
   await assertSucceeds(deleteDoc(record));
 });
 
-test('RBAC: super-admin alone can manage nonprivileged role grants', async () => {
+test('RBAC: role writes are server-only, even for a signed-in Super Admin', async () => {
   const accounts = collection(superAdmin.firestore(), 'admins');
   await assertSucceeds(getDocs(accounts));
   await assertFails(getDocs(collection(publisher.firestore(), 'admins')));
@@ -248,7 +248,7 @@ test('RBAC: super-admin alone can manage nonprivileged role grants', async () =>
     role: 'admin', createdAt: serverTimestamp(), createdBy: 'verified-owner',
     updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
   }));
-  await assertSucceeds(setDoc(target, {
+  await assertFails(setDoc(target, {
     role: 'editor', createdAt: serverTimestamp(), createdBy: 'verified-owner',
     updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
   }));
@@ -261,9 +261,9 @@ test('RBAC: super-admin alone can manage nonprivileged role grants', async () =>
   await assertFails(deleteDoc(doc(superAdmin.firestore(), 'admins/other-owner')));
   await assertFails(updateDoc(target, { role: 'super_admin', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
   await assertFails(updateDoc(target, { role: 'admin', createdBy: 'forged-actor', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
-  await assertSucceeds(updateDoc(target, { role: 'publisher', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
+  await assertFails(updateDoc(target, { role: 'publisher', updatedAt: serverTimestamp(), updatedBy: 'verified-owner' }));
   await assertFails(deleteDoc(doc(admin.firestore(), 'admins/new-staff-uid')));
-  await assertSucceeds(deleteDoc(target));
+  await assertFails(deleteDoc(target));
 });
 
 test('RBAC: editors manage drafts only, publishers can publish but cannot delete', async () => {
@@ -311,7 +311,7 @@ test('RBAC: direct Firebase Storage writes are admin-only; editors use the Drive
   for (const id of [adminId, ownerId]) await assertSucceeds(deleteObject(ref(superAdmin.storage(), id)));
 });
 
-test('role audit records are append-only, actor-bound and super-admin readable', async () => {
+test('role audit records cannot be forged or changed by client SDK', async () => {
   const record = doc(superAdmin.firestore(), 'roleAudit/integration-role-grant');
   const sampleAudit = {
     actorUid: 'verified-owner', targetUid: 'verified-admin', action: 'grant',
@@ -334,7 +334,7 @@ test('role audit records are append-only, actor-bound and super-admin readable',
     updatedAt: serverTimestamp(), updatedBy: 'verified-owner',
   });
   batch.set(record, { ...sampleAudit, targetUid: 'audit-tested-staff' });
-  await assertSucceeds(batch.commit());
+  await assertFails(batch.commit());
   await assertSucceeds(getDocs(collection(superAdmin.firestore(), 'roleAudit')));
   await assertFails(updateDoc(record, { afterRole: 'admin' }));
   await assertFails(deleteDoc(record));

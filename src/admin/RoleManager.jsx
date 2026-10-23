@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, doc, onSnapshot, runTransaction, serverTimestamp, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { ASSIGNABLE_ROLES, ROLE_LABELS } from '../lib/rbac.mjs';
 import UserAccountsManager from './UserAccountsManager';
@@ -8,8 +8,8 @@ const UID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
 /**
  * Super-admin-only role administration for existing Firebase accounts.
- * Firestore rules independently reject unprivileged, self, and super-admin edits.
- * New accounts are created with an assigned role through the server-side account API.
+ * All role mutations go through the privileged API and are atomically audited.
+ * Firestore rules reject browser role document and audit writes.
  * Granting the first super_admin remains a trusted Firebase console / Admin SDK operation.
  */
 export default function RoleManager({ currentUid }) {
@@ -33,96 +33,51 @@ export default function RoleManager({ currentUid }) {
     setNotice({ type: 'error', text: 'Role changes remain protected, but the activity log could not be loaded. Check deployed Firestore rules.' });
   }), []);
 
-  async function assignRole(uidText, nextRole) {
-    const uid = uidText.trim();
-    if (!UID_PATTERN.test(uid)) {
-      setNotice({ type: 'error', text: 'Enter a valid Firebase Authentication UID (letters, digits, underscores or hyphens).' });
-      return;
-    }
-    if (uid === currentUid || !ASSIGNABLE_ROLES.includes(nextRole)) {
-      setNotice({ type: 'error', text: 'You cannot change your own role or assign Super Admin from this panel.' });
-      return;
-    }
-    if (!window.confirm('Assign ' + ROLE_LABELS[nextRole] + ' to Firebase UID ' + uid +
-      '? Confirm the UID belongs to the intended existing account.')) return;
+  async function roleRequest(body) {
+    const current = auth.currentUser;
+    if (!current || current.uid !== currentUid)
+      throw new Error('Your signed-in account has changed. Reload the console.');
+    const token = await current.getIdToken();
+    const response = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify(body), cache: 'no-store',
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result)
+      throw new Error(result?.error || 'Secure role management is unavailable. Please try again.');
+    return result;
+  }
 
+  async function assignRole(uidText, nextRole) {
+    const uid = String(uidText || '').trim();
+    if (!UID_PATTERN.test(uid) || uid === currentUid || !ASSIGNABLE_ROLES.includes(nextRole)) {
+      setNotice({ type: 'error', text: 'Choose an allowed role for another existing account.' });
+      return;
+    }
+    if (!window.confirm('Assign ' + ROLE_LABELS[nextRole] + ' to Firebase UID ' + uid + '?')) return;
     setBusyUid(uid);
     setNotice(null);
     try {
-      const actorUid = auth.currentUser?.uid;
-      if (!actorUid || actorUid !== currentUid) throw new Error('Your signed-in account has changed. Reload the console.');
-      // The Vite Firebase emulator runs without Vercel functions. Production
-      // role grants additionally verify the UID against the server-only Auth API.
-      if (import.meta.env.VITE_USE_FIREBASE_EMULATORS !== 'true') {
-        const token = await auth.currentUser.getIdToken();
-        const verification = await fetch('/api/admin/users?uid=' + encodeURIComponent(uid), {
-          headers: { Authorization: 'Bearer ' + token }, cache: 'no-store',
-        });
-        const account = await verification.json().catch(() => ({}));
-        if (!verification.ok || account.user?.uid !== uid)
-          throw new Error('Cannot verify this Firebase Authentication UID. Check server user-management configuration.');
-        if (account.user.disabled)
-          throw new Error('Enable this Firebase account before assigning a console role.');
-      }
-      await runTransaction(db, async transaction => {
-        const reference = doc(db, 'admins', uid);
-        const current = await transaction.get(reference);
-        if (current.exists() && current.data()?.role === 'super_admin') {
-          throw new Error('Super-admin role changes require a trusted Firebase administrator.');
-        }
-        transaction.set(doc(collection(db, 'roleAudit')), {
-          actorUid, targetUid: uid,
-          action: current.exists() ? 'change' : 'grant',
-          beforeRole: current.exists() ? current.data().role : null,
-          afterRole: nextRole, createdAt: serverTimestamp(),
-        });
-        if (current.exists()) {
-          transaction.update(reference, {
-            role: nextRole, updatedAt: serverTimestamp(), updatedBy: actorUid,
-          });
-        } else {
-          transaction.set(reference, {
-            role: nextRole,
-            createdAt: serverTimestamp(), createdBy: actorUid,
-            updatedAt: serverTimestamp(), updatedBy: actorUid,
-          });
-        }
-      });
-      setNotice({ type: 'success', text: 'Role saved. Permission changes take effect for active sessions.' });
+      const result = await roleRequest({ action: 'role', uid, role: nextRole });
+      setNotice({ type: 'success', text: result.message || 'Role saved.' });
     } catch (error) {
-      setNotice({ type: 'error', text: error?.code === 'permission-denied'
-        ? 'Firestore rejected this role assignment. Confirm Super Admin privileges and deployed rules.'
-        : error?.message || 'Could not assign role.' });
+      setNotice({ type: 'error', text: error?.message || 'Could not assign role.' });
     } finally {
       setBusyUid(null);
     }
   }
 
   async function revokeRole(account) {
-    const uid = account.uid;
-    if (uid === currentUid || account.role === 'super_admin') return;
+    const uid = account?.uid;
+    if (!UID_PATTERN.test(uid || '') || uid === currentUid || account.role === 'super_admin') return;
     if (!window.confirm('Revoke console access from ' + uid +
-      '? This does NOT delete the Firebase Authentication account.')) return;
+      '? The Firebase Authentication account will remain enabled.')) return;
     setBusyUid(uid);
     setNotice(null);
     try {
-      const actorUid = auth.currentUser?.uid;
-      if (!actorUid || actorUid !== currentUid) throw new Error('Your signed-in account has changed. Reload the console.');
-      await runTransaction(db, async transaction => {
-        const reference = doc(db, 'admins', uid);
-        const current = await transaction.get(reference);
-        if (!current.exists()) return;
-        if (current.data()?.role === 'super_admin') {
-          throw new Error('Cannot revoke a Super Admin from this panel.');
-        }
-        transaction.set(doc(collection(db, 'roleAudit')), {
-          actorUid, targetUid: uid, action: 'revoke',
-          beforeRole: current.data().role, afterRole: null,
-          createdAt: serverTimestamp(),
-        });
-        transaction.delete(reference);
-      });
-      setNotice({ type: 'success', text: 'Console access revoked for the selected UID.' });
+      const result = await roleRequest({ action: 'revokeRole', uid });
+      setNotice({ type: 'success', text: result.message || 'Role revoked.' });
     } catch (error) {
       setNotice({ type: 'error', text: error?.message || 'Could not revoke access.' });
     } finally {

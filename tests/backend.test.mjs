@@ -8,8 +8,8 @@ test('Firestore denies unknown paths and protects administrator records', () => 
   const rules = read('firestore.rules');
   assert.match(rules, /match \/admins\/\{uid\}/);
   assert.match(rules, /allow list: if isSuperAdmin\(\);/);
-  assert.match(rules, /allow create: if isSuperAdmin\(\) && validRoleProvision\(uid\);/);
-  assert.match(rules, /allow update: if isSuperAdmin\(\) && validRoleUpdate\(uid\);/);
+  assert.match(rules, /allow create, update, delete: if false;/);
+  assert.match(rules, /match \/roleAudit\/\{eventId\}/);
   assert.match(rules, /match \/\{document=\*\*\} \{ allow read, write: if false; \}/);
 });
 
