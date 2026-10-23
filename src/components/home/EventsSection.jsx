@@ -164,13 +164,15 @@ const EventsSection = () => {
               ))
             )}
           </div>
+
+
           <div className="events-action">
             <button
               className="events-btn"
               onClick={handleViewAllEvents}
               aria-label="View all college events"
             >
-              View All Events
+              View All
               <svg
                 className="btn-arrow-icon"
                 viewBox="0 0 24 24"

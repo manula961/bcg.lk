@@ -1515,6 +1515,7 @@
   background: var(--life-card-surface);
   padding: clamp(23px, 2.6vw, 34px);
   min-width: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.082);
 }
 .life-detail .life-detail-learning-index {
   display: inline-block;
