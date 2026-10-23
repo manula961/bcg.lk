@@ -5,7 +5,6 @@ const HeroSection = () => {
   const heroRef = useRef(null);
   const logoRef = useRef(null);
   const titleRef = useRef(null);
-  const subtitleRef = useRef(null);
   const dividerRef = useRef(null);
   const mottoRef = useRef(null);
   const scrollRef = useRef(null);
@@ -15,7 +14,6 @@ const HeroSection = () => {
     const elements = [
       { el: logoRef.current, delay: 200 },
       { el: titleRef.current, delay: 500 },
-      { el: subtitleRef.current, delay: 750 },
       { el: dividerRef.current, delay: 950 },
       { el: mottoRef.current, delay: 1150 },
       { el: scrollRef.current, delay: 1400 },
@@ -89,15 +87,15 @@ const HeroSection = () => {
 
         {/* College name - Using Geologica Font */}
         <div ref={titleRef} className="hero-fade-init w-full px-1">
-          <h1 className="geologica mb-2 sm:mb-4 text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text leading-tight">
+          <h1 className="geologica mb-2 sm:mb-4 leading-tight">
             {/* Line 1 */}
-            <span className="block whitespace-nowrap text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
+            <span 
+              className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
               BANDARANAYAKE COLLEGE
             </span>
             {/* Line 2 */}
             <span
-              ref={subtitleRef}
-              className="block mt-1 whitespace-nowrap text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wide sm:tracking-normal"
+              className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal"
             >
               GAMPAHA
             </span>
