@@ -2,168 +2,79 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import './LoadingAnimation.css';
 
-const LoadingAnimation = ({ onComplete }) => {
-  const containerRef = useRef(null);
-  const leftCurtainRef = useRef(null);
-  const rightCurtainRef = useRef(null);
-  const logoWrapperRef = useRef(null);
-  const titleLettersRef = useRef([]);
-  const subtitleRef = useRef(null);
-  const yearRef = useRef(null);
-  const progressBarRef = useRef(null);
+const COLLEGE_NAME = 'BANDARANAYAKE COLLEGE';
+
+export default function LoadingAnimation({ onComplete }) {
+  const rootRef = useRef(null);
+  const completeRef = useRef(onComplete);
+  completeRef.current = onComplete;
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const root = rootRef.current;
+    if (!root) return undefined;
 
-    if (prefersReducedMotion) {
-      if (onComplete) onComplete();
-      return;
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      completeRef.current?.();
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish();
+      return undefined;
     }
 
-    // Safety timeout to prevent indefinite unmount blocking
-    const safetyTimer = setTimeout(() => {
-      if (onComplete) onComplete();
-    }, 3500);
+    const ctx = gsap.context(() => {
+      const letters = gsap.utils.toArray('.title-letter');
+      gsap.set('.logo-container', { autoAlpha: 0, scale: 0.75, y: 20 });
+      gsap.set(letters, { autoAlpha: 0, y: 22 });
+      gsap.set('.subtitle', { autoAlpha: 0, y: 12 });
+      gsap.set('.year-badge', { autoAlpha: 0, y: 8 });
+      gsap.set('.progress-bar-fill', { scaleX: 0, transformOrigin: 'left center' });
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        clearTimeout(safetyTimer);
-        if (onComplete) onComplete();
-      },
-    });
+      gsap.timeline({ onComplete: finish })
+        .to('.logo-container', { autoAlpha: 1, scale: 1, y: 0, duration: 0.55, ease: 'power3.out' })
+        .to(letters, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.018, ease: 'power2.out' }, '-=0.3')
+        .to('.subtitle', { autoAlpha: 1, y: 0, duration: 0.35 }, '-=0.18')
+        .to('.year-badge', { autoAlpha: 1, y: 0, duration: 0.3 }, '-=0.2')
+        .to('.progress-bar-fill', { scaleX: 1, duration: 0.65, ease: 'power2.inOut' }, '-=0.1')
+        .to('.center-content', { autoAlpha: 0, y: -15, duration: 0.35, ease: 'power2.in' }, '+=0.1')
+        .to('.curtain-left', { xPercent: -101, duration: 0.85, ease: 'power3.inOut' }, '-=0.05')
+        .to('.curtain-right', { xPercent: 101, duration: 0.85, ease: 'power3.inOut' }, '<');
+    }, root);
 
-    // Initial States
-    gsap.set(logoWrapperRef.current, { scale: 0.5, opacity: 0, y: 30 });
-    gsap.set(titleLettersRef.current, { y: 40, opacity: 0 });
-    gsap.set(subtitleRef.current, { letterSpacing: '0.2em', opacity: 0, y: 15 });
-    gsap.set(yearRef.current, { opacity: 0, scale: 0.8 });
-    gsap.set(progressBarRef.current, { scaleX: 0 });
-
-    // Timeline Animation Sequence
-    tl.to(logoWrapperRef.current, {
-      scale: 1,
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      ease: 'power3.out',
-    })
-      .to(
-        titleLettersRef.current,
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.35,
-          stagger: 0.015,
-          ease: 'back.out(1.7)',
-        },
-        '-=0.3'
-      )
-      .to(
-        subtitleRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          letterSpacing: '0.4em',
-          duration: 0.35,
-          ease: 'power2.out',
-        },
-        '-=0.2'
-      )
-      .to(
-        yearRef.current,
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.25,
-          ease: 'power2.out',
-        },
-        '-=0.2'
-      )
-      .to(progressBarRef.current, {
-        scaleX: 1,
-        duration: 0.5,
-        ease: 'power1.inOut',
-      })
-      .to({}, { duration: 0.1 })
-      .to([logoWrapperRef.current, yearRef.current], {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.25,
-        ease: 'power2.in',
-      })
-      .to(
-        [titleLettersRef.current, subtitleRef.current],
-        {
-          y: -20,
-          opacity: 0,
-          duration: 0.2,
-          stagger: 0.008,
-          ease: 'power2.in',
-        },
-        '-=0.15'
-      )
-      .to(leftCurtainRef.current, {
-        xPercent: -100,
-        duration: 0.5,
-        ease: 'power4.inOut',
-      })
-      .to(
-        rightCurtainRef.current,
-        {
-          xPercent: 100,
-          duration: 0.5,
-          ease: 'power4.inOut',
-        },
-        '-=0.5'
-      );
-
+    // Failsafe only; never allow it to invoke completion twice.
+    const timer = window.setTimeout(finish, 5000);
     return () => {
-      clearTimeout(safetyTimer);
-      tl.kill();
+      window.clearTimeout(timer);
+      ctx.revert();
     };
-  }, [onComplete]);
-
-  const collegeName = 'BANDARANAYAKE COLLEGE';
+  }, []);
 
   return (
-    <div ref={containerRef} className="loading-container">
-      <div ref={leftCurtainRef} className="curtain curtain-left" />
-      <div ref={rightCurtainRef} className="curtain curtain-right" />
+    <div ref={rootRef} className="loading-container" role="status" aria-label="Loading Bandaranayake College">
+      <div className="curtain curtain-left" aria-hidden="true" />
+      <div className="curtain curtain-right" aria-hidden="true" />
       <div className="center-content">
         <div className="logo-wrapper">
-          <div ref={logoWrapperRef} className="logo-container">
-            <img
-              src="https://i.ibb.co/Wv1bGqbs/images.jpg"
-              alt="BCG Crest"
-              className="logo-image"
-            />
+          <div className="logo-container">
+            <img src="https://i.ibb.co/Wv1bGqbs/images.jpg" alt="Bandaranayake College crest" className="logo-image" />
           </div>
         </div>
         <div className="title-wrapper">
-          <h1 className="college-title">
-            {collegeName.split('').map((char, index) => (
-              <span
-                key={index}
-                ref={(el) => (titleLettersRef.current[index] = el)}
-                className="title-letter"
-              >
-                {char}
-              </span>
+          <h1 className="college-title" aria-label={COLLEGE_NAME}>
+            {COLLEGE_NAME.split('').map((char, index) => (
+              <span className="title-letter" aria-hidden="true" key={index}>{char === ' ' ? '\u00a0' : char}</span>
             ))}
           </h1>
-          <div ref={subtitleRef} className="subtitle">
-            GAMPAHA
-          </div>
+          <div className="subtitle">GAMPAHA</div>
         </div>
-        <div ref={yearRef} className="year-badge">
-          EST. 1918
-        </div>
-        <div className="progress-bar-track">
-          <div ref={progressBarRef} className="progress-bar-fill" />
+        <div className="year-badge">EST. 1918</div>
+        <div className="progress-bar-track" aria-hidden="true">
+          <div className="progress-bar-fill" />
         </div>
       </div>
     </div>
   );
-};
-
-export default LoadingAnimation;
+}

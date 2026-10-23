@@ -58,14 +58,15 @@ export default function PastPapersPage() {
             <BackButton fallback="/life/academic-excellence" className="papers-return-btn">BACK</BackButton>
           </div>
 
-          <header className="papers-hero">
-            <div className="papers-hero-copy">  
-              <h1>School <em>Past Papers</em></h1>
-              <p>Explore previous examination papers and prepare for your next exam with confidence. Find resources by subject, exam, year and medium.</p>            </div>
-            <div className="papers-hero-mark" aria-hidden="true">
-              <svg viewBox="0 0 150 160" fill="none"><rect x="36" y="16" width="84" height="112" rx="10" stroke="currentColor" strokeWidth="3"/><path d="M53 45h49M53 62h49M53 79h32" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M26 39v99a10 10 0 0 0 10 10h72" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M94 99v22m-10-10 10 10 10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </div>
-          </header>
+              <section className="life-detail-feature">
+                <img className="life-detail-feature-image" src="https://bcg.lk/img/banner1.jpg" alt="Bandaranayake College campus" />
+                <div className="life-detail-feature-shade" />
+                <div className="life-detail-feature-body">
+                  <span className="life-detail-feature-label">School Past Papers</span>
+                  <h2>Prepare with Confidence, Achieve with Excellence</h2>
+                  <p>Explore our collection of past examination papers to strengthen your understanding, practise essential skills, and prepare effectively for upcoming assessments. Find the resources you need by subject, year, examination, and language.</p>
+                </div>
+              </section>           
 
           <section className="papers-library" id="papers-library" aria-labelledby="papers-library-title">
             <div className="papers-heading">
