@@ -18,8 +18,9 @@ test('past-paper year and language schema remains complete', () => {
   assert.match(rules, /data\.language in \['Sinhala','Tamil','English'\]/);
 });
 
-test('role audit entries must be tied to a role write in the same transaction', () => {
-  assert.match(rules, /existsAfter\(\/databases\/\$\(database\)\/documents\/admins/);
-  assert.match(rules, /getAfter\(\/databases\/\$\(database\)\/documents\/admins/);
-  assert.match(rules, /!existsAfter\(\/databases\/\$\(database\)\/documents\/admins/);
+test('client SDK cannot modify roles or forge role-audit history', () => {
+  assert.match(rules, /match \/admins\/\{uid\}/);
+  assert.match(rules, /match \/roleAudit\/\{eventId\}/);
+  const policies = [...rules.matchAll(/allow create, update, delete: if false;/g)];
+  assert.ok(policies.length >= 2, 'Roles and audit writes must be server-only');
 });
