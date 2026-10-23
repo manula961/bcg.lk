@@ -5,7 +5,7 @@ import { ROLE_LABELS, ASSIGNABLE_ROLES } from '../lib/rbac.mjs';
 /**
  * Account lifecycle is always handled by /api/admin/users on the server.
  * This component never creates service credentials or stores passwords.
- * Existing role controls below this panel still use Firestore transactions.
+ * Role grant/revocation controls also call the privileged server API.
  */
 export default function UserAccountsManager({ currentUid, roleAssignments = [], onAssignRole, onRevokeRole, roleBusy = false }) {
   const [users, setUsers] = useState([]);
