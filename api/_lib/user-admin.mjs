@@ -10,7 +10,7 @@ import { sendViaResend } from './branded-email.mjs';
 const UID = /^[A-Za-z0-9_-]{1,128}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLES = new Set(['admin', 'publisher', 'editor', 'auditor']);
-const ACTIONS = new Set(['create', 'update', 'disable', 'enable', 'delete', 'reset']);
+const ACTIONS = new Set(['create', 'update', 'disable', 'enable', 'delete', 'reset', 'role', 'revokeRole']);
 let cachedToken;
 let tokenExpiry = 0;
 
@@ -317,6 +317,9 @@ async function perform(input, actor) {
     existingRole = roleName(await roleDocument(targetUid));
     assertProtected(existing, actor.uid, existingRole);
   }
+  if (action === 'role' && existing.disabled)
+    throw problem(409, 'Enable this Firebase account before assigning a console role.');
+  if (action === 'role') role(body.role);
   if (action === 'update') {
     if (!Object.prototype.hasOwnProperty.call(body, 'email') &&
         !Object.prototype.hasOwnProperty.call(body, 'displayName'))
@@ -351,6 +354,12 @@ async function perform(input, actor) {
         result.message = 'Account created, but password setup email failed. Use Reset Password to retry.';
         result.emailWarning = true;
       }
+    } else if (action === 'role') {
+      await setRole(actor.uid, targetUid, role(body.role));
+      result = { user: await lookup(targetUid), message: 'Role saved. Access changes take effect immediately.' };
+    } else if (action === 'revokeRole') {
+      await setRole(actor.uid, targetUid, null);
+      result = { message: 'Console role revoked. The Firebase Authentication account remains enabled.' };
     } else if (action === 'update') {
       const attributes = { localId: targetUid };
       if (Object.prototype.hasOwnProperty.call(body, 'email')) attributes.email = email(body.email);
