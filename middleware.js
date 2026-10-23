@@ -14,7 +14,7 @@ export function isKnownRoute(path) {
   if (/^\/pages\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized)) return true;
   if (/^\/(?:updates|events)\/[^/]+$/.test(normalized)) return true;
   // Preserve Vercel file handling (assets, robots, sitemap, API endpoints).
-  if (normalized.startsWith('/api/') || normalized.startsWith('/assets/') ||
+  if (normalized.startsWith('/api/') || normalized.startsWith('/assets/') || normalized.startsWith('/email-assets/') ||
       /^\/[A-Za-z0-9._-]+\.[A-Za-z0-9]+$/.test(normalized)) return true;
   return false;
 }

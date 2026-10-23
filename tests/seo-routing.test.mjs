@@ -8,7 +8,7 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 test('known static and CMS routes retain the React SPA', () => {
   for (const path of ['/', '/index.html', '/admin', '/events', '/about-us',
     '/life/sports-societies', '/life/leadership', '/past-papers', '/updates/abc123', '/events/abc123',
-    '/pages/about-college', '/assets/index.js', '/api/drive/upload']) {
+    '/pages/about-college', '/assets/index.js', '/email-assets/school-logo.png', '/email-assets/computer-society-logo.png', '/api/drive/upload']) {
     assert.equal(isKnownRoute(path), true, path);
   }
 });
