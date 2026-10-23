@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import './HeroSection.css';
 
@@ -32,28 +33,39 @@ const HeroSection = () => {
 
     elements.forEach(({ el, delay }) => {
       if (!el) return;
+
       el.style.opacity = '0';
       el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
+      el.style.transition =
+        'opacity 0.9s ease, transform 0.9s ease';
+
       const timer = setTimeout(() => {
         el.style.opacity = '1';
         el.style.transform = 'translateY(0)';
       }, delay);
+
       timers.push(timer);
     });
 
     let ticking = false;
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           if (heroRef.current) {
             const scrollY = window.scrollY;
             const heroHeight = window.innerHeight;
+
             if (scrollY <= heroHeight) {
-              const opacity = Math.max(0, 1 - scrollY / (heroHeight * 0.7));
+              const opacity = Math.max(
+                0,
+                1 - scrollY / (heroHeight * 0.7)
+              );
               const translateY = scrollY * 0.25;
+
               heroRef.current.style.opacity = opacity;
-              heroRef.current.style.transform = `translateY(${translateY}px)`;
+              heroRef.current.style.transform =
+                `translateY(${translateY}px)`;
             }
           }
           ticking = false;
@@ -62,7 +74,10 @@ const HeroSection = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, {
+      passive: true,
+    });
+
     return () => {
       timers.forEach(clearTimeout);
       window.removeEventListener('scroll', handleScroll);
@@ -77,7 +92,10 @@ const HeroSection = () => {
     >
       <div className="relative z-10 flex flex-col items-center w-full max-w-5xl mx-auto -mt-6 sm:-mt-10 md:-mt-16">
         {/* Logo */}
-        <div ref={logoRef} className="hero-fade-init mb-2 sm:mb-4 flex justify-center">
+        <div
+          ref={logoRef}
+          className="hero-fade-init mb-2 sm:mb-4 flex justify-center"
+        >
           <img
             src="https://i.ibb.co/Wv1bGqbs/images.jpg"
             alt="Bandaranayake College Logo"
@@ -85,18 +103,17 @@ const HeroSection = () => {
           />
         </div>
 
-        {/* College name - Using Geologica Font */}
-        <div ref={titleRef} className="hero-fade-init w-full px-1">
+        {/* College name */}
+        <div
+          ref={titleRef}
+          className="hero-fade-init w-full px-1"
+        >
           <h1 className="geologica mb-2 sm:mb-4 leading-tight">
-            {/* Line 1 */}
-            <span 
-              className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
+            <span className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
               BANDARANAYAKE COLLEGE
             </span>
-            {/* Line 2 */}
-            <span
-              className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal"
-            >
+
+            <span className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
               GAMPAHA
             </span>
           </h1>
@@ -117,10 +134,10 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Motto */}
+      {/* Sinhala School Motto */}
       <div
         ref={mottoRef}
-        className="hero-fade-init absolute bottom-4 sm:bottom-6 z-20 w-full px-4 flex justify-center -mt-20 sm:mt-0"
+        className="hero-fade-init hero-motto-container absolute bottom-4 sm:bottom-6 z-20 w-full px-4 flex justify-center"
       >
         <div className="motto-container">
           <span className="motto-maroon">විද්වාත්</span>
@@ -134,7 +151,9 @@ const HeroSection = () => {
         ref={scrollRef}
         className="hero-fade-init absolute bottom-4 sm:bottom-7 right-4 sm:right-8 z-10 hidden xs:flex flex-col items-center gap-1 sm:gap-2"
       >
-        <span className="scroll-indicator-text">Scroll</span>
+        <span className="scroll-indicator-text">
+          Scroll
+        </span>
         <div className="scroll-indicator-bar" />
       </div>
     </section>

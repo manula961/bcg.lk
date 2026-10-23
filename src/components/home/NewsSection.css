@@ -432,3 +432,7 @@ h3.news-card-title {
     transform: translateY(0);
   }
 }
+/* Mouse drag scrolling; native touch swipe stays available */
+.news-grid { touch-action: pan-x pan-y; }
+.news-grid.dragging, .news-grid.dragging * { cursor: grabbing !important; user-select: none; }
+.news-grid.dragging .news-card:hover { transform: none; }

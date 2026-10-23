@@ -1,9 +1,13 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap');
+
 /* Custom Keyframe Animations */
 @keyframes scrollPulse {
   0%, 100% {
     opacity: 0.2;
     transform: scaleY(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scaleY(1);
@@ -21,46 +25,69 @@
   width: 100%;
 }
 
-/* Enable smooth background parallax only on desktop devices */
+/* Desktop Background Parallax */
 @media (min-width: 1024px) {
   .hero-section {
     background-attachment: fixed;
   }
 }
 
-/* Hidden Initial State for Stagger Fade-In Animations */
+/* Initial Animation State */
 .hero-fade-init {
   opacity: 0;
 }
 
-/* Motto container styling */
+/* Responsive Motto Positioning */
+.hero-motto-container {
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  max-width: 100%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Sinhala School Motto */
 .motto-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 0.4rem;
-  font-family: 'Noto Sans Sinhala', 'noto-sinhala', serif;
-  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+
+  width: fit-content;
+  max-width: 100%;
+
+  font-family:
+    'Noto Sans Sinhala',
+    'Iskoola Pota',
+    'Nirmala UI',
+    sans-serif;
+
+  font-size: clamp(0.78rem, 3.2vw, 1.25rem);
   font-weight: 500;
-  letter-spacing: 0.05em;
+  line-height: 1.8;
+  letter-spacing: normal;
+  text-align: center;
   margin-bottom: 5px;
 }
 
-/* Specific colored styling */
+/* Keep Individual Sinhala Words Together */
+.motto-container > span {
+  display: inline-block;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* School Motto Colors */
 .motto-maroon {
-  color: #5F0010; /* Deep Maroon Red */
+  color: #5F0010;
 }
 
 .motto-blue {
-  color: #0E2E5E; /* Navy Deep Blue */
+  color: #0E2E5E;
 }
 
-/* Motto Container alignment override fallback */
-.hero-motto-container {
-  transform: translateX(-50%);
-}
-
-/* Scroll Indicator Text & Bar */
+/* Scroll Indicator */
 .scroll-indicator-text {
   font-family: 'Geologica', sans-serif;
   font-size: 0.5rem;
@@ -73,26 +100,69 @@
 .scroll-indicator-bar {
   width: 1px;
   height: 36px;
-  background: linear-gradient(to bottom, #c9a84c, transparent);
+  background: linear-gradient(
+    to bottom,
+    #c9a84c,
+    transparent
+  );
   animation: scrollPulse 2s ease-in-out infinite;
 }
 
+/* Tablet */
 @media (min-width: 640px) {
   .scroll-indicator-bar {
     height: 44px;
   }
 }
 
+/* Small Mobile Screens */
 @media (max-width: 400px) {
   .motto-container {
-    margin-bottom: 50px;
+    font-size: clamp(0.75rem, 3.5vw, 1rem);
+    gap: 0.25rem;
+    margin-bottom: 0;
+  }
+
+  .hero-motto-container {
+    padding-inline: 0.75rem;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .hero-fade-init { opacity: 1; }
-  .hero-section { background-attachment: scroll; }
-  .scroll-indicator-bar { animation: none; }
+
+/* Very Narrow Mobile Screens */
+@media (max-width: 320px) {
+  .motto-container {
+    font-size: 0.72rem;
+    gap: 0.2rem;
+    line-height: 1.9;
+  }
 }
+
+/* Short Screens */
+@media (max-height: 600px) {
+  .hero-motto-container {
+    bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Small Screen College Title */
 @media (max-width: 375px) {
-  .hero-section h1 > span:first-child { font-size: clamp(0.95rem, 4.7vw, 1.5rem); letter-spacing: -0.015em; }
+  .hero-section h1 > span:first-child {
+    font-size: clamp(0.95rem, 4.7vw, 1.5rem);
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-init {
+    opacity: 1;
+  }
+
+  .hero-section {
+    background-attachment: scroll;
+  }
+
+  .scroll-indicator-bar {
+    animation: none;
+  }
 }

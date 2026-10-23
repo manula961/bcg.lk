@@ -34,12 +34,9 @@ const NewsSection = () => {
   const [retry, setRetry] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Drag-to-scroll State
+  // Pointer drag state kept in refs to avoid re-rendering on every movement.
+  const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false);
-  const isMouseDown = useRef(false);
-  const dragStartX = useRef(0);
-  const dragScrollLeft = useRef(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -70,16 +67,6 @@ const NewsSection = () => {
     return () => unsubscribe();
   }, [retry]);
 
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      if (isMouseDown.current) {
-        isMouseDown.current = false;
-        setIsDragging(false);
-      }
-    };
-    window.addEventListener("mouseup", handleGlobalMouseUp);
-    return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
-  }, []);
 
   const filters = ["All", "Announcements", "News"];
   const filtered =
@@ -131,34 +118,46 @@ const NewsSection = () => {
     }
   };
 
-  const handleMouseDown = (e) => {
-    if (!gridRef.current) return;
-    isMouseDown.current = true;
-    setHasDragged(false);
-    dragStartX.current = e.pageX - gridRef.current.offsetLeft;
-    dragScrollLeft.current = gridRef.current.scrollLeft;
+  const handlePointerDown = (e) => {
+    dragRef.current.moved = false;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    // Native touch scrolling remains enabled.
+    if (e.pointerType !== "mouse") return;
+    const grid = gridRef.current;
+    if (!grid) return;
+    dragRef.current = {
+      active: true,
+      moved: false,
+      startX: e.clientX,
+      scrollLeft: grid.scrollLeft,
+    };
+    grid.setPointerCapture(e.pointerId);
   };
 
-  const handleMouseMove = (e) => {
-    if (!isMouseDown.current || !gridRef.current) return;
-    const x = e.pageX - gridRef.current.offsetLeft;
-    const walk = (x - dragStartX.current) * 1.5;
-    if (Math.abs(walk) > 5) {
+  const handlePointerMove = (e) => {
+    const drag = dragRef.current;
+    if (!drag.active || !gridRef.current) return;
+    const delta = e.clientX - drag.startX;
+    if (!drag.moved && Math.abs(delta) > 5) {
+      drag.moved = true;
       setIsDragging(true);
-      setHasDragged(true);
     }
-    gridRef.current.scrollLeft = dragScrollLeft.current - walk;
+    if (drag.moved) {
+      gridRef.current.scrollLeft = drag.scrollLeft - delta;
+    }
   };
 
-  const handleMouseUp = () => {
-    isMouseDown.current = false;
+  const handlePointerUp = () => {
+    dragRef.current.active = false;
     setIsDragging(false);
   };
 
   const handleCardClick = (event) => {
-    if (hasDragged || isMouseDown.current) {
+    if (dragRef.current.moved) {
       event.preventDefault();
       event.stopPropagation();
+      // Suppress only the click following a drag.
+      dragRef.current.moved = false;
     }
   };
 
@@ -237,10 +236,12 @@ const NewsSection = () => {
             ref={gridRef}
             className={`news-grid ${isDragging ? "dragging" : ""}`}
             onScroll={handleScrollUpdate}
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseUp}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onLostPointerCapture={handlePointerUp}
+            onDragStart={(e) => e.preventDefault()}
           >
             {filtered.map((post) => (
               <a

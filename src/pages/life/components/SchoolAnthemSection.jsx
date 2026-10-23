@@ -1,12 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-// To publish the recording, put the licensed/approved audio file at:
-// public/audio/school-anthem.mp3 (outside this src-only archive).
+// Place Anthem.mp3 at public/audio/school-anthem.mp3.
 const ANTHEM_SRC = '/audio/school-anthem.mp3';
 
-/** Short about-school and official-anthem space, shown only on About Us. */
 export default function SchoolAnthemSection() {
+  const audioRef = useRef(null);
   const [audioStatus, setAudioStatus] = useState('loading');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.play().catch(() => {
+      // Most browsers block audible autoplay until the visitor interacts.
+    });
+  }, []);
+
+  const togglePlayback = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      try { await audio.play(); } catch { setAudioStatus('missing'); }
+    } else {
+      audio.pause();
+    }
+  };
+
+  const formatTime = (seconds) => {
+    if (!Number.isFinite(seconds)) return '0:00';
+    return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+  };
 
   return (
     <section className="life-detail-anthem" aria-labelledby="school-anthem-title">
@@ -29,19 +54,32 @@ export default function SchoolAnthemSection() {
         <div className="life-detail-anthem-controls">
           <strong>Bandaranayake College Anthem</strong>
           <audio
-            controls
-            preload="metadata"
+            ref={audioRef}
             src={ANTHEM_SRC}
-            aria-label="Play Bandaranayake College school anthem"
-            onLoadedMetadata={() => setAudioStatus('ready')}
+            autoPlay
+            preload="auto"
+            onLoadedMetadata={(event) => {
+              setDuration(event.currentTarget.duration);
+              setAudioStatus('ready');
+            }}
+            onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
             onError={() => setAudioStatus('missing')}
-            style={{ display: audioStatus === 'ready' ? 'block' : 'none' }}
           />
-          {audioStatus !== 'ready' && (
-            <p role="status" className="life-detail-anthem-placeholder">
-              {audioStatus === 'loading' ? 'Checking for the anthem recording…' : 'The anthem recording will be available soon.'}
-            </p>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
+            <button type="button" onClick={togglePlayback} disabled={audioStatus === 'missing'} aria-label={isPlaying ? 'Pause anthem' : 'Play anthem'} style={{ cursor: 'pointer', border: '1px solid currentColor', borderRadius: '999px', padding: '8px', width: '38px', height: '38px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', color: '#8B1E1E' }}>
+              {isPlaying ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5a1 1 0 0 1 1.52-.85l10 6.5a1 1 0 0 1 0 1.7l-10 6.5A1 1 0 0 1 8 18.5z"/></svg>
+              )}
+            </button>
+            <input type="range" min="0" max={duration || 1} step="0.1" value={currentTime} aria-label="Anthem playback position" onChange={(event) => { if (audioRef.current) audioRef.current.currentTime = Number(event.target.value); }} style={{ flex: 1, minWidth: 0, accentColor: '#8B1E1E' }} />
+            <span style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{formatTime(currentTime)} / {formatTime(duration)}</span>
+          </div>
+          {audioStatus === 'missing' && <p role="status" className="life-detail-anthem-placeholder">Anthem recording could not be loaded. Check public/audio/school-anthem.mp3.</p>}
         </div>
       </div>
     </section>
