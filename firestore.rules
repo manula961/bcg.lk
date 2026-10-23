@@ -17,26 +17,7 @@ service cloud.firestore {
     function validManagedRole(name) {
       return name in ['admin', 'publisher', 'editor', 'auditor'];
     }
-    // The first super_admin is assigned by a trusted console or Admin SDK.
-    // No client may grant super_admin, edit their own role, or change another super_admin.
-    function validRoleProvision(uid) {
-      return uid.matches('^[A-Za-z0-9_-]{1,128}$')
-        && uid != request.auth.uid
-        && request.resource.data.keys().hasOnly(['role','createdAt','createdBy','updatedAt','updatedBy'])
-        && validManagedRole(request.resource.data.role)
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.updatedBy == request.auth.uid;
-    }
-    function validRoleUpdate(uid) {
-      return uid != request.auth.uid
-        && resource.data.role != 'super_admin'
-        && validManagedRole(request.resource.data.role)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role','updatedAt','updatedBy'])
-        && request.resource.data.updatedAt == request.time
-        && request.resource.data.updatedBy == request.auth.uid;
-    }
+    // All super_admin provisioning is a trusted server/console operation.
     function editorDraftUpdateOnly() {
       return resource.data.published == false
         && request.resource.data.published == false
@@ -148,48 +129,17 @@ service cloud.firestore {
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
         );
     }
-    // Client append-only log: trusted Admin SDK changes need separate audit coverage.
+    // Role mutations are performed only by the trusted Admin API with an atomic
+    // Firestore commit of the role document and immutable roleAudit document.
+    // Firebase Admin/server credentials bypass these client security rules.
     match /roleAudit/{eventId} {
       allow get, list: if isSuperAdmin();
-      allow create: if isSuperAdmin()
-        && request.resource.data.keys().hasAll(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
-        && request.resource.data.keys().hasOnly(['actorUid','targetUid','action','beforeRole','afterRole','createdAt'])
-        && request.resource.data.actorUid == request.auth.uid
-        && request.resource.data.targetUid is string
-        && request.resource.data.targetUid.matches('^[A-Za-z0-9_-]{1,128}$')
-        && request.resource.data.targetUid != request.auth.uid
-        && request.resource.data.action in ['grant','change','revoke']
-        && (request.resource.data.beforeRole == null || validManagedRole(request.resource.data.beforeRole))
-        && (request.resource.data.afterRole == null || validManagedRole(request.resource.data.afterRole))
-        && request.resource.data.createdAt == request.time
-        // Require the audit entry to reflect the same transaction's before/after role.
-        && (
-          (request.resource.data.action == 'grant'
-            && request.resource.data.beforeRole == null
-            && !exists(/databases/$(database)/documents/admins/$(request.resource.data.targetUid))
-            && existsAfter(/databases/$(database)/documents/admins/$(request.resource.data.targetUid))
-            && getAfter(/databases/$(database)/documents/admins/$(request.resource.data.targetUid)).data.role == request.resource.data.afterRole)
-          || (request.resource.data.action == 'change'
-            && exists(/databases/$(database)/documents/admins/$(request.resource.data.targetUid))
-            && get(/databases/$(database)/documents/admins/$(request.resource.data.targetUid)).data.role == request.resource.data.beforeRole
-            && request.resource.data.beforeRole != request.resource.data.afterRole
-            && existsAfter(/databases/$(database)/documents/admins/$(request.resource.data.targetUid))
-            && getAfter(/databases/$(database)/documents/admins/$(request.resource.data.targetUid)).data.role == request.resource.data.afterRole)
-          || (request.resource.data.action == 'revoke'
-            && exists(/databases/$(database)/documents/admins/$(request.resource.data.targetUid))
-            && get(/databases/$(database)/documents/admins/$(request.resource.data.targetUid)).data.role == request.resource.data.beforeRole
-            && request.resource.data.afterRole == null
-            && !existsAfter(/databases/$(database)/documents/admins/$(request.resource.data.targetUid)))
-        );
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
     match /admins/{uid} {
       allow get: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
       allow list: if isSuperAdmin();
-      allow create: if isSuperAdmin() && validRoleProvision(uid);
-      allow update: if isSuperAdmin() && validRoleUpdate(uid);
-      allow delete: if isSuperAdmin() && uid != request.auth.uid
-        && resource.data.role != 'super_admin';
+      allow create, update, delete: if false;
     }
     match /{collectionName}/{id} {
       allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
