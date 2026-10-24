@@ -8,14 +8,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-const collections = {
-  news: ['title', 'excerpt'],
-  events: ['title', 'eventDate', 'location', 'description'],
-  pages: ['title', 'slug', 'body'],
-  societies: ['title', 'description'],
-  sports: ['title', 'description'],
-  leadership: ['title', 'role'],
-};
+import { CMS_REQUIRED_FIELDS, validateCmsRecord } from './firestore-record-validation.mjs';
 const project = process.env.FIREBASE_PROJECT_ID || '';
 const token = process.env.FIREBASE_AUDIT_ACCESS_TOKEN || '';
 const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || '';
@@ -32,43 +25,8 @@ async function getJson(url) {
   if (!response.ok) throw new Error('Read-only Firebase API request rejected (HTTP ' + response.status + '). Check IAM permissions.');
   return response.json();
 }
-const field = (fields, key) => fields?.[key];
-const value = entry => {
-  if (!entry) return undefined;
-  if ('stringValue' in entry) return entry.stringValue;
-  if ('booleanValue' in entry) return entry.booleanValue;
-  return undefined;
-};
-const nonempty = value => typeof value === 'string' && value.trim().length > 0;
-function violations(kind, id, fields) {
-  const failures = [];
-  if (value(field(fields, 'published')) !== true &&
-      value(field(fields, 'published')) !== false) failures.push('published must be a boolean');
-  for (const key of collections[kind]) {
-    if (!nonempty(value(field(fields, key)))) failures.push(key + ' must be nonempty');
-  }
-  if (kind === 'pages') {
-    const slug = value(field(fields, 'slug'));
-    if (slug !== id || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug || ''))
-      failures.push('slug must equal the document ID');
-  }
-  if (kind === 'events') {
-    const dateText = value(field(fields, 'eventDate'));
-    if (nonempty(dateText)) {
-      const date = new Date(dateText + 'T00:00:00.000Z');
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText) || !Number.isFinite(date.getTime()) ||
-          date.toISOString().slice(0, 10) !== dateText) failures.push('invalid calendar date');
-    }
-  }
-  for (const key of ['imageUrl', 'websiteUrl']) {
-    const url = value(field(fields, key));
-    if (url && (!/^https:\/\//i.test(url) || /\s|@/.test(url))) failures.push(key + ' must be HTTPS without credentials');
-  }
-  return failures;
-}
-
 const result = {};
-for (const kind of Object.keys(collections)) {
+for (const kind of Object.keys(CMS_REQUIRED_FIELDS)) {
   let count = 0, broken = 0, pageToken;
   const reasons = {};
   do {
@@ -80,7 +38,7 @@ for (const kind of Object.keys(collections)) {
     for (const doc of response.documents || []) {
       ++count;
       const id = decodeURIComponent(doc.name.split('/').pop());
-      const problems = violations(kind, id, doc.fields || {});
+      const problems = validateCmsRecord(kind, id, doc.fields || {});
       if (problems.length) {
         ++broken;
         for (const problem of problems) reasons[problem] = (reasons[problem] || 0) + 1;

@@ -107,9 +107,37 @@ the Vercel build environment. Generated route heads, homepage canonical/
 OpenGraph URL and sitemap then use that origin. Confirm domain redirects,
 Search Console ownership and robots/sitemap responses before reindexing.
 
+The middleware offers metadata-only enrichment for verified published CMS
+record IDs when requested by known indexing/link-preview crawlers. It uses
+anonymous Firestore reads subject to published-only security rules, escapes
+user-controlled text and returns the original SPA on errors or missing
+configuration. It does not reveal draft content or change page visuals.
+Verify crawler HTML on an approved preview and review Firestore read quotas;
+legacy title-based URLs still fall back to client-side metadata.
+
 Dynamic/unpublished CMS pages are deliberately excluded from the static
 sitemap. Real school images, Past Papers permissions and content provenance
 require editorial review; do not invent or automatically publish content.
+
+## Rules #1 and #2 — unmodified UI and preserved Jaliya work
+
+All remediation branches must be based on the current main and must preserve
+every contribution by `JaliyaMaheshakya0529`. Changes to UI components,
+styles, visual assets, animations or responsive design require the owner's
+explicit approval; do not treat a bug report as UI-change permission.
+Run `node scripts/verify-jaliya-preservation.mjs` from a full checkout
+with `origin/main` available; CI checks Rule #2 automatically on PRs and
+fails closed without Jaliya's Git history. Also inspect the branch
+comparison for touched `src/components/`, `src/pages/`,
+`src/admin/`, `public/`, and visual assets before proposing a merge.
+Never revert Jaliya's commits as an expedient way to resolve regressions.
+
+Past Papers requires `pastPapers` in every Firestore CMS write permission
+(create, update, delete) as well as its existing read permission. Validate
+the role matrix with Firestore/Storage emulators; repository rule edits do
+not update deployed Firebase rules. The school anthem needs real HTTP 200
+audio MIME from `/audio/school-anthem.mp3`; a 200 SPA HTML fallback fails
+the release check. Confirm both on an approved staging environment.
 
 ## 6. Go/no-go and rollback
 

@@ -12,6 +12,16 @@ test('release preflight checks route rewrites and preserves current canonical de
   assert.ok(result.warnings.length > 0, 'non-strict checks must not claim Firebase is verified');
 });
 
+test('SPA fallback excludes media paths and keeps dynamic content paths', () => {
+  const fallback = JSON.parse(read('vercel.json')).rewrites.at(-1);
+  const match = new RegExp('^' + fallback.source + '$');
+  for (const path of ['/audio/school-anthem.mp3', '/assets/index.js',
+    '/email-assets/school-logo.png', '/api/admin/users']) {
+    assert.equal(match.test(path), false, path);
+  }
+  assert.equal(match.test('/updates/story'), true);
+});
+
 test('reject invalid canonical origins and demo Firebase production credentials', () => {
   for (const origin of ['http://example.test', 'https://example.test/path',
     'https://example.test/', 'https://user:pass@example.test', 'not-a-url']) {

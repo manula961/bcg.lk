@@ -11,9 +11,24 @@ test('Firebase compatibility audit is read-only and requires explicit local cons
   assert.match(script, /storageRulesVerified/);
   assert.match(script, /method: 'GET'/);
   assert.doesNotMatch(script, /method: '(?:POST|PUT|PATCH|DELETE)'/);
-  for (const kind of ['news','events','pages','societies','sports','leadership'])
-    assert.match(script, new RegExp(kind));
+  assert.match(script, /CMS_REQUIRED_FIELDS/);
+  assert.match(script, /validateCmsRecord/);
+  const schema = read('scripts/firestore-record-validation.mjs');
+  for (const kind of ['news','events','pages','societies','sports','leadership','pastPapers'])
+    assert.match(schema, new RegExp(kind));
 });
+test('Rules #1 and #2 guard UI config and Jaliya-authored files', () => {
+  const ui = read('scripts/verify-no-ui-changes.mjs');
+  const jaliya = read('scripts/verify-jaliya-preservation.mjs');
+  const workflow = read('.github/workflows/backend-checks.yml');
+  assert.match(ui, /tailwind\.config\.js/);
+  assert.match(ui, /navigation/);
+  assert.match(jaliya, /--author=JaliyaMaheshakya0529/);
+  assert.match(jaliya, /--diff-filter=ACMRD/);
+  assert.match(jaliya, /fail closed/);
+  assert.match(workflow, /node scripts\/verify-jaliya-preservation\.mjs/);
+});
+
 test('public Storage downloads do not imply anonymous directory listing', () => {
   const rules = read('storage.rules');
   assert.match(rules, /allow get: if true;/);

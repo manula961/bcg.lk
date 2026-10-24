@@ -11,7 +11,7 @@ production readiness solely from repository tests.
 
 - Frontend: React 19, Vite, Tailwind CSS, GSAP and Lenis, deployed on Vercel.
 - Admin: `/admin`, Firebase Authentication email/password and Firestore `admins/{uid}` role checks.
-- Active Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports` and `leadership`. Extracurricular has been retired from the UI and active collection policies; existing documents are not deleted.
+- Active Firestore CMS collections: `news`, `events`, `pages`, `societies`, `sports`, `leadership` and `pastPapers`. Extracurricular has been retired from the UI and active collection policies; existing documents are not deleted.
 - Public queries only request `published == true` documents. Writes are authorized by Firestore rules, not merely by hidden admin buttons.
 - `storage.rules` permits **direct Firebase Storage writes only to administrators**, avoiding emulator create-on-overwrite ambiguities. Publishers and editors retain image uploads through the role-checked Google Drive `api/drive/*` Vercel functions (when Google Drive is configured), never through client-held Google tokens.
 - Production credentials/environment settings belong to the **existing** Firebase and Vercel projects. The Firebase demo IDs in tests are **local emulators only**.
@@ -55,7 +55,7 @@ GitHub branch protection and mandatory PR reviews must be checked in repository 
 
 **Keep the current Firebase project.** Source-controlled `firestore.rules`/`storage.rules` may differ from deployed rules. Merging code or deploying to Vercel does **not** update Firebase security rules.
 
-The current rules validate required fields on writes; old records missing `title`, boolean `published`, or collection-specific required fields can become uneditable until corrected. A page's `slug` must match its Firestore document ID. First back up all existing CMS collections (including any retired Extracurricular records), then audit the **six active** CMS collections and correct incompatible records through an approved process.
+The current rules validate required fields on writes; old records missing `title`, boolean `published`, or collection-specific required fields can become uneditable until corrected. A page's `slug` must match its Firestore document ID. First back up all existing CMS collections (including any retired Extracurricular records), then audit the **seven active** CMS collections and correct incompatible records through an approved process.
 
 Use `scripts/audit-firestore-readonly.mjs` to check the **existing** Firebase project and compare deployed Firestore rules with the repo source. It can also compare deployed Storage rules when `FIREBASE_STORAGE_BUCKET` is supplied. Use authorized *read-only* Google Cloud access:
 
@@ -80,10 +80,10 @@ This archive export intentionally includes the retired `extracurricular` collect
 ```bash
 gcloud config set project YOUR_EXISTING_FIREBASE_PROJECT_ID
 gcloud firestore export gs://YOUR_PRIVATE_BACKUP_BUCKET/bcg-backup \
-  --collection-ids=news,events,pages,societies,sports,extracurricular,leadership,admins,roleAudit
+  --collection-ids=news,events,pages,societies,sports,extracurricular,leadership,pastPapers,admins,roleAudit,userAudit
 ```
 
-A Firestore export containing `admins` and `roleAudit` preserves the Firestore role records and role-activity documents, but does **not** back up Firebase Authentication user identities, Firebase Storage objects, Google Drive files or every deployment setting. Include those systems in the recovery inventory. Never run a production import/overwrite based only on this example; obtain approval and practice a restore first. Store the Authentication export with encryption and narrow IAM access; take separate inventories/backups of Firebase Storage and publicly shared Drive images. **Practice a restore in a distinct nonproduction Firebase/GCP project** and record a date, successful record counts, roles retained and tested image links before considering recovery verified.
+A Firestore export containing `admins`, `roleAudit`, and `userAudit` preserves Firestore role records and role/user activity documents, but does **not** back up Firebase Authentication user identities, Firebase Storage objects, Google Drive files or every deployment setting. Include those systems in the recovery inventory. Never run a production import/overwrite based only on this example; obtain approval and practice a restore first. Store the Authentication export with encryption and narrow IAM access; take separate inventories/backups of Firebase Storage and publicly shared Drive images. **Practice a restore in a distinct nonproduction Firebase/GCP project** and record a date, successful record counts, roles retained and tested image links before considering recovery verified.
 
 ## 7. Google Drive image uploads
 

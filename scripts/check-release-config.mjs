@@ -22,8 +22,19 @@ export function validateReleaseConfig(env = process.env, strict = false) {
       failures.push('Missing route-specific HTML rewrite for ' + route);
   }
   const fallback = configuration.rewrites?.at(-1);
-  if (!fallback || !fallback.source.includes('(?!api/)') || fallback.destination !== '/index.html')
-    failures.push('SPA fallback must exclude /api/ endpoints');
+  // Static media must not be sent the React HTML entrypoint.
+  try {
+    const match = new RegExp('^' + (fallback?.source || '') + '$');
+    if (fallback?.destination !== '/index.html' ||
+        ['/api/admin/users', '/audio/school-anthem.mp3', '/assets/index.js',
+          '/email-assets/school-logo.png'].some(path => match.test(path)) ||
+        ['/updates/item', '/events/item', '/pages/college', '/admin']
+          .some(path => !match.test(path))) {
+      failures.push('SPA fallback must preserve CMS routes and exclude API/static media');
+    }
+  } catch {
+    failures.push('Invalid SPA rewrite expression');
+  }
   const origin = env.BCG_CANONICAL_ORIGIN || 'https://bcglk.devoraid.com';
   try {
     const url = new URL(origin);

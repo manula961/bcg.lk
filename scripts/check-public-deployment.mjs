@@ -41,6 +41,16 @@ for (const logoPath of ['/email-assets/school-logo.png', '/email-assets/computer
   console.log('PASS', logoPath, '200 image/png');
 }
 
+// A 200 HTML fallback is not a working audio asset. Verify MIME without downloading
+// the complete school anthem, and without modifying the existing media component.
+const anthem = await fetch(new URL('/audio/school-anthem.mp3', origin), {
+  method: 'HEAD', redirect: 'manual', signal: AbortSignal.timeout(12000),
+});
+const anthemMime = (anthem.headers.get('content-type') || '').toLowerCase();
+if (anthem.status !== 200 || !/^audio\/(?:mpeg|mp3)(?:;|$)/.test(anthemMime))
+  throw Error('School anthem must return HTTP 200 audio/mpeg, received ' +
+    anthem.status + ' ' + (anthemMime || '(no Content-Type)'));
+console.log('PASS /audio/school-anthem.mp3 200 audio/mpeg');
 await check('/sitemap.xml', [200]);
 await check('/unknown-audit-route-do-not-create', [404]);
 await check('/api/drive/status', [401]);

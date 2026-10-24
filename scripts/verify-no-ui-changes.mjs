@@ -8,8 +8,8 @@ const changed = git('diff', '--name-only', '--diff-filter=ACMR', 'origin/' + bas
 // Rule #1: reject edits to existing visual source, styles, and static assets.
 // New UI files are reviewed explicitly, rather than implicitly permitted.
 const protectedPath = path =>
-  path === 'index.html' ||
-  /^src\/(?:components|admin|pages)\//.test(path) ||
+  path === 'index.html' || path === 'tailwind.config.js' ||
+  /^src\/(?:components|admin|pages|navigation)\//.test(path) ||
   /^src\/(?:App\.jsx|main\.jsx|index\.css)$/.test(path) ||
   /^public\//.test(path) ||
   /\.(?:css|scss|svg|png|jpe?g|webp|woff2?)$/i.test(path);

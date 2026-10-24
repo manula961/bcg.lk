@@ -144,16 +144,16 @@ service cloud.firestore {
     match /{collectionName}/{id} {
       allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && (canReview() || resource.data.published == true);
-      allow create: if collectionName in ['news','events','pages','societies','sports','leadership']
+      allow create: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && canWriteContent() && validRecord(request.resource.data, collectionName, id)
         && validOwnership(request.resource.data)
         && (canPublishContent() || (request.resource.data.published == false
           && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
-      allow update: if collectionName in ['news','events','pages','societies','sports','leadership']
+      allow update: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && canWriteContent() && validRecord(request.resource.data, collectionName, id)
         && validUpdateOwnership()
         && (canPublishContent() || editorDraftUpdateOnly());
-      allow delete: if collectionName in ['news','events','pages','societies','sports','leadership']
+      allow delete: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && canDeleteContent();
     }
     match /{document=**} { allow read, write: if false; }
