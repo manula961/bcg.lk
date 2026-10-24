@@ -18,6 +18,9 @@ async function check(path, allowed) {
     throw Error(path + ' is missing X-Content-Type-Options: nosniff');
   if (response.headers.get('x-frame-options') !== 'DENY')
     throw Error(path + ' is missing X-Frame-Options: DENY');
+  const hsts = response.headers.get('strict-transport-security') || '';
+  if (!/(?:^|;)\s*max-age=\d+/.test(hsts))
+    throw Error(path + ' is missing HTTPS Strict-Transport-Security max-age');
   if (path === '/admin' && !response.headers.get('x-robots-tag')?.includes('noindex'))
     throw Error('/admin must not be indexed');
   console.log('PASS', path, response.status);

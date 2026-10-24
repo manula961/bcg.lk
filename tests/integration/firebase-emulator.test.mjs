@@ -355,3 +355,19 @@ test('role audit records cannot be forged or changed by client SDK', async () =>
   await assertFails(updateDoc(record, { afterRole: 'admin' }));
   await assertFails(deleteDoc(record));
 });
+
+test('server-owned CMS timestamps cannot be forged with client-controlled dates', async () => {
+  const record = doc(admin.firestore(), 'news/audit-timestamp-integrity');
+  const backdate = new Date('2020-01-01T00:00:00.000Z');
+  await assertFails(setDoc(record, {
+    title: 'Backdated record', excerpt: 'Invalid', published: false, createdAt: backdate,
+  }));
+  await assertSucceeds(setDoc(record, {
+    title: 'Valid record', excerpt: 'Current', published: false,
+    createdAt: serverTimestamp(), updatedAt: serverTimestamp(), publishedAt: null,
+  }));
+  await assertFails(updateDoc(record, { updatedAt: backdate }));
+  await assertFails(updateDoc(record, { createdAt: backdate }));
+  await assertSucceeds(updateDoc(record, { title: 'Legitimate update', updatedAt: serverTimestamp() }));
+  await assertSucceeds(deleteDoc(record));
+});
