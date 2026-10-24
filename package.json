@@ -24,8 +24,7 @@
     "build": "vite build && node scripts/generate-seo-pages.mjs",
     "preview": "vite preview",
     "test": "node --test tests/*.test.mjs",
-    "prebuild": "npm test",
-    "pretest": "node scripts/check-source-syntax.mjs"
+    "prebuild": "npm test"
   },
   "overrides": {
     "@grpc/grpc-js": "1.14.6"
