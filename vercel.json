@@ -29,7 +29,7 @@
       "destination": "/life/leadership/index.html"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/)(?!audio/)(?!assets/)(?!email-assets/).*)",
       "destination": "/index.html"
     }
   ],

@@ -11,8 +11,11 @@ test('Firebase compatibility audit is read-only and requires explicit local cons
   assert.match(script, /storageRulesVerified/);
   assert.match(script, /method: 'GET'/);
   assert.doesNotMatch(script, /method: '(?:POST|PUT|PATCH|DELETE)'/);
-  for (const kind of ['news','events','pages','societies','sports','leadership'])
-    assert.match(script, new RegExp(kind));
+  assert.match(script, /CMS_REQUIRED_FIELDS/);
+  assert.match(script, /validateCmsRecord/);
+  const schema = read('scripts/firestore-record-validation.mjs');
+  for (const kind of ['news','events','pages','societies','sports','leadership','pastPapers'])
+    assert.match(schema, new RegExp(kind));
 });
 test('public Storage downloads do not imply anonymous directory listing', () => {
   const rules = read('storage.rules');

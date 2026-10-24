@@ -29,6 +29,20 @@ test('the school anthem remains reachable without opening arbitrary audio routes
   assert.equal(isKnownRoute('/audio/../private.mp3'), false);
 });
 
+test('Vercel rewrites keep static media paths out of the SPA fallback', () => {
+  const config = JSON.parse(read('vercel.json'));
+  const fallback = config.rewrites.at(-1);
+  assert.equal(fallback.destination, '/index.html');
+  const match = new RegExp('^' + fallback.source + '$');
+  for (const path of ['/api/admin/users', '/audio/school-anthem.mp3',
+    '/assets/index.js', '/email-assets/school-logo.png']) {
+    assert.equal(match.test(path), false, path);
+  }
+  for (const path of ['/updates/abc123', '/events/abc123', '/pages/about-college', '/admin']) {
+    assert.equal(match.test(path), true, path);
+  }
+});
+
 test('public sitemap and robots entries are consistent and admin excluded', () => {
   const sitemap = read('public/sitemap.xml');
   const robots = read('public/robots.txt');
