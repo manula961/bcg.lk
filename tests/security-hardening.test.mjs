@@ -108,3 +108,31 @@ test('crawler guard coalesces concurrent reads without caching old publication d
   assert.equal(results[0].status, 200);
   assert.equal(results[1].status, 200);
 });
+
+test('destructive Drive cleanup requires administrator role rather than editor media upload', async () => {
+  const { requireAdmin } = await import('../api/_lib/drive.mjs');
+  const previousFetch = globalThis.fetch;
+  const previousProject = process.env.FIREBASE_PROJECT_ID;
+  const previousKey = process.env.FIREBASE_WEB_API_KEY;
+  process.env.FIREBASE_PROJECT_ID = 'demo-bcg-audit';
+  process.env.FIREBASE_WEB_API_KEY = 'fake-test-key';
+  let role = 'editor';
+  try {
+    globalThis.fetch = async url => String(url).includes('identitytoolkit.googleapis.com')
+      ? { ok: true, json: async () => ({ users: [{ localId: 'some-user' }] }) }
+      : { ok: true, json: async () => ({ fields: { role: { stringValue: role } } }) };
+    const req = { headers: { authorization: 'Bearer mock.firebase.token' } };
+    assert.equal(await requireAdmin(req), 'some-user');
+    await assert.rejects(() => requireAdmin(req, 'media.delete'), { status: 403 });
+    role = 'publisher';
+    await assert.rejects(() => requireAdmin(req, 'media.delete'), { status: 403 });
+    role = 'admin';
+    assert.equal(await requireAdmin(req, 'media.delete'), 'some-user');
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousProject === undefined) delete process.env.FIREBASE_PROJECT_ID;
+    else process.env.FIREBASE_PROJECT_ID = previousProject;
+    if (previousKey === undefined) delete process.env.FIREBASE_WEB_API_KEY;
+    else process.env.FIREBASE_WEB_API_KEY = previousKey;
+  }
+});

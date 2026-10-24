@@ -62,7 +62,7 @@ export function requireSameOrigin(req) {
   const trusted = new URL(process.env.GOOGLE_OAUTH_REDIRECT_URI || 'https://invalid.example').origin;
   if (origin !== trusted) throw Object.assign(new Error('Origin not permitted'),{status:403});
 }
-export async function requireAdmin(req) {
+export async function requireAdmin(req, permission = 'media.upload') {
   const match = /^Bearer ([A-Za-z0-9._-]+)$/.exec(req.headers.authorization || '');
   if (!match) throw Object.assign(new Error('Sign in to the admin panel first'),{status:401});
   const apiKey = process.env.FIREBASE_WEB_API_KEY || process.env.VITE_FIREBASE_API_KEY;
@@ -85,8 +85,10 @@ export async function requireAdmin(req) {
   if (!roleResponse.ok) throw Object.assign(new Error('Administrator access required'),{status:403});
   const record = await roleResponse.json();
   // The role document is looked up using the verified Firebase UID only.
-  if (!hasPermission(record?.fields?.role?.stringValue, 'media.upload'))
-    throw Object.assign(new Error('Media-upload role required'), { status: 403 });
+  const currentRole = record?.fields?.role?.stringValue;
+  if (!hasPermission(record?.fields?.role?.stringValue, 'media.upload') ||
+      (permission === 'media.delete' && !['admin', 'super_admin'].includes(currentRole)))
+    throw Object.assign(new Error('Insufficient media privileges'), { status: 403 });
   return uid;
 }
 export function verifySession(req, uid) {

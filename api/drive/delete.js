@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   try {
     if (!configured()) throw new Error('Google Drive is not configured');
     requireSameOrigin(req);
-    const uid = await requireAdmin(req);
+    const uid = await requireAdmin(req, 'media.delete');
     const session = verifySession(req, uid);
     const body = req.body;
     if (!body || typeof body !== 'object' || Array.isArray(body) ||
