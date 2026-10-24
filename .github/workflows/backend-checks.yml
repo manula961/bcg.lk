@@ -31,7 +31,7 @@ jobs:
               *.mjs) node --check "$file" ;;
               *.js) node --check --input-type=module < "$file" ;;
             esac
-          done < <(find api scripts src/lib -type f \\( -name '*.js' -o -name '*.mjs' \\) -print0)
+          done < <(find api scripts src/lib -type f -name '*.mjs' -print0; find api scripts src/lib -type f -name '*.js' -print0)
       - name: Confirm no UI files changed
         if: github.event_name == 'pull_request'
         run: node scripts/verify-no-ui-changes.mjs
