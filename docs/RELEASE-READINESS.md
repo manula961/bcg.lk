@@ -117,7 +117,10 @@ All remediation branches must be based on the current main and must preserve
 every contribution by `JaliyaMaheshakya0529`. Changes to UI components,
 styles, visual assets, animations or responsive design require the owner's
 explicit approval; do not treat a bug report as UI-change permission.
-Inspect the branch comparison for touched `src/components/`, `src/pages/`,
+Run `node scripts/verify-jaliya-preservation.mjs` from a full checkout
+with `origin/main` available; CI checks Rule #2 automatically on PRs and
+fails closed without Jaliya's Git history. Also inspect the branch
+comparison for touched `src/components/`, `src/pages/`,
 `src/admin/`, `public/`, and visual assets before proposing a merge.
 Never revert Jaliya's commits as an expedient way to resolve regressions.
 
