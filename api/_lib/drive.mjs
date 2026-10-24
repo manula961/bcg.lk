@@ -4,6 +4,11 @@ import { hasPermission } from '../../src/lib/rbac.mjs';
 export const cookies = { state: 'bcg_drive_oauth', session: 'bcg_drive_session' };
 const maximumBytes = 4 * 1024 * 1024;
 const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const UPSTREAM_TIMEOUT_MS = 12000;
+// Abort stalled Firebase/Google calls and reject redirects that might carry tokens.
+async function upstreamFetch(url, options = {}) {
+  return fetch(url, { ...options, redirect: 'error', signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
+}
 
 export function configured() {
   const names = ['GOOGLE_OAUTH_CLIENT_ID','GOOGLE_OAUTH_CLIENT_SECRET','GOOGLE_OAUTH_REDIRECT_URI','DRIVE_COOKIE_ENCRYPTION_KEY','FIREBASE_PROJECT_ID'];
@@ -57,12 +62,12 @@ export function requireSameOrigin(req) {
   const trusted = new URL(process.env.GOOGLE_OAUTH_REDIRECT_URI || 'https://invalid.example').origin;
   if (origin !== trusted) throw Object.assign(new Error('Origin not permitted'),{status:403});
 }
-export async function requireAdmin(req) {
+export async function requireAdmin(req, permission = 'media.upload') {
   const match = /^Bearer ([A-Za-z0-9._-]+)$/.exec(req.headers.authorization || '');
   if (!match) throw Object.assign(new Error('Sign in to the admin panel first'),{status:401});
   const apiKey = process.env.FIREBASE_WEB_API_KEY || process.env.VITE_FIREBASE_API_KEY;
   if (!apiKey || !process.env.FIREBASE_PROJECT_ID) throw new Error('Firebase API configuration is incomplete');
-  const authResponse = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(apiKey), {
+  const authResponse = await upstreamFetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(apiKey), {
     method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({idToken:match[1]}),
   });
   if (!authResponse.ok) throw Object.assign(new Error('Invalid Firebase session'),{status:401});
@@ -76,12 +81,14 @@ export async function requireAdmin(req) {
   const uid = users[0].localId;
   const project = process.env.FIREBASE_PROJECT_ID;
   const url = 'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(project)+'/databases/(default)/documents/admins/'+encodeURIComponent(uid);
-  const roleResponse = await fetch(url,{headers:{Authorization:'Bearer '+match[1]}});
+  const roleResponse = await upstreamFetch(url,{headers:{Authorization:'Bearer '+match[1]}});
   if (!roleResponse.ok) throw Object.assign(new Error('Administrator access required'),{status:403});
   const record = await roleResponse.json();
   // The role document is looked up using the verified Firebase UID only.
-  if (!hasPermission(record?.fields?.role?.stringValue, 'media.upload'))
-    throw Object.assign(new Error('Media-upload role required'), { status: 403 });
+  const currentRole = record?.fields?.role?.stringValue;
+  if (!hasPermission(record?.fields?.role?.stringValue, 'media.upload') ||
+      (permission === 'media.delete' && !['admin', 'super_admin'].includes(currentRole)))
+    throw Object.assign(new Error('Insufficient media privileges'), { status: 403 });
   return uid;
 }
 export function verifySession(req, uid) {
@@ -140,7 +147,7 @@ export async function googleToken(params) {
     client_secret:process.env.GOOGLE_OAUTH_CLIENT_SECRET,
     ...params,
   });
-  const response = await fetch('https://oauth2.googleapis.com/token',{
+  const response = await upstreamFetch('https://oauth2.googleapis.com/token',{
     method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form,
   });
   const value=await response.json();
@@ -159,7 +166,7 @@ export async function revokeGoogleAccess(refreshToken) {
   if (typeof refreshToken !== 'string' || !refreshToken) {
     throw Object.assign(new Error('Google Drive is not connected'), { status: 400 });
   }
-  const result = await fetch('https://oauth2.googleapis.com/revoke', {
+  const result = await upstreamFetch('https://oauth2.googleapis.com/revoke', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ token: refreshToken }),
@@ -199,24 +206,24 @@ export async function readImage(req) {
 }
 export async function driveUpload(token,file) {
   const boundary='bcg_'+randomBytes(12).toString('hex');
-  const metadata={name:file.name,mimeType:file.type};
+  const metadata={name:file.name,mimeType:file.type,appProperties:{bcgManaged:'1'}};
   if(process.env.GOOGLE_DRIVE_FOLDER_ID) metadata.parents=[process.env.GOOGLE_DRIVE_FOLDER_ID];
   const payload=Buffer.concat([
     Buffer.from('--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(metadata)+'\r\n--'+boundary+'\r\nContent-Type: '+file.type+'\r\n\r\n'),
     file.bytes,Buffer.from('\r\n--'+boundary+'--'),
   ]);
-  const response=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,mimeType',{
+  const response=await upstreamFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,mimeType',{
     method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'multipart/related; boundary='+boundary},body:payload,
   });
   if(!response.ok) throw Error('Drive upload rejected ('+response.status+')');
   const created=await response.json();
   if(!/^[a-zA-Z0-9_-]{10,}$/.test(created.id||'')) throw Error('Drive did not return a file ID');
-  const permissions=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id)+'/permissions',{
+  const permissions=await upstreamFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id)+'/permissions',{
     method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify({type:'anyone',role:'reader'}),
   });
   if(!permissions.ok) {
-    await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id),{
+    await upstreamFetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id),{
       method:'DELETE',headers:{Authorization:'Bearer '+token},
     }).catch(()=>{});
     throw Error('Google Drive public image permission was rejected ('+permissions.status+')');
@@ -236,4 +243,31 @@ export async function readPdf(req) {
 export async function driveUploadPaper(token,file) {
   const uploaded=await driveUpload(token,file);
   return {id:uploaded.id,url:'https://drive.google.com/file/d/'+encodeURIComponent(uploaded.id)+'/view'};
+}
+
+/** Delete only this OAuth app's marked, generated public uploads on explicit request.
+ * Never delete arbitrary files from the connected school Drive account.
+ * CMS record deletion remains separate until an owner approves a media lifecycle policy.
+ */
+export async function deleteManagedDriveFile(token, fileId) {
+  if (typeof fileId !== 'string' || !/^[A-Za-z0-9_-]{10,128}$/.test(fileId)) {
+    throw Object.assign(new Error('Invalid managed Drive file ID'), { status: 400 });
+  }
+  const fileUrl = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId);
+  const lookup = await upstreamFetch(fileUrl + '?fields=id,name,mimeType,trashed,appProperties', {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  if (!lookup.ok) throw Object.assign(new Error('Drive file could not be verified'), { status: 403 });
+  const item = await lookup.json();
+  if (item.id !== fileId || item.trashed === true || item.appProperties?.bcgManaged !== '1' ||
+      !/^bcg-(?:past-paper-)?[0-9a-f-]{36}\.(?:jpg|png|webp|gif|pdf)$/.test(item.name || '') ||
+      !['image/jpeg','image/png','image/webp','image/gif','application/pdf'].includes(item.mimeType)) {
+    throw Object.assign(new Error('This is not an app-managed media file'), { status: 403 });
+  }
+  const deletion = await upstreamFetch(fileUrl, {
+    method: 'DELETE', headers: { Authorization: 'Bearer ' + token },
+  });
+  if (deletion.status !== 204 && !deletion.ok)
+    throw new Error('Google Drive did not confirm media deletion');
+  return { deleted: true, fileId };
 }

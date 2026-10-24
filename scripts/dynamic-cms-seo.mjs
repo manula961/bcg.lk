@@ -5,6 +5,23 @@
  */
 const defaultOrigin = 'https://bcglk.devoraid.com';
 const botAgent = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i;
+// Per-isolate pressure guard: coalesce concurrent reads of one public record and
+// cap unique in-flight Firestore reads. No published metadata is cached after a
+// read resolves, so unpublication cannot leave stale metadata in this layer.
+const MAX_PARALLEL_METADATA_READS = 12;
+let activeMetadataReads = 0;
+const pendingMetadata = new Map();
+function boundedMetadataRead(key, work) {
+  if (pendingMetadata.has(key)) return pendingMetadata.get(key);
+  if (activeMetadataReads >= MAX_PARALLEL_METADATA_READS) return Promise.resolve(null);
+  activeMetadataReads++;
+  const promise = Promise.resolve().then(work).finally(() => {
+    activeMetadataReads--;
+    pendingMetadata.delete(key);
+  });
+  pendingMetadata.set(key, promise);
+  return promise;
+}
 
 export function isMetadataCrawler(userAgent) {
   return typeof userAgent === 'string' && botAgent.test(userAgent);
@@ -92,11 +109,13 @@ export async function publishedCmsResponse(request, {
       encodeURIComponent(project) + '/databases/(default)/documents/' +
       match.collection + '/' + encodeURIComponent(match.id));
     endpoint.searchParams.set('key', apiKey);
-    const docResponse = await fetcher(endpoint, {
-      method: 'GET', redirect: 'error', signal: AbortSignal.timeout(3500),
+    const document = await boundedMetadataRead(project + '/' + match.collection + '/' + match.id, async () => {
+      const docResponse = await fetcher(endpoint, {
+        method: 'GET', redirect: 'error', signal: AbortSignal.timeout(3500),
+      });
+      return docResponse.ok ? docResponse.json() : null;
     });
-    if (!docResponse.ok) return undefined;
-    const document = await docResponse.json();
+    if (!document) return undefined;
     const metadata = publishedMetadata(document, match.collection);
     if (!metadata) return undefined;
 
