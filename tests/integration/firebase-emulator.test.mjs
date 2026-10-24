@@ -14,6 +14,7 @@ const sample = {
   societies: { title: 'New', description: 'Society details', published: false },
   sports: { title: 'New', description: 'Sport details', published: false },
   leadership: { title: 'New', role: 'Principal', published: false },
+  pastPapers: { title: 'New', exam: 'Grade 10', subject: 'Mathematics', year: '2025', language: 'English', term: 'First', url: 'https://example.org/paper.pdf', published: false },
 };
 
 let environment;
@@ -52,7 +53,7 @@ before(async () => {
     await setDoc(doc(context.firestore(), 'news/draft-news'), {
       title: 'Draft', excerpt: 'Private', category: 'News', published: false,
     });
-    for (const name of ['events', 'pages', 'societies', 'sports', 'leadership']) {
+    for (const name of ['events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers']) {
       await setDoc(doc(context.firestore(), name + '/public-item'), { title: 'Public', published: true });
       await setDoc(doc(context.firestore(), name + '/draft-item'), { title: 'Private', published: false });
     }
@@ -69,7 +70,7 @@ test('only owner can inspect their admin document; nobody can promote themselves
 });
 
 test('public reads are published-only, and unrestricted queries are rejected', async () => {
-  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers']) {
     const publishedId = name === 'news' ? 'published-news' : 'public-item';
     const draftId = name === 'news' ? 'draft-news' : 'draft-item';
     await assertSucceeds(getDoc(doc(visitor.firestore(), name, publishedId)));
@@ -83,7 +84,7 @@ test('public reads are published-only, and unrestricted queries are rejected', a
 });
 
 test('non-admin writes fail; administrator can create, edit, publish, unpublish, delete', async () => {
-  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
+  for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers']) {
     const id = 'integration-' + name;
     const record = doc(admin.firestore(), name, id);
     await assertFails(setDoc(doc(visitor.firestore(), name, id), { title: 'Unauthorized', published: true }));
@@ -98,6 +99,21 @@ test('non-admin writes fail; administrator can create, edit, publish, unpublish,
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
     await assertSucceeds(deleteDoc(record));
   }
+});
+
+test('past papers enforce valid metadata, HTTPS links, and editor/publisher roles', async () => {
+  const db = admin.firestore();
+  const invalid = doc(db, 'pastPapers/invalid-metadata');
+  await assertFails(setDoc(invalid, { ...sample.pastPapers, year: '202X' }));
+  await assertFails(setDoc(invalid, { ...sample.pastPapers, language: 'French' }));
+  await assertFails(setDoc(invalid, { ...sample.pastPapers, url: 'http://example.org/paper.pdf' }));
+  const draft = doc(editor.firestore(), 'pastPapers/editor-draft');
+  await assertSucceeds(setDoc(draft, sample.pastPapers));
+  await assertSucceeds(updateDoc(draft, { subject: 'Science' }));
+  await assertFails(updateDoc(draft, { published: true }));
+  await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true }));
+  await assertFails(deleteDoc(doc(publisher.firestore(), 'pastPapers/editor-draft')));
+  await assertSucceeds(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
 });
 
 test('retired Extracurricular collection is not accessible to clients', async () => {
@@ -200,7 +216,7 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
     const required = {
       news: ['excerpt'], events: ['description','eventDate','location'],
       pages: ['slug','body'], societies: ['description'], sports: ['description'],
-      leadership: ['role'],
+      leadership: ['role'], pastPapers: ['exam', 'subject', 'year', 'language', 'url'],
     }[name];
     for (const key of required) {
       await assertFails(setDoc(invalid('missing-'+key), Object.fromEntries(

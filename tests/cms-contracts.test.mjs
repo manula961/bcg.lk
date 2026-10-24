@@ -12,7 +12,7 @@ test('public CMS subscriptions restrict queries to published content', () => {
 });
 
 test('active CMS services expose their public and admin operations', () => {
-  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society'], ['sports', 'Sport'], ['leadership', 'Leader']]) {
+  for (const [name, singular] of [['news', 'News'], ['events', 'Event'], ['pages', 'Page'], ['societies', 'Society'], ['sports', 'Sport'], ['leadership', 'Leader'], ['pastPapers', 'PastPaper']]) {
     const service = source('src/lib/' + name + 'Service.js');
     assert.match(service, new RegExp("createContentRepository\\('" + name + "'"));
     for (const action of ['create', 'update', 'delete']) {
@@ -42,6 +42,8 @@ test('admin CMS uses the shared services for active collections', () => {
   assert.match(manager, /subscribeAdminSocieties/);
   assert.match(manager, /subscribeAdminSports/);
   assert.match(manager, /subscribeAdminLeadership/);
+  assert.ok(manager.includes("from '../lib/pastPapersService'"));
+  assert.match(manager, /subscribeAdminPastPapers/);
   assert.doesNotMatch(manager, /subscribeAdminExtracurricular|extracurricularService/);
   assert.doesNotMatch(source('src/admin/AdminDashboard.jsx'), /extracurricular/i);
   assert.doesNotMatch(source('src/pages/life/components/ContentDirectory.jsx'), /extracurricular/i);

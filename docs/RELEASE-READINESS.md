@@ -111,6 +111,23 @@ Dynamic/unpublished CMS pages are deliberately excluded from the static
 sitemap. Real school images, Past Papers permissions and content provenance
 require editorial review; do not invent or automatically publish content.
 
+## Rules #1 and #2 — unmodified UI and preserved Jaliya work
+
+All remediation branches must be based on the current main and must preserve
+every contribution by `JaliyaMaheshakya0529`. Changes to UI components,
+styles, visual assets, animations or responsive design require the owner's
+explicit approval; do not treat a bug report as UI-change permission.
+Inspect the branch comparison for touched `src/components/`, `src/pages/`,
+`src/admin/`, `public/`, and visual assets before proposing a merge.
+Never revert Jaliya's commits as an expedient way to resolve regressions.
+
+Past Papers requires `pastPapers` in every Firestore CMS write permission
+(create, update, delete) as well as its existing read permission. Validate
+the role matrix with Firestore/Storage emulators; repository rule edits do
+not update deployed Firebase rules. The school anthem needs real HTTP 200
+audio MIME from `/audio/school-anthem.mp3`; a 200 SPA HTML fallback fails
+the release check. Confirm both on an approved staging environment.
+
 ## 6. Go/no-go and rollback
 
 Require green latest-SHA CI, independent approval, matching immutable

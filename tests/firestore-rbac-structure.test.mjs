@@ -18,6 +18,16 @@ test('past-paper year and language schema remains complete', () => {
   assert.match(rules, /data\.language in \['Sinhala','Tamil','English'\]/);
 });
 
+test('every CMS collection is authorized consistently for reads and writes', () => {
+  const expected = ['news', 'events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers'];
+  for (const action of ['get, list', 'create', 'update', 'delete']) {
+    const match = rules.match(new RegExp('allow ' + action + ': if collectionName in \\[([^\\]]+)\\]'));
+    assert.ok(match, 'Missing collection policy for ' + action);
+    const collections = [...match[1].matchAll(/'([^']+)'/g)].map(part => part[1]);
+    assert.deepEqual(collections, expected, 'Mismatched CMS collections for ' + action);
+  }
+});
+
 test('client SDK cannot modify roles or forge role-audit history', () => {
   assert.match(rules, /match \/admins\/\{uid\}/);
   assert.match(rules, /match \/roleAudit\/\{eventId\}/);

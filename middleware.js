@@ -11,6 +11,9 @@ const publicRoutes = new Set([
 export function isKnownRoute(path) {
   const normalized = path.length > 1 ? path.replace(/\/$/, '') : path;
   if (publicRoutes.has(normalized) || normalized === '/admin') return true;
+  // The school anthem is a real static asset, not an unknown SPA route.
+  // Preserve Jaliya's audio component and file without modifying either.
+  if (normalized === '/audio/school-anthem.mp3') return true;
   if (/^\/pages\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized)) return true;
   if (/^\/(?:updates|events)\/[^/]+$/.test(normalized)) return true;
   // Preserve Vercel file handling (assets, robots, sitemap, API endpoints).

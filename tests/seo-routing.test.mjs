@@ -8,13 +8,13 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 test('known static and CMS routes retain the React SPA', () => {
   for (const path of ['/', '/index.html', '/admin', '/events', '/about-us',
     '/life/sports-societies', '/life/leadership', '/past-papers', '/updates/abc123', '/events/abc123',
-    '/pages/about-college', '/assets/index.js', '/email-assets/school-logo.png', '/email-assets/computer-society-logo.png', '/api/drive/upload']) {
+    '/pages/about-college', '/audio/school-anthem.mp3', '/assets/index.js', '/email-assets/school-logo.png', '/email-assets/computer-society-logo.png', '/api/drive/upload']) {
     assert.equal(isKnownRoute(path), true, path);
   }
 });
 test('unrecognized routes do not receive a success status', async () => {
   const { default: middleware } = await import('../middleware.js');
-  for (const path of ['/does-not-exist', '/life/unknown-life-page', '/unknown/route']) {
+  for (const path of ['/does-not-exist', '/life/unknown-life-page', '/unknown/route', '/audio/unknown-track.mp3']) {
     assert.equal(isKnownRoute(path), false, path);
     const res = middleware(new Request('https://example.test' + path));
     assert.equal(res.status, 404, path);
@@ -22,6 +22,13 @@ test('unrecognized routes do not receive a success status', async () => {
     assert.match(await res.text(), /Page not found/);
   }
 });
+test('the school anthem remains reachable without opening arbitrary audio routes', () => {
+  assert.equal(isKnownRoute('/audio/school-anthem.mp3'), true);
+  assert.equal(isKnownRoute('/audio/school-anthem.mp3/'), true);
+  assert.equal(isKnownRoute('/audio/unknown.mp3'), false);
+  assert.equal(isKnownRoute('/audio/../private.mp3'), false);
+});
+
 test('public sitemap and robots entries are consistent and admin excluded', () => {
   const sitemap = read('public/sitemap.xml');
   const robots = read('public/robots.txt');
