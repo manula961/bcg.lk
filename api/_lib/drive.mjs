@@ -258,7 +258,7 @@ export async function deleteManagedDriveFile(token, fileId) {
   if (!lookup.ok) throw Object.assign(new Error('Drive file could not be verified'), { status: 403 });
   const item = await lookup.json();
   if (item.id !== fileId || item.trashed === true || item.appProperties?.bcgManaged !== '1' ||
-      !/^bcg-(?:past-paper-)?[0-9a-f-]{36}\\.(?:jpg|png|webp|gif|pdf)$/.test(item.name || '') ||
+      !/^bcg-(?:past-paper-)?[0-9a-f-]{36}\.(?:jpg|png|webp|gif|pdf)$/.test(item.name || '') ||
       !['image/jpeg','image/png','image/webp','image/gif','application/pdf'].includes(item.mimeType)) {
     throw Object.assign(new Error('This is not an app-managed media file'), { status: 403 });
   }
