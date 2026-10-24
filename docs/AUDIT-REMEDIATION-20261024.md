@@ -15,7 +15,7 @@ Scope: repository `manula961/bcg.lk`, base commit `467f158e7b592ce65e08eae355a97
 3. Firebase/Drive external calls have a 12-second abort deadline and redirect rejection.
 4. Newly uploaded Drive files carry app-specific metadata. An explicit authenticated `POST /api/drive/delete` endpoint accepts `{ "fileId": "..." }` and refuses unmarked/unknown files. This is an **operator-triggered cleanup API only**, not automatic on Firestore record deletion.
 5. Concurrent bot metadata reads for identical documents are deduplicated, with an upper bound on concurrent reads per function instance. No stale published metadata is retained in this guard.
-6. Firestore rules reject forged create timestamps and changed timestamps that do not correspond to request time, while allowing unchanged legacy system fields.
+6. Firestore rules enforce request-time on newly published documents, publish/unpublish transitions, and updates to documents already carrying system timestamps; unstamped legacy drafts remain compatible.
 
 ## Remaining release blockers and limits
 

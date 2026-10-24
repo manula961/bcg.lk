@@ -91,10 +91,10 @@ test('non-admin writes fail; administrator can create, edit, publish, unpublish,
     await assertFails(setDoc(doc(editor.firestore(), name, id), { title: 'Unauthorized', published: true }));
     await assertSucceeds(setDoc(record, sample[name]));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
-    await assertSucceeds(updateDoc(record, { title: 'Edited', published: true }));
+    await assertSucceeds(updateDoc(record, { title: 'Edited', published: true, publishedAt: serverTimestamp() }));
     await assertSucceeds(getDoc(doc(visitor.firestore(), name, id)));
     await assertFails(updateDoc(doc(editor.firestore(), name, id), { published: false }));
-    await assertSucceeds(updateDoc(record, { published: false }));
+    await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
     await assertSucceeds(deleteDoc(record));
@@ -111,7 +111,7 @@ test('past papers enforce valid metadata, HTTPS links, and editor/publisher role
   await assertSucceeds(setDoc(draft, sample.pastPapers));
   await assertSucceeds(updateDoc(draft, { subject: 'Science' }));
   await assertFails(updateDoc(draft, { published: true }));
-  await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true }));
+  await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(doc(publisher.firestore(), 'pastPapers/editor-draft')));
   await assertSucceeds(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
 });
@@ -298,7 +298,7 @@ test('RBAC: editors manage drafts only, publishers can publish but cannot delete
   await assertFails(updateDoc(refEditor, { rank: 7 }));
   await assertFails(updateDoc(refEditor, { publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(refEditor));
-  await assertSucceeds(updateDoc(refPublisher, { published: true }));
+  await assertSucceeds(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
   await assertFails(updateDoc(refEditor, { title: 'Published content changed by editor' }));
   await assertFails(deleteDoc(refPublisher));
   await assertSucceeds(deleteDoc(refAdmin));
@@ -369,5 +369,17 @@ test('server-owned CMS timestamps cannot be forged with client-controlled dates'
   await assertFails(updateDoc(record, { updatedAt: backdate }));
   await assertFails(updateDoc(record, { createdAt: backdate }));
   await assertSucceeds(updateDoc(record, { title: 'Legitimate update', updatedAt: serverTimestamp() }));
+  await assertSucceeds(deleteDoc(record));
+});
+
+test('publication transitions require a trusted server timestamp', async () => {
+  const record = doc(admin.firestore(), 'news/audit-publication-integrity');
+  await assertSucceeds(setDoc(record, {
+    title: 'Unpublished', excerpt: 'Draft', published: false,
+  }));
+  await assertFails(updateDoc(record, { published: true }));
+  await assertSucceeds(updateDoc(record, { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(record, { published: false }));
+  await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
   await assertSucceeds(deleteDoc(record));
 });
