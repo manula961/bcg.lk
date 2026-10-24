@@ -43,6 +43,15 @@ test('Vercel rewrites keep static media paths out of the SPA fallback', () => {
   }
 });
 
+test('crawler metadata responses leave ordinary site navigation unchanged', async () => {
+  const { default: middleware } = await import('../middleware.js');
+  const plain = new Request('https://example.test/updates/AbCdEfGhIjKlMnOpQrSt', {
+    headers: { 'user-agent': 'Mozilla/5.0' },
+  });
+  assert.equal(middleware(plain), undefined);
+  assert.equal(middleware(new Request('https://example.test/robots.txt')), undefined);
+});
+
 test('public sitemap and robots entries are consistent and admin excluded', () => {
   const sitemap = read('public/sitemap.xml');
   const robots = read('public/robots.txt');

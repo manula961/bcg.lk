@@ -107,6 +107,14 @@ the Vercel build environment. Generated route heads, homepage canonical/
 OpenGraph URL and sitemap then use that origin. Confirm domain redirects,
 Search Console ownership and robots/sitemap responses before reindexing.
 
+The middleware offers metadata-only enrichment for verified published CMS
+record IDs when requested by known indexing/link-preview crawlers. It uses
+anonymous Firestore reads subject to published-only security rules, escapes
+user-controlled text and returns the original SPA on errors or missing
+configuration. It does not reveal draft content or change page visuals.
+Verify crawler HTML on an approved preview and review Firestore read quotas;
+legacy title-based URLs still fall back to client-side metadata.
+
 Dynamic/unpublished CMS pages are deliberately excluded from the static
 sitemap. Real school images, Past Papers permissions and content provenance
 require editorial review; do not invent or automatically publish content.
