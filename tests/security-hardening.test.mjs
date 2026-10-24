@@ -65,11 +65,11 @@ test('Drive refuses old/unmarked files, lookalikes and invalid IDs before deleti
   } finally { globalThis.fetch = before; }
 });
 
-test('CMS subscription exceptions are reported through the existing error callback', () => {
-  const code = source('src/lib/contentRepository.js');
-  assert.match(code, /const listenSafely = \(start, handleError\)/);
-  assert.match(code, /queueMicrotask\(\(\) => handleError\(error\)\)/);
-  assert.match(code, /listenSafely\(\(\) => onSnapshot\(publishedQuery\(\)/);
+test('Past Papers subscription setup errors preserve the existing UI error callback', () => {
+  const code = source('src/lib/pastPapersService.js');
+  assert.match(code, /try \{ return papers\.subscribePublished\(callback,onError\)/);
+  assert.match(code, /queueMicrotask\(\(\)=>onError\(error\)\)/);
+  assert.match(code, /return \(\)=>\{\}/);
 });
 
 test('Firestore prevents inserted or modified timestamps from being backdated', () => {

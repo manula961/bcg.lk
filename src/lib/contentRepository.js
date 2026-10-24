@@ -162,17 +162,6 @@ export function createContentRepository(name, fields, options = {}) {
   const onError = callback => error => {
     if (typeof callback === 'function') callback(error);
   };
-  // Firebase initialization/query failures may throw before an onSnapshot listener
-  // exists. Report those through the same async error callback and return a
-  // harmless unsubscribe, so public pages can show their existing error state.
-  const listenSafely = (start, handleError) => {
-    try { return start(); }
-    catch (error) {
-      if (typeof handleError !== 'function') throw error;
-      queueMicrotask(() => handleError(error));
-      return () => {};
-    }
-  };
 
   return Object.freeze({
     async listPublished() {
@@ -180,15 +169,15 @@ export function createContentRepository(name, fields, options = {}) {
     },
     subscribePublished(callback, handleError) {
       if (typeof callback !== 'function') throw new TypeError('callback is required.');
-      return listenSafely(() => onSnapshot(publishedQuery(), snapshot => callback(documents(snapshot, true)), onError(handleError)), handleError);
+      return onSnapshot(publishedQuery(), snapshot => callback(documents(snapshot, true)), onError(handleError));
     },
     // Detail links use Firestore-generated IDs; watch one published document
     // instead of subscribing to the entire published collection.
     subscribePublishedById(id, callback, handleError) {
       if (typeof callback !== 'function') throw new TypeError('callback is required.');
-      return listenSafely(() => onSnapshot(record(id), snapshot => {
+      return onSnapshot(record(id), snapshot => {
         callback(snapshot.exists() && snapshot.data().published === true ? fromSnapshot(snapshot) : null);
-      }, onError(handleError)), handleError);
+      }, onError(handleError));
     },
     async getPublished(id) {
       const snapshot = await getDoc(record(id));
