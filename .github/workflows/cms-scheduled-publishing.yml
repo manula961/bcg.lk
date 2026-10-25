@@ -1,0 +1,47 @@
+name: BCG.LK Scheduled CMS Publishing
+on:
+  schedule:
+    # GitHub scheduled events can run late; the endpoint publishes all due jobs.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bcg-cms-publisher
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CMS_CRON_SECRET: ${{ secrets.CMS_CRON_SECRET }}
+    steps:
+      - name: Require an explicitly configured scheduler secret
+        shell: bash
+        run: |
+          if [ -z "${CMS_CRON_SECRET:-}" ]; then
+            echo "::error::Configure matching CMS_CRON_SECRET in Vercel production and GitHub Actions secrets."
+            exit 1
+          fi
+      - name: Publish due approved CMS records
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail --silent --show-error --retry 2 --max-time 35 \
+            --header "Authorization: Bearer ${CMS_CRON_SECRET}" \
+            --header 'Accept: application/json' \
+            'https://bcglk.devoraid.com/api/cron/publish')"
+          RESPONSE="${response}" node -e '
+            const data = JSON.parse(process.env.RESPONSE);
+            for (const key of ["published","stale","skipped","scanned"]) {
+              if (!Number.isSafeInteger(data[key]) || data[key] < 0) throw Error("Invalid scheduler response");
+            }
+            console.log("CMS publishing:", JSON.stringify({
+              published:data.published, stale:data.stale, scanned:data.scanned,
+              truncated:Boolean(data.truncated)
+            }));
+            if (data.truncated) process.exitCode = 1;
+          '
