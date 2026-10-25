@@ -49,6 +49,8 @@ export function validateEdit(kind, patch) {
         value.trim().length > FIELDS[kind][key])
       throw failure(400, 'Invalid or oversized content field.');
     const clean = value.trim();
+    if (({news:['title','excerpt'],events:['title','description','eventDate','location'],pages:['title','body'],societies:['title','description'],sports:['title','description'],leadership:['title','role'],pastPapers:['title','exam','subject','year','language','url']}[kind] || []).includes(key) && !clean)
+      throw failure(400, 'Required content field cannot be empty.');
     if (['imageUrl','websiteUrl','url'].includes(key) && clean) {
       let url;
       try { url = new URL(clean); } catch { throw failure(400, 'Invalid HTTPS URL.'); }
