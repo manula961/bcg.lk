@@ -573,21 +573,7 @@ export default function PastPapersPage() {
                               <circle cx="12" cy="12" r="3" />
                             </svg>
                             View PDF
-                            <svg
-                              width="15"
-                              height="15"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M14 4h6v6" />
-                              <path d="M20 4l-9 9" />
-                              <path d="M20 13v7H4V4h7" />
-                            </svg>
+                            
                           </a>
                         ) : (
                           <span className="papers-broken-link">
