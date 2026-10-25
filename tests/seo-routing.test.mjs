@@ -48,8 +48,8 @@ test('crawler metadata responses leave ordinary site navigation unchanged', asyn
   const plain = new Request('https://example.test/updates/AbCdEfGhIjKlMnOpQrSt', {
     headers: { 'user-agent': 'Mozilla/5.0' },
   });
-  assert.equal(middleware(plain), undefined);
-  assert.equal(middleware(new Request('https://example.test/robots.txt')), undefined);
+  assert.equal(middleware(plain).headers.get('x-middleware-next'), '1');
+  assert.equal(middleware(new Request('https://example.test/robots.txt')).headers.get('x-middleware-next'), '1');
 });
 
 test('public sitemap and robots entries are consistent and admin excluded', () => {

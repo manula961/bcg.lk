@@ -24,7 +24,7 @@ test('unknown routes return an empty 404 HEAD response, without intercepting API
   assert.equal(head.status, 404);
   assert.equal(head.headers.get('cache-control'), 'no-store');
   assert.equal(await head.text(), '');
-  assert.equal(middleware(new Request('https://bcglk.devoraid.com/api/drive/status')), undefined);
+  assert.equal(middleware(new Request('https://bcglk.devoraid.com/api/drive/status')).headers.get('x-middleware-next'), '1');
 });
 
 test('unknown dotted root assets cannot become successful SPA routes', () => {
