@@ -131,6 +131,7 @@ const MenuBar = () => {
                 key={item.label}
                 onClick={() => handleNav(item)}
                 className="menu-nav-item"
+                style={{ '--item-index': i }}
                 aria-current={isHomePath(window.location.pathname) && activeSection === item.href ? 'location' : undefined}
               >
                 <span className="menu-num">0{i + 1}</span>
