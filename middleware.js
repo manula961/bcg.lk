@@ -19,8 +19,7 @@ export function isKnownRoute(path) {
   if (/^\/pages\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized)) return true;
   if (/^\/(?:updates|events)\/[^/]+$/.test(normalized)) return true;
   // Preserve Vercel file handling (assets, robots, sitemap, API endpoints).
-  if (normalized.startsWith('/api/') ||
-      normalized.startsWith('/assets/') ||
+  if (normalized.startsWith('/api/') || normalized.startsWith('/assets/') ||
       normalized.startsWith('/email-assets/')) return true;
   // Recognize only shipped root assets; nonexistent dotted paths must be HTTP 404.
   if (['/robots.txt', '/sitemap.xml', '/sinhala-text.svg'].includes(normalized)) return true;
