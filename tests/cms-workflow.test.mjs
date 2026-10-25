@@ -42,3 +42,10 @@ test('error responses redact infrastructure errors and retain safe validation er
   assert.deepEqual(responseError(new Error('secret=do-not-expose')),{status:502,message:'Workflow service is unavailable.'});
   assert.deepEqual(responseError(Object.assign(new Error('Invalid request'),{status:400})),{status:400,message:'Invalid request'});
 });
+
+test('privileged workflow rejects empty required content fields',()=>{
+  const required={news:['title','excerpt'],events:['title','description','eventDate','location'],pages:['title','body'],societies:['title','description'],sports:['title','description'],leadership:['title','role'],pastPapers:['title','exam','subject','year','language','url']};
+  for(const [kind,keys] of Object.entries(required)) for(const key of keys)
+    assert.throws(()=>validateEdit(kind,{[key]:'  '}),{status:400},`${kind}.${key}`);
+  assert.deepEqual(validateEdit('news',{body:''}),{body:{stringValue:''}});
+});
