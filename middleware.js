@@ -26,7 +26,13 @@ export function isKnownRoute(path) {
   return false;
 }
 
-// Explicit pass-through response: returning undefined causes Vercel's routing\n// middleware to fail at request time, even when the deployment is READY.\nfunction continueRouting() {\n  return new Response(null, { headers: { 'x-middleware-next': '1' } });\n}\n\nexport default function middleware(request) {
+// Explicit pass-through response: returning undefined causes Vercel's routing
+// middleware to fail at request time, even when the deployment is READY.
+function continueRouting() {
+  return new Response(null, { headers: { 'x-middleware-next': '1' } });
+}
+
+export default function middleware(request) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return continueRouting();
   const path = new URL(request.url).pathname;
   if (isKnownRoute(path)) {
