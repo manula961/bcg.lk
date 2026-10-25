@@ -18,7 +18,7 @@ test('Sports and Societies directory remains in its canonical Life page', () => 
 
 test('Rule #1 still protects every public Life detail component', () => {
   const guard = read('scripts/verify-no-ui-changes.mjs');
-  assert.match(guard, /\^src\\\/\(\?:components\|admin\|pages\|navigation\)/);
+  assert.match(guard, /src\\\/\\\(\\\?:components\\\|admin\\\|pages\\\|navigation\\\|assets/);
   assert.match(guard, /tailwind\.config\.js/);
   assert.match(guard, /protectedPath/);
   assert.match(guard, /unapproved protected UI deletion/);
