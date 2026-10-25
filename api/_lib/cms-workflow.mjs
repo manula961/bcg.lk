@@ -394,8 +394,10 @@ export async function workflowAction(body,actor) {
       throw failure(409,'Revision snapshot is invalid.');
     const after = updatedContent(existing,at,actor.uid,{
       ...snapshot,published:fbool(false),publishedAt:{nullValue:null},
-      createdAt:existing.fields.createdAt || snapshot.createdAt,
-      createdBy:existing.fields.createdBy || snapshot.createdBy,
+      ...(existing.fields.createdAt || snapshot.createdAt
+        ? {createdAt:existing.fields.createdAt || snapshot.createdAt} : {}),
+      ...(existing.fields.createdBy || snapshot.createdBy
+        ? {createdBy:existing.fields.createdBy || snapshot.createdBy} : {}),
     });
     validateCmsRecord(kind,id,after);
     writes.push(change(path,existing,after));
