@@ -1,5 +1,5 @@
-import { configured,requireMethod,checkOAuthState,googleToken,googleRedirect,seal,setCookie,clearCookie,cookies } from '../_lib/drive.mjs';
 export default async function handler(req,res) {
+  const { configured,requireMethod,checkOAuthState,googleToken,googleRedirect,seal,setCookie,clearCookie,cookies } = await import('../_lib/drive.mjs');
   if(!requireMethod(req,res,'GET')) return;
   const origin=new URL(process.env.GOOGLE_OAUTH_REDIRECT_URI||'https://invalid.example').origin;
   try {

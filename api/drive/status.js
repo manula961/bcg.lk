@@ -1,5 +1,5 @@
-import { configured,requireMethod,requireAdmin,verifySession,errorReply } from '../_lib/drive.mjs';
-export default async function handler(req,res){
+export default async function handler(req,res) {
+  const { configured,requireMethod,requireAdmin,verifySession,errorReply } = await import('../_lib/drive.mjs');
   if(!requireMethod(req,res,'GET'))return;
   try {
     const uid=await requireAdmin(req);
