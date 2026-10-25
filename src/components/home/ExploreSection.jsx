@@ -7,7 +7,7 @@ const places = [
     title: 'The Main Building',
     subtitle: 'Heritage Architecture',
     desc: 'Built in the colonial era, the main building stands as a testament to the rich history and heritage of Bandaranayake College, Gampaha.',
-    image: 'https://bcg.lk/img/banner1.jpg',
+    image: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1200&q=85',
     tag: '1918',
   },
   {
@@ -15,7 +15,7 @@ const places = [
     title: 'Sports Grounds',
     subtitle: 'Where Champions Train',
     desc: 'World-class sporting facilities including a cricket ground, athletics track, and indoor courts that have produced provincial and national champions.',
-    image: 'https://bcg.lk/img/banner1.jpg',
+    image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&q=85',
     tag: 'Sports',
   },
   {
@@ -23,7 +23,7 @@ const places = [
     title: 'Library & Resource Centre',
     subtitle: 'Knowledge Hub',
     desc: 'A modern library housing thousands of books, digital resources, and quiet study spaces to support academic excellence.',
-    image: 'https://bcg.lk/img/banner1.jpg',
+    image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&q=85',
     tag: 'Academics',
   },
   {
@@ -31,7 +31,7 @@ const places = [
     title: 'Science Laboratories',
     subtitle: 'Innovation & Discovery',
     desc: 'Fully equipped laboratories for Biology, Chemistry, and Physics empowering students to explore, experiment, and excel.',
-    image: 'https://bcg.lk/img/banner1.jpg',
+    image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&q=85',
     tag: 'Science',
   },
 ];
@@ -40,10 +40,7 @@ const ExploreSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  // Campus slides remain still until the visitor explicitly opts into movement.
-  const [userPaused, setUserPaused] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,20 +61,18 @@ const ExploreSection = () => {
   }, []);
 
   useEffect(() => {
-    if (!visible || isPaused || reducedMotion || userPaused) return;
+    if (!visible || reducedMotion) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [visible, isPaused, reducedMotion, userPaused]);
+  }, [visible, reducedMotion]);
 
   return (
     <section
       id="explore"
       ref={sectionRef}
       className="explore-section"
-      onFocus={event => { if (event.target.closest('[role="tab"]')) setIsPaused(true); }}
-      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false); }}
     >
       <div className="section-container">
         <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
@@ -90,10 +85,7 @@ const ExploreSection = () => {
             </div>
           </div>
 
-          <div className="explore-grid"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
+          <div className="explore-grid">
             {/* Tabs List */}
             <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
@@ -103,11 +95,6 @@ const ExploreSection = () => {
                     role="tab"
                     tabIndex={active === i ? 0 : -1}
                     onKeyDown={event => {
-                        if (event.key.toLowerCase() === 'p') {
-                          event.preventDefault();
-                          setUserPaused(value => !value);
-                          return;
-                        }
                       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
                       event.preventDefault();
                       const next = event.key === 'Home' ? 0
