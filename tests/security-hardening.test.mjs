@@ -1,11 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { isKnownRoute } from '../middleware.js';
 import { deleteManagedDriveFile } from '../api/_lib/drive.mjs';
 import { publishedCmsResponse } from '../scripts/dynamic-cms-seo.mjs';
 
 const source = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+
+test('edge middleware parses as ES module, even without a package type declaration', () => {
+  const parsed = spawnSync(process.execPath, ['--check', '--input-type=module'], {
+    input: source('middleware.js'),
+    encoding: 'utf8',
+  });
+  assert.equal(parsed.status, 0, parsed.stderr || parsed.error?.message);
+});
+
+test('unknown routes return an empty 404 HEAD response, without intercepting API paths', async () => {
+  const { default: middleware } = await import('../middleware.js');
+  const head = middleware(new Request('https://bcglk.devoraid.com/unknown-audit-asset.json', {
+    method: 'HEAD',
+  }));
+  assert.equal(head.status, 404);
+  assert.equal(head.headers.get('cache-control'), 'no-store');
+  assert.equal(await head.text(), '');
+  assert.equal(middleware(new Request('https://bcglk.devoraid.com/api/drive/status')), undefined);
+});
 
 test('unknown dotted root assets cannot become successful SPA routes', () => {
   const config = JSON.parse(source('vercel.json'));
