@@ -56,6 +56,15 @@ export function staticSitemap() {
     locations.map(path => '  <url><loc>' + escaped(ORIGIN + path) + '</loc></url>').join('\n') +
     '\n</urlset>\n';
 }
+/** Keep robots.txt sitemap authority aligned with the approved build origin.
+ * This changes only generated metadata, never the public React UI.
+ */
+export function generatedRobotsTxt(source = readFileSync(new URL('../public/robots.txt', import.meta.url), 'utf8')) {
+  const directives = source.match(/^Sitemap:[ \t]*[^\r\n]+$/gmi) || [];
+  if (directives.length !== 1) throw Error('robots.txt must have exactly one Sitemap directive');
+  return source.replace(/^Sitemap:[ \t]*[^\r\n]+$/mi, 'Sitemap: ' + ORIGIN + '/sitemap.xml');
+}
+
 export function generateSeoFiles(directory = 'dist') {
   const output = resolve(directory);
   const template = readFileSync(join(output, 'index.html'), 'utf8');
@@ -74,6 +83,7 @@ export function generateSeoFiles(directory = 'dist') {
     writeFileSync(location, renderStaticSeoHtml(template, route), 'utf8');
   }
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
+  writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
