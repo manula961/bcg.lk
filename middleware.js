@@ -1,4 +1,9 @@
-import { isMetadataCrawler, publishedCmsResponse } from './scripts/dynamic-cms-seo.mjs';
+// Safe static/request pass-through. Rich crawler metadata remains implemented in
+// scripts/dynamic-cms-seo.mjs but is not invoked at the global routing boundary
+// until its runtime compatibility is verified in an isolated staging deployment.
+function continueRequest() {
+  return new Response(null, { headers: { 'x-middleware-next': '1' } });
+}
 
 // Vercel routing middleware: known SPA routes retain the current React app.
 // Unrecognized static paths return an actual 404 instead of SPA HTTP 200.
@@ -27,17 +32,9 @@ export function isKnownRoute(path) {
 }
 
 export default function middleware(request) {
-  if (request.method !== 'GET' && request.method !== 'HEAD') return;
+  if (request.method !== 'GET' && request.method !== 'HEAD') return continueRequest();
   const path = new URL(request.url).pathname;
-  if (isKnownRoute(path)) {
-    // Metadata-only enrichment for indexing and link previews; the React app,
-    // CSS, markup and Jaliya's components remain exactly as before.
-    if (request.method === 'GET' &&
-        isMetadataCrawler(request.headers.get('user-agent'))) {
-      return publishedCmsResponse(request);
-    }
-    return;
-  }
+  if (isKnownRoute(path)) return continueRequest();
   // This lightweight branded response is shown only for unknown routes.
   // The existing public React pages/styles are unchanged.
   const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Bandaranayake College</title></head><body style="background:#0a0a0a;color:#f5f0e8;font-family:Georgia,serif;text-align:center;padding:12vh 20px"><main><h1>Page not found</h1><p>This address does not match a published college page.</p><a style="color:#c9a84c" href="/">Back to home</a></main></body></html>';
