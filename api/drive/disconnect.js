@@ -1,5 +1,5 @@
-import { requireMethod,requireSameOrigin,requireAdmin,verifySession,revokeGoogleAccess,clearCookie,cookies,errorReply } from '../_lib/drive.mjs';
-export default async function handler(req,res){
+export default async function handler(req,res) {
+  const { requireMethod,requireSameOrigin,requireAdmin,verifySession,revokeGoogleAccess,clearCookie,cookies,errorReply } = await import('../_lib/drive.mjs');
   if(!requireMethod(req,res,'POST'))return;
   try {
     requireSameOrigin(req);
