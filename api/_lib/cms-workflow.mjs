@@ -25,7 +25,6 @@ const UID = /^[A-Za-z0-9_-]{1,128}$/;
 const ID = /^[A-Za-z0-9_-]{1,150}$/;
 const BASE = 'https://firestore.googleapis.com/v1/';
 const MAX_BODY = 65000;
-const ID = /^[A-Za-z0-9_-]{1,150}$/;
 let cachedToken = null;
 let expiresAt = 0;
 const fstr = value => ({ stringValue: String(value) });
