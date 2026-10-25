@@ -177,7 +177,7 @@ export async function revokeGoogleAccess(refreshToken) {
   // A 400 response commonly means this grant has already been revoked.
 }
 export function errorReply(res,error) {
-  const status = [400,401,403,405,413].includes(error?.status) ? error.status : 500;
+  const status = [400,401,403,405,409,413].includes(error?.status) ? error.status : 500;
   console.error('[Drive API]',status,error?.message);
   res.status(status).json({error:status===500?'Google Drive request failed; check server configuration':error.message});
 }

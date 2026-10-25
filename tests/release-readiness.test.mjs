@@ -97,3 +97,24 @@ test('Vercel CommonJS handler loads ESM Firebase account backend without require
   assert.match(handler, /await import\('\.\.\/_lib\/user-admin\.mjs'\)/);
   assert.doesNotMatch(handler, /^import \{ manageUsers \}/m);
 });
+
+test('new CMS scheduler has indexed due-time lookup, denial checks and explicit secret validation',()=>{
+  const firebase=JSON.parse(read('firebase.json'));
+  const indexes=JSON.parse(read('firestore.indexes.json'));
+  assert.equal(firebase.firestore.indexes,'firestore.indexes.json');
+  const job=indexes.indexes.find(x=>x.collectionGroup==='cmsJobs');
+  assert.deepEqual(job.fields.map(x=>[x.fieldPath,x.order]),[
+    ['status','ASCENDING'],['runAt','ASCENDING']
+  ]);
+  const smoke=read('scripts/check-public-deployment.mjs');
+  assert.match(smoke,/\/api\/cron\/publish/);
+  assert.match(smoke,/\/api\/admin\/workflow/);
+  const without=validateReleaseConfig({BCG_REQUIRE_WORKFLOW_SCHEDULER:'1'},true);
+  assert.equal(without.ok,false);
+  assert.ok(without.failures.some(x=>x.includes('CMS_CRON_SECRET')));
+  const secret='s'.repeat(48);
+  const withSecret=validateReleaseConfig({
+    BCG_REQUIRE_WORKFLOW_SCHEDULER:'1', CMS_CRON_SECRET:secret
+  },true);
+  assert.equal(withSecret.failures.some(x=>x.includes('CMS_CRON_SECRET')),false);
+});

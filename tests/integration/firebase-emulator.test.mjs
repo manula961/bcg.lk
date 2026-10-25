@@ -123,6 +123,25 @@ test('retired Extracurricular collection is not accessible to clients', async ()
   await assertFails(getDoc(doc(visitor.firestore(), 'extracurricular/archived-activity')));
 });
 
+test('all privileged workflow metadata paths deny direct client access', async () => {
+  const names = [
+    'cmsWorkflow/news_sample',
+    'cmsTrash/news_sample',
+    'cmsHistory/news_sample/revisions/example',
+    'cmsAudit/example',
+    'cmsJobs/example',
+    'cmsMediaRefs/news_sample',
+  ];
+  for (const name of names) {
+    // Even legitimate administrators must go through the authenticated server.
+    for (const context of [visitor, editor, publisher, admin, superAdmin]) {
+      await assertFails(getDoc(doc(context.firestore(), name)));
+      await assertFails(setDoc(doc(context.firestore(), name), { status: 'published' }));
+      await assertFails(deleteDoc(doc(context.firestore(), name)));
+    }
+  }
+});
+
 test('unknown Firestore paths are denied by default', async () => {
   await assertFails(getDoc(doc(visitor.firestore(), 'internal/private')));
   await assertFails(setDoc(doc(admin.firestore(), 'internal/private'), { value: 1 }));
