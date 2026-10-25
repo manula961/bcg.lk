@@ -71,9 +71,9 @@ test('robots.txt uses the same approved canonical host as the generated sitemap'
   assert.match(robots, /^Sitemap: https:\/\/bcglk\.devoraid\.com\/sitemap\.xml$/m);
   assert.match(robots, /^Disallow: \/admin$/m);
   assert.match(robots, /^Disallow: \/api\/$/m);
-  assert.throws(() => generatedRobotsTxt('User-agent: *\\n'), /exactly one Sitemap directive/);
+  assert.throws(() => generatedRobotsTxt('User-agent: *\n'), /exactly one Sitemap directive/);
   assert.throws(() => generatedRobotsTxt(
-    'Sitemap: https://a.example/sitemap.xml\\nSitemap: https://b.example/sitemap.xml\\n'
+    'Sitemap: https://a.example/sitemap.xml\nSitemap: https://b.example/sitemap.xml\n'
   ), /exactly one Sitemap directive/);
 
   const result = spawnSync(process.execPath, ['--input-type=module', '-e',
