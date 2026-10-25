@@ -25,6 +25,7 @@ const UID = /^[A-Za-z0-9_-]{1,128}$/;
 const ID = /^[A-Za-z0-9_-]{1,150}$/;
 const BASE = 'https://firestore.googleapis.com/v1/';
 const MAX_BODY = 65000;
+const ID = /^[A-Za-z0-9_-]{1,150}$/;
 let cachedToken = null;
 let expiresAt = 0;
 const fstr = value => ({ stringValue: String(value) });
@@ -47,7 +48,10 @@ export function validateSchedule(value, now = Date.now()) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value))
     throw failure(400, 'Use an ISO 8601 UTC publish time.');
   const time = Date.parse(value);
-  if (!Number.isFinite(time) || new Date(time).toISOString() !== value.replace(/\.000Z$/, '.000Z') && new Date(time).toISOString() !== value.replace(/Z$/, '.000Z') || time < now + 120000 || time > now + 90 * 86400000)
+  if (!Number.isFinite(time)) throw failure(400, 'Invalid calendar date.');
+  const canonical = new Date(time).toISOString();
+  if ((canonical !== value && canonical !== value.replace(/Z$/, '.000Z')) ||
+      time < now + 120000 || time > now + 90 * 86400000)
     throw failure(400, 'Schedule publication from 2 minutes to 90 days ahead.');
   return new Date(time).toISOString();
 }
@@ -405,12 +409,26 @@ export async function workflowAction(body,actor) {
   return {ok:true,action:act,kind,id,at};
 }
 
+function paginationToken(input) {
+  if (input === undefined || input === null || input === '') return '';
+  if (typeof input !== 'string' || input.length > 2048 ||
+      !/^[A-Za-z0-9_+\/-]+={0,2}$/.test(input))
+    throw failure(400,'Invalid pagination token.');
+  return input;
+}
+function pageParams(size, token) {
+  const params = new URLSearchParams({pageSize:String(size),orderBy:'createdAt desc'});
+  if (token) params.set('pageToken',token);
+  return params.toString();
+}
 export async function workflowRead(query,actor) {
   const action = query.action || 'status';
   if (action === 'audit') {
     requireRole(actor.role,new Set(['super_admin','auditor']));
-    const logs = await authorized('cmsAudit?pageSize=50&orderBy=createdAt%20desc');
-    return {items:(logs.documents || []).map(x=>({id:x.name.split('/').at(-1),fields:x.fields}))};
+    const pageToken = paginationToken(query.pageToken);
+    const logs = await authorized('cmsAudit?'+pageParams(50,pageToken));
+    return {items:(logs.documents || []).map(x=>({id:x.name.split('/').at(-1),fields:x.fields})),
+      nextPageToken:logs.nextPageToken || null};
   }
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
@@ -420,12 +438,13 @@ export async function workflowRead(query,actor) {
       contentUpdateTime:field(doc,'contentUpdateTime')};
   }
   if (action === 'history') {
-    const docs = await authorized(historyPath(kind,id)+'?pageSize=30&orderBy=createdAt%20desc')
+    const pageToken = paginationToken(query.pageToken);
+    const docs = await authorized(historyPath(kind,id)+'?'+pageParams(30,pageToken))
       .catch(e=>{if(e.status===404)return {documents:[]};throw e;});
     return {items:(docs.documents || []).map(x=>({
       id:x.name.split('/').at(-1),actorUid:field(x,'actorUid'),
       reason:field(x,'reason'),createdAt:x.fields?.createdAt?.timestampValue,
-    }))};
+    })),nextPageToken:docs.nextPageToken || null};
   }
   if (action === 'trash') {
     requireRole(actor.role,ADMIN);
@@ -444,51 +463,95 @@ export function authorizeCron(value,expected = process.env.CMS_CRON_SECRET) {
   if (!timingSafeEqual(a,b)) throw failure(401,'Scheduler not authorized.');
 }
 export async function processDueJobs(now = isoNow()) {
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(nowMs)) throw failure(400,'Invalid scheduler date.');
   const token = await accessToken();
+  // Only scan eligible jobs. A compound (status, runAt) Firestore index
+  // prevents future schedules from starving already-due publications.
   const response = await request(root()+':runQuery', {
     method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify({structuredQuery:{
       from:[{collectionId:'cmsJobs'}],
-      where:{fieldFilter:{field:{fieldPath:'status'},op:'EQUAL',value:fstr('queued')}},
-      limit:250,
+      where:{compositeFilter:{op:'AND',filters:[
+        {fieldFilter:{field:{fieldPath:'status'},op:'EQUAL',value:fstr('queued')}},
+        {fieldFilter:{field:{fieldPath:'runAt'},op:'LESS_THAN_OR_EQUAL',value:ftime(now)}},
+      ]}},
+      orderBy:[{field:{fieldPath:'runAt'},direction:'ASCENDING'}],
+      limit:251,
     }}),
   });
   if (!Array.isArray(response)) throw failure(502,'Invalid scheduler query response.');
-  let published = 0, stale = 0, skipped = 0;
-  for (const row of response) {
+  let published = 0, stale = 0, skipped = 0, failed = 0, deferred = 0;
+  for (const row of response.slice(0,250)) {
     const job = row.document;
-    if (!job || job.fields?.runAt?.timestampValue > now) {skipped++;continue;}
-    const id = job.name.split('/').at(-1);
+    if (!job) { skipped++; continue; }
+    const jobId = job.name.split('/').at(-1);
+    if (!ID.test(jobId)) { skipped++; continue; }
     const kind = job.fields?.kind?.stringValue;
     const recordId = job.fields?.recordId?.stringValue;
+    const attempts = Number(job.fields?.attempts?.integerValue || 0);
     try {
       validateTarget(kind,recordId);
+      if (!Number.isFinite(Date.parse(job.fields?.runAt?.timestampValue || '')) ||
+          Date.parse(job.fields.runAt.timestampValue) > nowMs) {
+        throw failure(409,'Invalid job due time.');
+      }
       const existing = await find(targetPath(kind,recordId));
       const state = await find(workflowPath(kind,recordId));
-      if (status(state) !== 'scheduled' || field(state,'jobId') !== id ||
+      if (status(state) !== 'scheduled' || field(state,'jobId') !== jobId ||
           !existing || existing.fields?.published?.booleanValue ||
           existing.updateTime !== field(job,'contentUpdateTime')) {
-        await commit([change('cmsJobs/'+id,job,{...job.fields,status:fstr('stale'),
+        await commit([change('cmsJobs/'+jobId,job,{...job.fields,status:fstr('stale'),
           completedAt:ftime(now)}),audit('scheduler',kind,recordId,'stale',now)]);
         stale++;
         continue;
       }
       const after = updatedContent(existing,now,'scheduler',{published:fbool(true),publishedAt:ftime(now)});
+      validateCmsRecord(kind,recordId,after);
+      // Job, content, workflow, revision and audit commit together. A second
+      // scheduler cannot publish twice because updateTime guards are atomic.
       await commit([
         change(targetPath(kind,recordId),existing,after),
-        change(workflowPath(kind,recordId),state,wfFields(state,kind,recordId,{status:fstr('published'),publishedAt:ftime(now)})),
-        change('cmsJobs/'+id,job,{...job.fields,status:fstr('published'),completedAt:ftime(now)}),
+        change(workflowPath(kind,recordId),state,wfFields(state,kind,recordId,{
+          status:fstr('published'),publishedAt:ftime(now)
+        })),
+        change('cmsJobs/'+jobId,job,{...job.fields,status:fstr('published'),completedAt:ftime(now)}),
         revision('scheduler',kind,recordId,existing,now,'before-scheduled-publish'),
         mediaRef(kind,recordId,{fields:after},now),
         audit('scheduler',kind,recordId,'scheduled-publish',now),
       ]);
       published++;
     } catch(error) {
-      // Transient failures and concurrent runners leave the job queued for safe retry.
-      console.error('[CMS scheduler] Job deferred:',error?.status || 502);
+      // Concurrency conflicts are expected when a second runner wins the race.
+      if (error?.status === 409 && error.message === 'Record changed; reload and retry.') {
+        deferred++;
+        continue;
+      }
+      const nextAttempts = Number.isSafeInteger(attempts) && attempts >= 0 ? attempts + 1 : 5;
+      const statusText = nextAttempts >= 5 ? 'failed' : 'queued';
+      try {
+        await commit([
+          change('cmsJobs/'+jobId,job,{
+            ...job.fields,status:fstr(statusText),attempts:{integerValue:String(nextAttempts)},
+            lastAttemptAt:ftime(now)
+          }),
+          ...(KINDS.includes(kind) && ID.test(recordId || '')
+            ? [audit('scheduler',kind,recordId,statusText === 'failed' ? 'job-failed' : 'job-retry',now)]
+            : []),
+        ]);
+        if (statusText === 'failed') failed++;
+        else deferred++;
+      } catch {
+        // A concurrent worker or unavailable Firestore leaves the job unchanged.
+        deferred++;
+      }
+      console.error('[CMS scheduler] Publication attempt failed:',error?.status || 502);
     }
   }
-  return {published,stale,skipped,scanned:response.length,truncated:response.length>=250};
+  return {
+    published,stale,skipped,failed,deferred,scanned:Math.min(response.length,250),
+    truncated:response.length>250
+  };
 }
 
 export async function handleWorkflow(req) {
@@ -496,14 +559,22 @@ export async function handleWorkflow(req) {
   if (!['GET','POST'].includes(method)) throw failure(405,'Method not allowed.');
   const actor = await verifyEditor(req,method);
   if (method === 'GET') return workflowRead(req.query || {},actor);
-  const body = req.body;
-  if (!body || JSON.stringify(body).length > MAX_BODY)
+  if (!/^application\/json(?:\s*;|$)/i.test(req.headers?.['content-type'] || ''))
+    throw failure(415,'Send a JSON request.');
+  let body = req.body;
+  if (typeof body === 'string') {
+    if (body.length > MAX_BODY) throw failure(413,'Workflow request is too large.');
+    try { body = JSON.parse(body); }
+    catch { throw failure(400,'Invalid JSON body.'); }
+  }
+  if (!body || typeof body !== 'object' || Array.isArray(body) ||
+      JSON.stringify(body).length > MAX_BODY)
     throw failure(413,'Workflow request is too large.');
   return workflowAction(body,actor);
 }
 
 export function responseError(error) {
   const err = safeError(error);
-  return {status:err.status, message:[400,401,403,404,405,409,413].includes(err.status)
+  return {status:err.status, message:[400,401,403,404,405,409,413,415].includes(err.status)
     ? err.message : 'Workflow service is unavailable.'};
 }
