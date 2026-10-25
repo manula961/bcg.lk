@@ -1,4 +1,5 @@
 import { createSign, randomUUID, createHash, timingSafeEqual } from 'node:crypto';
+import { validateCmsPatch, validateCmsRecord } from './cms-schema.mjs';
 
 /**
  * BCG editorial workflow, additive to existing browser-side CMS.
@@ -40,45 +41,13 @@ export function validateTarget(kind, id) {
   return { kind, id };
 }
 export function validateEdit(kind, patch) {
-  if (!KINDS.includes(kind) || !patch || typeof patch !== 'object' || Array.isArray(patch) ||
-      Object.keys(patch).length === 0 || Object.keys(patch).length > 15)
-    throw failure(400, 'Invalid content change.');
-  const fields = {};
-  for (const [key, value] of Object.entries(patch)) {
-    if (!Object.hasOwn(FIELDS[kind], key) || typeof value !== 'string' ||
-        value.trim().length > FIELDS[kind][key])
-      throw failure(400, 'Invalid or oversized content field.');
-    const clean = value.trim();
-    if (['imageUrl','websiteUrl','url'].includes(key) && clean) {
-      let url;
-      try { url = new URL(clean); } catch { throw failure(400, 'Invalid HTTPS URL.'); }
-      if (url.protocol !== 'https:' || url.username || url.password)
-        throw failure(400, 'Invalid HTTPS URL.');
-    }
-    if (key === 'category' && kind === 'news' && !['News','Announcements'].includes(clean))
-      throw failure(400, 'Invalid news category.');
-    if (key === 'role' && kind === 'leadership' &&
-        !['Principal','Deputy Principal','Assistant Principal','Sectional Head','Other Senior Staff'].includes(clean))
-      throw failure(400, 'Invalid leadership role.');
-    if (key === 'language' && !['Sinhala','Tamil','English'].includes(clean))
-      throw failure(400, 'Invalid language.');
-    if (key === 'year' && !/^(19|20)[0-9]{2}$/.test(clean))
-      throw failure(400, 'Invalid examination year.');
-    if (key === 'color' && clean && !/^#[0-9a-fA-F]{6}$/.test(clean))
-      throw failure(400, 'Invalid color.');
-    if (key === 'eventDate' && (!/^\d{4}-\d{2}-\d{2}$/.test(clean) ||
-        !Number.isFinite(Date.parse(clean + 'T00:00:00Z')) ||
-        new Date(clean + 'T00:00:00Z').toISOString().slice(0,10) !== clean))
-      throw failure(400, 'Invalid event date.');
-    fields[key] = fstr(clean);
-  }
-  return fields;
+  return validateCmsPatch(kind, patch);
 }
 export function validateSchedule(value, now = Date.now()) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value))
     throw failure(400, 'Use an ISO 8601 UTC publish time.');
   const time = Date.parse(value);
-  if (!Number.isFinite(time) || time < now + 120000 || time > now + 90 * 86400000)
+  if (!Number.isFinite(time) || new Date(time).toISOString() !== value.replace(/\.000Z$/, '.000Z') && new Date(time).toISOString() !== value.replace(/Z$/, '.000Z') || time < now + 120000 || time > now + 90 * 86400000)
     throw failure(400, 'Schedule publication from 2 minutes to 90 days ahead.');
   return new Date(time).toISOString();
 }
@@ -264,7 +233,7 @@ export async function verifyEditor(req, method) {
 export async function workflowAction(body,actor) {
   const {kind,id} = requireTarget(body);
   const act = body.action;
-  if (!['submit','approve','publish','schedule','edit','archive','restore','rollback'].includes(act))
+  if (!['submit','approve','publish','schedule','edit','proposeEdit','applyEdit','archive','restore','rollback'].includes(act))
     throw failure(400,'Unknown workflow action.');
   const at = isoNow();
   const path = targetPath(kind,id);
@@ -275,15 +244,29 @@ export async function workflowAction(body,actor) {
   if (act === 'edit') {
     requireRole(actor.role,WRITE);
     if (!existing) throw failure(404,'Content not found.');
-    if (existing.fields?.published?.booleanValue && actor.role === 'editor')
-      throw failure(403,'Editors cannot modify published content.');
+    if (existing.fields?.published?.booleanValue)
+      throw failure(409,'Published content requires a separately approved edit proposal.');
     const patch = validateEdit(kind,body.patch);
     const after = updatedContent(existing,at,actor.uid,patch);
+    validateCmsRecord(kind,id,after);
     writes.push(change(path,existing,after));
     writes.push(revision(actor.uid,kind,id,existing,at,'before-edit'));
     writes.push(mediaRef(kind,id,{fields:after},at));
     if (state) writes.push(change(wfPath,state,wfFields(state,kind,id,{
       status:fstr('draft'),contentUpdateTime:fstr(''),approvedBy:{nullValue:null}
+    })));
+  } else if (act === 'proposeEdit') {
+    requireRole(actor.role,WRITE);
+    if (!existing || existing.fields?.published?.booleanValue !== true)
+      throw failure(409,'Only published content accepts edit proposals.');
+    if (['submitted-edit','approved-edit','scheduled'].includes(status(state)))
+      throw failure(409,'An editorial request is already pending.');
+    const patch = validateEdit(kind,body.patch);
+    validateCmsRecord(kind,id,{...existing.fields,...patch});
+    writes.push(change(wfPath,state,wfFields(state,kind,id,{
+      status:fstr('submitted-edit'),submittedBy:fstr(actor.uid),submittedAt:ftime(at),
+      contentUpdateTime:fstr(existing.updateTime),pendingPatch:fstr(JSON.stringify(patch)),
+      approvedBy:{nullValue:null},approvedAt:{nullValue:null}
     })));
   } else if (act === 'submit') {
     requireRole(actor.role,WRITE);
@@ -297,14 +280,39 @@ export async function workflowAction(body,actor) {
     })));
   } else if (act === 'approve') {
     requireRole(actor.role,PUBLISH);
-    if (!existing || existing.fields?.published?.booleanValue ||
-        status(state) !== 'submitted' ||
+    const proposedEdit = status(state) === 'submitted-edit';
+    if (!existing || !['submitted','submitted-edit'].includes(status(state)) ||
+        (proposedEdit ? existing.fields?.published?.booleanValue !== true : existing.fields?.published?.booleanValue !== false) ||
         field(state,'contentUpdateTime') !== existing.updateTime)
       throw failure(409,'Submission is no longer current.');
     if (field(state,'submittedBy') === actor.uid)
       throw failure(403,'A different administrator must approve this submission.');
     writes.push(change(wfPath,state,wfFields(state,kind,id,{
-      status:fstr('approved'),approvedBy:fstr(actor.uid),approvedAt:ftime(at),
+      status:fstr(proposedEdit ? 'approved-edit' : 'approved'),approvedBy:fstr(actor.uid),approvedAt:ftime(at),
+    })));
+  } else if (act === 'applyEdit') {
+    requireRole(actor.role,PUBLISH);
+    if (!existing || existing.fields?.published?.booleanValue !== true ||
+        status(state) !== 'approved-edit' ||
+        field(state,'contentUpdateTime') !== existing.updateTime)
+      throw failure(409,'Published edit approval is stale or missing.');
+    let patch;
+    try { patch = JSON.parse(field(state,'pendingPatch') || 'null'); }
+    catch { throw failure(409,'Edit proposal is invalid.'); }
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch))
+      throw failure(409,'Edit proposal is invalid.');
+    const allowed = Object.entries(patch).every(([key,value]) =>
+      typeof value?.stringValue === 'string' && Object.keys(value).length === 1);
+    if (!allowed) throw failure(409,'Edit proposal is invalid.');
+    // Validate the proposal again because it is durable storage, not trusted input.
+    const validated = validateEdit(kind,Object.fromEntries(Object.entries(patch).map(([k,v])=>[k,v.stringValue])));
+    const after = updatedContent(existing,at,actor.uid,validated);
+    validateCmsRecord(kind,id,after);
+    writes.push(change(path,existing,after));
+    writes.push(revision(actor.uid,kind,id,existing,at,'before-approved-edit'));
+    writes.push(mediaRef(kind,id,{fields:after},at));
+    writes.push(change(wfPath,state,wfFields(state,kind,id,{
+      status:fstr('published'),pendingPatch:{nullValue:null},approvedAt:ftime(at)
     })));
   } else if (act === 'schedule') {
     requireRole(actor.role,PUBLISH);
@@ -327,6 +335,7 @@ export async function workflowAction(body,actor) {
     requireLiveRevision(existing,state);
     if (status(state) !== 'approved') throw failure(409,'Scheduled content must be handled by the scheduler.');
     const after = updatedContent(existing,at,actor.uid,{published:fbool(true),publishedAt:ftime(at)});
+    validateCmsRecord(kind,id,after);
     writes.push(change(path,existing,after));
     writes.push(revision(actor.uid,kind,id,existing,at,'before-publish'));
     writes.push(mediaRef(kind,id,{fields:after},at));
@@ -337,6 +346,7 @@ export async function workflowAction(body,actor) {
     const previousTrash = await find(trashPath(kind,id));
     if (previousTrash) throw failure(409,'Content is already in trash.');
     const after = updatedContent(existing,at,actor.uid,{published:fbool(false),publishedAt:{nullValue:null}});
+    validateCmsRecord(kind,id,after);
     writes.push(change(path,existing,after));
     writes.push(revision(actor.uid,kind,id,existing,at,'before-archive'));
     writes.push(change(trashPath(kind,id),null,{
@@ -349,7 +359,8 @@ export async function workflowAction(body,actor) {
     requireRole(actor.role,ADMIN);
     const trash = await find(trashPath(kind,id));
     if (!trash) throw failure(404,'Trash record not found.');
-    if (existing && (existing.fields?.updatedAt?.timestampValue !== trash.fields?.archivedAt?.timestampValue ||
+    if (existing && (Date.parse(existing.fields?.updatedAt?.timestampValue || '') !==
+        Date.parse(trash.fields?.archivedAt?.timestampValue || '') ||
         existing.fields?.published?.booleanValue !== false))
       throw failure(409,'Archived record was changed; review it before restoration.');
     if (!existing) {
@@ -358,8 +369,14 @@ export async function workflowAction(body,actor) {
         throw failure(409,'Archive snapshot is invalid.');
       const restored = {...saved,published:fbool(false),publishedAt:{nullValue:null},
         updatedAt:ftime(at),updatedBy:fstr(actor.uid)};
+      validateCmsRecord(kind,id,restored);
       writes.push(change(path,null,restored));
       writes.push(mediaRef(kind,id,{fields:restored},at));
+    }
+    if (existing) {
+      validateCmsRecord(kind,id,existing.fields);
+      // Firestore verify write prevents concurrent edits between read and restore.
+      writes.push({verify:name(path),currentDocument:{updateTime:existing.updateTime}});
     }
     writes.push(remove(trashPath(kind,id),trash));
     writes.push(change(wfPath,state,wfFields(state,kind,id,{status:fstr('draft'),contentUpdateTime:fstr('')})));
@@ -377,6 +394,7 @@ export async function workflowAction(body,actor) {
       createdAt:existing.fields.createdAt || snapshot.createdAt,
       createdBy:existing.fields.createdBy || snapshot.createdBy,
     });
+    validateCmsRecord(kind,id,after);
     writes.push(change(path,existing,after));
     writes.push(revision(actor.uid,kind,id,existing,at,'before-rollback'));
     writes.push(mediaRef(kind,id,{fields:after},at));
