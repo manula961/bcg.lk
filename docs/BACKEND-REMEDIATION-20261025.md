@@ -19,11 +19,13 @@ This branch is an **unreleased candidate**, not a claim of complete backend prod
 
 ## Important operational limitations / pending items
 
-**A02** — Production is on the older READY deployment until the owner verifies this branch's merged/staged release. A Vercel READY preview is insufficient.
+**A02** — Production is on the older READY deployment (`467f158`) until the owner verifies this branch's merged/staged release. A Vercel READY preview is insufficient. Repository main moved forward to `d45f0fd` with separate existing-UI edits; a merge candidate must be tested against that newer baseline.
 
-**A03** — `main` is currently unprotected. Repository owner must configure mandatory up-to-date CI checks, one independent latest-head approval, conversation resolution, no direct/force pushes and no admins bypass. Review Settings → Rules → Rulesets or Settings → Branches; confirm `main.protected == true` using the GitHub API. Do not bypass CI or merge for convenience.
+**A03** — `main` is currently unprotected (confirmed GitHub branch API). GitHub Actions build/backend/browser/dependency jobs on PR #72 failed without executing any steps: runner ID 0 and an empty steps list. This requires the repository owner to inspect GitHub Actions billing/usage, policies, runner allocation and service status; it is not evidence of failing tests.  Repository owner must configure mandatory up-to-date CI checks, one independent latest-head approval, conversation resolution, no direct/force pushes and no admins bypass. Review Settings → Rules → Rulesets or Settings → Branches; confirm `main.protected == true` using the GitHub API. Do not bypass CI or merge for convenience.
 
 **A05** — The existing `src/admin/ContentManager.jsx` still performs direct Firebase SDK publishing and hard deletes. New server workflow/soft delete/revision guarantees cover **only callers of the new workflow API**. The admin console remains intentionally unchanged to obey the existing UI/Jaliya preservation requirement. Universal enforcement requires a separately reviewed admin-console behavior migration, updated Firestore rules and tests. Making rules server-only without updating the editor would break existing admin publishing.
+
+**A10** — Vercel production environment variable inventory does not currently contain `CMS_CRON_SECRET` (confirmed by variable names, not values). The scheduler cannot operate until its secret is set on both Vercel and GitHub, the composite index is available, and staging end-to-end tests pass. Do not enable scheduled workflow without those checks.
 
 **A09** — Verify the *deployed* Firestore/Storage rules (which can differ from repo), production Firebase Auth lifecycle, service-account least-privilege IAM, protected credential storage, Firestore/Auth/Storage/Drive backup inventory and a staging restore drill. Code changes alone cannot do this.
 
