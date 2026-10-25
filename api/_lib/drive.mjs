@@ -237,7 +237,16 @@ export async function readPdf(req) {
   const chunks=[]; let size=0;
   for await (const chunk of req) { size+=chunk.length; if(size>10*1024*1024) throw Object.assign(new Error('PDF exceeds 10 MB'),{status:413}); chunks.push(chunk); }
   const bytes=Buffer.concat(chunks);
-  if (bytes.length<8 || bytes.toString('ascii',0,5)!=='%PDF-') throw Object.assign(new Error('Invalid PDF file signature'),{status:400});
+  // A magic prefix alone accepts arbitrary text disguised as a PDF. Check
+  // the version and essential cross-reference/end markers before public upload.
+  // This is a structural sanity check, NOT malware scanning or editorial review.
+  const version = bytes.toString('latin1', 0, 9);
+  const hasHeader = /^%PDF-(?:1\.[0-7]|2\.0)(?:[\r\n \t%]|$)/.test(version);
+  const hasXref = bytes.includes(Buffer.from('startxref', 'ascii'));
+  const hasEof = bytes.subarray(Math.max(0, bytes.length - 1024))
+    .includes(Buffer.from('%%EOF', 'ascii'));
+  if (bytes.length < 32 || !hasHeader || !hasXref || !hasEof)
+    throw Object.assign(new Error('Invalid or incomplete PDF structure'), { status: 400 });
   return {type:'application/pdf',name:'bcg-past-paper-'+randomUUID()+'.pdf',bytes};
 }
 export async function driveUploadPaper(token,file) {
