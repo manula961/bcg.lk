@@ -25,6 +25,8 @@ jobs:
       - name: Confirm Jaliya-authored files are preserved
         if: github.event_name == 'pull_request'
         run: node scripts/verify-jaliya-preservation.mjs
+      - name: Check non-JSX JavaScript syntax before installing dependencies
+        run: node scripts/check-source-syntax.mjs
       - run: npm ci
       - name: Validate nonsecret release configuration
         run: node scripts/check-release-config.mjs

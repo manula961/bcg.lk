@@ -4,14 +4,14 @@ import { readFileSync } from 'node:fs';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
-test('UI guard has exact SHA allowlist and still protects public source', () => {
+test('Rule #1 rejects all protected UI diffs without historical exceptions', () => {
   const source = read('scripts/verify-no-ui-changes.mjs');
-  assert.match(source, /git\('rev-parse', 'HEAD:' \+ path\)/);
-  assert.match(source, /differs from explicitly audited UI blob/);
-  assert.match(source, /protectedPath/);
-  assert.match(source, /violations\.push\(path\)/);
-  const matches = [...source.matchAll(/"src\/(?:admin|components|pages)\/[^"]+\.(?:jsx|css)"\s*:\s*"[0-9a-f]{40}"/g)];
-  assert.ok(matches.length >= 9, 'Missing audited UI file SHAs');
+  assert.match(source, /--diff-filter=ACMRD/);
+  assert.match(source, /changed\.filter\(protectedPath\)/);
+  assert.match(source, /tailwind\.config\.js/);
+  assert.match(source, /components/);
+  assert.match(source, /public/);
+  assert.doesNotMatch(source, /auditedUiBlobs|auditedUiDeletions|approvedRouteFile/);
 });
 
 test('CMS guards against stale writes and reordering a filtered list', () => {
