@@ -43,6 +43,9 @@ export function validateReleaseConfig(env = process.env, strict = false) {
   } catch { failures.push('BCG_CANONICAL_ORIGIN must be a valid HTTPS origin'); }
 
   if (strict) {
+    if (env.BCG_REQUIRE_WORKFLOW_SCHEDULER === '1' &&
+        !/^[A-Za-z0-9_-]{32,256}$/.test(env.CMS_CRON_SECRET || ''))
+      failures.push('CMS_CRON_SECRET must be 32-256 URL-safe characters when scheduled publishing is enabled');
     const project = env.FIREBASE_PROJECT_ID;
     if (!project || project !== env.VITE_FIREBASE_PROJECT_ID)
       failures.push('FIREBASE_PROJECT_ID must match VITE_FIREBASE_PROJECT_ID');

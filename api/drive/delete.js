@@ -2,6 +2,7 @@ import {
   configured, requireMethod, requireSameOrigin, requireAdmin, verifySession,
   accessToken, deleteManagedDriveFile, errorReply,
 } from '../_lib/drive.mjs';
+import { assertDriveMediaUnreferenced } from '../_lib/drive-media-references.mjs';
 
 // Explicit, independently authenticated cleanup operation. Never triggered
 // merely by deleting/unpublishing a Firestore record.
@@ -17,6 +18,7 @@ export default async function handler(req, res) {
         Object.keys(body).length !== 1 || typeof body.fileId !== 'string') {
       throw Object.assign(new Error('Provide a managed Drive file ID'), { status: 400 });
     }
+    await assertDriveMediaUnreferenced(body.fileId,req);
     const token = await accessToken(session.refresh);
     const result = await deleteManagedDriveFile(token, body.fileId);
     res.status(200).json(result);

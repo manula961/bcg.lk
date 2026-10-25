@@ -36,12 +36,12 @@ jobs:
             'https://bcglk.devoraid.com/api/cron/publish')"
           RESPONSE="${response}" node -e '
             const data = JSON.parse(process.env.RESPONSE);
-            for (const key of ["published","stale","skipped","scanned"]) {
+            for (const key of ["published","stale","skipped","scanned","failed","deferred"]) {
               if (!Number.isSafeInteger(data[key]) || data[key] < 0) throw Error("Invalid scheduler response");
             }
             console.log("CMS publishing:", JSON.stringify({
               published:data.published, stale:data.stale, scanned:data.scanned,
-              truncated:Boolean(data.truncated)
+              failed:data.failed, deferred:data.deferred, truncated:Boolean(data.truncated)
             }));
-            if (data.truncated) process.exitCode = 1;
+            if (data.truncated || data.failed > 0 || data.deferred > 0) process.exitCode = 1;
           '
