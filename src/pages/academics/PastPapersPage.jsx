@@ -48,7 +48,9 @@ const searchable = (paper) =>
     .join(" ")
     .toLowerCase();
 
-/* Custom Dropdown Component */
+/* =========================================
+   CUSTOM DROPDOWN COMPONENT
+   ========================================= */
 
 function PaperDropdown({ label, value, onChange, options, compact = false }) {
   const [open, setOpen] = useState(false);
@@ -75,7 +77,10 @@ function PaperDropdown({ label, value, onChange, options, compact = false }) {
   }, [open]);
 
   const choose = (index) => {
-    onChange(options[index].value);
+    const option = options[index];
+    if (!option) return;
+
+    onChange(option.value);
     setOpen(false);
 
     root.current?.querySelector(".papers-dropdown-trigger")?.focus();
@@ -131,7 +136,9 @@ function PaperDropdown({ label, value, onChange, options, compact = false }) {
         aria-label={label}
         aria-expanded={open}
         aria-haspopup="listbox"
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          setOpen((previous) => !previous);
+        }}
       >
         <span>{options[selectedIndex]?.label || ""}</span>
 
@@ -192,7 +199,9 @@ function PaperDropdown({ label, value, onChange, options, compact = false }) {
   );
 }
 
-/* Main Past Papers Page */
+/* =========================================
+   MAIN PAST PAPERS PAGE
+   ========================================= */
 
 export default function PastPapersPage() {
   const [pastPapers, setPastPapers] = useState([]);
@@ -203,7 +212,6 @@ export default function PastPapersPage() {
   const [subject, setSubject] = useState(ALL);
   const [year, setYear] = useState(ALL);
   const [language, setLanguage] = useState(ALL);
-  const [term, setTerm] = useState(ALL);
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
 
@@ -223,7 +231,7 @@ export default function PastPapersPage() {
     document.title = "Past Papers | Bandaranayake College, Gampaha";
   }, []);
 
-  /* Filter Options */
+  /* Available Filter Values */
 
   const exams = useMemo(
     () => unique(pastPapers.map((p) => p.exam)),
@@ -240,17 +248,12 @@ export default function PastPapersPage() {
     [pastPapers],
   );
 
-  const terms = useMemo(
-    () => unique(pastPapers.map((p) => p.term)),
-    [pastPapers],
-  );
-
   const languages = useMemo(
     () => unique(pastPapers.map((p) => p.language)),
     [pastPapers],
   );
 
-  /* Search, Filter, Sort */
+  /* Filtering and Sorting */
 
   const filtered = useMemo(() => {
     return pastPapers
@@ -260,7 +263,6 @@ export default function PastPapersPage() {
           (subject === ALL || String(paper.subject) === subject) &&
           (year === ALL || String(paper.year) === year) &&
           (language === ALL || String(paper.language) === language) &&
-          (term === ALL || String(paper.term) === term) &&
           searchable(paper).includes(search.trim().toLowerCase()),
       )
       .sort((a, b) => {
@@ -274,7 +276,7 @@ export default function PastPapersPage() {
 
         return Number(b.year || 0) - Number(a.year || 0);
       });
-  }, [pastPapers, search, exam, subject, year, language, term, sort]);
+  }, [pastPapers, search, exam, subject, year, language, sort]);
 
   /* Pagination */
 
@@ -289,11 +291,10 @@ export default function PastPapersPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, exam, subject, year, language, term, sort]);
+  }, [search, exam, subject, year, language, sort]);
 
   const isFiltering = Boolean(
-    search ||
-    [exam, subject, year, language, term].some((value) => value !== ALL),
+    search || [exam, subject, year, language].some((value) => value !== ALL),
   );
 
   const reset = () => {
@@ -302,12 +303,11 @@ export default function PastPapersPage() {
     setSubject(ALL);
     setYear(ALL);
     setLanguage(ALL);
-    setTerm(ALL);
     setSort("newest");
     setPage(1);
   };
 
-  /* Reusable Filter */
+  /* Reusable Filter Control */
 
   const filterControl = (label, value, setter, options) => (
     <PaperDropdown
@@ -416,10 +416,12 @@ export default function PastPapersPage() {
             )}
 
             {loadError && (
-              <p role="alert">Could not load papers. Please retry later.</p>
+              <p role="alert" className="papers-error">
+                Could not load papers. Please retry later.
+              </p>
             )}
 
-            {/* Search & Filters */}
+            {/* Search and Filters */}
 
             {pastPapers.length > 0 && (
               <>
@@ -435,6 +437,7 @@ export default function PastPapersPage() {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
+                        strokeLinecap="round"
                         aria-hidden="true"
                       >
                         <circle cx="11" cy="11" r="7" />
@@ -463,13 +466,10 @@ export default function PastPapersPage() {
                       setLanguage,
                       languages,
                     )}
-
-                    {terms.length > 1 &&
-                      filterControl("Term", term, setTerm, terms)}
                   </div>
                 </div>
 
-                {/* Results and Sort */}
+                {/* Results and Sorting */}
 
                 <div className="papers-results-line">
                   <span aria-live="polite">
@@ -522,13 +522,6 @@ export default function PastPapersPage() {
                 {visiblePapers.map((paper) => {
                   const pdfUrl = safePaperUrl(paper.url);
 
-                  const filename = `${String(
-                    paper.title || paper.subject || "past-paper",
-                  ).replace(
-                    /[^a-z0-9_-]+/gi,
-                    "-",
-                  )}-${paper.year || "paper"}.pdf`;
-
                   return (
                     <article key={paper.id} className="papers-card">
                       <div className="papers-card-top">
@@ -552,17 +545,18 @@ export default function PastPapersPage() {
                           .join(" · ")}
                       </p>
 
-                      {/* Single Download Button */}
+                      {/* View PDF Button */}
 
                       <div className="papers-card-actions">
                         {pdfUrl ? (
                           <a
-                            className="papers-download"
+                            className="papers-view-btn"
                             href={pdfUrl}
-                            download={filename}
-                            aria-label={`Download ${
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View ${
                               paper.title || paper.subject
-                            } ${paper.year} paper`}
+                            } ${paper.year} PDF in a new tab`}
                           >
                             <svg
                               width="19"
@@ -575,9 +569,25 @@ export default function PastPapersPage() {
                               strokeLinejoin="round"
                               aria-hidden="true"
                             >
-                              <path d="M12 3v12m-5-5 5 5 5-5M4 17v3h16v-3" />
+                              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                              <circle cx="12" cy="12" r="3" />
                             </svg>
-                            Download PDF
+                            View PDF
+                            <svg
+                              width="15"
+                              height="15"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M14 4h6v6" />
+                              <path d="M20 4l-9 9" />
+                              <path d="M20 13v7H4V4h7" />
+                            </svg>
                           </a>
                         ) : (
                           <span className="papers-broken-link">
