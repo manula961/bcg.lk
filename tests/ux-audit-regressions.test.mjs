@@ -30,10 +30,10 @@ test('homepage CMS distinguishes loading, empty, and unavailable content', () =>
   assert.match(news, /aria-pressed=\{activeFilter === f\}/);
 });
 
-test('campus carousel motion is optional and keyboard controlled', () => {
+test('campus carousel keeps keyboard navigation and honors reduced-motion setting', () => {
   const section = read('src/components/home/ExploreSection.jsx');
-  assert.match(section, /useState\(true\).*userPaused|\[userPaused, setUserPaused\] = useState\(true\)/);
-  assert.match(section, /isPaused \|\| reducedMotion \|\| userPaused/);
+  assert.match(section, /prefers-reduced-motion: reduce/);
+  assert.match(section, /if \(!visible \|\| reducedMotion\) return;/);
   assert.match(section, /onKeyDown=\{event => \{/);
   assert.match(section, /aria-selected=\{active === i\}/);
   assert.match(section, /tabIndex=\{active === i \? 0 : -1\}/);
