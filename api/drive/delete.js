@@ -1,11 +1,7 @@
-import {
-  configured, requireMethod, requireSameOrigin, requireAdmin, verifySession,
-  accessToken, deleteManagedDriveFile, errorReply,
-} from '../_lib/drive.mjs';
-
 // Explicit, independently authenticated cleanup operation. Never triggered
 // merely by deleting/unpublishing a Firestore record.
 export default async function handler(req, res) {
+  const { configured, requireMethod, requireSameOrigin, requireAdmin, verifySession, accessToken, deleteManagedDriveFile, errorReply, } = await import('../_lib/drive.mjs');
   if (!requireMethod(req, res, 'POST')) return;
   try {
     if (!configured()) throw new Error('Google Drive is not configured');
