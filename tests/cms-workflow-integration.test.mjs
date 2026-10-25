@@ -29,6 +29,7 @@ function setup() {
   const docs=new Map();
   const commits=[];
   let version=0;
+  let beforeCommit=null;
   const read = path => docs.get(path) || null;
   const put = (path,fields) => {
     docs.set(path,data(structuredClone(fields),
@@ -64,6 +65,9 @@ function setup() {
     }
     if(parsed.pathname.endsWith('/documents:commit')) {
       const writes=JSON.parse(options.body).writes;
+      const hook=beforeCommit;
+      beforeCommit=null;
+      if(hook)hook();
       // Verify ALL preconditions before any mutation, like Firestore :commit.
       for(const write of writes){
         const key=pathOf(write.update?.name || write.delete || write.verify);
@@ -86,13 +90,21 @@ function setup() {
     if(verb==='GET'){
       const key=decodeURIComponent(pathOf(parsed.pathname));
       if(key==='admins/admin-owner') return answer(data({role:str('super_admin')},clock()));
+      if((key==='cmsAudit' || key.endsWith('/revisions')) && parsed.searchParams.has('pageSize')){
+        const all=[...docs.entries()].filter(([path])=>path.startsWith(key+'/'))
+          .map(([path,doc])=>({name:'projects/'+project+'/databases/(default)/documents/'+path,...doc}));
+        const size=Number(parsed.searchParams.get('pageSize'));
+        const offset=parsed.searchParams.get('pageToken') ? 1 : 0;
+        return answer({documents:all.slice(offset,offset+size),
+          nextPageToken:offset+size<all.length?'next-cursor':undefined});
+      }
       const doc=read(key);
       if(!doc) return answer({error:'not found'},404);
       return answer({name:'projects/'+project+'/databases/(default)/documents/'+key,...doc});
     }
     throw Error('Unexpected request '+verb+' '+parsed.pathname);
   };
-  return {docs,commits,seed,read,restore(){
+  return {docs,commits,seed,read,setBeforeCommit(hook){beforeCommit=hook;},restore(){
     globalThis.fetch=before;
     for(const [key,value] of Object.entries(env)){
       if(value===undefined)delete process.env[key];else process.env[key]=value;
@@ -190,5 +202,48 @@ test('admin workflow HTTP entrypoint fails closed on origin, JSON and anonymous 
       query:{action:'status',kind:'news',id:'never-created'},
     });
     assert.equal(result.status,'unsubmitted');
+  } finally {f.restore();}
+});
+
+test('restore rejects a concurrent content modification and preserves the trash entry',async()=>{
+  const f=setup();
+  try {
+    f.seed('news/concurrent-a',{title:str('Headline'),excerpt:str('Summary'),published:{booleanValue:false}});
+    await workflowAction({action:'archive',kind:'news',id:'concurrent-a'},admin);
+    const content=f.read('news/concurrent-a');
+    f.setBeforeCommit(()=>f.seed('news/concurrent-a',{
+      ...content.fields,title:str('Concurrent edit')
+    }));
+    await assert.rejects(workflowAction({action:'restore',kind:'news',id:'concurrent-a'},admin),{status:409});
+    assert.ok(f.read('cmsTrash/news_concurrent-a'),'Failed restore must not remove trash');
+    assert.equal(f.read('news/concurrent-a').fields.title.stringValue,'Concurrent edit');
+  } finally {f.restore();}
+});
+test('malformed publication jobs are retried a bounded number of times and quarantined',async()=>{
+  const f=setup();
+  try {
+    f.seed('cmsJobs/malformed-job',{
+      status:str('queued'),kind:str('admins'),recordId:str('owner'),runAt:{timestampValue:new Date(Date.now()-60000).toISOString()}
+    });
+    const now=new Date().toISOString();
+    for(let attempt=1;attempt<=5;attempt++) {
+      const result=await processDueJobs(now);
+      assert.equal(result.published,0);
+      assert.equal(Number(f.read('cmsJobs/malformed-job').fields.attempts.integerValue),attempt);
+    }
+    assert.equal(f.read('cmsJobs/malformed-job').fields.status.stringValue,'failed');
+    assert.equal((await processDueJobs(now)).scanned,0);
+  } finally {f.restore();}
+});
+test('workflow audit and revision lists expose safe pagination cursors',async()=>{
+  const f=setup();
+  try {
+    f.seed('cmsAudit/test-1',{actorUid:str('admin-one'),createdAt:{timestampValue:'2026-10-25T01:00:00Z'}});
+    f.seed('cmsAudit/test-2',{actorUid:str('admin-two'),createdAt:{timestampValue:'2026-10-25T02:00:00Z'}});
+    const first=await workflowRead({action:'audit'},{uid:'auditor',role:'auditor'});
+    assert.equal(first.items.length,2);
+    const second=await workflowRead({action:'audit',pageToken:'next-cursor'},{uid:'auditor',role:'auditor'});
+    assert.equal(second.items.length,1);
+    await assert.rejects(workflowRead({action:'audit',pageToken:'../../users'},{uid:'auditor',role:'auditor'}),{status:400});
   } finally {f.restore();}
 });
