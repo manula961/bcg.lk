@@ -11,7 +11,7 @@ The Bandaranayake College, Gampaha website, built with React 19, Vite, Tailwind 
 
 ## Local development
 
-Requires a supported Node.js installation (CI uses Node 22).
+Requires a supported Node.js installation (CI uses Node 24).
 
 ```bash
 npm ci
