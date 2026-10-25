@@ -1,6 +1,6 @@
 # BCG.LK — Backend remediation and release gates (2026-10-25)
 
-This branch is an **unreleased candidate**, not a claim of complete backend production readiness. It is based on main at `faf69b1`. Do not merge/promote until independently reviewed and rebased/compared against the latest main, including separately evolving public UI.
+This branch is an **unreleased candidate**, not a claim of complete backend production readiness. It is applied on main `9da4b9ded2f489cf6788bba39ea3228f4f6b9d83` as PR #78, preserving all later Jaliya-authored UI commits and the production Drive ESM runtime fix. Do not merge or promote until independent review and verification against the then-current main.
 
 ## Code fixes introduced
 
@@ -19,13 +19,13 @@ This branch is an **unreleased candidate**, not a claim of complete backend prod
 
 ## Important operational limitations / pending items
 
-**A02** — Production is on the older READY deployment (`467f158`) until the owner verifies this branch's merged/staged release. A Vercel READY preview is insufficient. Repository main moved forward to `d45f0fd` with separate existing-UI edits; a merge candidate must be tested against that newer baseline.
+**A02** — Production is on READY deployment `9da4b9d`; PR #78 is preview-only. Its Vercel preview builds and source tests pass, but a READY preview alone is insufficient; production and Firebase operations have not changed.
 
-**A03** — `main` is currently unprotected (confirmed GitHub branch API). GitHub Actions build/backend/browser/dependency jobs on PR #72 failed without executing any steps: runner ID 0 and an empty steps list. This requires the repository owner to inspect GitHub Actions billing/usage, policies, runner allocation and service status; it is not evidence of failing tests.  Repository owner must configure mandatory up-to-date CI checks, one independent latest-head approval, conversation resolution, no direct/force pushes and no admins bypass. Review Settings → Rules → Rulesets or Settings → Branches; confirm `main.protected == true` using the GitHub API. Do not bypass CI or merge for convenience.
+**A03** — `main` is currently unprotected (confirmed GitHub branch API). GitHub Actions build/backend/browser/dependency jobs on PR #78 also fail without executing any steps: runner ID 0 and an empty steps list. This requires the repository owner to inspect GitHub Actions billing/usage, policies, runner allocation and service status; it is not evidence of failing tests.  Repository owner must configure mandatory up-to-date CI checks, one independent latest-head approval, conversation resolution, no direct/force pushes and no admins bypass. Review Settings → Rules → Rulesets or Settings → Branches; confirm `main.protected == true` using the GitHub API. Do not bypass CI or merge for convenience.
 
 **A05** — The existing `src/admin/ContentManager.jsx` still performs direct Firebase SDK publishing and hard deletes. New server workflow/soft delete/revision guarantees cover **only callers of the new workflow API**. The admin console remains intentionally unchanged to obey the existing UI/Jaliya preservation requirement. Universal enforcement requires a separately reviewed admin-console behavior migration, updated Firestore rules and tests. Making rules server-only without updating the editor would break existing admin publishing.
 
-**A10** — Vercel production environment variable inventory does not currently contain `CMS_CRON_SECRET` (confirmed by variable names, not values). The scheduler cannot operate until its secret is set on both Vercel and GitHub, the composite index is available, and staging end-to-end tests pass. Do not enable scheduled workflow without those checks.
+**A10** — Vercel production environment variable inventory does not currently contain `CMS_CRON_SECRET` (checked by variable *names*, never decrypted values). The scheduler cannot operate until its secret is set on both Vercel and GitHub, the composite index is available, and staging end-to-end tests pass. Do not enable scheduled workflow without those checks.
 
 **A09** — Verify the *deployed* Firestore/Storage rules (which can differ from repo), production Firebase Auth lifecycle, service-account least-privilege IAM, protected credential storage, Firestore/Auth/Storage/Drive backup inventory and a staging restore drill. Code changes alone cannot do this.
 
@@ -55,7 +55,7 @@ This branch is an **unreleased candidate**, not a claim of complete backend prod
 ## Required Firebase configuration (manual, reviewed, not executed here)
 
 1. Keep existing Firebase project. Test `firestore.indexes.json` in a **staging** project; its compound `cmsJobs(status ASC, runAt ASC)` index must finish building before scheduled jobs run in production.
-2. Authorized Firebase owner, after verifying project and backups: `firebase deploy --only firestore:indexes --project YOUR_EXISTING_PROJECT_ID` from a full checkout. This does **not** change client rules, existing documents, public UI or create a new project.
+2. **Do not blindly deploy `firestore.indexes.json`: it currently lists only the new `cmsJobs` composite index.** First export or inventory all existing production Firestore composite indexes and field overrides, reconcile the checked-in file with the existing index policy, and verify that the planned deployment would not remove previously provisioned indexes. An authorized Firebase owner may add this single index in the Firebase console, or deploy a reconciled full index file to *staging first*. Production index deployment must be a separately approved operation after backup and query verification.
 3. Configure `FIREBASE_PROJECT_ID`, web API key, `FIREBASE_SERVICE_ACCOUNT_JSON` (server-only), `USER_ADMIN_ORIGIN`, and `CMS_CRON_SECRET` on the approved Vercel environment. Configure the **matching** `CMS_CRON_SECRET` GitHub Actions secret. Generate a random URL-safe key; never commit it or share it via chat.
 4. `BCG_REQUIRE_FIREBASE_ADMIN=1 BCG_REQUIRE_WORKFLOW_SCHEDULER=1 node scripts/check-release-config.mjs` confirms env syntax and project alignment, *not* real IAM or external access.
 5. Test 401/403 for all unauthorized routes; test two different publisher accounts on a staging record; test scheduler negative/positive cases; inspect logs and audit retention.

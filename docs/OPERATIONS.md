@@ -118,3 +118,14 @@ The scheduler requires the `cmsJobs(status ASC, runAt ASC)` composite index decl
 The explicit managed Drive delete endpoint now enumerates active CMS records and refuses deletion when the file ID is referenced, permission checks fail, or pagination cannot complete. It does not inspect retired collections or static media assets, and it is not an automatic garbage collector. Perform manual reference, privacy and retention review before any irreversible Google Drive deletion.
 
 See `docs/BACKEND-REMEDIATION-20261025.md` for phase-specific testing and outstanding production gates.
+
+
+## October 25, 2026: staged CMS workflow hardening (PR #78)
+
+The hardened server workflow is an **opt-in backend** until the existing admin CMS editor and Firestore rules are migrated together. Legacy Firestore SDK create/publish/delete operations remain accessible to the existing authorized roles, bypassing workflow audit and soft delete. Do **not** claim universally enforced approvals or durable trash recovery.
+
+The candidate adds a Firestore `cmsJobs(status ASC, runAt ASC)` index definition. **Never apply this single-index config to production without first inventorying and reconciling all existing indexes;** deploying a partial managed index configuration may remove other indexes. Test staging first.
+
+Scheduled publication is **not configured in production** until a long random `CMS_CRON_SECRET` is configured in both Vercel (server-only) and GitHub Actions, the index is confirmed ready, GitHub Actions runners execute successfully, and a staging two-person publish/restore drill is completed. Do not add the secret to any `VITE_*` variable.
+
+The GitHub repository is private and `main` is currently unprotected. Failed GitHub Actions jobs expose no runner steps/logs; investigate repository Actions eligibility, billing, runner allocation and available branch-rule entitlements in GitHub Settings. Do not substitute Vercel build success for independent reviews, Firebase emulator tests, or an actual approved release.
