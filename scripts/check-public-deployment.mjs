@@ -58,4 +58,6 @@ await check('/sitemap.xml', [200]);
 await check('/unknown-audit-route-do-not-create', [404]);
 await check('/api/drive/status', [401]);
 await check('/api/admin/users', [401]);
+await check('/api/admin/workflow', [401]);
+await check('/api/cron/publish', [401]);
 console.log('Read-only deployment checks completed; these do not verify authenticated OAuth.');

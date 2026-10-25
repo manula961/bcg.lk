@@ -108,3 +108,24 @@ Dependabot proposes regular dependency updates. Review and test its PRs, especia
 ## 9. Verification boundaries
 
 Documentation and GitHub CI cannot prove live Firebase rules, backup availability, Vercel environment values, Google OAuth consent or visual parity. Confirm those through the respective owner-authorized accounts and record the results in the release process. Existing production Firebase users, content, security rules and credentials must not be modified without explicit approval.
+
+## CMS workflow scheduling and media safety (new backend candidate)
+
+The new workflow API is an **opt-in, separate** editorial route; the existing admin screen continues direct Firestore publishing until a separately approved UI migration is completed. Do not advertise approvals or soft deletion as universal enforcement.
+
+The scheduler requires the `cmsJobs(status ASC, runAt ASC)` composite index declared in `firestore.indexes.json`; an authorized owner must deploy the index to the intended Firebase project after staging/backup review. Configure `CMS_CRON_SECRET` as the same URL-safe random secret in Vercel and the GitHub Actions environment. Enable `BCG_REQUIRE_WORKFLOW_SCHEDULER=1` only for strict release preflight. The GitHub scheduled workflow reports failed jobs, deferred retries, and backlog signals as failed runs for operators to inspect.
+
+The explicit managed Drive delete endpoint now enumerates active CMS records and refuses deletion when the file ID is referenced, permission checks fail, or pagination cannot complete. It does not inspect retired collections or static media assets, and it is not an automatic garbage collector. Perform manual reference, privacy and retention review before any irreversible Google Drive deletion.
+
+See `docs/BACKEND-REMEDIATION-20261025.md` for phase-specific testing and outstanding production gates.
+
+
+## October 25, 2026: staged CMS workflow hardening (PR #78)
+
+The hardened server workflow is an **opt-in backend** until the existing admin CMS editor and Firestore rules are migrated together. Legacy Firestore SDK create/publish/delete operations remain accessible to the existing authorized roles, bypassing workflow audit and soft delete. Do **not** claim universally enforced approvals or durable trash recovery.
+
+The candidate adds a Firestore `cmsJobs(status ASC, runAt ASC)` index definition. **Never apply this single-index config to production without first inventorying and reconciling all existing indexes;** deploying a partial managed index configuration may remove other indexes. Test staging first.
+
+Scheduled publication is **not configured in production** until a long random `CMS_CRON_SECRET` is configured in both Vercel (server-only) and GitHub Actions, the index is confirmed ready, GitHub Actions runners execute successfully, and a staging two-person publish/restore drill is completed. Do not add the secret to any `VITE_*` variable.
+
+The GitHub repository is private and `main` is currently unprotected. Failed GitHub Actions jobs expose no runner steps/logs; investigate repository Actions eligibility, billing, runner allocation and available branch-rule entitlements in GitHub Settings. Do not substitute Vercel build success for independent reviews, Firebase emulator tests, or an actual approved release.

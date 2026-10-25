@@ -13,6 +13,9 @@ export default async function handler(req, res) {
         Object.keys(body).length !== 1 || typeof body.fileId !== 'string') {
       throw Object.assign(new Error('Provide a managed Drive file ID'), { status: 400 });
     }
+    // Fail closed when the requested file is still referenced by any active CMS document.
+    const { assertDriveMediaUnreferenced } = await import('../_lib/drive-media-references.mjs');
+    await assertDriveMediaUnreferenced(body.fileId, req);
     const token = await accessToken(session.refresh);
     const result = await deleteManagedDriveFile(token, body.fileId);
     res.status(200).json(result);
