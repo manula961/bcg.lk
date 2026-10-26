@@ -11,6 +11,7 @@ export default async function handler(req, res) {
     return res.status(code).json({ error: code === 401 ? 'Sign in to the console.'
       : code === 403 ? 'Administrator permissions required.'
         : code === 400 ? 'Choose a valid reporting range.'
+          : code === 503 ? 'Cloudflare analytics setup is incomplete. Check site tag, account ID and API token in Vercel.'
           : 'Post analytics is temporarily unavailable.' });
   }
 }

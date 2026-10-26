@@ -52,6 +52,11 @@ test('UTC windows cover 7, 30 and 90 days and bound each Cloudflare request to 3
 test('report config validates identifiers and secrets stay server only',()=>{
   assert.equal(cloudflareConfig(env).hostname,host);
   assert.throws(()=>cloudflareConfig({...env,CLOUDFLARE_ACCOUNT_ID:'invalid'}),{status:503});
+  // A browser beacon token alone does not establish the GraphQL RUM site tag.
+  assert.throws(()=>cloudflareConfig({...env,
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TAG:undefined,
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN:'f'.repeat(32),
+  }),{status:503});
   assert.throws(()=>cloudflareConfig({...env,CLOUDFLARE_ANALYTICS_API_TOKEN:''}),{status:503});
   assert.throws(()=>cloudflareConfig({...env,BCG_CANONICAL_ORIGIN:'http://bcglk.devoraid.com'}),{status:503});
   assert.match(CLOUD_FLARE_QUERY,/siteTag: \$siteTag/);
