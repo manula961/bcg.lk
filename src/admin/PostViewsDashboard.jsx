@@ -167,7 +167,7 @@ export default function PostViewsDashboard({ userId }) {
                 <span>{number(item.views)} views</span>
               </div>
               <div className="admin-analytics-track" role="img"
-                aria-label={item.title + ': ' + number(item.views) + ' qualified views'}>
+                aria-label={item.title + ': ' + number(item.views) + ' Cloudflare pageviews'}>
                 <span className="admin-analytics-published"
                   style={{width:(item.views/biggest*100)+'%'}} />
               </div>
@@ -191,9 +191,7 @@ export default function PostViewsDashboard({ userId }) {
         </table></div>
       </section>
       <p className="admin-analytics-footnote">
-        {data.measured}. Reports from modern browsers and their page visits
-        are reported by Cloudflare. Automated traffic is filtered, not perfectly
-        eliminated. No personal visitor identities are available. Historical activity before
+        {data.measured}. Counts may be sampled and are not unique visitors. Browsers may block Cloudflare's beacon. No personal visitor identities are available. Historical activity before
         tracking was enabled is not included.
       </p>
     </>}
