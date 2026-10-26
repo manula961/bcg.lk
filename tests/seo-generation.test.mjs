@@ -40,7 +40,7 @@ test('build postprocessor emits valid static route pages and does not overwrite 
   const root = mkdtempSync(join(tmpdir(), 'bcg-seo-'));
   try {
     writeFileSync(join(root, 'index.html'), template, 'utf8');
-    generateSeoFiles(root);
+    generateSeoFiles(root, { analyticsEnabled: true });
     const builtHome = readFileSync(join(root, 'index.html'), 'utf8');
     assert.equal(builtHome.replace('  <script defer src="/assets/bcg-post-views.js"></script>\n', ''), template);
     assert.equal(builtHome.slice(builtHome.indexOf('<body>')), template.slice(template.indexOf('<body>')));
@@ -89,4 +89,26 @@ test('robots.txt uses the same approved canonical host as the generated sitemap'
   assert.match(result.stdout, /Sitemap: https:\/\/approved\.example\.test\/sitemap\.xml/);
   assert.match(result.stdout, /<loc>https:\/\/approved\.example\.test\/events<\/loc>/);
   assert.doesNotMatch(result.stdout, /bcglk\.devoraid\.com/);
+});
+
+test('post-view collector is not shipped unless enabled with a server hash key', async () => {
+  const { analyticsCollectionEnabled } = await import('../scripts/generate-seo-pages.mjs');
+  assert.equal(analyticsCollectionEnabled({}), false);
+  assert.equal(analyticsCollectionEnabled({ BCG_ANALYTICS_ENABLED: '1' }), false);
+  assert.equal(analyticsCollectionEnabled({
+    BCG_ANALYTICS_ENABLED: '1', BCG_ANALYTICS_HASH_KEY: 'a'.repeat(32),
+  }), true);
+  const root = mkdtempSync(join(tmpdir(), 'bcg-no-analytics-'));
+  try {
+    writeFileSync(join(root, 'index.html'), template, 'utf8');
+    generateSeoFiles(root, { analyticsEnabled: false });
+    assert.equal(readFileSync(join(root, 'index.html'), 'utf8'), template);
+    assert.equal(existsSync(join(root, 'assets', 'bcg-post-views.js')), false);
+    for (const route of seoRoutes) {
+      const page = readFileSync(join(root, route.path.slice(1), 'index.html'), 'utf8');
+      assert.doesNotMatch(page, /bcg-post-views\\.js/);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
