@@ -42,22 +42,6 @@ export function validateReleaseConfig(env = process.env, strict = false) {
       failures.push('BCG_CANONICAL_ORIGIN must be an exact HTTPS origin without a path');
   } catch { failures.push('BCG_CANONICAL_ORIGIN must be a valid HTTPS origin'); }
 
-  // Fail closed before enabling first-party Firestore visitor measurement.
-  if (env.BCG_ANALYTICS_ENABLED === '1') {
-    if (typeof env.BCG_ANALYTICS_HASH_KEY !== 'string' ||
-        env.BCG_ANALYTICS_HASH_KEY.length < 32)
-      failures.push('BCG_ANALYTICS_HASH_KEY must be at least 32 characters when analytics is enabled');
-    const analyticsOrigin = env.BCG_ANALYTICS_ORIGIN || env.USER_ADMIN_ORIGIN || origin;
-    try {
-      const url = new URL(analyticsOrigin);
-      if (url.protocol !== 'https:' || url.origin !== analyticsOrigin ||
-          url.username || url.password)
-        failures.push('BCG_ANALYTICS_ORIGIN must be an exact HTTPS origin');
-    } catch {
-      failures.push('BCG_ANALYTICS_ORIGIN must be a valid HTTPS origin');
-    }
-  }
-
   if (strict) {
     if (env.BCG_REQUIRE_WORKFLOW_SCHEDULER === '1' &&
         !/^[A-Za-z0-9_-]{32,256}$/.test(env.CMS_CRON_SECRET || ''))

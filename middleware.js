@@ -1,6 +1,6 @@
-// Safe static/request pass-through. Rich crawler metadata remains implemented in
-// scripts/dynamic-cms-seo.mjs but is not invoked at the global routing boundary
-// until its runtime compatibility is verified in an isolated staging deployment.
+// Preserve all existing public React markup and routes. Only recognized crawlers
+// requesting stable CMS document URLs receive published-only metadata, via a
+// best-effort dynamic import. Browsers, drafts, and failures retain the SPA.
 function continueRequest() {
   return new Response(null, { headers: { 'x-middleware-next': '1' } });
 }
@@ -34,7 +34,23 @@ export function isKnownRoute(path) {
 export default function middleware(request) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return continueRequest();
   const path = new URL(request.url).pathname;
-  if (isKnownRoute(path)) return continueRequest();
+  if (isKnownRoute(path)) {
+    // Defer ESM import so normal visitors and static assets do not acquire an
+    // extra dependency or any Firestore request. The helper validates both
+    // the route and the published status before returning enriched HTML.
+    const agent = request.headers.get('user-agent') || '';
+    const eligibleCmsPath = /^\/(?:updates\/[A-Za-z0-9]{20}|events\/[A-Za-z0-9]{20}|pages\/[a-z0-9]+(?:-[a-z0-9]+)*)\/?$/.test(path);
+    const crawler = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i.test(agent);
+    if (request.method === 'GET' && eligibleCmsPath && crawler) {
+      return import('./scripts/dynamic-cms-seo.mjs')
+        .then(async ({ isMetadataCrawler, cmsDocumentRoute, publishedCmsResponse }) => {
+          if (!isMetadataCrawler(agent) || !cmsDocumentRoute(path)) return continueRequest();
+          return (await publishedCmsResponse(request)) || continueRequest();
+        })
+        .catch(() => continueRequest());
+    }
+    return continueRequest();
+  }
   // This lightweight branded response is shown only for unknown routes.
   // The existing public React pages/styles are unchanged.
   const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Bandaranayake College</title></head><body style="background:#0a0a0a;color:#f5f0e8;font-family:Georgia,serif;text-align:center;padding:12vh 20px"><main><h1>Page not found</h1><p>This address does not match a published college page.</p><a style="color:#c9a84c" href="/">Back to home</a></main></body></html>';
