@@ -100,7 +100,7 @@ export default function PostViewsDashboard({ userId }) {
     </div>}
     {data && <>
       <div className="admin-analytics-stats">
-        <Summary title="Qualified post views" value={data.totalViews}
+        <Summary title="Cloudflare pageviews" value={data.totalViews}
           note={'Last ' + days + ' days (UTC)'} />
         <Summary title="Posts receiving views" value={data.postsTracked}
           note="News, events and pages" />
@@ -115,7 +115,7 @@ export default function PostViewsDashboard({ userId }) {
           aria-labelledby="bcg-trend-title">
           <header className="admin-editor-header"><div>
             <h3 id="bcg-trend-title" className="admin-editor-title">Daily visit trend</h3>
-            <p className="admin-header-desc">UTC days · each bar represents qualified post views</p>
+            <p className="admin-header-desc">UTC days · each bar represents Cloudflare pageviews</p>
           </div></header>
           <div className="bcg-trend-container">
             <div className="bcg-trend-bars" role="img"
@@ -173,7 +173,7 @@ export default function PostViewsDashboard({ userId }) {
       </section>
       <p className="admin-analytics-footnote">
         {data.measured}. Reloads and requests from the same approximate network/browser
-        within 30 minutes count once per post. Automated traffic is filtered, not perfectly
+        are reported by Cloudflare. Automated traffic is filtered, not perfectly
         eliminated. No personal visitor identities are available. Historical activity before
         tracking was enabled is not included.
       </p>
