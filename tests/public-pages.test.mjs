@@ -32,3 +32,12 @@ test('public Pages service fetches only published records',()=>{
  assert.match(service,/getPublishedPage = pages\.getPublished/);
  assert.match(repo,/snapshot\.data\(\)\.published === true/);
 });
+
+test('admin sidebar exposes the existing CMS Pages manager without a new UI design', () => {
+  const dashboard = read('src/admin/AdminDashboard.jsx');
+  const manager = read('src/admin/ContentManager.jsx');
+  assert.match(dashboard, /id: 'pages'/);
+  assert.match(dashboard, /label: 'Website Pages'/);
+  assert.match(manager, /pages: \{/);
+  assert.match(dashboard, /<ContentManager key=\{selectedSection/);
+});
