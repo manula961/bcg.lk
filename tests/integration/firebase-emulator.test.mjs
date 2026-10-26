@@ -83,7 +83,7 @@ test('public reads are published-only, and unrestricted queries are rejected', a
   }
 });
 
-test('non-admin writes fail; administrator can create, edit, publish, unpublish, delete', async () => {
+test('non-admin writes fail; administrators publish but direct hard deletes are denied', async () => {
   for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers']) {
     const id = 'integration-' + name;
     const record = doc(admin.firestore(), name, id);
@@ -97,7 +97,7 @@ test('non-admin writes fail; administrator can create, edit, publish, unpublish,
     await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
-    await assertSucceeds(deleteDoc(record));
+    await assertFails(deleteDoc(record));
   }
 });
 
@@ -113,7 +113,7 @@ test('past papers enforce valid metadata, HTTPS links, and editor/publisher role
   await assertFails(updateDoc(draft, { published: true }));
   await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(doc(publisher.firestore(), 'pastPapers/editor-draft')));
-  await assertSucceeds(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
+  await assertFails(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
 });
 
 test('retired Extracurricular collection is not accessible to clients', async () => {
@@ -192,7 +192,7 @@ test('administrator cannot forge or rewrite immutable creation metadata', async 
   await assertFails(updateDoc(record, { createdBy: 'another-user' }));
   await assertFails(updateDoc(record, { updatedBy: 'another-user' }));
   await assertSucceeds(updateDoc(record, { title: 'Legitimate edit' }));
-  await assertSucceeds(deleteDoc(record));
+  await assertFails(deleteDoc(record));
 });
 
 test('auditor has read-only draft visibility without publication or role management', async () => {
@@ -217,8 +217,8 @@ test('Firestore validates slug, HTTPS media URLs, event dates, colors and allowe
   await assertSucceeds(setDoc(doc(db, 'pages/valid-slug'), { title: 'Valid', slug: 'valid-slug', body: 'Valid page body', published: false }));
   await assertSucceeds(setDoc(doc(db, 'events/valid-date'), { title: 'Valid event', description: 'Event details', location: 'Hall', eventDate: '2026-10-18', color: '#7B1C1C', published: false }));
   await assertFails(updateDoc(doc(db, 'events/valid-date'), { eventDate: '2026-02-40' }));
-  await assertSucceeds(deleteDoc(doc(db, 'pages/valid-slug')));
-  await assertSucceeds(deleteDoc(doc(db, 'events/valid-date')));
+  await assertFails(deleteDoc(doc(db, 'pages/valid-slug')));
+  await assertFails(deleteDoc(doc(db, 'events/valid-date')));
 });
 
 test('required CMS fields reject empty, whitespace-only and mismatched page identifiers', async () => {
@@ -250,7 +250,7 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
   await assertSucceeds(setDoc(doc(db, 'pages/matched-slug'), {
     title: 'Page', body: 'Real body', slug: 'matched-slug', published: true,
   }));
-  await assertSucceeds(deleteDoc(doc(db, 'pages/matched-slug')));
+  await assertFails(deleteDoc(doc(db, 'pages/matched-slug')));
 });
 
 test('multiline editorial content is allowed, but whitespace-only bodies are rejected', async () => {
@@ -261,7 +261,7 @@ test('multiline editorial content is allowed, but whitespace-only bodies are rej
     body: 'First paragraph.\n\nSecond paragraph.', published: true,
   }));
   await assertFails(updateDoc(record, { body: ' \n \t ' }));
-  await assertSucceeds(deleteDoc(record));
+  await assertFails(deleteDoc(record));
 });
 
 test('RBAC: role writes are server-only, even for a signed-in Super Admin', async () => {
@@ -301,7 +301,7 @@ test('RBAC: role writes are server-only, even for a signed-in Super Admin', asyn
   await assertFails(deleteDoc(target));
 });
 
-test('RBAC: editors manage drafts only, publishers can publish but cannot delete', async () => {
+test('RBAC: editors manage drafts only, publishers publish but no client may hard delete', async () => {
   const id = 'draft-editor-rbac';
   const refEditor = doc(editor.firestore(), 'news', id);
   const refPublisher = doc(publisher.firestore(), 'news', id);
@@ -320,7 +320,7 @@ test('RBAC: editors manage drafts only, publishers can publish but cannot delete
   await assertSucceeds(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
   await assertFails(updateDoc(refEditor, { title: 'Published content changed by editor' }));
   await assertFails(deleteDoc(refPublisher));
-  await assertSucceeds(deleteDoc(refAdmin));
+  await assertFails(deleteDoc(refAdmin));
 });
 
 test('RBAC: direct Firebase Storage writes are admin-only; editors use the Drive API', async () => {
@@ -388,7 +388,7 @@ test('server-owned CMS timestamps cannot be forged with client-controlled dates'
   await assertFails(updateDoc(record, { updatedAt: backdate }));
   await assertFails(updateDoc(record, { createdAt: backdate }));
   await assertSucceeds(updateDoc(record, { title: 'Legitimate update', updatedAt: serverTimestamp() }));
-  await assertSucceeds(deleteDoc(record));
+  await assertFails(deleteDoc(record));
 });
 
 test('publication transitions require a trusted server timestamp', async () => {
@@ -400,5 +400,25 @@ test('publication transitions require a trusted server timestamp', async () => {
   await assertSucceeds(updateDoc(record, { published: true, publishedAt: serverTimestamp() }));
   await assertFails(updateDoc(record, { published: false }));
   await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
-  await assertSucceeds(deleteDoc(record));
+  await assertFails(deleteDoc(record));
+});
+
+test('archived CMS records cannot be recreated, edited, published or deleted through the client SDK', async () => {
+  const id = 'archived-write-guard';
+  const record = doc(admin.firestore(), 'news', id);
+  await assertSucceeds(setDoc(record, { title:'Safe', excerpt:'Archived draft', published:false }));
+  await environment.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'cmsTrash/news_' + id), {
+      kind:'news', recordId:id, archivedBy:'verified-admin',
+    });
+  });
+  await assertFails(updateDoc(record, { title:'Tampered while archived' }));
+  await assertFails(updateDoc(record, { published:true, publishedAt:serverTimestamp() }));
+  await assertFails(deleteDoc(record));
+  await assertFails(setDoc(record, { title:'Recreated', excerpt:'Bypassed archive', published:false }));
+  // Trusted archive restoration removes cmsTrash before normal draft editing.
+  await environment.withSecurityRulesDisabled(async context => {
+    await deleteDoc(doc(context.firestore(), 'cmsTrash/news_' + id));
+  });
+  await assertSucceeds(updateDoc(record, { title:'Restored draft' }));
 });
