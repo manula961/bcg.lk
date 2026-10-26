@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdtempSync, existsSync, rmSync, mkdirSync
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { seoRoutes, ORIGIN, renderStaticSeoHtml, staticSitemap, generateSeoFiles, generatedRobotsTxt } from '../scripts/generate-seo-pages.mjs';
+import { seoRoutes, ORIGIN, renderStaticSeoHtml, staticSitemap, generateSeoFiles, generatedRobotsTxt, injectCloudflareBeacon } from '../scripts/generate-seo-pages.mjs';
 
 const template = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const rewrites = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8')).rewrites;
@@ -42,14 +42,14 @@ test('build postprocessor emits valid static route pages and does not overwrite 
     writeFileSync(join(root, 'index.html'), template, 'utf8');
     generateSeoFiles(root);
     const builtHome = readFileSync(join(root, 'index.html'), 'utf8');
-    assert.equal(builtHome.replace('  <script defer src="/assets/bcg-post-views.js"></script>\n', ''), template);
-    assert.equal(builtHome.slice(builtHome.indexOf('<body>')), template.slice(template.indexOf('<body>')));
-    assert.ok(existsSync(join(root, 'assets', 'bcg-post-views.js')));
+    assert.equal(builtHome, injectCloudflareBeacon(template));
+    assert.doesNotMatch(builtHome, /bcg-post-views|api\/analytics\/collect/);
+    assert.ok(!existsSync(join(root, 'assets', 'bcg-post-views.js')));
     for (const route of seoRoutes) {
       const file = join(root, route.path.slice(1), 'index.html');
       assert.ok(existsSync(file), file);
       assert.ok(readFileSync(file, 'utf8').includes(ORIGIN + (route.canonicalPath || route.path)));
-      assert.match(readFileSync(file, 'utf8'), /assets\/bcg-post-views\.js/);
+      assert.equal(readFileSync(file, 'utf8'), injectCloudflareBeacon(renderStaticSeoHtml(template, route)));
     }
     assert.ok(existsSync(join(root, 'sitemap.xml')));
     assert.equal(readFileSync(join(root, 'robots.txt'), 'utf8'), generatedRobotsTxt());
@@ -89,4 +89,16 @@ test('robots.txt uses the same approved canonical host as the generated sitemap'
   assert.match(result.stdout, /Sitemap: https:\/\/approved\.example\.test\/sitemap\.xml/);
   assert.match(result.stdout, /<loc>https:\/\/approved\.example\.test\/events<\/loc>/);
   assert.doesNotMatch(result.stdout, /bcglk\.devoraid\.com/);
+});
+
+test('Cloudflare beacon requires a valid token, supports SPA, and is not added by default', () => {
+  const token = 'f'.repeat(32);
+  const html = injectCloudflareBeacon(template, token);
+  assert.match(html, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
+  assert.match(html, /"spa":true/);
+  assert.ok(html.includes('"token":"' + token + '"'));
+  assert.equal(injectCloudflareBeacon(template, ''), template);
+  assert.throws(() => injectCloudflareBeacon(template, '<bad>'), /32-character hexadecimal/);
+  assert.throws(() => injectCloudflareBeacon(html, token), /Cannot safely inject/);
+  assert.equal(html.replace(/  <script defer src="https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js" [^\n]+\n/, ''), template);
 });
