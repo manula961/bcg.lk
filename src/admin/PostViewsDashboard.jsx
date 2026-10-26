@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import './PostViewsDashboard.css';
 
 const OPTIONS = [7, 30, 90];
@@ -17,6 +18,24 @@ export function makeViewsCsv(report) {
   ]));
   return lines.map(line => line.map(csvValue).join(',')).join('\n') + '\n';
 }
+async function resolvePostTitles(report) {
+  if (!db) return report;
+  const resolved = await Promise.all(report.posts.slice(0, 15).map(async post => {
+    try {
+      const snapshot = await getDoc(doc(db, post.kind, post.id));
+      const value = snapshot.data();
+      if (snapshot.exists() && value?.published === true &&
+          typeof value.title === 'string' && value.title.trim())
+        return { id: post.kind + '/' + post.id, title: value.title.trim().slice(0, 180) };
+    } catch { /* A missing title must not suppress Cloudflare counts. */ }
+    return null;
+  }));
+  const titles = new Map(resolved.filter(Boolean).map(value => [value.id, value.title]));
+  return { ...report, posts: report.posts.map(post => ({
+    ...post, title: titles.get(post.kind + '/' + post.id) || post.title,
+  })) };
+}
+
 async function getReport(userId, days) {
   const current = auth?.currentUser;
   if (!current || current.uid !== userId)
@@ -33,7 +52,7 @@ async function getReport(userId, days) {
       'Post visit statistics are unavailable. Check analytics setup and your connection.');
   if (!auth.currentUser || auth.currentUser.uid !== userId)
     throw Error('Administrator session changed. Sign in again.');
-  return data;
+  return resolvePostTitles(data);
 }
 function Summary({ title, value, note }) {
   return <article className="admin-analytics-stat">
@@ -100,7 +119,7 @@ export default function PostViewsDashboard({ userId }) {
     </div>}
     {data && <>
       <div className="admin-analytics-stats">
-        <Summary title="Qualified post views" value={data.totalViews}
+        <Summary title="Cloudflare pageviews" value={data.totalViews}
           note={'Last ' + days + ' days (UTC)'} />
         <Summary title="Posts receiving views" value={data.postsTracked}
           note="News, events and pages" />
@@ -115,7 +134,7 @@ export default function PostViewsDashboard({ userId }) {
           aria-labelledby="bcg-trend-title">
           <header className="admin-editor-header"><div>
             <h3 id="bcg-trend-title" className="admin-editor-title">Daily visit trend</h3>
-            <p className="admin-header-desc">UTC days · each bar represents qualified post views</p>
+            <p className="admin-header-desc">UTC days · each bar represents Cloudflare pageviews</p>
           </div></header>
           <div className="bcg-trend-container">
             <div className="bcg-trend-bars" role="img"
@@ -138,8 +157,8 @@ export default function PostViewsDashboard({ userId }) {
           </div></header>
           <div className="admin-analytics-bars">
             {data.posts.length === 0 && <p className="admin-analytics-footnote">
-              No qualified post visits recorded yet. Tracking starts after production
-              analytics is enabled; earlier visits cannot be recovered.</p>}
+              No Cloudflare pageviews reported yet. Connect the Cloudflare beacon and reporting token first.
+              Visits before setup cannot be recovered.</p>}
             {data.posts.slice(0,10).map((item,index)=><div className="admin-analytics-bar-row"
               key={item.kind+item.id}>
               <div className="admin-analytics-bar-label">
@@ -148,7 +167,7 @@ export default function PostViewsDashboard({ userId }) {
                 <span>{number(item.views)} views</span>
               </div>
               <div className="admin-analytics-track" role="img"
-                aria-label={item.title + ': ' + number(item.views) + ' qualified views'}>
+                aria-label={item.title + ': ' + number(item.views) + ' Cloudflare pageviews'}>
                 <span className="admin-analytics-published"
                   style={{width:(item.views/biggest*100)+'%'}} />
               </div>
@@ -172,9 +191,7 @@ export default function PostViewsDashboard({ userId }) {
         </table></div>
       </section>
       <p className="admin-analytics-footnote">
-        {data.measured}. Reloads and requests from the same approximate network/browser
-        within 30 minutes count once per post. Automated traffic is filtered, not perfectly
-        eliminated. No personal visitor identities are available. Historical activity before
+        {data.measured}. Counts may be sampled and are not unique visitors. Browsers may block Cloudflare's beacon. No personal visitor identities are available. Historical activity before
         tracking was enabled is not included.
       </p>
     </>}

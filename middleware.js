@@ -1,6 +1,6 @@
-// Safe static/request pass-through. Rich crawler metadata remains implemented in
-// scripts/dynamic-cms-seo.mjs but is not invoked at the global routing boundary
-// until its runtime compatibility is verified in an isolated staging deployment.
+// Preserve all existing public React markup and routes. Only recognized crawlers
+// requesting stable CMS document URLs receive published-only metadata, via a
+// best-effort dynamic import. Browsers, drafts, and failures retain the SPA.
 function continueRequest() {
   return new Response(null, { headers: { 'x-middleware-next': '1' } });
 }
@@ -35,19 +35,19 @@ export default function middleware(request) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return continueRequest();
   const path = new URL(request.url).pathname;
   if (isKnownRoute(path)) {
-    // Only social/search preview crawlers need server-rendered document metadata.
-    // Ordinary visitors continue through the existing React SPA unchanged.
-    const userAgent = request.headers.get('user-agent') || '';
-    const crawler = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i;
-    const dynamicRecord = new RegExp('^/(?:updates|events)/[A-Za-z0-9]{20}/?$').test(path) ||
-      new RegExp('^/pages/[a-z0-9]+(?:-[a-z0-9]+)*/?$').test(path);
-    if (request.method === 'GET' && dynamicRecord && crawler.test(userAgent)) {
-      // A failed Firestore read must never break navigation or reveal drafts.
-      // Lazy import keeps the backend module out of ordinary page requests.
+    // Defer ESM import so normal visitors and static assets do not acquire an
+    // extra dependency or any Firestore request. The helper validates both
+    // the route and the published status before returning enriched HTML.
+    const agent = request.headers.get('user-agent') || '';
+    const eligibleCmsPath = /^\/(?:updates\/[A-Za-z0-9]{20}|events\/[A-Za-z0-9]{20}|pages\/[a-z0-9]+(?:-[a-z0-9]+)*)\/?$/.test(path);
+    const crawler = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i.test(agent);
+    if (request.method === 'GET' && eligibleCmsPath && crawler) {
       return import('./scripts/dynamic-cms-seo.mjs')
-        .then(({ isMetadataCrawler, publishedCmsResponse }) =>
-          isMetadataCrawler(userAgent) ? publishedCmsResponse(request) : undefined)
-        .then(response => response || continueRequest(), () => continueRequest());
+        .then(async ({ isMetadataCrawler, cmsDocumentRoute, publishedCmsResponse }) => {
+          if (!isMetadataCrawler(agent) || !cmsDocumentRoute(path)) return continueRequest();
+          return (await publishedCmsResponse(request)) || continueRequest();
+        })
+        .catch(() => continueRequest());
     }
     return continueRequest();
   }

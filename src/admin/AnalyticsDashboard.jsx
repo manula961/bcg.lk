@@ -173,7 +173,7 @@ export default function AnalyticsDashboard({ userId }) {
           <p className="admin-analytics-footnote" role="status">
             Refreshed {state.at.toLocaleTimeString()}. Counts may differ slightly while records change.
             New records without a createdAt timestamp are excluded from the selected period.
-            This dashboard measures CMS content only; website visits and page views are not tracked here.
+            This content summary measures Firebase CMS records; the Cloudflare section above reports pageviews.
           </p>
         </>
       )}
