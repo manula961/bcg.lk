@@ -2,12 +2,23 @@ import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import ContentManager from './ContentManager';
+import AnalyticsDashboard from './AnalyticsDashboard';
 import RoleManager from './RoleManager';
 import { hasPermission, ROLE_LABELS } from '../lib/rbac.mjs';
 import './Admin.css';
 import './AdminFrontendTheme.css';
 
 const sections = [
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    description: 'Content statistics & publishing',
+    icon: (
+      <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M3 3v18h18M7 16v-5m5 5V6m5 10v-8" />
+      </svg>
+    ),
+  },
   {
     id: 'news',
     label: 'News',
@@ -177,7 +188,9 @@ export default function AdminDashboard({ user, role }) {
           <div className="admin-content-area">
             {selectedSection === 'users'
               ? <RoleManager currentUid={user?.uid} />
-              : <ContentManager key={selectedSection + ':' + role} kind={selectedSection} role={role} onDirtyChange={setEditorDirty} />}
+              : selectedSection === 'analytics'
+                ? <AnalyticsDashboard userId={user?.uid} />
+                : <ContentManager key={selectedSection + ':' + role} kind={selectedSection} role={role} onDirtyChange={setEditorDirty} />}
           </div>
         </div>
       </div>
