@@ -157,8 +157,8 @@ export default function PostViewsDashboard({ userId }) {
           </div></header>
           <div className="admin-analytics-bars">
             {data.posts.length === 0 && <p className="admin-analytics-footnote">
-              No Cloudflare pageviews reported yet. Tracking starts after production
-              analytics is enabled; earlier visits cannot be recovered.</p>}
+              No Cloudflare pageviews reported yet. Connect the Cloudflare beacon and reporting token first.
+              Visits before setup cannot be recovered.</p>}
             {data.posts.slice(0,10).map((item,index)=><div className="admin-analytics-bar-row"
               key={item.kind+item.id}>
               <div className="admin-analytics-bar-label">
