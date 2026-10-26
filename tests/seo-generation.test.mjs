@@ -106,7 +106,7 @@ test('post-view collector is not shipped unless enabled with a server hash key',
     assert.equal(existsSync(join(root, 'assets', 'bcg-post-views.js')), false);
     for (const route of seoRoutes) {
       const page = readFileSync(join(root, route.path.slice(1), 'index.html'), 'utf8');
-      assert.doesNotMatch(page, /bcg-post-views\\.js/);
+      assert.doesNotMatch(page, /bcg-post-views[.]js/);
     }
   } finally {
     rmSync(root, { recursive: true, force: true });
