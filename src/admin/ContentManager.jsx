@@ -20,6 +20,7 @@ import {
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
 import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
+import { getArchiveStatus, archiveCmsRecord, restoreCmsRecord } from '../lib/cmsWorkflowClient';
 import './Admin.css';
 
 const collections = {
@@ -177,6 +178,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
+  const [knownArchived, setKnownArchived] = useState(() => new Set());
   const [uploadingImage, setUploadingImage] = useState(false);
   const [drive, setDrive] = useState({ configured: false, connected: false });
 
@@ -419,12 +421,27 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
 
   async function remove(item) {
     if (!canDelete || actionId !== null) return;
-    if (!window.confirm('Permanently delete "' + (item.title || 'item') + '"?')) return;
     setActionId(item.id);
     setNotice(null);
     try {
-      await config.remove(item.id, { expectedUpdatedAt: item.updatedAt ?? null });
-      setNotice({ type: 'success', text: 'Deleted successfully.' });
+      const archived = await getArchiveStatus(kind, item.id);
+      if (archived) {
+        if (!window.confirm('Restore "' + (item.title || 'item') +
+          '" as an unpublished draft?')) return;
+        await restoreCmsRecord(kind, item.id);
+        setKnownArchived(previous => {
+          const next = new Set(previous);
+          next.delete(item.id);
+          return next;
+        });
+        setNotice({ type: 'success', text: 'Restored to drafts. Review before republishing.' });
+      } else {
+        if (!window.confirm('Archive "' + (item.title || 'item') +
+          '"? This removes it from the public website, preserves its history, and allows restoration. Publicly shared Drive files remain accessible.')) return;
+        await archiveCmsRecord(kind, item.id);
+        setKnownArchived(previous => new Set(previous).add(item.id));
+        setNotice({ type: 'success', text: 'Archived safely. Use Archive / Restore to restore this draft.' });
+      }
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
     } finally {
@@ -583,7 +600,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                           onClick={() => remove(item)}
                           className="admin-btn-ghost-danger"
                         >
-                          Delete
+                          {knownArchived.has(item.id) ? 'Restore' : 'Archive / Restore'}
                         </button>}
                       </div>
                     </article>
