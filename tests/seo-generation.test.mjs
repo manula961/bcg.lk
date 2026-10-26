@@ -40,16 +40,24 @@ test('build postprocessor emits valid static route pages and does not overwrite 
   const root = mkdtempSync(join(tmpdir(), 'bcg-seo-'));
   try {
     writeFileSync(join(root, 'index.html'), template, 'utf8');
-    generateSeoFiles(root);
+    const prior = process.env.BCG_ANALYTICS_ENABLED;
+    delete process.env.BCG_ANALYTICS_ENABLED;
+    try {
+      generateSeoFiles(root);
+    } finally {
+      if (prior === undefined) delete process.env.BCG_ANALYTICS_ENABLED;
+      else process.env.BCG_ANALYTICS_ENABLED = prior;
+    }
     const builtHome = readFileSync(join(root, 'index.html'), 'utf8');
-    assert.equal(builtHome.replace('  <script defer src="/assets/bcg-post-views.js"></script>\n', ''), template);
+    assert.equal(builtHome, template);
+    assert.doesNotMatch(builtHome, /bcg-post-views\.js/);
     assert.equal(builtHome.slice(builtHome.indexOf('<body>')), template.slice(template.indexOf('<body>')));
-    assert.ok(existsSync(join(root, 'assets', 'bcg-post-views.js')));
+    assert.equal(existsSync(join(root, 'assets', 'bcg-post-views.js')), false);
     for (const route of seoRoutes) {
       const file = join(root, route.path.slice(1), 'index.html');
       assert.ok(existsSync(file), file);
       assert.ok(readFileSync(file, 'utf8').includes(ORIGIN + (route.canonicalPath || route.path)));
-      assert.match(readFileSync(file, 'utf8'), /assets\/bcg-post-views\.js/);
+      assert.doesNotMatch(readFileSync(file, 'utf8'), /assets\/bcg-post-views\.js/);
     }
     assert.ok(existsSync(join(root, 'sitemap.xml')));
     assert.equal(readFileSync(join(root, 'robots.txt'), 'utf8'), generatedRobotsTxt());
@@ -89,4 +97,24 @@ test('robots.txt uses the same approved canonical host as the generated sitemap'
   assert.match(result.stdout, /Sitemap: https:\/\/approved\.example\.test\/sitemap\.xml/);
   assert.match(result.stdout, /<loc>https:\/\/approved\.example\.test\/events<\/loc>/);
   assert.doesNotMatch(result.stdout, /bcglk\.devoraid\.com/);
+});
+
+test('qualified post view tracker is injected only after explicit activation', () => {
+  const root = mkdtempSync(join(tmpdir(), 'bcg-analytics-seo-'));
+  const prior = process.env.BCG_ANALYTICS_ENABLED;
+  try {
+    writeFileSync(join(root, 'index.html'), template, 'utf8');
+    process.env.BCG_ANALYTICS_ENABLED = '1';
+    generateSeoFiles(root);
+    assert.match(readFileSync(join(root, 'index.html'), 'utf8'), /assets\/bcg-post-views\.js/);
+    assert.ok(existsSync(join(root, 'assets', 'bcg-post-views.js')));
+    for (const route of seoRoutes) {
+      assert.match(readFileSync(join(root, route.path.slice(1), 'index.html'), 'utf8'),
+        /assets\/bcg-post-views\.js/);
+    }
+  } finally {
+    if (prior === undefined) delete process.env.BCG_ANALYTICS_ENABLED;
+    else process.env.BCG_ANALYTICS_ENABLED = prior;
+    rmSync(root, { recursive: true, force: true });
+  }
 });
