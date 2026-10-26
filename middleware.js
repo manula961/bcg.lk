@@ -39,8 +39,8 @@ export default function middleware(request) {
     // Ordinary visitors continue through the existing React SPA unchanged.
     const userAgent = request.headers.get('user-agent') || '';
     const crawler = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i;
-    const dynamicRecord = /^\\/(?:updates|events)\\/[A-Za-z0-9]{20}\\/?$/.test(path) ||
-      /^\\/pages\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/?$/.test(path);
+    const dynamicRecord = new RegExp('^/(?:updates|events)/[A-Za-z0-9]{20}/?$').test(path) ||
+      new RegExp('^/pages/[a-z0-9]+(?:-[a-z0-9]+)*/?$').test(path);
     if (request.method === 'GET' && dynamicRecord && crawler.test(userAgent)) {
       // A failed Firestore read must never break navigation or reveal drafts.
       // Lazy import keeps the backend module out of ordinary page requests.
