@@ -191,7 +191,7 @@ export default function PostViewsDashboard({ userId }) {
         </table></div>
       </section>
       <p className="admin-analytics-footnote">
-        {data.measured}. Reloads and requests from the same approximate network/browser
+        {data.measured}. Reports from modern browsers and their page visits
         are reported by Cloudflare. Automated traffic is filtered, not perfectly
         eliminated. No personal visitor identities are available. Historical activity before
         tracking was enabled is not included.
