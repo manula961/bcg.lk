@@ -34,7 +34,23 @@ export function isKnownRoute(path) {
 export default function middleware(request) {
   if (request.method !== 'GET' && request.method !== 'HEAD') return continueRequest();
   const path = new URL(request.url).pathname;
-  if (isKnownRoute(path)) return continueRequest();
+  if (isKnownRoute(path)) {
+    // Only social/search preview crawlers need server-rendered document metadata.
+    // Ordinary visitors continue through the existing React SPA unchanged.
+    const userAgent = request.headers.get('user-agent') || '';
+    const crawler = /(?:Googlebot|bingbot|DuckDuckBot|Twitterbot|facebookexternalhit|LinkedInBot|Slackbot|Discordbot|WhatsApp|TelegramBot)/i;
+    const dynamicRecord = /^\\/(?:updates|events)\\/[A-Za-z0-9]{20}\\/?$/.test(path) ||
+      /^\\/pages\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/?$/.test(path);
+    if (request.method === 'GET' && dynamicRecord && crawler.test(userAgent)) {
+      // A failed Firestore read must never break navigation or reveal drafts.
+      // Lazy import keeps the backend module out of ordinary page requests.
+      return import('./scripts/dynamic-cms-seo.mjs')
+        .then(({ isMetadataCrawler, publishedCmsResponse }) =>
+          isMetadataCrawler(userAgent) ? publishedCmsResponse(request) : undefined)
+        .then(response => response || continueRequest(), () => continueRequest());
+    }
+    return continueRequest();
+  }
   // This lightweight branded response is shown only for unknown routes.
   // The existing public React pages/styles are unchanged.
   const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page not found | Bandaranayake College</title></head><body style="background:#0a0a0a;color:#f5f0e8;font-family:Georgia,serif;text-align:center;padding:12vh 20px"><main><h1>Page not found</h1><p>This address does not match a published college page.</p><a style="color:#c9a84c" href="/">Back to home</a></main></body></html>';
