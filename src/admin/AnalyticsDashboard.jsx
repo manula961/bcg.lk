@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getCountFromServer, query, Timestamp, where } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { ANALYTICS_COLLECTIONS, analyticsCsv, summarizeContentMetrics } from './analyticsMetrics.mjs';
+import PostViewsDashboard from './PostViewsDashboard';
 import './AnalyticsDashboard.css';
 
 const RANGE_OPTIONS = [7, 30, 90];
@@ -92,6 +93,8 @@ export default function AnalyticsDashboard({ userId }) {
             onClick={downloadCsv}>Export CSV</button>
         </div>
       </div>
+
+      <PostViewsDashboard userId={userId} />
 
       {state.status === 'loading' && (
         <div className="admin-table-card admin-analytics-message" role="status">

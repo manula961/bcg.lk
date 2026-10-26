@@ -65,23 +65,39 @@ export function generatedRobotsTxt(source = readFileSync(new URL('../public/robo
   return source.replace(/^Sitemap:[ \t]*[^\r\n]+$/mi, 'Sitemap: ' + ORIGIN + '/sitemap.xml');
 }
 
+
+/** Add an inert, deferred first-party post tracker to built HTML only.
+ * Vite source and the site's rendered React body are left unchanged.
+ */
+export function injectPostTracker(html) {
+  const marker = '</head>';
+  if (!html.includes(marker) || html.includes('/assets/bcg-post-views.js'))
+    throw Error('Cannot safely inject post tracker into built HTML.');
+  return html.replace(marker, '  <script defer src="/assets/bcg-post-views.js"></script>\n' + marker);
+}
+
 export function generateSeoFiles(directory = 'dist') {
   const output = resolve(directory);
   const template = readFileSync(join(output, 'index.html'), 'utf8');
   // Only update homepage metadata when an explicitly approved origin differs.
   // The React root, markup and public visual design remain untouched.
+  let home = template;
   if (ORIGIN !== 'https://bcglk.devoraid.com') {
-    const home = template
+    home = home
       .replace(/(<link rel="canonical" href=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b)
       .replace(/(<meta property="og:url" content=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b);
     if (home === template) throw Error('Homepage canonical metadata was not found');
-    writeFileSync(join(output, 'index.html'), home, 'utf8');
   }
+  writeFileSync(join(output, 'index.html'), injectPostTracker(home), 'utf8');
   for (const route of seoRoutes) {
     const location = join(output, route.path.slice(1), 'index.html');
     mkdirSync(dirname(location), { recursive: true });
-    writeFileSync(location, renderStaticSeoHtml(template, route), 'utf8');
+    writeFileSync(location, injectPostTracker(renderStaticSeoHtml(template, route)), 'utf8');
   }
+  const assetDir = join(output, 'assets');
+  mkdirSync(assetDir, { recursive: true });
+  writeFileSync(join(assetDir, 'bcg-post-views.js'),
+    readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
   writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');

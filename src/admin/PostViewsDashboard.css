@@ -1,0 +1,26 @@
+/* Isolated addition to the existing BCG burgundy/gold admin analytics style. */
+.admin-views { display: grid; gap: 18px; padding-bottom: 24px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--admin-border); }
+.admin-views .admin-analytics-heading h2 { color: #e8c97a; }
+.admin-views .admin-analytics-bar-label a { display:block; min-width:0; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap; max-width: 28ch;
+  color: var(--admin-text-main); text-decoration:none; }
+.admin-views .admin-analytics-bar-label a:hover { color:#e8c97a; text-decoration:underline; }
+.admin-views .admin-analytics-bar-label a:focus-visible { outline:2px solid #e8c97a; outline-offset:3px; }
+.bcg-trend-container { padding: 18px 20px 14px; min-width:0; }
+.bcg-trend-bars { height:190px; display:flex; align-items:stretch; gap:3px;
+  border-bottom:1px solid rgba(201,168,76,.28); }
+.bcg-trend-column { min-width:0; flex:1; display:flex; align-items:flex-end; }
+.bcg-trend-bar { display:block; width:100%; min-height:0;
+  background: linear-gradient(0deg,#7b1c1c,#c9a84c); border-radius:3px 3px 0 0; }
+.bcg-trend-column:hover .bcg-trend-bar { background:#e8c97a; }
+.bcg-trend-endpoints { display:flex; justify-content:space-between; margin-top:10px;
+  gap:10px; color:var(--admin-text-muted); font-size:.72rem; font-variant-numeric:tabular-nums; }
+@media (max-width: 540px) {
+  .bcg-trend-container { padding:14px; }
+  .bcg-trend-bars { height:140px; gap:2px; }
+  .admin-views .admin-analytics-bar-label a { max-width:22ch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bcg-trend-bar { transition:none; }
+}

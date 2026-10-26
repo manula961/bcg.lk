@@ -41,11 +41,15 @@ test('build postprocessor emits valid static route pages and does not overwrite 
   try {
     writeFileSync(join(root, 'index.html'), template, 'utf8');
     generateSeoFiles(root);
-    assert.equal(readFileSync(join(root, 'index.html'), 'utf8'), template);
+    const builtHome = readFileSync(join(root, 'index.html'), 'utf8');
+    assert.equal(builtHome.replace('  <script defer src="/assets/bcg-post-views.js"></script>\n', ''), template);
+    assert.equal(builtHome.slice(builtHome.indexOf('<body>')), template.slice(template.indexOf('<body>')));
+    assert.ok(existsSync(join(root, 'assets', 'bcg-post-views.js')));
     for (const route of seoRoutes) {
       const file = join(root, route.path.slice(1), 'index.html');
       assert.ok(existsSync(file), file);
       assert.ok(readFileSync(file, 'utf8').includes(ORIGIN + (route.canonicalPath || route.path)));
+      assert.match(readFileSync(file, 'utf8'), /assets\/bcg-post-views\.js/);
     }
     assert.ok(existsSync(join(root, 'sitemap.xml')));
     assert.equal(readFileSync(join(root, 'robots.txt'), 'utf8'), generatedRobotsTxt());
