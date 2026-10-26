@@ -93,8 +93,8 @@ export async function publishedCmsResponse(request, {
   canonicalOrigin = process.env.BCG_CANONICAL_ORIGIN || defaultOrigin,
   fetcher = fetch,
 } = {}) {
-  const path = new URL(request.url).pathname;
-  const match = cmsDocumentRoute(path);
+  const requestUrl = new URL(request.url);
+  const match = cmsDocumentRoute(requestUrl.pathname);
   if (!match || !project || !apiKey || !/^[a-z0-9][a-z0-9-]{3,62}$/.test(project)) return undefined;
   let origin;
   try {
@@ -104,6 +104,9 @@ export async function publishedCmsResponse(request, {
   } catch {
     return undefined;
   }
+  // Never fetch an HTML shell from a caller-controlled host. A deployment
+  // must explicitly configure its own canonical origin before serving bot HTML.
+  if (requestUrl.origin !== origin) return undefined;
   try {
     const endpoint = new URL('https://firestore.googleapis.com/v1/projects/' +
       encodeURIComponent(project) + '/databases/(default)/documents/' +
@@ -119,7 +122,7 @@ export async function publishedCmsResponse(request, {
     const metadata = publishedMetadata(document, match.collection);
     if (!metadata) return undefined;
 
-    const shell = await fetcher(new URL('/index.html', request.url), {
+    const shell = await fetcher(new URL('/index.html', origin), {
       method: 'GET', redirect: 'error', signal: AbortSignal.timeout(3500),
     });
     if (!shell.ok || !(shell.headers.get('content-type') || '').includes('text/html'))
