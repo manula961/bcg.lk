@@ -156,3 +156,16 @@ test('destructive Drive cleanup requires administrator role rather than editor m
     else process.env.FIREBASE_WEB_API_KEY = previousKey;
   }
 });
+
+test('CSP constrains executable scripts while allowing existing external assets', () => {
+  const config = JSON.parse(source('vercel.json'));
+  const policy = config.headers.find(rule => rule.source === '/(.*)')
+    .headers.find(header => header.key === 'Content-Security-Policy').value;
+  assert.match(policy, /default-src 'self'/);
+  assert.match(policy, /script-src 'self'/);
+  assert.match(policy, /style-src '[^']*' 'unsafe-inline' https:\/\/fonts[.]googleapis[.]com/);
+  assert.match(policy, /img-src 'self' data: blob: https:/);
+  assert.match(policy, /connect-src 'self' https:/);
+  assert.match(policy, /object-src 'none'/);
+  assert.match(policy, /frame-ancestors 'none'/);
+});
