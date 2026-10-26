@@ -98,7 +98,7 @@ function credential() {
     throw failure(503, 'Service account does not match Firebase project.');
   return account;
 }
-async function accessToken() {
+export async function accessToken() {
   if (cachedToken && expiresAt > Date.now() + 60000) return cachedToken;
   const account = credential();
   const now = Math.floor(Date.now() / 1000);
