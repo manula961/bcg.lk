@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Allow', 'GET');
   try {
-    const { readViews } = await import('../_lib/post-analytics.mjs');
+    const { readViews } = await import('../_lib/cloudflare-post-analytics.mjs');
     return res.status(200).json(await readViews(req));
   } catch (error) {
     const code = [400,401,403,405,503].includes(error?.status) ? error.status : 502;

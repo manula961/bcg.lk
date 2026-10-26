@@ -66,14 +66,21 @@ export function generatedRobotsTxt(source = readFileSync(new URL('../public/robo
 }
 
 
-/** Add an inert, deferred first-party post tracker to built HTML only.
- * Vite source and the site's rendered React body are left unchanged.
+/** Cloudflare free Web Analytics beacon; no backend Firestore visitor writes.
+ * Inject into generated HTML only, leaving React's source and layout intact.
+ * No snippet is emitted until the owner configures the Cloudflare site token.
  */
-export function injectPostTracker(html) {
-  const marker = '</head>';
-  if (!html.includes(marker) || html.includes('/assets/bcg-post-views.js'))
-    throw Error('Cannot safely inject post tracker into built HTML.');
-  return html.replace(marker, '  <script defer src="/assets/bcg-post-views.js"></script>\n' + marker);
+export function injectCloudflareBeacon(html, token = process.env.CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN ||
+  process.env.CLOUDFLARE_WEB_ANALYTICS_SITE_TAG || '') {
+  if (!token) return html;
+  if (!/^[a-f0-9]{32}$/i.test(token))
+    throw Error('Cloudflare Web Analytics site token must be a 32-character hexadecimal value');
+  const marker = '</body>';
+  if (!html.includes(marker) || html.includes('static.cloudflareinsights.com/beacon.min.js'))
+    throw Error('Cannot safely inject Cloudflare beacon into built HTML');
+  const script = '  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" ' +
+    'data-cf-beacon=\'{"token":"' + token + '","spa":true}\'></script>\n';
+  return html.replace(marker, script + marker);
 }
 
 export function generateSeoFiles(directory = 'dist') {
@@ -88,16 +95,12 @@ export function generateSeoFiles(directory = 'dist') {
       .replace(/(<meta property="og:url" content=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b);
     if (home === template) throw Error('Homepage canonical metadata was not found');
   }
-  writeFileSync(join(output, 'index.html'), injectPostTracker(home), 'utf8');
+  writeFileSync(join(output, 'index.html'), injectCloudflareBeacon(home), 'utf8');
   for (const route of seoRoutes) {
     const location = join(output, route.path.slice(1), 'index.html');
     mkdirSync(dirname(location), { recursive: true });
-    writeFileSync(location, injectPostTracker(renderStaticSeoHtml(template, route)), 'utf8');
+    writeFileSync(location, injectCloudflareBeacon(renderStaticSeoHtml(template, route)), 'utf8');
   }
-  const assetDir = join(output, 'assets');
-  mkdirSync(assetDir, { recursive: true });
-  writeFileSync(join(assetDir, 'bcg-post-views.js'),
-    readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
   writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
