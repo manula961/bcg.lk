@@ -157,7 +157,7 @@ export default function PostViewsDashboard({ userId }) {
           </div></header>
           <div className="admin-analytics-bars">
             {data.posts.length === 0 && <p className="admin-analytics-footnote">
-              No qualified post visits recorded yet. Tracking starts after production
+              No Cloudflare pageviews reported yet. Tracking starts after production
               analytics is enabled; earlier visits cannot be recovered.</p>}
             {data.posts.slice(0,10).map((item,index)=><div className="admin-analytics-bar-row"
               key={item.kind+item.id}>
