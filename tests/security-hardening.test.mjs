@@ -162,7 +162,7 @@ test('CSP constrains executable scripts while allowing existing external assets'
   const policy = config.headers.find(rule => rule.source === '/(.*)')
     .headers.find(header => header.key === 'Content-Security-Policy').value;
   assert.match(policy, /default-src 'self'/);
-  assert.match(policy, /script-src 'self'/);
+  assert.match(policy, /script-src 'self' https:\/\/static[.]cloudflareinsights[.]com/);
   assert.match(policy, /style-src '[^']*' 'unsafe-inline' https:\/\/fonts[.]googleapis[.]com/);
   assert.match(policy, /img-src 'self' data: blob: https:/);
   assert.match(policy, /connect-src 'self' https:/);
