@@ -118,3 +118,31 @@ test('new CMS scheduler has indexed due-time lookup, denial checks and explicit 
   },true);
   assert.equal(withSecret.failures.some(x=>x.includes('CMS_CRON_SECRET')),false);
 });
+
+test('Cloudflare readiness detects a beacon-only deployment and validates all four distinct settings', () => {
+  const hex = character => character.repeat(32);
+  const beaconOnly = validateReleaseConfig({
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN: hex('b'),
+  }, false);
+  assert.ok(beaconOnly.warnings.some(message =>
+    message.includes('CLOUDFLARE_WEB_ANALYTICS_SITE_TAG')));
+  const required = validateReleaseConfig({
+    BCG_REQUIRE_CLOUDFLARE_ANALYTICS: '1',
+    CLOUDFLARE_ACCOUNT_ID: hex('a'),
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN: hex('b'),
+    CLOUDFLARE_ANALYTICS_API_TOKEN: 'test-token-long-enough-for-validation',
+  }, false);
+  assert.equal(required.ok, false);
+  assert.ok(required.failures.some(message =>
+    message.includes('CLOUDFLARE_WEB_ANALYTICS_SITE_TAG')));
+  const complete = validateReleaseConfig({
+    BCG_REQUIRE_CLOUDFLARE_ANALYTICS: '1',
+    CLOUDFLARE_ACCOUNT_ID: hex('a'),
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN: hex('b'),
+    CLOUDFLARE_WEB_ANALYTICS_SITE_TAG: hex('c'),
+    CLOUDFLARE_ANALYTICS_API_TOKEN: 'test-token-long-enough-for-validation',
+  }, false);
+  assert.equal(complete.ok, true, complete.failures.join('; '));
+  assert.equal(complete.warnings.some(message =>
+    message.includes('CLOUDFLARE_WEB_ANALYTICS_SITE_TAG')), false);
+});
