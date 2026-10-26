@@ -76,7 +76,15 @@ export function injectPostTracker(html) {
   return html.replace(marker, '  <script defer src="/assets/bcg-post-views.js"></script>\n' + marker);
 }
 
-export function generateSeoFiles(directory = 'dist') {
+// Do not ship a browser collector if the corresponding server collector is off.
+// Only check the secret's presence; never emit its value into static HTML/JS.
+export function analyticsCollectionEnabled(environment = process.env) {
+  return environment.BCG_ANALYTICS_ENABLED === '1' &&
+    typeof environment.BCG_ANALYTICS_HASH_KEY === 'string' &&
+    environment.BCG_ANALYTICS_HASH_KEY.length >= 32;
+}
+
+export function generateSeoFiles(directory = 'dist', { analyticsEnabled = analyticsCollectionEnabled() } = {}) {
   const output = resolve(directory);
   const template = readFileSync(join(output, 'index.html'), 'utf8');
   // Only update homepage metadata when an explicitly approved origin differs.
@@ -88,16 +96,19 @@ export function generateSeoFiles(directory = 'dist') {
       .replace(/(<meta property="og:url" content=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b);
     if (home === template) throw Error('Homepage canonical metadata was not found');
   }
-  writeFileSync(join(output, 'index.html'), injectPostTracker(home), 'utf8');
+  writeFileSync(join(output, 'index.html'), analyticsEnabled ? injectPostTracker(home) : home, 'utf8');
   for (const route of seoRoutes) {
     const location = join(output, route.path.slice(1), 'index.html');
     mkdirSync(dirname(location), { recursive: true });
-    writeFileSync(location, injectPostTracker(renderStaticSeoHtml(template, route)), 'utf8');
+    const page = renderStaticSeoHtml(template, route);
+    writeFileSync(location, analyticsEnabled ? injectPostTracker(page) : page, 'utf8');
   }
-  const assetDir = join(output, 'assets');
-  mkdirSync(assetDir, { recursive: true });
-  writeFileSync(join(assetDir, 'bcg-post-views.js'),
-    readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
+  if (analyticsEnabled) {
+    const assetDir = join(output, 'assets');
+    mkdirSync(assetDir, { recursive: true });
+    writeFileSync(join(assetDir, 'bcg-post-views.js'),
+      readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
+  }
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
   writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
