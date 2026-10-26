@@ -42,6 +42,27 @@ export function validateReleaseConfig(env = process.env, strict = false) {
       failures.push('BCG_CANONICAL_ORIGIN must be an exact HTTPS origin without a path');
   } catch { failures.push('BCG_CANONICAL_ORIGIN must be a valid HTTPS origin'); }
 
+  // Analytics is opt-in; Preview CI must not require production secrets.
+  // In production preflight, all four Cloudflare values are essential:
+  // the public browser site token and the GraphQL site tag may be different.
+  const cloudflareKeys = [
+    'CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_WEB_ANALYTICS_SITE_TAG',
+    'CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN', 'CLOUDFLARE_ANALYTICS_API_TOKEN',
+  ];
+  if (env.CLOUDFLARE_WEB_ANALYTICS_SITE_TOKEN &&
+      !env.CLOUDFLARE_WEB_ANALYTICS_SITE_TAG)
+    warnings.push('Cloudflare beacon is set but CLOUDFLARE_WEB_ANALYTICS_SITE_TAG is missing; the admin report cannot load');
+  if (env.BCG_REQUIRE_CLOUDFLARE_ANALYTICS === '1') {
+    for (const key of cloudflareKeys) {
+      const value = env[key];
+      const valid = key === 'CLOUDFLARE_ANALYTICS_API_TOKEN'
+        ? typeof value === 'string' && value.length >= 20 && value.length <= 512
+        : /^[a-f0-9]{32}$/i.test(value || '');
+      if (!valid)
+        failures.push(key + ' is missing or invalid for Cloudflare Analytics readiness');
+    }
+  }
+
   if (strict) {
     if (env.BCG_REQUIRE_WORKFLOW_SCHEDULER === '1' &&
         !/^[A-Za-z0-9_-]{32,256}$/.test(env.CMS_CRON_SECRET || ''))
