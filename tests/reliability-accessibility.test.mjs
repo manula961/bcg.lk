@@ -59,3 +59,15 @@ test('Firebase Storage limits overwriting to admins and deletion to admins', () 
   assert.match(rules, /allow delete: if isAdmin\(\)/);
   assert.match(rules, /allow list: if isAdmin\(\)/);
 });
+
+test('events calendar exposes load errors and a retry without losing existing calendar controls', () => {
+  const events = read('src/pages/events/EventsPage.jsx');
+  assert.match(events, /setLoadError\(true\)/);
+  assert.match(events, /setLoadError\(false\)/);
+  assert.match(events, /role="alert"/);
+  assert.match(events, /setRetryEvents\(value => value \+ 1\)/);
+  assert.match(events, /\[retryEvents\]/);
+  assert.match(events, /window\.setInterval\(syncToday, 60_000\)/);
+  assert.match(events, /window\.clearInterval\(interval\)/);
+  assert.match(events, /document\.removeEventListener\('visibilitychange', syncToday\)/);
+});
