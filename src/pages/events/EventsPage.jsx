@@ -8,6 +8,9 @@ import './EventsPage.css';
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [today, setToday] = useState(() => new Date());
+  const [loadError, setLoadError] = useState(false);
+  const [retryEvents, setRetryEvents] = useState(0);
 
   // Smooth floating preview tooltip state
   const [hoveredEvent, setHoveredEvent] = useState(null);
@@ -20,24 +23,52 @@ export default function EventsPage() {
   // Mobile modal popup state
   const [activeMobileEvent, setActiveMobileEvent] = useState(null);
 
-  const realToday = new Date();
+  // Update today's marker for long-lived tabs and when the browser becomes visible.
+  useEffect(() => {
+    const syncToday = () => {
+      const now = new Date();
+      setToday(previous => previous.toDateString() === now.toDateString() ? previous : now);
+    };
+    const interval = window.setInterval(syncToday, 60_000);
+    document.addEventListener('visibilitychange', syncToday);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', syncToday);
+    };
+  }, []);
+
+  const realToday = today;
   const todayYear = realToday.getFullYear();
   const todayMonth = realToday.getMonth();
   const todayDay = realToday.getDate();
   const todayString = `${todayYear}-${String(todayMonth + 1).padStart(2, '0')}-${String(todayDay).padStart(2, '0')}`;
 
   useEffect(() => {
+    let active = true;
     let unsubscribe = () => {};
+    setLoadError(false);
     try {
       unsubscribe = subscribePublishedEvents(
-        (fetchedEvents) => setEvents(fetchedEvents),
-        (error) => console.error('Error fetching events:', error)
+        fetchedEvents => {
+          if (!active) return;
+          setEvents(fetchedEvents);
+          setLoadError(false);
+        },
+        error => {
+          if (!active) return;
+          console.error('Error fetching events:', error);
+          setLoadError(true);
+        },
       );
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      if (active) setLoadError(true);
     }
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [retryEvents]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -128,6 +159,14 @@ export default function EventsPage() {
             <p className="events-page-subtitle">SCHEDULE & CALENDAR</p>
             <h1 className="events-page-title">College Events</h1>
           </header>
+
+          {loadError && (
+            <div className="calendar-card" role="alert">
+              <p>Events could not be loaded. Check your connection and try again.</p>
+              <button type="button" className="jump-today-btn"
+                onClick={() => setRetryEvents(value => value + 1)}>Try again</button>
+            </div>
+          )}
 
           <div className="calendar-card">
             <div className="calendar-header">
