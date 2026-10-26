@@ -88,16 +88,22 @@ export function generateSeoFiles(directory = 'dist') {
       .replace(/(<meta property="og:url" content=")[^"]*(")/, (_, a, b) => a + ORIGIN + '/' + b);
     if (home === template) throw Error('Homepage canonical metadata was not found');
   }
-  writeFileSync(join(output, 'index.html'), injectPostTracker(home), 'utf8');
+  // Do not load the tracker or issue disabled collection requests until
+  // analytics is explicitly enabled in the build environment and server.
+  const analyticsEnabled = process.env.BCG_ANALYTICS_ENABLED === '1';
+  writeFileSync(join(output, 'index.html'), analyticsEnabled ? injectPostTracker(home) : home, 'utf8');
   for (const route of seoRoutes) {
     const location = join(output, route.path.slice(1), 'index.html');
     mkdirSync(dirname(location), { recursive: true });
-    writeFileSync(location, injectPostTracker(renderStaticSeoHtml(template, route)), 'utf8');
+    const html = renderStaticSeoHtml(template, route);
+    writeFileSync(location, analyticsEnabled ? injectPostTracker(html) : html, 'utf8');
   }
   const assetDir = join(output, 'assets');
   mkdirSync(assetDir, { recursive: true });
-  writeFileSync(join(assetDir, 'bcg-post-views.js'),
-    readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
+  if (analyticsEnabled) {
+    writeFileSync(join(assetDir, 'bcg-post-views.js'),
+      readFileSync(new URL('./browser-post-view-tracker.js', import.meta.url), 'utf8'), 'utf8');
+  }
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
   writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
