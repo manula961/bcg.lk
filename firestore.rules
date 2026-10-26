@@ -154,6 +154,12 @@ service cloud.firestore {
             optionalString(data,'description',1200) && requiredString(data,'role',80) && validLeaderRole(data))
         );
     }
+    // Archived documents are not ordinary drafts. A trusted server archive
+    // writes cmsTrash/{collection}_{id}; browser SDK users must not recreate,
+    // publish, edit or permanently delete them while that snapshot exists.
+    function notArchived(collectionName, id) {
+      return !exists(/databases/$(database)/documents/cmsTrash/$(collectionName + '_' + id));
+    }
     // Role mutations are performed only by the trusted Admin API with an atomic
     // Firestore commit of the role document and immutable roleAudit document.
     // Firebase Admin/server credentials bypass these client security rules.
@@ -170,16 +176,17 @@ service cloud.firestore {
       allow get, list: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && (canReview() || resource.data.published == true);
       allow create: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
-        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && canWriteContent() && notArchived(collectionName,id) && validRecord(request.resource.data, collectionName, id)
         && validOwnership(request.resource.data) && validCreateSystemTimes(request.resource.data)
         && (canPublishContent() || (request.resource.data.published == false
           && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
       allow update: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
-        && canWriteContent() && validRecord(request.resource.data, collectionName, id)
+        && canWriteContent() && notArchived(collectionName,id) && validRecord(request.resource.data, collectionName, id)
         && validUpdateOwnership() && validUpdateSystemTimes()
         && (canPublishContent() || editorDraftUpdateOnly());
-      allow delete: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
-        && canDeleteContent();
+      // Hard deletion must be a deliberate trusted-server operation.
+      // Normal administrators use audited archive/restore instead.
+      allow delete: if false;
     }
     match /{document=**} { allow read, write: if false; }
   }

@@ -18,10 +18,12 @@ test('Firestore content writes require administrator authorization and schema va
   assert.match(rules, /function isAdmin\(\)/);
   assert.match(rules, /function validRecord\(data, collectionName, id\)/);
   assert.match(rules, /allow create: if collectionName in/);
-  assert.match(rules, /&& canWriteContent\(\) && validRecord\(request\.resource\.data, collectionName, id\)/);
+  assert.match(rules, /&& canWriteContent\(\) && notArchived\(collectionName,id\) && validRecord\(request\.resource\.data, collectionName, id\)/);
   assert.match(rules, /canPublishContent\(\) \|\| editorDraftUpdateOnly\(\)/);
   assert.match(rules, /allow update: if collectionName in/);
   assert.match(rules, /&& validUpdateOwnership\(\)/);
+  assert.match(rules, /function notArchived\(collectionName, id\)/);
+  assert.match(rules, /allow delete: if false;/);
   for (const name of ['news', 'events', 'pages', 'societies', 'sports', 'leadership']) {
     assert.ok(rules.includes("collectionName == '" + name + "'"), 'Missing collection policy: ' + name);
   }

@@ -20,12 +20,14 @@ test('past-paper year and language schema remains complete', () => {
 
 test('every CMS collection is authorized consistently for reads and writes', () => {
   const expected = ['news', 'events', 'pages', 'societies', 'sports', 'leadership', 'pastPapers'];
-  for (const action of ['get, list', 'create', 'update', 'delete']) {
+  for (const action of ['get, list', 'create', 'update']) {
     const match = rules.match(new RegExp('allow ' + action + ': if collectionName in \\[([^\\]]+)\\]'));
     assert.ok(match, 'Missing collection policy for ' + action);
     const collections = [...match[1].matchAll(/'([^']+)'/g)].map(part => part[1]);
     assert.deepEqual(collections, expected, 'Mismatched CMS collections for ' + action);
   }
+  assert.match(rules, /allow delete: if false;/);
+  assert.match(rules, /notArchived\(collectionName,id\)/);
 });
 
 test('client SDK cannot modify roles or forge role-audit history', () => {
