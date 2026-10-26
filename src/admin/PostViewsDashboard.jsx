@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import './PostViewsDashboard.css';
 
 const OPTIONS = [7, 30, 90];
@@ -17,6 +18,24 @@ export function makeViewsCsv(report) {
   ]));
   return lines.map(line => line.map(csvValue).join(',')).join('\n') + '\n';
 }
+async function resolvePostTitles(report) {
+  if (!db) return report;
+  const resolved = await Promise.all(report.posts.slice(0, 15).map(async post => {
+    try {
+      const snapshot = await getDoc(doc(db, post.kind, post.id));
+      const value = snapshot.data();
+      if (snapshot.exists() && value?.published === true &&
+          typeof value.title === 'string' && value.title.trim())
+        return { id: post.kind + '/' + post.id, title: value.title.trim().slice(0, 180) };
+    } catch { /* A missing title must not suppress Cloudflare counts. */ }
+    return null;
+  }));
+  const titles = new Map(resolved.filter(Boolean).map(value => [value.id, value.title]));
+  return { ...report, posts: report.posts.map(post => ({
+    ...post, title: titles.get(post.kind + '/' + post.id) || post.title,
+  })) };
+}
+
 async function getReport(userId, days) {
   const current = auth?.currentUser;
   if (!current || current.uid !== userId)
@@ -33,7 +52,7 @@ async function getReport(userId, days) {
       'Post visit statistics are unavailable. Check analytics setup and your connection.');
   if (!auth.currentUser || auth.currentUser.uid !== userId)
     throw Error('Administrator session changed. Sign in again.');
-  return data;
+  return resolvePostTitles(data);
 }
 function Summary({ title, value, note }) {
   return <article className="admin-analytics-stat">
