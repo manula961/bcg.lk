@@ -3,8 +3,9 @@ export default async function handler(req,res) {
   if(!requireMethod(req,res,'GET'))return;
   try {
     const uid=await requireAdmin(req);
+    const isConfigured=configured();
     let connected=false;
-    if(configured()) try {verifySession(req,uid);connected=true;}catch{}
-    res.status(200).json({configured:configured(),connected});
+    if(isConfigured) try {verifySession(req,uid);connected=true;}catch{}
+    res.status(200).json({configured:isConfigured,connected});
   }catch(e){errorReply(res,e)}
 }

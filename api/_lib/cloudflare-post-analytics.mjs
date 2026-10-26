@@ -139,8 +139,9 @@ export function summarizeCloudflareGroups(groups, days, now = new Date(), hostna
   if (!Array.isArray(groups) || typeof hostname !== 'string' || !hostname)
     throw failure(502, 'Invalid analytics report.');
   const dailyCounts = new Map();
+  const firstDay = Date.parse(range.start + 'T00:00:00Z');
   for (let offset = 0; offset < days; offset++) {
-    const date = new Date(Date.parse(range.start + 'T00:00:00Z') + offset * DAY_MS)
+    const date = new Date(firstDay + offset * DAY_MS)
       .toISOString().slice(0, 10);
     dailyCounts.set(date, 0);
   }
