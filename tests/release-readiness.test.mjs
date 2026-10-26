@@ -118,3 +118,21 @@ test('new CMS scheduler has indexed due-time lookup, denial checks and explicit 
   },true);
   assert.equal(withSecret.failures.some(x=>x.includes('CMS_CRON_SECRET')),false);
 });
+
+test('analytics activation fails release preflight without a secure HMAC key and HTTPS origin', () => {
+  const missing = validateReleaseConfig({ BCG_ANALYTICS_ENABLED: '1' }, false);
+  assert.equal(missing.ok, false);
+  assert.ok(missing.failures.some(message => message.includes('BCG_ANALYTICS_HASH_KEY')));
+  const invalid = validateReleaseConfig({
+    BCG_ANALYTICS_ENABLED: '1',
+    BCG_ANALYTICS_HASH_KEY: 'a'.repeat(48),
+    BCG_ANALYTICS_ORIGIN: 'http://unsafe.example.test',
+  }, false);
+  assert.equal(invalid.ok, false);
+  const valid = validateReleaseConfig({
+    BCG_ANALYTICS_ENABLED: '1',
+    BCG_ANALYTICS_HASH_KEY: 'a'.repeat(48),
+    BCG_ANALYTICS_ORIGIN: 'https://school.example.test',
+  }, false);
+  assert.equal(valid.ok, true, valid.failures.join('; '));
+});
