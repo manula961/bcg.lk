@@ -329,6 +329,19 @@ test('RBAC: editors manage drafts only, publishers publish but no client may har
   await assertFails(deleteDoc(refAdmin));
 });
 
+test('published ranking remains role-limited without permitting live content changes', async () => {
+  const item = doc(admin.firestore(), 'news/published-news');
+  await assertSucceeds(updateDoc(item, {
+    rank: 3, updatedAt: serverTimestamp(), updatedBy: 'verified-admin',
+  }));
+  await assertFails(updateDoc(item, {
+    title: 'Unreviewed live edit', updatedAt: serverTimestamp(), updatedBy: 'verified-admin',
+  }));
+  await assertFails(updateDoc(doc(editor.firestore(), 'news/published-news'), {
+    rank: 1, updatedAt: serverTimestamp(), updatedBy: 'ordinary-editor',
+  }));
+});
+
 test('RBAC: direct Firebase Storage writes are admin-only; editors use the Drive API', async () => {
   const image = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
   const adminId = 'public/rbac-admin-create.png';
