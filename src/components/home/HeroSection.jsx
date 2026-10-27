@@ -97,7 +97,7 @@ const HeroSection = () => {
           className="hero-fade-init mb-2 sm:mb-4 flex justify-center"
         >
           <img
-            src="https://i.ibb.co/Wv1bGqbs/images.jpg"
+            src="/email-assets/school-logo.png"
             alt="Bandaranayake College Logo"
             className="object-cover w-35 h-35 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-full"
           />
