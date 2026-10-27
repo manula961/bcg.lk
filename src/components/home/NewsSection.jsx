@@ -131,7 +131,8 @@ const NewsSection = () => {
       startX: e.clientX,
       scrollLeft: grid.scrollLeft,
     };
-    grid.setPointerCapture(e.pointerId);
+    // Capture only after dragging starts; capturing on mouse-down
+    // redirects the link click to the grid instead of the card.
   };
 
   const handlePointerMove = (e) => {
@@ -141,15 +142,21 @@ const NewsSection = () => {
     if (!drag.moved && Math.abs(delta) > 5) {
       drag.moved = true;
       setIsDragging(true);
+      if (!gridRef.current.hasPointerCapture(e.pointerId)) {
+        gridRef.current.setPointerCapture(e.pointerId);
+      }
     }
     if (drag.moved) {
       gridRef.current.scrollLeft = drag.scrollLeft - delta;
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e) => {
     dragRef.current.active = false;
     setIsDragging(false);
+    if (gridRef.current?.hasPointerCapture(e.pointerId)) {
+      gridRef.current.releasePointerCapture(e.pointerId);
+    }
   };
 
   const handleCardClick = (event) => {
