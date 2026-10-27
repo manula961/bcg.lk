@@ -147,3 +147,47 @@ verification, and documented performance/accessibility results. Otherwise
 **hold production**. With owner approval, revert a faulty Git change through
 a reviewed PR and redeploy the last known-good Vercel version. Restore
 Firebase rules/data separately from the approved backup/release history.
+
+
+## Temporary exact-SHA production release hold
+
+Until GitHub Actions can actually start runners and `main` enforces reviewed,
+green status checks, the Vite production build has an additional **fail-closed
+exact-commit hold** in `scripts/production-release-gate.mjs`. It does not
+certify a release, enforce GitHub reviews or replace staging tests.
+
+- Vercel Preview and local builds have no SHA restriction.
+- Vercel Production builds reject missing, malformed or mismatched
+  `BCG_APPROVED_PRODUCTION_SHA` / `VERCEL_GIT_COMMIT_SHA` values and
+  require Git provider `github`, owner `manula961`, repo `bcg.lk`, branch `main`.
+- Only after all external release checks and human approval, configure
+  `BCG_APPROVED_PRODUCTION_SHA` for **Vercel Production only**, with the
+  exact 40-character *resulting commit/merge SHA*. Do not expose it through
+  `VITE_*` or copy production credentials to Preview.
+- Confirm that Vercel's **Automatically expose System Environment Variables**
+  setting is enabled and that Production supplies `VERCEL_ENV` and
+  `VERCEL_GIT_COMMIT_SHA`. An operator must verify this with a deliberately
+  unapproved test build; do not assume this gate enforces when Vercel system
+  variables are disabled.
+- Unapproved production builds should fail while the prior deployment remains
+  in place. A PR head SHA is **not** necessarily its merge commit SHA:
+  approve the exact deployed commit after it exists, then explicitly
+  redeploy/retry the approved revision. Test a mismatch before relying on the
+  gate. Avoid bypass settings, force-pushing or auto-approval.
+- When a reviewed rollback commit is needed, approve its exact SHA and follow
+  documented Vercel rollback / Firebase recovery separately.
+
+Run `node --test tests/production-release-gate.test.mjs` and the existing
+`npm test` / `npm run build` preflight. The gate is a temporary accidental
+release safeguard, **not a security boundary against someone who can edit the
+repository build configuration or Vercel Production environment**. Only
+supported GitHub branch protection + real independent reviews + trusted CI
+and deployment checks close the release-governance P0 findings.
+
+**Owner operations still required:** Repair GitHub Actions zero-step runner
+failures, enable a GitHub plan/ruleset with required checks, create isolated
+Firebase staging, verify deployed Firestore/Storage rules and IAM, configure
+and test `CMS_CRON_SECRET` on both scheduler ends, resolve mandatory editorial
+approval bypass and public-on-upload media policy, prove backups/restore,
+and run browser / security / accessibility / live HTTP acceptance.
+The previous 188 green Node tests do not validate these items.

@@ -68,3 +68,17 @@ test('drafts, forbidden responses and invalid HTML never reveal CMS metadata', a
     title: 'Wrong', description: 'Wrong',
   }, 'https://bcglk.devoraid.com/updates/test'), null);
 });
+
+test('crawler SEO never fetches a shell from a mismatched request origin', async () => {
+  let reads = 0;
+  const fetcher = async () => {
+    reads++;
+    throw Error('Should not make any network request for a foreign host');
+  };
+  for (const origin of ['https://untrusted.example', 'http://bcglk.devoraid.com']) {
+    const result = await publishedCmsResponse(
+      new Request(origin + '/updates/' + id), opts(fetcher));
+    assert.equal(result, undefined);
+  }
+  assert.equal(reads, 0);
+});

@@ -129,3 +129,34 @@ The candidate adds a Firestore `cmsJobs(status ASC, runAt ASC)` index definition
 Scheduled publication is **not configured in production** until a long random `CMS_CRON_SECRET` is configured in both Vercel (server-only) and GitHub Actions, the index is confirmed ready, GitHub Actions runners execute successfully, and a staging two-person publish/restore drill is completed. Do not add the secret to any `VITE_*` variable.
 
 The GitHub repository is private and `main` is currently unprotected. Failed GitHub Actions jobs expose no runner steps/logs; investigate repository Actions eligibility, billing, runner allocation and available branch-rule entitlements in GitHub Settings. Do not substitute Vercel build success for independent reviews, Firebase emulator tests, or an actual approved release.
+
+
+## Managed Google Drive deletion — disabled by default
+
+The `POST /api/drive/delete` endpoint is a destructive maintenance operation,
+**not** the normal CMS Archive/Restore action. It now requires
+`BCG_ALLOW_MANAGED_DRIVE_DELETE=1` as a production server-side opt-in in
+addition to an authenticated, current administrator, a valid encrypted Drive
+session, the verified app-managed file marker and a fail-closed Firestore
+reference scan. **Do not enable this setting during routine deployment.**
+
+Before an owner authorizes any hard deletion, inventory all active CMS documents,
+drafts, `cmsTrash` archives, `cmsMediaRefs`, retired `extracurricular`
+records, nested historical revisions, static page data, and separately
+published links. Confirm a restorable backup and written retention approval.
+The automatic scan covers the first five categories, **not static assets or
+nested historical revisions**. The opt-in is therefore a manual governance
+decision, never a claim that automated coverage is complete.
+
+The reference scan uses the Firebase end-user ID token for active CMS
+collections and the already-configured server service account for protected
+archive, reference and retired collections. A missing service token, denied
+read, pagination problem or matching reference blocks deletion. Leave the
+opt-in unset in Vercel unless a reviewed deletion procedure explicitly needs
+it; remove the setting again after approved maintenance. Do not copy it into
+client-visible `VITE_*` variables.
+
+To test without touching production, use `node --test
+tests/drive-reference-safety.test.mjs tests/drive-delete-policy.test.mjs`
+and the full existing `npm test` suite. Live deletion requires a separate,
+reviewed operational decision and is not part of CI.
