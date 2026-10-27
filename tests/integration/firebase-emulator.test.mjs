@@ -316,8 +316,15 @@ test('RBAC: editors manage drafts only, publishers publish but no client may har
   await assertFails(updateDoc(refEditor, { rank: 7 }));
   await assertFails(updateDoc(refEditor, { publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(refEditor));
-  await assertSucceeds(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
+  await environment.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'news', id), {
+      title: 'Server-approved content', excerpt: 'Draft excerpt', published: true,
+    });
+  });
   await assertFails(updateDoc(refEditor, { title: 'Published content changed by editor' }));
+  await assertFails(updateDoc(refPublisher, { title: 'Published content changed by publisher' }));
+  await assertFails(updateDoc(refAdmin, { published: false, publishedAt: null }));
   await assertFails(deleteDoc(refPublisher));
   await assertFails(deleteDoc(refAdmin));
 });
