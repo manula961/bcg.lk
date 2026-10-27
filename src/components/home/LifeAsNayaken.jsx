@@ -40,7 +40,7 @@ export const bentoCards = [
     title: 'Sports & Societies',
     description: 'Explore student organizations, clubs, athletic rivalries, and house tradition.',
     accent: 'blue',
-    image: 'https://cdn.britannica.com/22/238522-050-F29FD74E/FIFA-2022-World-Cup-Argentina.jpg', // Replace with Sports image
+    image: 'https://bcg.lk/img/banner1.jpg', // School image fallback until an approved BCG sports photo is supplied
   },
 ];
 
