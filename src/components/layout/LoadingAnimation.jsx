@@ -59,7 +59,7 @@ export default function LoadingAnimation({ onComplete }) {
       <div className="center-content">
         <div className="logo-wrapper">
           <div className="logo-container">
-            <img src="https://i.ibb.co/Wv1bGqbs/images.jpg" alt="Bandaranayake College crest" className="logo-image" />
+            <img src="/email-assets/school-logo.png" alt="Bandaranayake College crest" className="logo-image" />
           </div>
         </div>
         <div className="title-wrapper">
