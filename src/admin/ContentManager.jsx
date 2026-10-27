@@ -20,7 +20,7 @@ import {
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
 import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
-import { getArchiveStatus, archiveCmsRecord, restoreCmsRecord } from '../lib/cmsWorkflowClient';
+import { getArchiveStatus, getArchivedRecordIds, archiveCmsRecord, restoreCmsRecord } from '../lib/cmsWorkflowClient';
 import './Admin.css';
 
 const collections = {
@@ -178,6 +178,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
   const [knownArchived, setKnownArchived] = useState(() => new Set());
+  const [archivesReady, setArchivesReady] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [drive, setDrive] = useState({ configured: false, connected: false });
 
@@ -228,6 +229,21 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     };
   }, [config]);
 
+  const archiveRevision = items.map(item => item.id + ':' + (item.updatedAt?.toMillis?.() ?? '')).join('|');
+  useEffect(() => {
+    let active = true;
+    setArchivesReady(false);
+    getArchivedRecordIds(kind).then(ids => {
+      if (active) { setKnownArchived(new Set(ids)); setArchivesReady(true); }
+    }).catch(error => {
+      if (active) {
+        setArchivesReady(false);
+        setNotice({ type: 'error', text: 'Archived records could not be verified. Editing is temporarily disabled. ' + formatError(error) });
+      }
+    });
+    return () => { active = false; };
+  }, [kind, archiveRevision]);
+
   const totals = useMemo(() => ({
     all: items.length,
     published: items.filter(item => item.published === true).length,
@@ -261,7 +277,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   function openExisting(item) {
-    if (!canEditRecord(role, item)) return;
+    if (!archivesReady || knownArchived.has(item.id) || !canEditRecord(role, item)) return;
     setForm(copyRecord(item, config.defaults));
     setEditingId(item.id);
     setEditingRevision(item.updatedAt ?? null);
@@ -368,6 +384,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     event.preventDefault();
     if (busy || uploadingImage) return;
     if (editingId ? !hasPermission(role, 'content.edit') : !canCreate) return;
+    if (!archivesReady) { setNotice({ type: 'error', text: 'Wait for archive verification before saving.' }); return; }
     if (!canPublish && (form.published || (editingId && items.find(item => item.id === editingId)?.published))) {
       setNotice({ type: 'error', text: 'Editors can save drafts only.' });
       return;
@@ -405,7 +422,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   async function togglePublished(item) {
-    if (!canPublish || actionId !== null) return;
+    if (!canPublish || actionId !== null || !archivesReady || knownArchived.has(item.id)) return;
     setActionId(item.id);
     setNotice(null);
     try {
@@ -572,9 +589,9 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                           onClick={() => reorderPositions(index, index + 1)}>↓</button>
                         <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
                           <span className="admin-status-dot" />
-                          {knownArchived.has(item.id) ? 'Archived' : item.published ? 'Published' : 'Draft'}
+                          {!archivesReady ? 'Checking' : knownArchived.has(item.id) ? 'Archived' : item.published ? 'Published' : 'Draft'}
                         </span>
-                        {!knownArchived.has(item.id) && canEditRecord(role, item) && <button
+                        {archivesReady && !knownArchived.has(item.id) && canEditRecord(role, item) && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={async () => {
@@ -591,7 +608,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         >
                           Edit
                         </button>}
-                        {!knownArchived.has(item.id) && canPublish && <button
+                        {archivesReady && !knownArchived.has(item.id) && canPublish && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
