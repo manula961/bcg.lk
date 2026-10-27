@@ -8,17 +8,15 @@ export default async function handler(req, res) {
     requireSameOrigin(req);
     const uid = await requireAdmin(req, 'media.delete');
     const session = verifySession(req, uid);
-    // Manual media inventories include static, retired and revision references that
-    // cannot be proved safe by a live-CMS query alone. Off by default.
-    if (process.env.BCG_ALLOW_MANAGED_DRIVE_DELETE !== '1') {
-      throw Object.assign(new Error('Managed media deletion is disabled until a full inventory is reviewed.'), { status: 403 });
-    }
+    // Hard deletion remains an explicit, reviewed owner decision.
+    const { assertManagedMediaDeletionApproved } = await import('../_lib/drive-delete-policy.mjs');
+    assertManagedMediaDeletionApproved();
     const body = req.body;
     if (!body || typeof body !== 'object' || Array.isArray(body) ||
         Object.keys(body).length !== 1 || typeof body.fileId !== 'string') {
       throw Object.assign(new Error('Provide a managed Drive file ID'), { status: 400 });
     }
-    // Fail closed when the requested file is still referenced by any active CMS document.
+    // Fail closed on active, archived, managed or retired CMS media references.
     const { assertDriveMediaUnreferenced } = await import('../_lib/drive-media-references.mjs');
     await assertDriveMediaUnreferenced(body.fileId, req);
     const token = await accessToken(session.refresh);
