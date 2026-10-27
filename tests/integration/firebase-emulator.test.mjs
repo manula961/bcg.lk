@@ -91,10 +91,9 @@ test('non-admin writes fail; administrators publish but direct hard deletes are 
     await assertFails(setDoc(doc(editor.firestore(), name, id), { title: 'Unauthorized', published: true }));
     await assertSucceeds(setDoc(record, sample[name]));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
-    await assertSucceeds(updateDoc(record, { title: 'Edited', published: true, publishedAt: serverTimestamp() }));
-    await assertSucceeds(getDoc(doc(visitor.firestore(), name, id)));
-    await assertFails(updateDoc(doc(editor.firestore(), name, id), { published: false }));
-    await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
+    await assertFails(updateDoc(record, { title: 'Edited', published: true, publishedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(publisher.firestore(), name, id), { published: true, publishedAt: serverTimestamp() }));
+    await assertSucceeds(updateDoc(record, { title: 'Draft edited' }));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
     await assertFails(deleteDoc(record));
