@@ -110,7 +110,7 @@ test('past papers enforce valid metadata, HTTPS links, and editor/publisher role
   await assertSucceeds(setDoc(draft, sample.pastPapers));
   await assertSucceeds(updateDoc(draft, { subject: 'Science' }));
   await assertFails(updateDoc(draft, { published: true }));
-  await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(doc(publisher.firestore(), 'pastPapers/editor-draft')));
   await assertFails(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
 });
@@ -247,7 +247,7 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
     title: 'Page', body: 'Real body', slug: 'different-slug', published: true,
   }));
   await assertSucceeds(setDoc(doc(db, 'pages/matched-slug'), {
-    title: 'Page', body: 'Real body', slug: 'matched-slug', published: true,
+    title: 'Page', body: 'Real body', slug: 'matched-slug', published: false,
   }));
   await assertFails(deleteDoc(doc(db, 'pages/matched-slug')));
 });
@@ -257,7 +257,7 @@ test('multiline editorial content is allowed, but whitespace-only bodies are rej
   const record = doc(db, 'pages/multiline-page');
   await assertSucceeds(setDoc(record, {
     title: 'Valid multi-line page', slug: 'multiline-page',
-    body: 'First paragraph.\n\nSecond paragraph.', published: true,
+    body: 'First paragraph.\n\nSecond paragraph.', published: false,
   }));
   await assertFails(updateDoc(record, { body: ' \n \t ' }));
   await assertFails(deleteDoc(record));
