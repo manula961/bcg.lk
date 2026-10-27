@@ -48,10 +48,12 @@ const EventsSection = () => {
           const localNow = new Date();
           const today = `${localNow.getFullYear()}-${String(localNow.getMonth() + 1).padStart(2, '0')}-${String(localNow.getDate()).padStart(2, '0')}`;
           const orderedEvents = [...publishedEvents].sort((a, b) => {
-            const aUpcoming = a.eventDate >= today;
-            const bUpcoming = b.eventDate >= today;
+            const aDate = typeof a.eventDate === 'string' ? a.eventDate : '';
+            const bDate = typeof b.eventDate === 'string' ? b.eventDate : '';
+            const aUpcoming = aDate >= today;
+            const bUpcoming = bDate >= today;
             if (aUpcoming !== bUpcoming) return aUpcoming ? -1 : 1;
-            return aUpcoming ? a.eventDate.localeCompare(b.eventDate) : b.eventDate.localeCompare(a.eventDate);
+            return aUpcoming ? aDate.localeCompare(bDate) : bDate.localeCompare(aDate);
           });
           const mapped = orderedEvents.map((event, index) => {
             const { month, day } = parseEventDate(event.eventDate);
