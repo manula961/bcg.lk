@@ -33,12 +33,13 @@ test('admin console verifies the role before displaying the dashboard', () => {
 
 test('admin CMS uses the shared services for active collections', () => {
   const manager = source('src/admin/ContentManager.jsx');
-  for (const type of ['News', 'Events', 'Pages', 'Societies', 'Sports', 'Leadership']) {
+  for (const type of ['News', 'Events', 'Societies', 'Sports', 'Leadership']) {
     assert.ok(manager.includes("from '../lib/" + type.toLowerCase() + "Service'"));
   }
   assert.match(manager, /subscribeAdminNews/);
   assert.match(manager, /subscribeAdminEvents/);
-  assert.match(manager, /subscribeAdminPages/);
+  assert.doesNotMatch(manager, /subscribeAdminPages|createPage|updatePage|deletePage|reorderPages/);
+  assert.doesNotMatch(source('src/admin/AdminDashboard.jsx'), /id: 'pages'|label: 'Website Pages'/);
   assert.match(manager, /subscribeAdminSocieties/);
   assert.match(manager, /subscribeAdminSports/);
   assert.match(manager, /subscribeAdminLeadership/);
