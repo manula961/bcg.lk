@@ -20,6 +20,7 @@ import {
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
 import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
+import { summarizeCmsItems, filterCmsItems } from './contentListFilters.mjs';
 import { getArchiveStatus, getArchivedRecordIds, archiveCmsRecord, restoreCmsRecord, getEditorialStatus, performEditorialAction } from '../lib/cmsWorkflowClient';
 import './Admin.css';
 
@@ -179,6 +180,8 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   const [actionId, setActionId] = useState(null);
   const [knownArchived, setKnownArchived] = useState(() => new Set());
   const [archivesReady, setArchivesReady] = useState(false);
+  const [archiveError, setArchiveError] = useState('');
+  const [archiveRetry, setArchiveRetry] = useState(0);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [drive, setDrive] = useState({ configured: false, connected: false });
 
@@ -233,38 +236,26 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   useEffect(() => {
     let active = true;
     setArchivesReady(false);
+    setArchiveError('');
     getArchivedRecordIds(kind).then(ids => {
       if (active) { setKnownArchived(new Set(ids)); setArchivesReady(true); }
     }).catch(error => {
       if (active) {
         setArchivesReady(false);
-        setNotice({ type: 'error', text: 'Archived records could not be verified. Editing is temporarily disabled. ' + formatError(error) });
+        setArchiveError('Deleted records could not be verified. Editing and deletion are temporarily disabled. ' + formatError(error));
       }
     });
     return () => { active = false; };
-  }, [kind, archiveRevision]);
+  }, [kind, archiveRevision, archiveRetry]);
 
-  const totals = useMemo(() => ({
-    all: items.length,
-    published: items.filter(item => item.published === true).length,
-    drafts: items.filter(item => item.published !== true).length,
-  }), [items]);
+  const totals = useMemo(() => summarizeCmsItems(items, knownArchived), [items, knownArchived]);
 
   // Avoid assigning duplicate ranks while items are filtered.
   const canReorder = archivesReady && knownArchived.size === 0 && items.length <= 400 && status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
 
-  const visible = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase();
-    return items.filter(item => {
-      if (status === 'published' && item.published !== true) return false;
-      if (status === 'drafts' && item.published === true) return false;
-      if (!term) return true;
-      return [
-        item.title, item.slug, item.category, item.location, item.eventDate,
-        item.excerpt, item.description, item.websiteUrl, item.role, item.achievements, item.exam, item.subject, item.year, item.language,
-      ].some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term));
-    });
-  }, [items, search, status]);
+  const visible = useMemo(() => filterCmsItems(items, {
+    status, search, archivedIds: knownArchived,
+  }), [items, search, status, knownArchived]);
 
   function openNew() {
     if (!canCreate) return;
@@ -482,7 +473,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   async function remove(item) {
-    if (!canDelete || actionId !== null) return;
+    if (!canDelete || !archivesReady || actionId !== null) return;
     setActionId(item.id);
     setNotice(null);
     try {
@@ -498,11 +489,11 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
         });
         setNotice({ type: 'success', text: 'Restored to drafts. Review before republishing.' });
       } else {
-        if (!window.confirm('Archive "' + (item.title || 'item') +
-          '"? This removes it from the public website, preserves its history, and allows restoration. Publicly shared Drive files remain accessible.')) return;
+        if (!window.confirm('Delete "' + (item.title || 'item') +
+          '"? This removes it from the active admin list and public website. You can restore it from the Deleted filter. Publicly shared Drive files remain accessible.')) return;
         await archiveCmsRecord(kind, item.id);
         setKnownArchived(previous => new Set(previous).add(item.id));
-        setNotice({ type: 'success', text: 'Archived safely. Use Archive / Restore to restore this draft.' });
+        setNotice({ type: 'success', text: 'Item deleted from active lists. Open the Deleted filter to restore it; its history is preserved.' });
       }
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -549,6 +540,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                 <option value="all">All status ({totals.all})</option>
                 <option value="published">Published ({totals.published})</option>
                 <option value="drafts">Drafts ({totals.drafts})</option>
+                <option value="deleted">Deleted ({totals.deleted})</option>
               </select>
               {canCreate && <button type="button" onClick={openNew} className="admin-btn-primary">
                 + New {config.singular}
@@ -560,15 +552,22 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
           <div className="admin-table-card">
             {loadError ? (
               <p role="alert" className="admin-state-msg error">{loadError}</p>
-            ) : loading ? (
+            ) : archiveError ? (
+              <div role="alert" className="admin-state-msg error">
+                <p>{archiveError}</p>
+                <button type="button" className="admin-btn-ghost" onClick={() => setArchiveRetry(value => value + 1)}>Retry</button>
+              </div>
+            ) : loading || !archivesReady ? (
               <p className="admin-state-msg">Loading content...</p>
             ) : visible.length === 0 ? (
               <div className="admin-empty-state">
                 <p className="admin-empty-title">No records found</p>
                 <p className="admin-empty-sub">
-                  {items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
+                  {status === 'deleted' ? 'No deleted items match your filters.' : totals.all === 0 && items.length > 0
+                    ? 'No active records. Use the Deleted filter to restore an item.'
+                    : items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
                 </p>
-                {!items.length && canCreate && (
+                {totals.all === 0 && status !== 'deleted' && canCreate && (
                   <button type="button" onClick={openNew} className="admin-btn-primary">
                     Create {config.singular}
                   </button>
@@ -630,7 +629,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                           onClick={() => reorderPositions(index, index + 1)}>↓</button>
                         <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
                           <span className="admin-status-dot" />
-                          {!archivesReady ? 'Checking' : knownArchived.has(item.id) ? 'Archived' : item.published ? 'Published' : 'Draft'}
+                          {knownArchived.has(item.id) ? 'Deleted' : item.published ? 'Published' : 'Draft'}
                         </span>
                         {archivesReady && !knownArchived.has(item.id) && canEditRecord(role, item) && <button
                           type="button"
@@ -659,11 +658,12 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         </button>}
                         {canDelete && <button
                           type="button"
-                          disabled={actionId !== null}
+                          disabled={!archivesReady || actionId !== null}
+                          aria-label={`${knownArchived.has(item.id) ? 'Restore' : 'Delete'} ${item.title || 'item'}`}
                           onClick={() => remove(item)}
                           className="admin-btn-ghost-danger"
                         >
-                          {knownArchived.has(item.id) ? 'Restore' : 'Archive / Restore'}
+                          {actionId === item.id ? 'Working…' : knownArchived.has(item.id) ? 'Restore' : 'Delete'}
                         </button>}
                       </div>
                     </article>
