@@ -33,14 +33,14 @@ test('public Pages service fetches only published records',()=>{
  assert.match(repo,/snapshot\.data\(\)\.published === true/);
 });
 
-test('admin Pages editor is removed without changing public published Pages routes', () => {
+test('admin Pages editor is available without changing published Pages routes', () => {
   const dashboard = read('src/admin/AdminDashboard.jsx');
   const manager = read('src/admin/ContentManager.jsx');
   const publicRoute = read('src/pages/content/PublishedContentPage.jsx');
-  assert.doesNotMatch(dashboard, /id:\s*'pages'/);
-  assert.doesNotMatch(dashboard, /label:\s*'Website Pages'/);
-  assert.doesNotMatch(manager, /pages:\s*\{/);
-  assert.doesNotMatch(manager, /subscribeAdminPages|createPage|updatePage|deletePage|reorderPages/);
+  assert.match(dashboard, /id:\s*'pages'/);
+  assert.match(dashboard, /label:\s*'Website Pages'/);
+  assert.match(manager, /pages:\s*\{/);
+  assert.match(manager, /subscribeAdminPages|createPage|updatePage|reorderPages/);
   assert.match(dashboard, /<ContentManager key=\{selectedSection/);
   assert.match(publicRoute, /getPublishedPage\(slug\)/);
   // All other admin editors are retained.
