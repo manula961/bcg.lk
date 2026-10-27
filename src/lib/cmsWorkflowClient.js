@@ -44,6 +44,22 @@ export async function getArchiveStatus(kind, id) {
   return data.archived === true;
 }
 
+export async function getArchivedRecordIds(kind) {
+  if (!KINDS.has(kind)) throw new Error('Invalid CMS collection.');
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Sign in to the BCG.LK console first.');
+  const token = await user.getIdToken();
+  const url = '/api/admin/workflow?' + new URLSearchParams({ action:'trashList', kind });
+  const response = await fetch(url, {
+    method:'GET', headers:{Authorization:'Bearer ' + token}, cache:'no-store',
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !Array.isArray(data.ids))
+    throw new Error(data.error || 'Cannot verify archived content.');
+  if (data.truncated) throw new Error('Archive list is too large to verify safely.');
+  return data.ids.filter(id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,150}$/.test(id));
+}
+
 export async function archiveCmsRecord(kind, id) {
   return authorizedWorkflow(kind, id, 'archive');
 }
