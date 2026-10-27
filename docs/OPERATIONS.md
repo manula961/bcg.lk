@@ -160,3 +160,44 @@ To test without touching production, use `node --test
 tests/drive-reference-safety.test.mjs tests/drive-delete-policy.test.mjs`
 and the full existing `npm test` suite. Live deletion requires a separate,
 reviewed operational decision and is not part of CI.
+
+
+## Public Google Drive upload approval gate — new uploads default to denied
+
+**This is an intentional compatibility change:** uploaded images and Past Papers
+PDFs currently receive `type:anyone, role:reader` from Google Drive **before**
+a CMS entry is published. A draft image or PDF can therefore be reached by
+anyone possessing its URL. The server now refuses both
+`POST /api/drive/upload` and `POST /api/drive/papers-upload` unless the
+school owner explicitly enables a server-only production setting:
+
+    BCG_ALLOW_PUBLIC_DRIVE_UPLOADS=1
+
+Leave this **unset** until a designated school content/data owner has approved
+the public-sharing policy and confirmed that student/staff images and PDFs are
+appropriate for immediate public release. Do not use a `VITE_*` variable,
+set this in Preview, or treat it as a per-user consent checkbox. A privileged
+administrator, same-origin request, valid Firebase session/role and Google
+Drive OAuth session remain required independently of the flag. No file bytes,
+Google token exchange or Drive permission requests occur when the opt-in is
+absent, even for an otherwise authorized administrator.
+
+- With the setting **absent** (recommended): existing CMS entries and Drive
+  links are unchanged; **new image/PDF uploads will return HTTP 403** and the
+  existing admin UI will display the server's explanatory error.
+- With the setting exactly **`1`**: existing Drive upload functionality is
+  restored, including the **immediate public access** behavior. It does *not*
+  make Drive files private, ensure two-person content review, or make previously
+  uploaded public files private.
+- To stop issuing new publicly shared files, delete/unset the setting and
+  redeploy/restart the production functions as appropriate. This does not
+  revoke already granted Google Drive permissions.
+- Private-first upload, reviewer-mediated permission promotion, draft image
+  previews and revocation on unpublish are a **separate coordinated backend,
+  CMS and owner-approved UI migration**, not part of this safeguard.
+
+Stage and run `node --test tests/drive-publication-policy.test.mjs` followed
+by `npm test` before requesting a reviewed release. Verify both uploaded
+image and PDF workflows in isolated Firebase/Google Drive staging, including
+the deliberately blocked state. Never put production OAuth or Firebase
+service-account credentials in pull-request CI.
