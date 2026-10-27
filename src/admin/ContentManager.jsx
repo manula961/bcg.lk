@@ -20,7 +20,7 @@ import {
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
 import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
-import { getArchiveStatus, getArchivedRecordIds, archiveCmsRecord, restoreCmsRecord } from '../lib/cmsWorkflowClient';
+import { getArchiveStatus, getArchivedRecordIds, archiveCmsRecord, restoreCmsRecord, getEditorialStatus, performEditorialAction } from '../lib/cmsWorkflowClient';
 import './Admin.css';
 
 const collections = {
@@ -385,14 +385,11 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     if (busy || uploadingImage) return;
     if (editingId ? !hasPermission(role, 'content.edit') : !canCreate) return;
     if (!archivesReady) { setNotice({ type: 'error', text: 'Wait for archive verification before saving.' }); return; }
-    if (!canPublish && (form.published || (editingId && items.find(item => item.id === editingId)?.published))) {
-      setNotice({ type: 'error', text: 'Editors can save drafts only.' });
-      return;
-    }
     setBusy(true);
     setNotice(null);
     try {
-      const payload = { ...form };
+      const payload = { ...form, published: false };
+      let resultMessage = 'Draft saved successfully.';
       if (kind === 'pastPapers' && !/^(19|20)\d{2}$/.test(form.year)) throw new Error('Enter a four-digit year (1900–2099).');
       if (kind === 'events') {
         const itemIndex = editingId
@@ -403,7 +400,19 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
       }
       if (editingId) {
         if (await getArchiveStatus(kind, editingId)) throw new Error('This record is archived. Restore it before editing.');
-        await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
+        const current = items.find(item => item.id === editingId);
+        if (!current) throw new Error('This record was removed. Reload the collection.');
+        if (current.published === true) {
+          // Live content remains unchanged until a second user approves this patch.
+          const patch = Object.fromEntries(config.fields
+            .filter(field => field.key !== 'slug' && form[field.key] !== (current[field.key] ?? ''))
+            .map(field => [field.key, form[field.key] ?? '']));
+          if (Object.keys(patch).length === 0) throw new Error('No changes to propose.');
+          await performEditorialAction(kind, editingId, 'proposeEdit', { patch });
+          resultMessage = 'Published edit proposal submitted. A different Publisher or Admin must approve, then apply it.';
+        } else {
+          await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
+        }
       } else {
         await config.create(payload);
       }
@@ -412,7 +421,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
       setEditingId(null);
       setNotice({
         type: 'success',
-        text: 'Saved successfully.',
+        text: resultMessage,
       });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -422,17 +431,49 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   async function togglePublished(item) {
-    if (!canPublish || actionId !== null || !archivesReady || knownArchived.has(item.id)) return;
+    if (actionId !== null || !archivesReady || knownArchived.has(item.id) ||
+        !hasPermission(role, 'content.edit')) return;
     setActionId(item.id);
     setNotice(null);
     try {
-      const next = item.published !== true;
       if (await getArchiveStatus(kind, item.id)) {
         setKnownArchived(previous => new Set(previous).add(item.id));
-        throw new Error('This item is archived. Restore it before publishing.');
+        throw new Error('This item is archived. Restore it before editorial review.');
       }
-      await config.update(item.id, { published: next }, { expectedUpdatedAt: item.updatedAt ?? null });
-      setNotice({ type: 'success', text: next ? 'Published live.' : 'Moved to drafts.' });
+      const review = await getEditorialStatus(kind, item.id);
+      const stage = review.status || 'unsubmitted';
+      let action;
+      let message;
+      if (item.published === true) {
+        if (!canPublish) throw new Error('A Publisher or Admin must review published content.');
+        if (stage === 'submitted-edit') {
+          action = 'approve';
+          message = 'Edit proposal approved. An authorized publisher must now apply the change.';
+        } else if (stage === 'approved-edit') {
+          action = 'applyEdit';
+          message = 'Approved edit applied to the live article.';
+        } else {
+          action = 'unpublish';
+          message = 'Unpublished through the audited workflow.';
+        }
+      } else if (stage === 'submitted') {
+        if (!canPublish) throw new Error('Waiting for a different Publisher or Admin to approve this submission.');
+        action = 'approve';
+        message = 'Draft approved. An authorized publisher may now publish it.';
+      } else if (stage === 'approved') {
+        if (!canPublish) throw new Error('Waiting for a Publisher or Admin to publish this approved draft.');
+        action = 'publish';
+        message = 'Approved content published to the website.';
+      } else if (stage === 'scheduled') {
+        throw new Error('Publication is scheduled; do not publish manually.');
+      } else if (stage === 'submitted-edit' || stage === 'approved-edit') {
+        throw new Error('This proposal must be reviewed by an authorized publisher.');
+      } else {
+        action = 'submit';
+        message = 'Draft submitted. A different Publisher or Admin must approve it before publication.';
+      }
+      await performEditorialAction(kind, item.id, action);
+      setNotice({ type: 'success', text: message });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
     } finally {
@@ -608,13 +649,13 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         >
                           Edit
                         </button>}
-                        {archivesReady && !knownArchived.has(item.id) && canPublish && <button
+                        {archivesReady && !knownArchived.has(item.id) && hasPermission(role, 'content.edit') && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
                           className="admin-btn-ghost"
                         >
-                          {actionId === item.id ? '...' : item.published ? 'Unpublish' : 'Publish'}
+                          {actionId === item.id ? '...' : item.published ? 'Review / Unpublish' : 'Submit / Review / Publish'}
                         </button>}
                         {canDelete && <button
                           type="button"
@@ -720,25 +761,16 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                 <img src={form.imageUrl} alt="Preview" className="admin-preview-img" />
               </div>
             )}
-            {canPublish && <div className="admin-publish-row">
+            <div className="admin-publish-row" role="note">
               <div>
-                <span className="admin-publish-title">Publishing Status</span>
+                <span className="admin-publish-title">Editorial approval</span>
                 <p className="admin-publish-desc">
-                  {form.published
-                    ? 'Visible live on the public website.'
-                    : 'Saved as draft (hidden from public website).'}
+                  {editingId && items.find(item => item.id === editingId)?.published
+                    ? 'Saving a published article creates an edit proposal. A different Publisher or Admin must approve and apply it.'
+                    : 'New and edited records are drafts. Use Submit / Review / Publish from the list for independent approval before going live.'}
                 </p>
               </div>
-              <label className="admin-toggle-label">
-                <input
-                  type="checkbox"
-                  checked={form.published}
-                  onChange={(e) => updateField('published', e.target.checked)}
-                  className="admin-toggle-input"
-                />
-                <span>Published</span>
-              </label>
-            </div>}
+            </div>
             <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
                 Cancel
