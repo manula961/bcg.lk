@@ -33,11 +33,19 @@ test('public Pages service fetches only published records',()=>{
  assert.match(repo,/snapshot\.data\(\)\.published === true/);
 });
 
-test('admin sidebar exposes the existing CMS Pages manager without a new UI design', () => {
+test('admin Pages editor is removed without changing public published Pages routes', () => {
   const dashboard = read('src/admin/AdminDashboard.jsx');
   const manager = read('src/admin/ContentManager.jsx');
-  assert.match(dashboard, /id: 'pages'/);
-  assert.match(dashboard, /label: 'Website Pages'/);
-  assert.match(manager, /pages: \{/);
+  const publicRoute = read('src/pages/content/PublishedContentPage.jsx');
+  assert.doesNotMatch(dashboard, /id:\s*'pages'/);
+  assert.doesNotMatch(dashboard, /label:\s*'Website Pages'/);
+  assert.doesNotMatch(manager, /pages:\s*\{/);
+  assert.doesNotMatch(manager, /subscribeAdminPages|createPage|updatePage|deletePage|reorderPages/);
   assert.match(dashboard, /<ContentManager key=\{selectedSection/);
+  assert.match(publicRoute, /getPublishedPage\(slug\)/);
+  // All other admin editors are retained.
+  for (const id of ['news','events','societies','sports','leadership','pastPapers']) {
+    assert.ok(dashboard.includes("id: '" + id + "'"), id + ' editor missing');
+    assert.match(manager, new RegExp('(?:^|\\n)  ' + id + ': \\{'));
+  }
 });
