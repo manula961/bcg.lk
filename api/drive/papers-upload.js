@@ -7,6 +7,9 @@ export default async function handler(req,res) {
     requireSameOrigin(req);
     const uid=await requireAdmin(req);
     const session=verifySession(req,uid);
+    // PDF files also receive public Drive permissions before CMS publication.
+    const { assertPublicDriveUploadApproved } = await import('../_lib/drive-publication-policy.mjs');
+    assertPublicDriveUploadApproved();
     const pdf=await readPdf(req);
     const token=await accessToken(session.refresh);
     res.status(200).json(await driveUploadPaper(token,pdf));
