@@ -150,3 +150,34 @@ test('explicit server-only owner approval retains the existing authenticated Dri
     reset();globalThis.fetch=before;
   }
 });
+
+test('explicit owner approval preserves authenticated public PDF upload behavior', async () => {
+  const reset=setup(), before=globalThis.fetch;
+  const calls=[];
+  try {
+    process.env.BCG_ALLOW_PUBLIC_DRIVE_UPLOADS='1';
+    globalThis.fetch=async(url,init)=>{
+      const u=String(url); calls.push({url:u, method:init?.method});
+      if(u.includes('identitytoolkit.googleapis.com'))
+        return response({users:[{localId:'verified-admin'}]});
+      if(u.includes('firestore.googleapis.com'))
+        return response({fields:{role:{stringValue:'admin'}}});
+      if(u.includes('oauth2.googleapis.com/token'))
+        return response({access_token:'test-access-token'});
+      if(u.includes('uploadType=multipart'))
+        return response({id:'managedPaper123456789'});
+      if(u.endsWith('/permissions'))
+        return response({id:'public-reader'});
+      throw Error('Unexpected external endpoint: '+u);
+    };
+    const res=reply();
+    await paperUpload(request(pdf,'application/pdf'),res);
+    assert.equal(res.statusCode,200);
+    assert.equal(res.body.url,
+      'https://drive.google.com/file/d/managedPaper123456789/view');
+    assert.equal(calls.length,5);
+    assert.equal(calls.at(-1).method,'POST');
+  } finally {
+    reset();globalThis.fetch=before;
+  }
+});
