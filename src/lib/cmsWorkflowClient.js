@@ -109,8 +109,8 @@ export async function getArchivedRecordIds(kind) {
     }
     if (data.nextCursor == null) return [...ids];
     if (typeof data.nextCursor !== 'string' ||
-        !/^[A-Za-z0-9_-]{1,150}$/.test(data.nextCursor) ||
         !data.nextCursor.startsWith(kind + '_') ||
+        !/^[A-Za-z0-9_-]{1,150}$/.test(data.nextCursor.slice(kind.length + 1)) ||
         visited.has(data.nextCursor)) {
       throw new Error('Archive verification returned an invalid pagination cursor.');
     }
