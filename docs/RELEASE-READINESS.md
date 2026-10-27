@@ -158,7 +158,8 @@ certify a release, enforce GitHub reviews or replace staging tests.
 
 - Vercel Preview and local builds have no SHA restriction.
 - Vercel Production builds reject missing, malformed or mismatched
-  `BCG_APPROVED_PRODUCTION_SHA` / `VERCEL_GIT_COMMIT_SHA` values.
+  `BCG_APPROVED_PRODUCTION_SHA` / `VERCEL_GIT_COMMIT_SHA` values and
+  require Git provider `github`, owner `manula961`, repo `bcg.lk`, branch `main`.
 - Only after all external release checks and human approval, configure
   `BCG_APPROVED_PRODUCTION_SHA` for **Vercel Production only**, with the
   exact 40-character *resulting commit/merge SHA*. Do not expose it through
