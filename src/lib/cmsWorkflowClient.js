@@ -39,6 +39,42 @@ async function authorizedWorkflow(kind, id, action) {
   return data;
 }
 
+/**
+ * Privileged editorial transitions. The Firestore browser client may write only
+ * unpublished drafts; publishing, published edits and unpublishing use this API.
+ */
+export async function performEditorialAction(kind, id, action, extra = {}) {
+  validTarget(kind, id);
+  if (!['submit','approve','publish','unpublish','proposeEdit','applyEdit','schedule'].includes(action))
+    throw new Error('Unsupported editorial action.');
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Sign in to the admin console first.');
+  const token = await user.getIdToken();
+  const response = await fetch('/api/admin/workflow', {
+    method:'POST', credentials:'same-origin',
+    headers:{Authorization:'Bearer ' + token, 'Content-Type':'application/json'},
+    body:JSON.stringify({kind,id,action,...extra}),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Editorial action failed. Please retry.');
+  return data;
+}
+
+export async function getEditorialStatus(kind, id) {
+  validTarget(kind,id);
+  const user = auth?.currentUser;
+  if (!user) throw new Error('Sign in to the admin console first.');
+  const token = await user.getIdToken();
+  const url = '/api/admin/workflow?' + new URLSearchParams({action:'status',kind,id});
+  const response = await fetch(url, {
+    method:'GET',credentials:'same-origin',cache:'no-store',
+    headers:{Authorization:'Bearer '+token},
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Cannot read editorial status.');
+  return data;
+}
+
 export async function getArchiveStatus(kind, id) {
   const data = await authorizedWorkflow(kind, id);
   return data.archived === true;
