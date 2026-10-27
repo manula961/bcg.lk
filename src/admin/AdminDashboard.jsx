@@ -43,6 +43,12 @@ const sections = [
     ),
   },
   {
+    id: 'pages',
+    label: 'Website Pages',
+    description: 'Published school information pages',
+    icon: <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 3h8l5 5v13H7z"/><path d="M15 3v6h5M10 13h7M10 17h7"/></svg>,
+  },
+  {
     id: 'societies',
     label: 'Societies',
     description: 'Clubs & student societies',
@@ -152,7 +158,10 @@ export default function AdminDashboard({ user, role }) {
             </div>
             <button
               type="button"
-              onClick={() => signOut(auth)}
+              onClick={() => {
+                if (editorDirty && !window.confirm('Discard unsaved changes and sign out?')) return;
+                void signOut(auth);
+              }}
               className="admin-btn-ghost-danger"
               title="Sign Out"
             >
