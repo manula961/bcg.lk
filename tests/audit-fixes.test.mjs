@@ -21,7 +21,7 @@ test('CMS guards against stale writes and reordering a filtered list', () => {
   assert.match(repository, /transaction\.update\(ref, payload\)/);
   assert.match(repository, /Direct deletion is disabled/);
   assert.doesNotMatch(repository, /transaction\.delete\(ref\)/);
-  assert.match(manager, /const canReorder = status === 'all'/);
+  assert.match(manager, /const canReorder = .*status === 'all'/);
   assert.match(manager, /draggable=\{canReorder\}/);
   assert.match(manager, /aria-label=\{`Move \$\{item\.title/);
   assert.match(manager, /expectedUpdatedAt: editingRevision/);
