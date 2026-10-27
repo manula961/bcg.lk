@@ -236,7 +236,7 @@ export async function verifyEditor(req, method) {
 export async function workflowAction(body,actor) {
   const {kind,id} = requireTarget(body);
   const act = body.action;
-  if (!['submit','approve','publish','schedule','edit','proposeEdit','applyEdit','archive','restore','rollback'].includes(act))
+  if (!['submit','approve','publish','unpublish','schedule','edit','proposeEdit','applyEdit','archive','restore','rollback'].includes(act))
     throw failure(400,'Unknown workflow action.');
   const at = isoNow();
   const path = targetPath(kind,id);
@@ -343,6 +343,20 @@ export async function workflowAction(body,actor) {
     writes.push(revision(actor.uid,kind,id,existing,at,'before-publish'));
     writes.push(mediaRef(kind,id,{fields:after},at));
     writes.push(change(wfPath,state,wfFields(state,kind,id,{status:fstr('published'),publishedAt:ftime(at)})));
+  } else if (act === 'unpublish') {
+    requireRole(actor.role,PUBLISH);
+    if (!existing || existing.fields?.published?.booleanValue !== true)
+      throw failure(409,'Only published content can be unpublished.');
+    if (await find(trashPath(kind,id))) throw failure(409,'Archived records cannot be unpublished.');
+    const after = updatedContent(existing,at,actor.uid,{published:fbool(false),publishedAt:{nullValue:null}});
+    validateCmsRecord(kind,id,after);
+    writes.push(change(path,existing,after));
+    writes.push(revision(actor.uid,kind,id,existing,at,'before-unpublish'));
+    writes.push(mediaRef(kind,id,{fields:after},at));
+    writes.push(change(wfPath,state,wfFields(state,kind,id,{
+      status:fstr('draft'),contentUpdateTime:fstr(''),approvedBy:{nullValue:null},
+      pendingPatch:{nullValue:null},approvedAt:{nullValue:null}
+    })));
   } else if (act === 'archive') {
     requireRole(actor.role,ADMIN);
     if (!existing) throw failure(404,'Content not found.');
