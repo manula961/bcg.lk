@@ -431,6 +431,24 @@ export async function workflowRead(query,actor) {
     return {items:(logs.documents || []).map(x=>({id:x.name.split('/').at(-1),fields:x.fields})),
       nextPageToken:logs.nextPageToken || null};
   }
+  if (action === 'trashList') {
+    requireRole(actor.role, new Set(ROLES));
+    if (!KINDS.includes(query.kind)) throw failure(400, 'Invalid CMS collection.');
+    const token = await accessToken();
+    const rows = await request(root() + ':runQuery', {
+      method:'POST',
+      headers:{Authorization:'Bearer ' + token,'Content-Type':'application/json'},
+      body:JSON.stringify({structuredQuery:{
+        from:[{collectionId:'cmsTrash'}],
+        where:{fieldFilter:{field:{fieldPath:'kind'},op:'EQUAL',value:fstr(query.kind)}},
+        limit:1000,
+      }}),
+    });
+    if (!Array.isArray(rows)) throw failure(502, 'Archive list response invalid.');
+    const ids = rows.map(row => row.document?.fields?.recordId?.stringValue)
+      .filter(id => typeof id === 'string' && ID.test(id));
+    return { ids, truncated: ids.length >= 1000 };
+  }
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
     const doc = await find(workflowPath(kind,id));
@@ -448,7 +466,7 @@ export async function workflowRead(query,actor) {
     })),nextPageToken:docs.nextPageToken || null};
   }
   if (action === 'trash') {
-    requireRole(actor.role,ADMIN);
+    requireRole(actor.role,new Set(ROLES));
     const trash = await find(trashPath(kind,id));
     return {archived:Boolean(trash),archivedAt:trash?.fields?.archivedAt?.timestampValue || null};
   }
