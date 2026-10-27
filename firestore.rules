@@ -186,8 +186,15 @@ service cloud.firestore {
         && validUpdateOwnership() && validUpdateSystemTimes()
         // Even a super_admin cannot bypass editorial approval with browser credentials.
         // Published edits/unpublish and all publication transitions go through server service account.
-        && resource.data.published == false && request.resource.data.published == false
-        && (canPublishContent() || editorDraftUpdateOnly());
+        && ((resource.data.published == false && request.resource.data.published == false
+          && (canPublishContent() || editorDraftUpdateOnly()))
+          // Existing published items may be reordered by publishers without changing
+          // editorial content or publication status. Approval still controls all text/media edits.
+          || (resource.data.published == true && request.resource.data.published == true
+            && canPublishContent()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'rank', 'updatedAt', 'updatedBy'
+            ])));
       // Hard deletion must be a deliberate trusted-server operation.
       // Normal administrators use audited archive/restore instead.
       allow delete: if false;
