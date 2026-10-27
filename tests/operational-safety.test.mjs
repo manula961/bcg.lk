@@ -48,7 +48,7 @@ test('dependabot schedules safe dev updates without silent major framework migra
   assert.match(yaml, /semver-major/);
 });
 
-test('CI builds against Vercel production Node 24 and maintained action majors', () => {
+test('CI builds against production Node 24 with immutable reviewed action SHAs', () => {
   for (const file of [
     'build.yml', 'backend-checks.yml', 'browser-smoke.yml',
     'dependency-security.yml', 'production-readonly-smoke.yml',
@@ -56,8 +56,8 @@ test('CI builds against Vercel production Node 24 and maintained action majors',
   ]) {
     const workflow = read('.github/workflows/' + file);
     assert.match(workflow, /node-version: '24'/);
-    assert.doesNotMatch(workflow, /actions\/(?:checkout|setup-node|setup-java)@v4/);
-    assert.match(workflow, /actions\/checkout@v5/);
-    assert.match(workflow, /actions\/setup-node@v5/);
+    assert.doesNotMatch(workflow, /actions\/(?:checkout|setup-node|setup-java)@v\d/);
+    assert.match(workflow, /actions\/checkout@[a-f0-9]{40}\s+# v5/);
+    assert.match(workflow, /actions\/setup-node@[a-f0-9]{40}\s+# v5/);
   }
 });
