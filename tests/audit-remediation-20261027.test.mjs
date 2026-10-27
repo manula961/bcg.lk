@@ -48,3 +48,17 @@ test('public UI uses stable local crest and safe date/heading fallbacks', () => 
   assert.match(events, /aDate\.localeCompare\(bDate\)/);
   assert.match(events, /bDate\.localeCompare\(aDate\)/);
 });
+
+test('all published transitions and live-content edits are handled by the protected workflow API', () => {
+  const rules = read('firestore.rules');
+  assert.match(rules, /request\.resource\.data\.published == false/);
+  assert.match(rules, /resource\.data\.published == false && request\.resource\.data\.published == false/);
+  const manager = read('src/admin/ContentManager.jsx');
+  assert.match(manager, /performEditorialAction\(kind, editingId, 'proposeEdit'/);
+  assert.match(manager, /getEditorialStatus\(kind, item\.id\)/);
+  assert.match(manager, /performEditorialAction\(kind, item\.id, action\)/);
+  assert.doesNotMatch(manager, /onChange=\{\(e\) => updateField\('published', e\.target\.checked\)\}/);
+  const server = read('api/_lib/cms-workflow.mjs');
+  assert.match(server, /act === 'unpublish'/);
+  assert.match(server, /'before-unpublish'/);
+});
