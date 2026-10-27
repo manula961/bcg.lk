@@ -40,6 +40,8 @@ const ExploreSection = () => {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);
+  const [interactionPaused, setInteractionPaused] = useState(false);
+  const [hoverPaused, setHoverPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
@@ -62,17 +64,21 @@ const ExploreSection = () => {
 
   useEffect(() => {
     if (!visible || reducedMotion) return;
+    if (interactionPaused || hoverPaused) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % places.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [visible, reducedMotion]);
+  }, [visible, reducedMotion, interactionPaused, hoverPaused]);
 
   return (
     <section
       id="explore"
       ref={sectionRef}
       className="explore-section"
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
+      onFocusCapture={() => setInteractionPaused(true)}
     >
       <div className="section-container">
         <div className={`explore-content-group ${visible ? 'visible' : ''}`}>
@@ -100,13 +106,14 @@ const ExploreSection = () => {
                       const next = event.key === 'Home' ? 0
                         : event.key === 'End' ? places.length - 1
                         : (i + (event.key === 'ArrowRight' ? 1 : -1) + places.length) % places.length;
+                      setInteractionPaused(true);
                       setActive(next);
                       document.getElementById('place-tab-' + places[next].id)?.focus();
                     }}
                     aria-selected={active === i}
                     aria-controls={`place-panel-${place.id}`}
                     id={`place-tab-${place.id}`}
-                    onClick={() => setActive(i)}
+                    onClick={() => { setInteractionPaused(true); setActive(i); }}
                     className={`explore-tab-btn ${active === i ? 'active' : ''}`}
                   >
                     <div className="explore-tab-tag">{place.tag}</div>

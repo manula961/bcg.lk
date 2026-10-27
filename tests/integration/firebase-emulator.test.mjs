@@ -91,10 +91,9 @@ test('non-admin writes fail; administrators publish but direct hard deletes are 
     await assertFails(setDoc(doc(editor.firestore(), name, id), { title: 'Unauthorized', published: true }));
     await assertSucceeds(setDoc(record, sample[name]));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
-    await assertSucceeds(updateDoc(record, { title: 'Edited', published: true, publishedAt: serverTimestamp() }));
-    await assertSucceeds(getDoc(doc(visitor.firestore(), name, id)));
-    await assertFails(updateDoc(doc(editor.firestore(), name, id), { published: false }));
-    await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
+    await assertFails(updateDoc(record, { title: 'Edited', published: true, publishedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(publisher.firestore(), name, id), { published: true, publishedAt: serverTimestamp() }));
+    await assertSucceeds(updateDoc(record, { title: 'Draft edited' }));
     await assertFails(getDoc(doc(visitor.firestore(), name, id)));
     await assertFails(deleteDoc(doc(editor.firestore(), name, id)));
     await assertFails(deleteDoc(record));
@@ -111,7 +110,7 @@ test('past papers enforce valid metadata, HTTPS links, and editor/publisher role
   await assertSucceeds(setDoc(draft, sample.pastPapers));
   await assertSucceeds(updateDoc(draft, { subject: 'Science' }));
   await assertFails(updateDoc(draft, { published: true }));
-  await assertSucceeds(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(publisher.firestore(), 'pastPapers/editor-draft'), { published: true, publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(doc(publisher.firestore(), 'pastPapers/editor-draft')));
   await assertFails(deleteDoc(doc(admin.firestore(), 'pastPapers/editor-draft')));
 });
@@ -248,7 +247,7 @@ test('required CMS fields reject empty, whitespace-only and mismatched page iden
     title: 'Page', body: 'Real body', slug: 'different-slug', published: true,
   }));
   await assertSucceeds(setDoc(doc(db, 'pages/matched-slug'), {
-    title: 'Page', body: 'Real body', slug: 'matched-slug', published: true,
+    title: 'Page', body: 'Real body', slug: 'matched-slug', published: false,
   }));
   await assertFails(deleteDoc(doc(db, 'pages/matched-slug')));
 });
@@ -258,7 +257,7 @@ test('multiline editorial content is allowed, but whitespace-only bodies are rej
   const record = doc(db, 'pages/multiline-page');
   await assertSucceeds(setDoc(record, {
     title: 'Valid multi-line page', slug: 'multiline-page',
-    body: 'First paragraph.\n\nSecond paragraph.', published: true,
+    body: 'First paragraph.\n\nSecond paragraph.', published: false,
   }));
   await assertFails(updateDoc(record, { body: ' \n \t ' }));
   await assertFails(deleteDoc(record));
@@ -317,10 +316,30 @@ test('RBAC: editors manage drafts only, publishers publish but no client may har
   await assertFails(updateDoc(refEditor, { rank: 7 }));
   await assertFails(updateDoc(refEditor, { publishedAt: serverTimestamp() }));
   await assertFails(deleteDoc(refEditor));
-  await assertSucceeds(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(refPublisher, { published: true, publishedAt: serverTimestamp() }));
+  await environment.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), 'news', id), {
+      title: 'Server-approved content', excerpt: 'Draft excerpt', published: true,
+    });
+  });
   await assertFails(updateDoc(refEditor, { title: 'Published content changed by editor' }));
+  await assertFails(updateDoc(refPublisher, { title: 'Published content changed by publisher' }));
+  await assertFails(updateDoc(refAdmin, { published: false, publishedAt: null }));
   await assertFails(deleteDoc(refPublisher));
   await assertFails(deleteDoc(refAdmin));
+});
+
+test('published ranking remains role-limited without permitting live content changes', async () => {
+  const item = doc(admin.firestore(), 'news/published-news');
+  await assertSucceeds(updateDoc(item, {
+    rank: 3, updatedAt: serverTimestamp(), updatedBy: 'verified-admin',
+  }));
+  await assertFails(updateDoc(item, {
+    title: 'Unreviewed live edit', updatedAt: serverTimestamp(), updatedBy: 'verified-admin',
+  }));
+  await assertFails(updateDoc(doc(editor.firestore(), 'news/published-news'), {
+    rank: 1, updatedAt: serverTimestamp(), updatedBy: 'ordinary-editor',
+  }));
 });
 
 test('RBAC: direct Firebase Storage writes are admin-only; editors use the Drive API', async () => {

@@ -236,7 +236,7 @@ export async function verifyEditor(req, method) {
 export async function workflowAction(body,actor) {
   const {kind,id} = requireTarget(body);
   const act = body.action;
-  if (!['submit','approve','publish','schedule','edit','proposeEdit','applyEdit','archive','restore','rollback'].includes(act))
+  if (!['submit','approve','publish','unpublish','schedule','edit','proposeEdit','applyEdit','archive','restore','rollback'].includes(act))
     throw failure(400,'Unknown workflow action.');
   const at = isoNow();
   const path = targetPath(kind,id);
@@ -343,6 +343,20 @@ export async function workflowAction(body,actor) {
     writes.push(revision(actor.uid,kind,id,existing,at,'before-publish'));
     writes.push(mediaRef(kind,id,{fields:after},at));
     writes.push(change(wfPath,state,wfFields(state,kind,id,{status:fstr('published'),publishedAt:ftime(at)})));
+  } else if (act === 'unpublish') {
+    requireRole(actor.role,PUBLISH);
+    if (!existing || existing.fields?.published?.booleanValue !== true)
+      throw failure(409,'Only published content can be unpublished.');
+    if (await find(trashPath(kind,id))) throw failure(409,'Archived records cannot be unpublished.');
+    const after = updatedContent(existing,at,actor.uid,{published:fbool(false),publishedAt:{nullValue:null}});
+    validateCmsRecord(kind,id,after);
+    writes.push(change(path,existing,after));
+    writes.push(revision(actor.uid,kind,id,existing,at,'before-unpublish'));
+    writes.push(mediaRef(kind,id,{fields:after},at));
+    writes.push(change(wfPath,state,wfFields(state,kind,id,{
+      status:fstr('draft'),contentUpdateTime:fstr(''),approvedBy:{nullValue:null},
+      pendingPatch:{nullValue:null},approvedAt:{nullValue:null}
+    })));
   } else if (act === 'archive') {
     requireRole(actor.role,ADMIN);
     if (!existing) throw failure(404,'Content not found.');
@@ -431,12 +445,38 @@ export async function workflowRead(query,actor) {
     return {items:(logs.documents || []).map(x=>({id:x.name.split('/').at(-1),fields:x.fields})),
       nextPageToken:logs.nextPageToken || null};
   }
+  if (action === 'trashList') {
+    requireRole(actor.role, new Set(ROLES));
+    if (!KINDS.includes(query.kind)) throw failure(400, 'Invalid CMS collection.');
+    const token = await accessToken();
+    const rows = await request(root() + ':runQuery', {
+      method:'POST',
+      headers:{Authorization:'Bearer ' + token,'Content-Type':'application/json'},
+      body:JSON.stringify({structuredQuery:{
+        from:[{collectionId:'cmsTrash'}],
+        where:{fieldFilter:{field:{fieldPath:'kind'},op:'EQUAL',value:fstr(query.kind)}},
+        limit:1000,
+      }}),
+    });
+    if (!Array.isArray(rows)) throw failure(502, 'Archive list response invalid.');
+    const ids = rows.map(row => row.document?.fields?.recordId?.stringValue)
+      .filter(id => typeof id === 'string' && ID.test(id));
+    return { ids, truncated: ids.length >= 1000 };
+  }
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
-    const doc = await find(workflowPath(kind,id));
-    return {status:status(doc) || 'unsubmitted',
-      submittedBy:field(doc,'submittedBy'),approvedBy:field(doc,'approvedBy'),
-      contentUpdateTime:field(doc,'contentUpdateTime')};
+    const [state, current] = await Promise.all([find(workflowPath(kind,id)),find(targetPath(kind,id))]);
+    if (!current && !state) return {status:'unsubmitted',stale:false,submittedBy:null,approvedBy:null,contentUpdateTime:null};
+    if (!current) throw failure(404, 'Content not found.');
+    const workflowStatus = status(state) || 'unsubmitted';
+    // Any browser draft edit invalidates the old approval revision; surface
+    // "draft" so the operator can submit for a fresh independent review.
+    const stale = ['submitted','approved','submitted-edit','approved-edit'].includes(workflowStatus) &&
+      field(state,'contentUpdateTime') !== current.updateTime;
+    return {status:stale ? 'draft' : workflowStatus, stale,
+      submittedBy:stale ? null : field(state,'submittedBy'),
+      approvedBy:stale ? null : field(state,'approvedBy'),
+      contentUpdateTime:field(state,'contentUpdateTime')};
   }
   if (action === 'history') {
     const pageToken = paginationToken(query.pageToken);
@@ -448,7 +488,7 @@ export async function workflowRead(query,actor) {
     })),nextPageToken:docs.nextPageToken || null};
   }
   if (action === 'trash') {
-    requireRole(actor.role,ADMIN);
+    requireRole(actor.role,new Set(ROLES));
     const trash = await find(trashPath(kind,id));
     return {archived:Boolean(trash),archivedAt:trash?.fields?.archivedAt?.timestampValue || null};
   }

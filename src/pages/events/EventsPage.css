@@ -412,6 +412,9 @@
 }
 
 .mobile-event-modal {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: #ffffff;
   border-radius: 20px;
   padding: 24px;

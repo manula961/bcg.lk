@@ -97,7 +97,7 @@ const HeroSection = () => {
           className="hero-fade-init mb-2 sm:mb-4 flex justify-center"
         >
           <img
-            src="https://i.ibb.co/Wv1bGqbs/images.jpg"
+            src="/email-assets/school-logo.png"
             alt="Bandaranayake College Logo"
             className="object-cover w-35 h-35 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-full"
           />
@@ -109,11 +109,11 @@ const HeroSection = () => {
           className="hero-fade-init w-full px-1"
         >
           <h1 className="geologica mb-2 sm:mb-4 leading-tight">
-            <span className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
+            <span className="block whitespace-normal sm:whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
               BANDARANAYAKE COLLEGE
             </span>
 
-            <span className="block whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
+            <span className="block whitespace-normal sm:whitespace-nowrap text-transparent bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 bg-clip-text text-[1.5rem] xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight sm:tracking-normal">
               GAMPAHA
             </span>
           </h1>

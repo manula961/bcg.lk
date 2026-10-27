@@ -4,7 +4,6 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -272,19 +271,9 @@ export function createContentRepository(name, fields, options = {}) {
         }));
       });
     },
-    async remove(id, { expectedUpdatedAt } = {}) {
+    async remove() {
       adminUser();
-      if (expectedUpdatedAt === undefined) {
-        await deleteDoc(record(id));
-        return;
-      }
-      await runTransaction(database(), async transaction => {
-        const ref = record(id);
-        const existing = await transaction.get(ref);
-        if (!existing.exists()) throw new Error('Content entry not found.');
-        assertCurrentRevision(existing, expectedUpdatedAt);
-        transaction.delete(ref);
-      });
+      throw new Error('Direct deletion is disabled. Use the audited CMS Archive / Restore workflow.');
     },
   });
 }

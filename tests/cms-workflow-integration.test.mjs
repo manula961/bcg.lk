@@ -170,6 +170,26 @@ test('draft review, two-person approval, publication, live edit proposal, trash,
   } finally { f.restore(); }
 });
 
+test('unpublishing is server-owned, audited, and resets the approval state',async()=>{
+  const f=setup();
+  try {
+    f.seed('news/reviewed-note',{
+      title:str('Published notice'),excerpt:str('Summary'),category:str('News'),
+      published:{booleanValue:true},
+    });
+    await assert.rejects(workflowAction({
+      kind:'news',id:'reviewed-note',action:'unpublish'
+    },editor),{status:403});
+    await workflowAction({kind:'news',id:'reviewed-note',action:'unpublish'},publisher);
+    assert.equal(f.read('news/reviewed-note').fields.published.booleanValue,false);
+    assert.equal(f.read('cmsWorkflow/news_reviewed-note').fields.status.stringValue,'draft');
+    assert.ok([...f.docs.keys()].some(path=>path.startsWith('cmsHistory/news_reviewed-note/revisions/')));
+    await assert.rejects(workflowAction({
+      kind:'news',id:'reviewed-note',action:'publish'
+    },publisher),{status:409});
+  } finally {f.restore();}
+});
+
 test('privileged mutation rejects invalid patch without committing a record',async()=>{
   const f=setup();
   try {

@@ -206,6 +206,7 @@ function PaperDropdown({ label, value, onChange, options, compact = false }) {
 export default function PastPapersPage() {
   const [pastPapers, setPastPapers] = useState([]);
   const [loadError, setLoadError] = useState(false);
+  const [retryPapers, setRetryPapers] = useState(0);
 
   const [search, setSearch] = useState("");
   const [exam, setExam] = useState(ALL);
@@ -218,14 +219,20 @@ export default function PastPapersPage() {
   /* Firebase Listener */
 
   useEffect(() => {
-    return subscribePublishedPastPapers(
-      (items) => {
-        setPastPapers(items);
-        setLoadError(false);
-      },
-      () => setLoadError(true),
-    );
-  }, []);
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = subscribePublishedPastPapers(
+        (items) => {
+          setPastPapers(items);
+          setLoadError(false);
+        },
+        () => setLoadError(true),
+      );
+    } catch {
+      setLoadError(true);
+    }
+    return () => unsubscribe();
+  }, [retryPapers]);
 
   useEffect(() => {
     document.title = "Past Papers | Bandaranayake College, Gampaha";
@@ -417,7 +424,8 @@ export default function PastPapersPage() {
 
             {loadError && (
               <p role="alert" className="papers-error">
-                Could not load papers. Please retry later.
+                Could not load papers. Please try again.
+                <button type="button" className="papers-reset-btn" onClick={() => { setLoadError(false); setRetryPapers(value => value + 1); }}>Try again</button>
               </p>
             )}
 

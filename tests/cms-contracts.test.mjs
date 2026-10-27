@@ -38,8 +38,8 @@ test('admin CMS uses the shared services for active collections', () => {
   }
   assert.match(manager, /subscribeAdminNews/);
   assert.match(manager, /subscribeAdminEvents/);
-  assert.doesNotMatch(manager, /subscribeAdminPages|createPage|updatePage|deletePage|reorderPages/);
-  assert.doesNotMatch(source('src/admin/AdminDashboard.jsx'), /id: 'pages'|label: 'Website Pages'/);
+  assert.match(manager, /subscribeAdminPages|createPage|updatePage|reorderPages/);
+  assert.match(source('src/admin/AdminDashboard.jsx'), /id: 'pages'/);
   assert.match(manager, /subscribeAdminSocieties/);
   assert.match(manager, /subscribeAdminSports/);
   assert.match(manager, /subscribeAdminLeadership/);

@@ -14,6 +14,7 @@ export default function EventsPage() {
 
   // Smooth floating preview tooltip state
   const [hoveredEvent, setHoveredEvent] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 12, y: 12 });
   const tooltipRef = useRef(null);
   const rafId = useRef(null);
   const modalRef = useRef(null);
@@ -246,7 +247,14 @@ export default function EventsPage() {
                               className={`calendar-event-pill ${isPassed ? 'passed' : ''}`}
                               href={`/events/${encodeURIComponent(ev.id)}`}
                               aria-label={`View ${ev.title} on ${ev.eventDate}`}
-                              onFocus={() => setHoveredEvent(ev)}
+                              onFocus={(event) => {
+                                const bounds = event.currentTarget.getBoundingClientRect();
+                                setTooltipPosition({
+                                  x: Math.max(12, Math.min(bounds.right + 12, window.innerWidth - 332)),
+                                  y: Math.max(12, Math.min(bounds.top, window.innerHeight - 210)),
+                                });
+                                setHoveredEvent(ev);
+                              }}
                               onBlur={() => setHoveredEvent(null)}
                             >
                               {ev.title}
@@ -272,7 +280,8 @@ export default function EventsPage() {
 
       {/* Floating Preview Tooltip with SVG Icons */}
       {hoveredEvent && window.innerWidth > 640 && (
-        <div ref={tooltipRef} className="event-floating-tooltip">
+        <div ref={tooltipRef} className="event-floating-tooltip"
+          style={{ transform: `translate3d(${tooltipPosition.x}px, ${tooltipPosition.y}px, 0)` }}>
           <div className="tooltip-date-tag">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

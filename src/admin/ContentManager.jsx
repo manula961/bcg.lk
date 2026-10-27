@@ -6,6 +6,9 @@ import {
   subscribeAdminEvents, createEvent, updateEvent, deleteEvent, reorderEvents,
 } from '../lib/eventsService';
 import {
+  subscribeAdminPages, createPage, updatePage, deletePage, reorderPages,
+} from '../lib/pagesService';
+import {
   subscribeAdminSocieties, createSociety, updateSociety, deleteSociety, reorderSocieties,
 } from '../lib/societiesService';
 import {
@@ -17,7 +20,8 @@ import {
 import { getDriveStatus, connectDrive, disconnectDrive, uploadDriveImage, uploadDrivePaper } from '../lib/googleDriveUpload';
 import { subscribeAdminPastPapers, createPastPaper, updatePastPaper, deletePastPaper, reorderPastPapers } from '../lib/pastPapersService';
 import { hasPermission, canEditRecord } from '../lib/rbac.mjs';
-import { getArchiveStatus, archiveCmsRecord, restoreCmsRecord } from '../lib/cmsWorkflowClient';
+import { summarizeCmsItems, filterCmsItems } from './contentListFilters.mjs';
+import { getArchiveStatus, getArchivedRecordIds, archiveCmsRecord, restoreCmsRecord, getEditorialStatus, performEditorialAction } from '../lib/cmsWorkflowClient';
 import './Admin.css';
 
 const collections = {
@@ -48,6 +52,18 @@ const collections = {
       { key: 'excerpt', label: 'Short summary', type: 'textarea', rows: 3, maxLength: 500, required: true, wide: true },
       { key: 'body', label: 'Full article', type: 'textarea', rows: 9, maxLength: 30000, wide: true },
       { key: 'imageUrl', label: 'Cover image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/image.jpg', wide: true },
+    ],
+  },
+  pages: {
+    title: 'Website Pages', singular: 'page', description: 'Manage published standalone information pages.',
+    subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage, reorder: reorderPages,
+    defaults: { slug:'', title:'', body:'', seoDescription:'', imageUrl:'', published:false },
+    fields: [
+      { key:'slug', label:'Page URL slug', required:true, maxLength:120, placeholder:'school-facilities', wide:true, help:'Lowercase letters, digits and hyphens. Cannot change after creation.' },
+      { key:'title', label:'Page title', required:true, maxLength:180, wide:true },
+      { key:'seoDescription', label:'Search description', maxLength:320, type:'textarea', rows:2, wide:true },
+      { key:'body', label:'Page body', required:true, maxLength:50000, type:'textarea', rows:12, wide:true },
+      { key:'imageUrl', label:'Page image URL', type:'url', maxLength:2048, wide:true },
     ],
   },
   events: {
@@ -122,6 +138,7 @@ function displayDate(record) {
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
   if (kind === 'pastPapers') return [item.exam, item.subject, item.year, item.language].filter(Boolean).join(' · ');
+  if (kind === 'pages') return item.seoDescription || item.body || '';
   if (['events', 'societies', 'sports', 'leadership'].includes(kind)) return item.description || '';
   return '';
 }
@@ -162,6 +179,9 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   const [busy, setBusy] = useState(false);
   const [actionId, setActionId] = useState(null);
   const [knownArchived, setKnownArchived] = useState(() => new Set());
+  const [archivesReady, setArchivesReady] = useState(false);
+  const [archiveError, setArchiveError] = useState('');
+  const [archiveRetry, setArchiveRetry] = useState(0);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [drive, setDrive] = useState({ configured: false, connected: false });
 
@@ -212,27 +232,30 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     };
   }, [config]);
 
-  const totals = useMemo(() => ({
-    all: items.length,
-    published: items.filter(item => item.published === true).length,
-    drafts: items.filter(item => item.published !== true).length,
-  }), [items]);
+  const archiveRevision = items.map(item => item.id + ':' + (item.updatedAt?.toMillis?.() ?? '')).join('|');
+  useEffect(() => {
+    let active = true;
+    setArchivesReady(false);
+    setArchiveError('');
+    getArchivedRecordIds(kind).then(ids => {
+      if (active) { setKnownArchived(new Set(ids)); setArchivesReady(true); }
+    }).catch(error => {
+      if (active) {
+        setArchivesReady(false);
+        setArchiveError('Deleted records could not be verified. Editing and deletion are temporarily disabled. ' + formatError(error));
+      }
+    });
+    return () => { active = false; };
+  }, [kind, archiveRevision, archiveRetry]);
+
+  const totals = useMemo(() => summarizeCmsItems(items, knownArchived), [items, knownArchived]);
 
   // Avoid assigning duplicate ranks while items are filtered.
-  const canReorder = status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
+  const canReorder = archivesReady && knownArchived.size === 0 && items.length <= 400 && status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
 
-  const visible = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase();
-    return items.filter(item => {
-      if (status === 'published' && item.published !== true) return false;
-      if (status === 'drafts' && item.published === true) return false;
-      if (!term) return true;
-      return [
-        item.title, item.slug, item.category, item.location, item.eventDate,
-        item.excerpt, item.description, item.websiteUrl, item.role, item.achievements, item.exam, item.subject, item.year, item.language,
-      ].some(value => typeof value === 'string' && value.toLocaleLowerCase().includes(term));
-    });
-  }, [items, search, status]);
+  const visible = useMemo(() => filterCmsItems(items, {
+    status, search, archivedIds: knownArchived,
+  }), [items, search, status, knownArchived]);
 
   function openNew() {
     if (!canCreate) return;
@@ -245,7 +268,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   function openExisting(item) {
-    if (!canEditRecord(role, item)) return;
+    if (!archivesReady || knownArchived.has(item.id) || !canEditRecord(role, item)) return;
     setForm(copyRecord(item, config.defaults));
     setEditingId(item.id);
     setEditingRevision(item.updatedAt ?? null);
@@ -352,14 +375,12 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     event.preventDefault();
     if (busy || uploadingImage) return;
     if (editingId ? !hasPermission(role, 'content.edit') : !canCreate) return;
-    if (!canPublish && (form.published || (editingId && items.find(item => item.id === editingId)?.published))) {
-      setNotice({ type: 'error', text: 'Editors can save drafts only.' });
-      return;
-    }
+    if (!archivesReady) { setNotice({ type: 'error', text: 'Wait for archive verification before saving.' }); return; }
     setBusy(true);
     setNotice(null);
     try {
-      const payload = { ...form };
+      const payload = { ...form, published: false };
+      let resultMessage = 'Draft saved successfully.';
       if (kind === 'pastPapers' && !/^(19|20)\d{2}$/.test(form.year)) throw new Error('Enter a four-digit year (1900–2099).');
       if (kind === 'events') {
         const itemIndex = editingId
@@ -369,7 +390,20 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
         payload.color = itemNumber % 2 !== 0 ? '#7B1C1C' : '#1a3a6b';
       }
       if (editingId) {
-        await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
+        if (await getArchiveStatus(kind, editingId)) throw new Error('This record is archived. Restore it before editing.');
+        const current = items.find(item => item.id === editingId);
+        if (!current) throw new Error('This record was removed. Reload the collection.');
+        if (current.published === true) {
+          // Live content remains unchanged until a second user approves this patch.
+          const patch = Object.fromEntries(config.fields
+            .filter(field => field.key !== 'slug' && form[field.key] !== (current[field.key] ?? ''))
+            .map(field => [field.key, form[field.key] ?? '']));
+          if (Object.keys(patch).length === 0) throw new Error('No changes to propose.');
+          await performEditorialAction(kind, editingId, 'proposeEdit', { patch });
+          resultMessage = 'Published edit proposal submitted. A different Publisher or Admin must approve, then apply it.';
+        } else {
+          await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
+        }
       } else {
         await config.create(payload);
       }
@@ -378,7 +412,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
       setEditingId(null);
       setNotice({
         type: 'success',
-        text: 'Saved successfully.',
+        text: resultMessage,
       });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -388,13 +422,49 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   async function togglePublished(item) {
-    if (!canPublish || actionId !== null) return;
+    if (actionId !== null || !archivesReady || knownArchived.has(item.id) ||
+        !hasPermission(role, 'content.edit')) return;
     setActionId(item.id);
     setNotice(null);
     try {
-      const next = item.published !== true;
-      await config.update(item.id, { published: next }, { expectedUpdatedAt: item.updatedAt ?? null });
-      setNotice({ type: 'success', text: next ? 'Published live.' : 'Moved to drafts.' });
+      if (await getArchiveStatus(kind, item.id)) {
+        setKnownArchived(previous => new Set(previous).add(item.id));
+        throw new Error('This item is archived. Restore it before editorial review.');
+      }
+      const review = await getEditorialStatus(kind, item.id);
+      const stage = review.status || 'unsubmitted';
+      let action;
+      let message;
+      if (item.published === true) {
+        if (!canPublish) throw new Error('A Publisher or Admin must review published content.');
+        if (stage === 'submitted-edit') {
+          action = 'approve';
+          message = 'Edit proposal approved. An authorized publisher must now apply the change.';
+        } else if (stage === 'approved-edit') {
+          action = 'applyEdit';
+          message = 'Approved edit applied to the live article.';
+        } else {
+          action = 'unpublish';
+          message = 'Unpublished through the audited workflow.';
+        }
+      } else if (stage === 'submitted') {
+        if (!canPublish) throw new Error('Waiting for a different Publisher or Admin to approve this submission.');
+        action = 'approve';
+        message = 'Draft approved. An authorized publisher may now publish it.';
+      } else if (stage === 'approved') {
+        if (!canPublish) throw new Error('Waiting for a Publisher or Admin to publish this approved draft.');
+        action = 'publish';
+        message = 'Approved content published to the website.';
+      } else if (stage === 'scheduled') {
+        throw new Error('Publication is scheduled; do not publish manually.');
+      } else if (stage === 'submitted-edit' || stage === 'approved-edit') {
+        throw new Error('This proposal must be reviewed by an authorized publisher.');
+      } else {
+        action = 'submit';
+        message = 'Draft submitted. A different Publisher or Admin must approve it before publication.';
+      }
+      await performEditorialAction(kind, item.id, action);
+      setNotice({ type: 'success', text: message });
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
     } finally {
@@ -403,7 +473,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }
 
   async function remove(item) {
-    if (!canDelete || actionId !== null) return;
+    if (!canDelete || !archivesReady || actionId !== null) return;
     setActionId(item.id);
     setNotice(null);
     try {
@@ -419,11 +489,11 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
         });
         setNotice({ type: 'success', text: 'Restored to drafts. Review before republishing.' });
       } else {
-        if (!window.confirm('Archive "' + (item.title || 'item') +
-          '"? This removes it from the public website, preserves its history, and allows restoration. Publicly shared Drive files remain accessible.')) return;
+        if (!window.confirm('Delete "' + (item.title || 'item') +
+          '"? This removes it from the active admin list and public website. You can restore it from the Deleted filter. Publicly shared Drive files remain accessible.')) return;
         await archiveCmsRecord(kind, item.id);
         setKnownArchived(previous => new Set(previous).add(item.id));
-        setNotice({ type: 'success', text: 'Archived safely. Use Archive / Restore to restore this draft.' });
+        setNotice({ type: 'success', text: 'Item deleted from active lists. Open the Deleted filter to restore it; its history is preserved.' });
       }
     } catch (error) {
       setNotice({ type: 'error', text: formatError(error) });
@@ -470,6 +540,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                 <option value="all">All status ({totals.all})</option>
                 <option value="published">Published ({totals.published})</option>
                 <option value="drafts">Drafts ({totals.drafts})</option>
+                <option value="deleted">Deleted ({totals.deleted})</option>
               </select>
               {canCreate && <button type="button" onClick={openNew} className="admin-btn-primary">
                 + New {config.singular}
@@ -481,15 +552,22 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
           <div className="admin-table-card">
             {loadError ? (
               <p role="alert" className="admin-state-msg error">{loadError}</p>
-            ) : loading ? (
+            ) : archiveError ? (
+              <div role="alert" className="admin-state-msg error">
+                <p>{archiveError}</p>
+                <button type="button" className="admin-btn-ghost" onClick={() => setArchiveRetry(value => value + 1)}>Retry</button>
+              </div>
+            ) : loading || !archivesReady ? (
               <p className="admin-state-msg">Loading content...</p>
             ) : visible.length === 0 ? (
               <div className="admin-empty-state">
                 <p className="admin-empty-title">No records found</p>
                 <p className="admin-empty-sub">
-                  {items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
+                  {status === 'deleted' ? 'No deleted items match your filters.' : totals.all === 0 && items.length > 0
+                    ? 'No active records. Use the Deleted filter to restore an item.'
+                    : items.length ? 'Try adjusting your search query or status filter.' : `Create your first ${config.singular} to get started.`}
                 </p>
-                {!items.length && canCreate && (
+                {totals.all === 0 && status !== 'deleted' && canCreate && (
                   <button type="button" onClick={openNew} className="admin-btn-primary">
                     Create {config.singular}
                   </button>
@@ -508,6 +586,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                       onDragStart={() => { if (canReorder) handleDragStart(index); }}
                       onDragOver={(e) => { if (canReorder) handleDragOver(e, index); }}
                       onDrop={() => { if (canReorder) handleDrop(index); }}
+                      onDragEnd={() => { setDraggedIndex(null); setDragOverIndex(null); }}
                       className={`admin-row ${isBeingDragged ? 'dragging' : ''} ${isDragTarget ? 'drag-target' : ''}`}
                     >
                       {/* Drag Handle (Far Left) */}
@@ -550,31 +629,41 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                           onClick={() => reorderPositions(index, index + 1)}>↓</button>
                         <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
                           <span className="admin-status-dot" />
-                          {item.published ? 'Published' : 'Draft'}
+                          {knownArchived.has(item.id) ? 'Deleted' : item.published ? 'Published' : 'Draft'}
                         </span>
-                        {canEditRecord(role, item) && <button
+                        {archivesReady && !knownArchived.has(item.id) && canEditRecord(role, item) && <button
                           type="button"
                           disabled={actionId !== null}
-                          onClick={() => openExisting(item)}
+                          onClick={async () => {
+                            try {
+                              if (await getArchiveStatus(kind, item.id)) {
+                                setKnownArchived(previous => new Set(previous).add(item.id));
+                                setNotice({ type: 'error', text: 'Restore archived content before editing.' });
+                                return;
+                              }
+                              openExisting(item);
+                            } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+                          }}
                           className="admin-btn-ghost"
                         >
                           Edit
                         </button>}
-                        {canPublish && <button
+                        {archivesReady && !knownArchived.has(item.id) && hasPermission(role, 'content.edit') && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
                           className="admin-btn-ghost"
                         >
-                          {actionId === item.id ? '...' : item.published ? 'Unpublish' : 'Publish'}
+                          {actionId === item.id ? '...' : item.published ? 'Review / Unpublish' : 'Submit / Review / Publish'}
                         </button>}
                         {canDelete && <button
                           type="button"
-                          disabled={actionId !== null}
+                          disabled={!archivesReady || actionId !== null}
+                          aria-label={`${knownArchived.has(item.id) ? 'Restore' : 'Delete'} ${item.title || 'item'}`}
                           onClick={() => remove(item)}
                           className="admin-btn-ghost-danger"
                         >
-                          {knownArchived.has(item.id) ? 'Restore' : 'Archive / Restore'}
+                          {actionId === item.id ? 'Working…' : knownArchived.has(item.id) ? 'Restore' : 'Delete'}
                         </button>}
                       </div>
                     </article>
@@ -672,25 +761,16 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                 <img src={form.imageUrl} alt="Preview" className="admin-preview-img" />
               </div>
             )}
-            {canPublish && <div className="admin-publish-row">
+            <div className="admin-publish-row" role="note">
               <div>
-                <span className="admin-publish-title">Publishing Status</span>
+                <span className="admin-publish-title">Editorial approval</span>
                 <p className="admin-publish-desc">
-                  {form.published
-                    ? 'Visible live on the public website.'
-                    : 'Saved as draft (hidden from public website).'}
+                  {editingId && items.find(item => item.id === editingId)?.published
+                    ? 'Saving a published article creates an edit proposal. A different Publisher or Admin must approve and apply it.'
+                    : 'New and edited records are drafts. Use Submit / Review / Publish from the list for independent approval before going live.'}
                 </p>
               </div>
-              <label className="admin-toggle-label">
-                <input
-                  type="checkbox"
-                  checked={form.published}
-                  onChange={(e) => updateField('published', e.target.checked)}
-                  className="admin-toggle-input"
-                />
-                <span>Published</span>
-              </label>
-            </div>}
+            </div>
             <div className="admin-editor-footer">
               <button type="button" onClick={leaveEditor} disabled={busy || uploadingImage} className="admin-btn-secondary">
                 Cancel
