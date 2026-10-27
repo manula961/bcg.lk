@@ -136,7 +136,7 @@ export default function Footer() {
               aria-label="Bandaranayake College homepage"
             >
               <img
-                src="https://i.ibb.co/Wv1bGqbs/images.jpg"
+                src="/email-assets/school-logo.png"
                 alt="Bandaranayake College crest"
                 className="footer-logo"
                 loading="lazy"
