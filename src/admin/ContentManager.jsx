@@ -251,7 +251,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
   }), [items]);
 
   // Avoid assigning duplicate ranks while items are filtered.
-  const canReorder = status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
+  const canReorder = archivesReady && knownArchived.size === 0 && items.length <= 400 && status === 'all' && search.trim() === '' && actionId === null && hasPermission(role, 'content.reorder');
 
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
