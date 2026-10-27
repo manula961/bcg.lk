@@ -6,9 +6,6 @@ import {
   subscribeAdminEvents, createEvent, updateEvent, deleteEvent, reorderEvents,
 } from '../lib/eventsService';
 import {
-  subscribeAdminPages, createPage, updatePage, deletePage, reorderPages,
-} from '../lib/pagesService';
-import {
   subscribeAdminSocieties, createSociety, updateSociety, deleteSociety, reorderSocieties,
 } from '../lib/societiesService';
 import {
@@ -108,20 +105,6 @@ const collections = {
       { key: 'imageUrl', label: 'Official portrait URL', type: 'url', maxLength: 2048, wide: true, placeholder: 'https://example.com/portrait.jpg' },
     ],
   },
-  pages: {
-    title: 'Website Pages',
-    singular: 'page',
-    description: 'Prepare page content and search descriptions.',
-    subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage, reorder: reorderPages,
-    defaults: { title: '', slug: '', seoDescription: '', body: '', imageUrl: '', published: false },
-    fields: [
-      { key: 'title', label: 'Page title', required: true, maxLength: 180, wide: true, placeholder: 'Enter page title' },
-      { key: 'slug', label: 'Page slug', required: true, maxLength: 120, placeholder: 'about-college', help: 'Lowercase letters, numbers and hyphens only.' },
-      { key: 'seoDescription', label: 'Search description', type: 'textarea', rows: 3, maxLength: 320, wide: true },
-      { key: 'body', label: 'Page body', type: 'textarea', rows: 10, maxLength: 50000, required: true, wide: true },
-      { key: 'imageUrl', label: 'Page image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/image.jpg', wide: true },
-    ],
-  },
 };
 
 function displayDate(record) {
@@ -140,7 +123,7 @@ function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
   if (kind === 'pastPapers') return [item.exam, item.subject, item.year, item.language].filter(Boolean).join(' · ');
   if (['events', 'societies', 'sports', 'leadership'].includes(kind)) return item.description || '';
-  return item.seoDescription || item.slug || '';
+  return '';
 }
 
 function copyRecord(item, defaults) {
@@ -449,14 +432,6 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     }
   }
 
-  const slugSuggestion = form.title
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 120);
-
   return (
     <div className="admin-cm-wrap">
       {notice && (
@@ -562,7 +537,6 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                             <span>Updated {displayDate(item)}</span>
                             {item.eventDate && <span>   Date: {item.eventDate}</span>}
                             {item.category && <span>   {item.category}</span>}
-                            {item.slug && <span>   /{item.slug}</span>}
                           </div>
                         </div>
                       </div>
@@ -664,23 +638,11 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                       onChange={(e) => updateField(field.key, e.target.value)}
                       required={Boolean(field.required)}
                       maxLength={field.maxLength}
-                      disabled={field.key === 'slug' && Boolean(editingId)}
-                      pattern={field.key === 'slug' ? '[a-z0-9]+(-[a-z0-9]+)*' : undefined}
                       className="admin-input"
                       placeholder={field.placeholder}
                     />
                   )}
                   {field.help && <span id={`admin-help-${kind}-${field.key}`} className="admin-help-text">{field.help}</span>}
-                  {kind === 'pages' && field.key === 'slug' && !editingId && (
-                    <button
-                      type="button"
-                      disabled={!slugSuggestion}
-                      onClick={() => updateField('slug', slugSuggestion)}
-                      className="admin-slug-btn"
-                    >
-                      Generate slug from title
-                    </button>
-                  )}
                   {(field.key === 'imageUrl' || (kind === 'pastPapers' && field.key === 'url')) && canUpload && drive.configured && (
                     <div className="flex flex-wrap items-center gap-3">
                       {drive.connected ? (

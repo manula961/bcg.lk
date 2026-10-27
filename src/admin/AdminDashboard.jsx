@@ -77,17 +77,6 @@ const sections = [
     ),
   },
   {
-    id: 'pages',
-    label: 'Website Pages',
-    description: 'Published pages & search descriptions',
-    icon: (
-      <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M6 2h9l5 5v15H6z" />
-        <path d="M15 2v6h5M9 14h8M9 18h6" />
-      </svg>
-    ),
-  },
-  {
     id: 'pastPapers', label: 'Past Papers', description: 'Examination PDFs & Drive uploads',
     icon: <svg className="admin-nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v6h5M9 14h8M9 18h6"/></svg>,
   },
