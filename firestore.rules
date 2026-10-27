@@ -178,11 +178,15 @@ service cloud.firestore {
       allow create: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && canWriteContent() && notArchived(collectionName,id) && validRecord(request.resource.data, collectionName, id)
         && validOwnership(request.resource.data) && validCreateSystemTimes(request.resource.data)
-        && (canPublishContent() || (request.resource.data.published == false
-          && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null)));
+        // Browser SDK creates drafts only; the privileged workflow service publishes after independent approval.
+        && request.resource.data.published == false
+        && (!('publishedAt' in request.resource.data) || request.resource.data.publishedAt == null);
       allow update: if collectionName in ['news','events','pages','societies','sports','leadership','pastPapers']
         && canWriteContent() && notArchived(collectionName,id) && validRecord(request.resource.data, collectionName, id)
         && validUpdateOwnership() && validUpdateSystemTimes()
+        // Even a super_admin cannot bypass editorial approval with browser credentials.
+        // Published edits/unpublish and all publication transitions go through server service account.
+        && resource.data.published == false && request.resource.data.published == false
         && (canPublishContent() || editorDraftUpdateOnly());
       // Hard deletion must be a deliberate trusted-server operation.
       // Normal administrators use audited archive/restore instead.
