@@ -465,10 +465,17 @@ export async function workflowRead(query,actor) {
   }
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
-    const doc = await find(workflowPath(kind,id));
-    return {status:status(doc) || 'unsubmitted',
-      submittedBy:field(doc,'submittedBy'),approvedBy:field(doc,'approvedBy'),
-      contentUpdateTime:field(doc,'contentUpdateTime')};
+    const [state, current] = await Promise.all([find(workflowPath(kind,id)),find(targetPath(kind,id))]);
+    if (!current) throw failure(404, 'Content not found.');
+    const workflowStatus = status(state) || 'unsubmitted';
+    // Any browser draft edit invalidates the old approval revision; surface
+    // "draft" so the operator can submit for a fresh independent review.
+    const stale = ['submitted','approved','submitted-edit','approved-edit'].includes(workflowStatus) &&
+      field(state,'contentUpdateTime') !== current.updateTime;
+    return {status:stale ? 'draft' : workflowStatus, stale,
+      submittedBy:stale ? null : field(state,'submittedBy'),
+      approvedBy:stale ? null : field(state,'approvedBy'),
+      contentUpdateTime:field(state,'contentUpdateTime')};
   }
   if (action === 'history') {
     const pageToken = paginationToken(query.pageToken);
