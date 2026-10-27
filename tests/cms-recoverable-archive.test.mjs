@@ -9,7 +9,9 @@ test('the normal CMS admin action uses server-audited archive and restore, never
   assert.match(manager, /getArchiveStatus\(kind, item\.id\)/);
   assert.match(manager, /await archiveCmsRecord\(kind, item\.id\)/);
   assert.match(manager, /await restoreCmsRecord\(kind, item\.id\)/);
-  assert.match(manager, /Archive \/ Restore/);
+  // The user-facing Delete control is a server-audited recoverable archive.
+  assert.match(manager, /knownArchived\.has\(item\.id\) \? 'Restore' : 'Delete'/);
+  assert.match(manager, /filterCmsItems\(items/);
   assert.doesNotMatch(manager, /await config\.remove\(/);
   assert.doesNotMatch(manager, /Permanently delete/);
   assert.match(manager, /Publicly shared Drive files remain accessible/);
