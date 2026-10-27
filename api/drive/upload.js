@@ -7,6 +7,9 @@ export default async function handler(req,res) {
     requireSameOrigin(req);
     const uid=await requireAdmin(req);
     const session=verifySession(req,uid);
+    // A Drive upload becomes public immediately; require an owner-approved policy first.
+    const { assertPublicDriveUploadApproved } = await import('../_lib/drive-publication-policy.mjs');
+    assertPublicDriveUploadApproved();
     const image=await readImage(req);
     const token=await accessToken(session.refresh);
     const uploaded=await driveUpload(token,image);
