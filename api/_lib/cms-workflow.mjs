@@ -444,7 +444,7 @@ function pageParams(size, token) {
 export function buildTrashListQuery(kind, after = '', project = '') {
   if (!KINDS.includes(kind)) throw failure(400, 'Invalid CMS collection.');
   if (typeof after !== 'string' ||
-      (after !== '' && (!ID.test(after) || !after.startsWith(kind + '_'))))
+      (after !== '' && (!after.startsWith(kind + '_') || !ID.test(after.slice(kind.length + 1)))))
     throw failure(400, 'Invalid archive pagination cursor.');
   const structuredQuery = {
     from:[{collectionId:'cmsTrash'}],
