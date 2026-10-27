@@ -6,6 +6,9 @@ import {
   subscribeAdminEvents, createEvent, updateEvent, deleteEvent, reorderEvents,
 } from '../lib/eventsService';
 import {
+  subscribeAdminPages, createPage, updatePage, deletePage, reorderPages,
+} from '../lib/pagesService';
+import {
   subscribeAdminSocieties, createSociety, updateSociety, deleteSociety, reorderSocieties,
 } from '../lib/societiesService';
 import {
@@ -48,6 +51,18 @@ const collections = {
       { key: 'excerpt', label: 'Short summary', type: 'textarea', rows: 3, maxLength: 500, required: true, wide: true },
       { key: 'body', label: 'Full article', type: 'textarea', rows: 9, maxLength: 30000, wide: true },
       { key: 'imageUrl', label: 'Cover image URL', type: 'url', maxLength: 2048, placeholder: 'https://example.com/image.jpg', wide: true },
+    ],
+  },
+  pages: {
+    title: 'Website Pages', singular: 'page', description: 'Manage published standalone information pages.',
+    subscribe: subscribeAdminPages, create: createPage, update: updatePage, remove: deletePage, reorder: reorderPages,
+    defaults: { slug:'', title:'', body:'', seoDescription:'', imageUrl:'', published:false },
+    fields: [
+      { key:'slug', label:'Page URL slug', required:true, maxLength:120, placeholder:'school-facilities', wide:true, help:'Lowercase letters, digits and hyphens. Cannot change after creation.' },
+      { key:'title', label:'Page title', required:true, maxLength:180, wide:true },
+      { key:'seoDescription', label:'Search description', maxLength:320, type:'textarea', rows:2, wide:true },
+      { key:'body', label:'Page body', required:true, maxLength:50000, type:'textarea', rows:12, wide:true },
+      { key:'imageUrl', label:'Page image URL', type:'url', maxLength:2048, wide:true },
     ],
   },
   events: {
@@ -122,6 +137,7 @@ function displayDate(record) {
 function getSnippet(item, kind) {
   if (kind === 'news') return item.excerpt || '';
   if (kind === 'pastPapers') return [item.exam, item.subject, item.year, item.language].filter(Boolean).join(' · ');
+  if (kind === 'pages') return item.seoDescription || item.body || '';
   if (['events', 'societies', 'sports', 'leadership'].includes(kind)) return item.description || '';
   return '';
 }
@@ -369,6 +385,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
         payload.color = itemNumber % 2 !== 0 ? '#7B1C1C' : '#1a3a6b';
       }
       if (editingId) {
+        if (await getArchiveStatus(kind, editingId)) throw new Error('This record is archived. Restore it before editing.');
         await config.update(editingId, payload, { expectedUpdatedAt: editingRevision });
       } else {
         await config.create(payload);
@@ -393,6 +410,10 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
     setNotice(null);
     try {
       const next = item.published !== true;
+      if (await getArchiveStatus(kind, item.id)) {
+        setKnownArchived(previous => new Set(previous).add(item.id));
+        throw new Error('This item is archived. Restore it before publishing.');
+      }
       await config.update(item.id, { published: next }, { expectedUpdatedAt: item.updatedAt ?? null });
       setNotice({ type: 'success', text: next ? 'Published live.' : 'Moved to drafts.' });
     } catch (error) {
@@ -508,6 +529,7 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                       onDragStart={() => { if (canReorder) handleDragStart(index); }}
                       onDragOver={(e) => { if (canReorder) handleDragOver(e, index); }}
                       onDrop={() => { if (canReorder) handleDrop(index); }}
+                      onDragEnd={() => { setDraggedIndex(null); setDragOverIndex(null); }}
                       className={`admin-row ${isBeingDragged ? 'dragging' : ''} ${isDragTarget ? 'drag-target' : ''}`}
                     >
                       {/* Drag Handle (Far Left) */}
@@ -550,17 +572,26 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                           onClick={() => reorderPositions(index, index + 1)}>↓</button>
                         <span className={`admin-status-badge ${item.published ? 'published' : 'draft'}`}>
                           <span className="admin-status-dot" />
-                          {item.published ? 'Published' : 'Draft'}
+                          {knownArchived.has(item.id) ? 'Archived' : item.published ? 'Published' : 'Draft'}
                         </span>
-                        {canEditRecord(role, item) && <button
+                        {!knownArchived.has(item.id) && canEditRecord(role, item) && <button
                           type="button"
                           disabled={actionId !== null}
-                          onClick={() => openExisting(item)}
+                          onClick={async () => {
+                            try {
+                              if (await getArchiveStatus(kind, item.id)) {
+                                setKnownArchived(previous => new Set(previous).add(item.id));
+                                setNotice({ type: 'error', text: 'Restore archived content before editing.' });
+                                return;
+                              }
+                              openExisting(item);
+                            } catch (error) { setNotice({ type: 'error', text: formatError(error) }); }
+                          }}
                           className="admin-btn-ghost"
                         >
                           Edit
                         </button>}
-                        {canPublish && <button
+                        {!knownArchived.has(item.id) && canPublish && <button
                           type="button"
                           disabled={actionId !== null}
                           onClick={() => togglePublished(item)}
