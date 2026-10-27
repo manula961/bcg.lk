@@ -466,6 +466,7 @@ export async function workflowRead(query,actor) {
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
     const [state, current] = await Promise.all([find(workflowPath(kind,id)),find(targetPath(kind,id))]);
+    if (!current && !state) return {status:'unsubmitted',stale:false,submittedBy:null,approvedBy:null,contentUpdateTime:null};
     if (!current) throw failure(404, 'Content not found.');
     const workflowStatus = status(state) || 'unsubmitted';
     // Any browser draft edit invalidates the old approval revision; surface
