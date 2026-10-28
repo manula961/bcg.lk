@@ -85,15 +85,39 @@ export async function getArchivedRecordIds(kind) {
   const user = auth?.currentUser;
   if (!user) throw new Error('Sign in to the BCG.LK console first.');
   const token = await user.getIdToken();
-  const url = '/api/admin/workflow?' + new URLSearchParams({ action:'trashList', kind });
-  const response = await fetch(url, {
-    method:'GET', headers:{Authorization:'Bearer ' + token}, cache:'no-store',
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok || !Array.isArray(data.ids))
-    throw new Error(data.error || 'Cannot verify archived content.');
-  if (data.truncated) throw new Error('Archive list is too large to verify safely.');
-  return data.ids.filter(id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,150}$/.test(id));
+  const ids = new Set();
+  const visited = new Set();
+  let after = '';
+  // Fail closed if collection growth exceeds safe full-list verification.
+  for (let page = 0; page < 40; page += 1) {
+    if (auth?.currentUser?.uid !== user.uid)
+      throw new Error('Admin session changed while checking deleted records.');
+    const url = '/api/admin/workflow?' + new URLSearchParams({
+      action:'trashList', kind, ...(after ? {after} : {}),
+    });
+    const response = await fetch(url, {
+      method:'GET', credentials:'same-origin',
+      headers:{Authorization:'Bearer ' + token}, cache:'no-store',
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !Array.isArray(data.ids))
+      throw new Error(data.error || 'Cannot verify archived content.');
+    for (const id of data.ids) {
+      if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,150}$/.test(id))
+        throw new Error('Archive verification returned an invalid record ID.');
+      ids.add(id);
+    }
+    if (data.nextCursor == null) return [...ids];
+    if (typeof data.nextCursor !== 'string' ||
+        !data.nextCursor.startsWith(kind + '_') ||
+        !/^[A-Za-z0-9_-]{1,150}$/.test(data.nextCursor.slice(kind.length + 1)) ||
+        visited.has(data.nextCursor)) {
+      throw new Error('Archive verification returned an invalid pagination cursor.');
+    }
+    visited.add(data.nextCursor);
+    after = data.nextCursor;
+  }
+  throw new Error('More than 8,000 archived records require a reviewed pagination strategy.');
 }
 
 export async function archiveCmsRecord(kind, id) {

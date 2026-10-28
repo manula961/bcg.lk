@@ -436,6 +436,34 @@ function pageParams(size, token) {
   if (token) params.set('pageToken',token);
   return params.toString();
 }
+/**
+ * Page a kind-specific archive query using a document-name cursor.
+ * The cursor is a document ID, not a Firestore query or arbitrary resource.
+ * Kind equality + __name__ ordering uses Firestore's single-field index.
+ */
+export function buildTrashListQuery(kind, after = '', project = '') {
+  if (!KINDS.includes(kind)) throw failure(400, 'Invalid CMS collection.');
+  if (typeof after !== 'string' ||
+      (after !== '' && (!after.startsWith(kind + '_') || !ID.test(after.slice(kind.length + 1)))))
+    throw failure(400, 'Invalid archive pagination cursor.');
+  const structuredQuery = {
+    from:[{collectionId:'cmsTrash'}],
+    where:{fieldFilter:{field:{fieldPath:'kind'},op:'EQUAL',value:fstr(kind)}},
+    orderBy:[{field:{fieldPath:'__name__'},direction:'ASCENDING'}],
+    limit:200,
+  };
+  if (after) {
+    if (!/^[a-z][a-z0-9-]{3,62}$/.test(project))
+      throw failure(503, 'Archive pagination project is not configured.');
+    structuredQuery.startAt = {
+      values:[{referenceValue:'projects/' + project +
+        '/databases/(default)/documents/cmsTrash/' + after}],
+      before:false,
+    };
+  }
+  return structuredQuery;
+}
+
 export async function workflowRead(query,actor) {
   const action = query.action || 'status';
   if (action === 'audit') {
@@ -447,21 +475,29 @@ export async function workflowRead(query,actor) {
   }
   if (action === 'trashList') {
     requireRole(actor.role, new Set(ROLES));
-    if (!KINDS.includes(query.kind)) throw failure(400, 'Invalid CMS collection.');
+    // One bounded request per page; all pages are queried consistently by name.
+    // Never silently truncate: the admin must know about every archived ID.
+    const structuredQuery = buildTrashListQuery(query.kind, query.after || '', config().project);
     const token = await accessToken();
     const rows = await request(root() + ':runQuery', {
       method:'POST',
       headers:{Authorization:'Bearer ' + token,'Content-Type':'application/json'},
-      body:JSON.stringify({structuredQuery:{
-        from:[{collectionId:'cmsTrash'}],
-        where:{fieldFilter:{field:{fieldPath:'kind'},op:'EQUAL',value:fstr(query.kind)}},
-        limit:1000,
-      }}),
+      body:JSON.stringify({structuredQuery}),
     });
     if (!Array.isArray(rows)) throw failure(502, 'Archive list response invalid.');
-    const ids = rows.map(row => row.document?.fields?.recordId?.stringValue)
-      .filter(id => typeof id === 'string' && ID.test(id));
-    return { ids, truncated: ids.length >= 1000 };
+    const docs = rows.map(row => row.document).filter(Boolean);
+    const ids = docs.map(doc => {
+      const id = doc?.fields?.recordId?.stringValue;
+      if (!ID.test(id || '') || doc.name?.split('/').at(-1) !== keyFor(query.kind,id))
+        throw failure(502, 'Archive entry is inconsistent; cannot verify safely.');
+      return id;
+    });
+    return {
+      ids,
+      nextCursor: docs.length === structuredQuery.limit
+        ? docs.at(-1).name.split('/').at(-1)
+        : null,
+    };
   }
   const {kind,id} = validateTarget(query.kind,query.id);
   if (action === 'status') {
