@@ -656,9 +656,10 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         >
                           {actionId === item.id ? '...' : item.published ? 'Review / Unpublish' : 'Submit / Review / Publish'}
                         </button>}
-                        {canDelete && <button
+                        {(canDelete || ['news', 'events', 'pages'].includes(kind)) && <button
                           type="button"
-                          disabled={!archivesReady || actionId !== null}
+                          disabled={!canDelete || !archivesReady || actionId !== null}
+                          title={!canDelete ? 'Only Administrators and Super Admins can delete content.' : !archivesReady ? 'Waiting for deleted-record verification.' : undefined}
                           aria-label={`${knownArchived.has(item.id) ? 'Restore' : 'Delete'} ${item.title || 'item'}`}
                           onClick={() => remove(item)}
                           className="admin-btn-ghost-danger"
