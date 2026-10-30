@@ -8,18 +8,23 @@
 const SHA = /^[0-9a-f]{40}$/i;
 
 export function assertProductionReleaseApproved(env = process.env) {
-  // Local builds and isolated Vercel previews remain independent of the
-  // production attestation. They must NEVER use production Firebase secrets.
-  const isProduction = env.VERCEL_ENV === 'production' ||
+  // Preview builds must use their own staging Firebase project. Do not share
+  // privileged production bindings with untrusted preview branches.
+  const cloudflareProduction = env.CF_PAGES === '1' && env.CF_PAGES_BRANCH === 'main';
+  const vercelProduction = env.VERCEL_ENV === 'production' ||
     env.VERCEL_TARGET_ENV === 'production';
-  if (!isProduction) return { enforced: false };
-  if (env.VERCEL_GIT_PROVIDER !== 'github' ||
+  if (!cloudflareProduction && !vercelProduction) return { enforced: false };
+  if (cloudflareProduction) {
+    if (!SHA.test(env.CF_PAGES_COMMIT_SHA || '') ||
+        (env.CF_PAGES_URL && !/^https:\/\/[^/]+\.pages\.dev\/?$/.test(env.CF_PAGES_URL)))
+      throw new Error('Production release blocked: Cloudflare Pages commit identity is unavailable or invalid.');
+  } else if (env.VERCEL_GIT_PROVIDER !== 'github' ||
       env.VERCEL_GIT_REPO_OWNER !== 'manula961' ||
       env.VERCEL_GIT_REPO_SLUG !== 'bcg.lk' ||
       env.VERCEL_GIT_COMMIT_REF !== 'main') {
     throw new Error('Production release blocked: unverified GitHub repository or non-main branch.');
   }
-  const actual = env.VERCEL_GIT_COMMIT_SHA;
+  const actual = cloudflareProduction ? env.CF_PAGES_COMMIT_SHA : env.VERCEL_GIT_COMMIT_SHA;
   const approved = env.BCG_APPROVED_PRODUCTION_SHA;
   if (typeof actual !== 'string' || !SHA.test(actual)) {
     throw new Error('Production release blocked: Vercel git commit SHA is unavailable or invalid.');
