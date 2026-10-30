@@ -99,9 +99,8 @@ const HeroSection = () => {
           <img
             src="/email-assets/school-logo.png"
             alt="Bandaranayake College Logo"
-            className="object-cover w-35 h-35 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-full"
-          />
-        </div>
+            className="object-cover w-60 h-60 sm:w-60 sm:h-60 md:w-60 md:h-60 lg:w-64 lg:h-64 rounded-full"/>
+          </div>
 
         {/* College name */}
         <div
