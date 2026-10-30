@@ -25,6 +25,17 @@
   --gray-800: #1a1a1a;
 }
 
+::selection {
+  background-color: #862B2B; /* Changes the highlight background */
+  color: #ffffff;           /* Changes the text color inside the highlight */
+}
+
+/* Vendor prefix for older Firefox support */
+::-moz-selection {
+  background-color: #862B2B;
+  color: #ffffff;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -358,3 +358,10 @@
   display: block;
   margin-top: 2px;
 }
+
+.footer-bottom-logo {
+  width: 90px;
+  height: auto;
+  margin-top: -10px;
+  opacity: 0.5;
+}

@@ -198,7 +198,11 @@ export default function Footer() {
             rights reserved.
           </p>
           <p>
-            <strong>#TeamBCCS</strong>
+            <img
+              src="/email-assets/BCCS-Logo.png"
+              alt="#TeamBCCS"
+              className="footer-bottom-logo"
+            />
             <span className="footer-bottom-dot" aria-hidden="true" />
             Excellence since 1918
           </p>
