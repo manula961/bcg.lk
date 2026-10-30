@@ -70,7 +70,11 @@ export default function SchoolAnthemSection() {
     const onKeyDown = (event) => {
       if (event.key === "Escape") setLyricsOpen(false);
       if (event.key !== "Tab" || !modalRef.current) return;
-      const focusables = Array.from(modalRef.current.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), [tabindex="0"]'));
+      const focusables = Array.from(
+        modalRef.current.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), [tabindex="0"]',
+        ),
+      );
       if (!focusables.length) return;
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
@@ -98,9 +102,14 @@ export default function SchoolAnthemSection() {
     if (!overlay || !scroller) return undefined;
     const body = document.body;
     const html = document.documentElement;
-    const saved = { position: body.style.position, top: body.style.top,
-      left: body.style.left, width: body.style.width,
-      paddingRight: body.style.paddingRight, overflow: html.style.overflow };
+    const saved = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+      overflow: html.style.overflow,
+    };
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
     const gutter = window.innerWidth - html.clientWidth;
@@ -108,13 +117,18 @@ export default function SchoolAnthemSection() {
     body.style.top = `-${scrollY}px`;
     body.style.left = `-${scrollX}px`;
     body.style.width = "100%";
-    if (gutter > 0) body.style.paddingRight = `${parseFloat(getComputedStyle(body).paddingRight) + gutter}px`;
+    if (gutter > 0)
+      body.style.paddingRight = `${parseFloat(getComputedStyle(body).paddingRight) + gutter}px`;
     html.style.overflow = "hidden";
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let previousTime = 0;
     let target = scroller.scrollTop;
-    const clamp = (value) => Math.max(0, Math.min(value, scroller.scrollHeight - scroller.clientHeight));
+    const clamp = (value) =>
+      Math.max(
+        0,
+        Math.min(value, scroller.scrollHeight - scroller.clientHeight),
+      );
     const cancel = () => {
       cancelAnimationFrame(frame);
       frame = 0;
@@ -139,7 +153,12 @@ export default function SchoolAnthemSection() {
       if (event.ctrlKey) return; // Preserve browser pinch zoom.
       event.preventDefault();
       event.stopPropagation();
-      const unit = event.deltaMode === 1 ? 20 : event.deltaMode === 2 ? scroller.clientHeight : 1;
+      const unit =
+        event.deltaMode === 1
+          ? 20
+          : event.deltaMode === 2
+            ? scroller.clientHeight
+            : 1;
       if (!frame) target = scroller.scrollTop;
       target = clamp(target + event.deltaY * unit);
       if (reducedMotion.matches) {
@@ -164,8 +183,13 @@ export default function SchoolAnthemSection() {
       scroller.removeEventListener("pointerdown", cancel);
       scroller.removeEventListener("touchstart", cancel);
       scroller.removeEventListener("keydown", cancel);
-      Object.assign(body.style, { position: saved.position, top: saved.top,
-        left: saved.left, width: saved.width, paddingRight: saved.paddingRight });
+      Object.assign(body.style, {
+        position: saved.position,
+        top: saved.top,
+        left: saved.left,
+        width: saved.width,
+        paddingRight: saved.paddingRight,
+      });
       html.style.overflow = saved.overflow;
       const behavior = html.style.scrollBehavior;
       html.style.scrollBehavior = "auto";
@@ -184,25 +208,52 @@ export default function SchoolAnthemSection() {
 
   return (
     <>
-      <section className="life-detail-anthem" aria-labelledby="school-anthem-title">
+      <section
+        className="life-detail-anthem"
+        aria-labelledby="school-anthem-title"
+      >
         <div className="life-detail-anthem-copy">
           <p className="life-detail-anthem-label">OUR IDENTITY</p>
           <h2 id="school-anthem-title">Our School, Our Anthem</h2>
           <p>
             Founded in 1918, Bandaranayake College, Gampaha has grown through
-            generations of learning, service and school spirit. Our school anthem
-            is a shared expression of the pride and unity of the Nayakenz community.
+            generations of learning, service and school spirit. Our school
+            anthem is a shared expression of the pride and unity of the Nayakenz
+            community.
           </p>
+          <button
+            type="button"
+            ref={triggerRef}
+            className="life-detail-lyrics-trigger"
+            onClick={showLyrics}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden="true"
+            >
+              <path d="M8 5h11M8 10h11M8 15h7M5 4v16" strokeLinecap="round" />
+            </svg>
+            Show lyrics
+          </button>
         </div>
         <div className="life-detail-anthem-player">
           <span className="life-detail-anthem-note">SCHOOL ANTHEM</span>
           <div className="life-detail-anthem-disc" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            >
               <path d="M9 18V5l12-2v13" />
               <circle cx="6" cy="18" r="3" />
               <circle cx="18" cy="16" r="3" />
             </svg>
           </div>
+
           <div className="life-detail-anthem-controls">
             <strong>Bandaranayake College Anthem</strong>
             <audio
@@ -213,7 +264,9 @@ export default function SchoolAnthemSection() {
                 setDuration(event.currentTarget.duration);
                 setAudioStatus("ready");
               }}
-              onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+              onTimeUpdate={(event) =>
+                setCurrentTime(event.currentTarget.currentTime)
+              }
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               onEnded={() => setIsPlaying(false)}
@@ -228,9 +281,22 @@ export default function SchoolAnthemSection() {
                 aria-label={isPlaying ? "Pause anthem" : "Play anthem"}
               >
                 {isPlaying ? (
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <rect x="6" y="4" width="4" height="16" rx="1" />
+                    <rect x="14" y="4" width="4" height="16" rx="1" />
+                  </svg>
                 ) : (
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5a1 1 0 0 1 1.52-.85l10 6.5a1 1 0 0 1 0 1.7l-10 6.5A1 1 0 0 1 8 18.5z"/></svg>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 5.5a1 1 0 0 1 1.52-.85l10 6.5a1 1 0 0 1 0 1.7l-10 6.5A1 1 0 0 1 8 18.5z" />
+                  </svg>
                 )}
               </button>
               <input
@@ -241,56 +307,100 @@ export default function SchoolAnthemSection() {
                 value={currentTime}
                 aria-label="Anthem playback position"
                 onChange={(event) => {
-                  if (audioRef.current) audioRef.current.currentTime = Number(event.target.value);
+                  if (audioRef.current)
+                    audioRef.current.currentTime = Number(event.target.value);
                 }}
               />
-              <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
+              <span>
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
             </div>
-            <button type="button" ref={triggerRef} className="life-detail-lyrics-trigger" onClick={showLyrics}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                <path d="M8 5h11M8 10h11M8 15h7M5 4v16" strokeLinecap="round" />
-              </svg>
-              Show lyrics
-            </button>
             {audioStatus === "missing" && (
               <p role="status" className="life-detail-anthem-placeholder">
-                Anthem recording could not be loaded. Check public/audio/school-anthem.mp3.
+                Anthem recording could not be loaded. Check
+                public/audio/school-anthem.mp3.
               </p>
             )}
           </div>
         </div>
       </section>
-      {lyricsOpen && createPortal(
-        <div ref={overlayRef} className="life-lyrics-overlay" data-lenis-prevent="true" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setLyricsOpen(false);
-        }}>
-          <div className="life-lyrics-modal" ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="life-lyrics-title" tabIndex={-1}>
-            <div className="life-lyrics-header">
-              <div>
-                <h2 id="life-lyrics-title">School Anthem Lyrics</h2>
-              </div>
-              <button type="button" className="life-lyrics-close" onClick={() => setLyricsOpen(false)} aria-label="Close lyrics">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" /></svg>
-              </button>
-            </div>
-            <div className="life-lyrics-tabs" role="tablist" aria-label="Lyrics language">
-              {LANGUAGES.map((item) => (
+      {lyricsOpen &&
+        createPortal(
+          <div
+            ref={overlayRef}
+            className="life-lyrics-overlay"
+            data-lenis-prevent="true"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setLyricsOpen(false);
+            }}
+          >
+            <div
+              className="life-lyrics-modal"
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="life-lyrics-title"
+              tabIndex={-1}
+            >
+              <div className="life-lyrics-header">
+                <div>
+                  <h2 id="life-lyrics-title">School Anthem Lyrics</h2>
+                </div>
                 <button
-                  type="button" key={item.id} role="tab"
-                  aria-selected={language === item.id}
-                  className={language === item.id ? "active" : ""}
-                  onClick={() => setLanguage(item.id)}
-                  lang={item.lang}
-                >{item.label}</button>
-              ))}
+                  type="button"
+                  className="life-lyrics-close"
+                  onClick={() => setLyricsOpen(false)}
+                  aria-label="Close lyrics"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+              <div
+                className="life-lyrics-tabs"
+                role="tablist"
+                aria-label="Lyrics language"
+              >
+                {LANGUAGES.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    role="tab"
+                    aria-selected={language === item.id}
+                    className={language === item.id ? "active" : ""}
+                    onClick={() => setLanguage(item.id)}
+                    lang={item.lang}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <div
+                ref={lyricsBodyRef}
+                className="life-lyrics-body"
+                data-lenis-prevent="true"
+                lang={language}
+                role="tabpanel"
+                tabIndex={0}
+                aria-label="School anthem lyrics"
+              >
+                <p className="life-lyrics-text">{LYRICS[language]}</p>
+              </div>
+              <p className="life-lyrics-footnote">
+                Sinhala lyrics from the school song sheet. English and Tamil are
+                meaning-based translations.
+              </p>
             </div>
-            <div ref={lyricsBodyRef} className="life-lyrics-body" data-lenis-prevent="true" lang={language} role="tabpanel" tabIndex={0} aria-label="School anthem lyrics">
-              <p className="life-lyrics-text">{LYRICS[language]}</p>
-            </div>
-            <p className="life-lyrics-footnote">Sinhala lyrics from the school song sheet. English and Tamil are meaning-based translations.</p>
-          </div>
-        </div>, document.body
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

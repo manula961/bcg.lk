@@ -2036,6 +2036,9 @@
 .life-detail .life-about-heading {
   max-width: 750px;
   margin-bottom: 28px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 .life-detail .life-about-eyebrow {
   display: block;
@@ -2052,6 +2055,7 @@
   font-weight: 800;
   margin: 0 0 12px;
   color: var(--life-page-text);
+  
 }
 .life-detail .life-about-heading p {
   color: var(--life-page-muted);
