@@ -4,6 +4,7 @@ import Lenis from 'lenis';
 import { lifePages } from './pages/life/lifePageData.js';
 import { listenForNavigation, setSmoothScroller } from './navigation/clientNavigation.js';
 import RouteScroll from './navigation/RouteScroll.jsx';
+import ScrollReveal from './components/layout/ScrollReveal.jsx';
 
 // Load only the route being visited. Admin Firebase and editor code stays out
 // of the public homepage's initial JavaScript download.
@@ -75,6 +76,7 @@ function Root() {
     <Suspense fallback={<main aria-busy="true" aria-label="Loading page" className="min-h-screen bg-[#0a0a0a]" />}>
       {!isAdminPath && <RouteScroll key={route.revision} location={route.location} navigationType={route.type} savedScroll={route.savedScroll} />}
       {React.cloneElement(page, { key: pathname })}
+      {!isAdminPath && <ScrollReveal routeKey={pathname} />}
     </Suspense>
   );
 }
