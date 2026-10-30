@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700;800&display=swap");
 /* ==========================================
    1. GLOBAL FONT ENFORCEMENT & RESET
    ========================================== */
@@ -75,7 +76,7 @@
   top: 12px;
 }
 
-.section-container {
+.life-detail .section-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 clamp(14px, 4vw, 32px);
@@ -1022,7 +1023,9 @@
   margin-bottom: clamp(28px, 4vw, 46px);
 }
 
-.life-detail .life-detail-feature-body { max-width: 760px; }
+.life-detail .life-detail-feature-body {
+  max-width: 760px;
+}
 .life-detail .life-detail-feature h2 {
   font-size: clamp(1.65rem, 3.2vw, 2.85rem);
   line-height: 1.24;
@@ -1078,24 +1081,26 @@
 }
 
 /* Directory/society/profile cards: better whitespace and photo proportions. */
-.life-detail :is(
-  .life-detail-society-grid,
-  .societies-grid,
-  .school-content-grid,
-  .content-listing-grid,
-  .profile-grid
-) {
+.life-detail
+  :is(
+    .life-detail-society-grid,
+    .societies-grid,
+    .school-content-grid,
+    .content-listing-grid,
+    .profile-grid
+  ) {
   gap: clamp(18px, 2.2vw, 28px);
   margin-top: clamp(26px, 3vw, 38px);
 }
 
-.life-detail :is(
-  .life-detail-society-card,
-  .society-card,
-  .school-content-card,
-  .content-card,
-  .profile-card
-) {
+.life-detail
+  :is(
+    .life-detail-society-card,
+    .society-card,
+    .school-content-card,
+    .content-card,
+    .profile-card
+  ) {
   padding: clamp(20px, 2.2vw, 30px);
   border-radius: 21px;
   background: var(--life-card-surface);
@@ -1103,12 +1108,13 @@
   height: auto;
 }
 
-.life-detail :is(
-  .life-detail-society-logo-wrap,
-  .society-logo-wrap,
-  .school-content-image-wrap,
-  .content-card-image-wrap
-) {
+.life-detail
+  :is(
+    .life-detail-society-logo-wrap,
+    .society-logo-wrap,
+    .school-content-image-wrap,
+    .content-card-image-wrap
+  ) {
   aspect-ratio: 1 / 1;
   margin-bottom: 21px;
   background: var(--life-soft-surface);
@@ -1119,25 +1125,27 @@
   /* padding: 10px; */
 }
 
-.life-detail :is(
-  .life-detail-society-title,
-  .society-title,
-  .school-content-title,
-  .content-card-title,
-  .profile-name
-) {
+.life-detail
+  :is(
+    .life-detail-society-title,
+    .society-title,
+    .school-content-title,
+    .content-card-title,
+    .profile-name
+  ) {
   font-size: clamp(1.16rem, 1.6vw, 1.45rem);
   line-height: 1.35;
   margin-bottom: 11px;
 }
 
-.life-detail :is(
-  .life-detail-society-desc,
-  .society-desc,
-  .school-content-desc,
-  .content-card-desc,
-  .profile-bio
-) {
+.life-detail
+  :is(
+    .life-detail-society-desc,
+    .society-desc,
+    .school-content-desc,
+    .content-card-desc,
+    .profile-bio
+  ) {
   font-size: 0.94rem;
   line-height: 1.78;
   font-weight: 400;
@@ -1150,11 +1158,22 @@
 }
 
 .life-detail .house-showcase-section,
-.life-detail .life-detail-story { margin-top: clamp(48px, 6vw, 80px); }
+.life-detail .life-detail-story {
+  margin-top: clamp(48px, 6vw, 80px);
+}
 
 /* The site may toggle dark theme via data-theme or a class. */
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail,
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail,
 .life-detail:is(.dark, .dark-mode, [data-theme="dark"]) {
   --life-page-bg: #0b0e12;
   --life-page-text: #f6f7f8;
@@ -1164,59 +1183,131 @@
   --life-card-border: rgba(255, 255, 255, 0.11);
 }
 
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
-      .life-detail-intro h1, .life-detail-section-heading h2,
-      .life-detail-story-card h3, .life-detail-society-title,
-      .society-title, .school-content-title, .content-card-title, .profile-name
-    ),
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) :is(
-      .life-detail-intro h1, .life-detail-section-heading h2,
-      .life-detail-story-card h3, .life-detail-society-title,
-      .society-title, .school-content-title, .content-card-title, .profile-name
-    ) {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  :is(
+    .life-detail-intro h1,
+    .life-detail-section-heading h2,
+    .life-detail-story-card h3,
+    .life-detail-society-title,
+    .society-title,
+    .school-content-title,
+    .content-card-title,
+    .profile-name
+  ),
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
+  :is(
+    .life-detail-intro h1,
+    .life-detail-section-heading h2,
+    .life-detail-story-card h3,
+    .life-detail-society-title,
+    .society-title,
+    .school-content-title,
+    .content-card-title,
+    .profile-name
+  ) {
   color: #f6f7f8 !important;
 }
 
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
-      .life-detail-highlight, .life-detail-story-card,
-      .life-detail-society-card, .society-card,
-      .school-content-card, .content-card, .profile-card
-    ) {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  :is(
+    .life-detail-highlight,
+    .life-detail-story-card,
+    .life-detail-society-card,
+    .society-card,
+    .school-content-card,
+    .content-card,
+    .profile-card
+  ) {
   background: var(--life-card-surface);
   border-color: var(--life-card-border);
 }
 
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail :is(
-      .life-detail-highlight span, .life-detail-story-card p,
-      .life-detail-society-desc, .society-desc,
-      .school-content-desc, .content-card-desc, .profile-bio
-    ) { color: #c1c7d0 !important; }
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  :is(
+    .life-detail-highlight span,
+    .life-detail-story-card p,
+    .life-detail-society-desc,
+    .society-desc,
+    .school-content-desc,
+    .content-card-desc,
+    .profile-bio
+  ) {
+  color: #c1c7d0 !important;
+}
 
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-kicker {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-kicker {
   color: #d7b85c;
 }
 
 /* Tablet */
 @media (min-width: 720px) and (max-width: 1099px) {
-  .life-detail :is(
-    .life-detail-society-grid,
-    .societies-grid,
-    .school-content-grid,
-    .content-listing-grid,
-    .profile-grid
-  ) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .life-detail
+    :is(
+      .life-detail-society-grid,
+      .societies-grid,
+      .school-content-grid,
+      .content-listing-grid,
+      .profile-grid
+    ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Mobile: one clear column for directory cards and accessible-sized text. */
 @media (max-width: 719px) {
-  .life-detail .section-container { padding-inline: clamp(17px, 5vw, 24px); }
-  .life-detail .life-detail-top-wrapper { padding-top: 42px; }
-  .life-detail .life-detail-return { margin-bottom: 35px; }
-  .life-detail .life-detail-return-btn { font-size: 0.78rem; }
+  .life-detail .section-container {
+    padding-inline: clamp(17px, 5vw, 24px);
+  }
+  .life-detail .life-detail-top-wrapper {
+    padding-top: 42px;
+  }
+  .life-detail .life-detail-return {
+    margin-bottom: 35px;
+  }
+  .life-detail .life-detail-return-btn {
+    font-size: 0.78rem;
+  }
 
   .life-detail .life-detail-intro {
     padding: 0 23px 37px;
@@ -1265,55 +1356,71 @@
     border-radius: 17px;
     gap: 8px;
   }
-  .life-detail .life-detail-highlight strong { font-size: 1.9rem; }
-  .life-detail .life-detail-highlight span { font-size: 0.72rem; }
+  .life-detail .life-detail-highlight strong {
+    font-size: 1.9rem;
+  }
+  .life-detail .life-detail-highlight span {
+    font-size: 0.72rem;
+  }
 
-  .life-detail :is(
-    .life-detail-society-grid,
-    .societies-grid,
-    .school-content-grid,
-    .content-listing-grid,
-    .profile-grid
-  ) {
+  .life-detail
+    :is(
+      .life-detail-society-grid,
+      .societies-grid,
+      .school-content-grid,
+      .content-listing-grid,
+      .profile-grid
+    ) {
     grid-template-columns: minmax(0, 1fr) !important;
     gap: 18px;
     margin-top: 24px;
   }
 
-  .life-detail :is(
-    .life-detail-society-card,
-    .society-card,
-    .school-content-card,
-    .content-card,
-    .profile-card
-  ) { padding: 22px; border-radius: 18px; }
+  .life-detail
+    :is(
+      .life-detail-society-card,
+      .society-card,
+      .school-content-card,
+      .content-card,
+      .profile-card
+    ) {
+    padding: 22px;
+    border-radius: 18px;
+  }
 
-  .life-detail :is(
-    .life-detail-society-logo-wrap,
-    .society-logo-wrap,
-    .school-content-image-wrap,
-    .content-card-image-wrap
-  ) {
+  .life-detail
+    :is(
+      .life-detail-society-logo-wrap,
+      .society-logo-wrap,
+      .school-content-image-wrap,
+      .content-card-image-wrap
+    ) {
     aspect-ratio: 1 / 1;
     margin-bottom: 20px;
     border-radius: 14px;
   }
 
-  .life-detail :is(
-    .life-detail-society-title,
-    .society-title,
-    .school-content-title,
-    .content-card-title,
-    .profile-name
-  ) { font-size: 1.22rem; line-height: 1.36; margin-bottom: 10px; }
+  .life-detail
+    :is(
+      .life-detail-society-title,
+      .society-title,
+      .school-content-title,
+      .content-card-title,
+      .profile-name
+    ) {
+    font-size: 1.22rem;
+    line-height: 1.36;
+    margin-bottom: 10px;
+  }
 
-  .life-detail :is(
-    .life-detail-society-desc,
-    .society-desc,
-    .school-content-desc,
-    .content-card-desc,
-    .profile-bio
-  ) {
+  .life-detail
+    :is(
+      .life-detail-society-desc,
+      .society-desc,
+      .school-content-desc,
+      .content-card-desc,
+      .profile-bio
+    ) {
     display: block;
     font-size: 0.9rem;
     line-height: 1.72;
@@ -1322,40 +1429,93 @@
     -webkit-line-clamp: unset;
   }
 
-  .life-detail .life-detail-society-link { font-size: 0.78rem; min-height: 42px; }
-  .life-detail .life-detail-grid { grid-template-columns: minmax(0, 1fr); }
-  .life-detail .life-detail-card { min-height: 270px; }
-  .life-detail .life-bento-section { margin-top: 4px; padding: 66px 0 70px; }
+  .life-detail .life-detail-society-link {
+    font-size: 0.78rem;
+    min-height: 42px;
+  }
+  .life-detail .life-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .life-detail .life-detail-card {
+    min-height: 270px;
+  }
+  .life-detail .life-bento-section {
+    margin-top: 4px;
+    padding: 66px 0 70px;
+  }
 }
 
 @media (max-width: 360px) {
-  .life-detail .life-detail-intro { padding-inline: 9px; }
-  .life-detail .life-detail-feature { padding: 24px 20px; min-height: 340px; }
+  .life-detail .life-detail-intro {
+    padding-inline: 9px;
+  }
+  .life-detail .life-detail-feature {
+    padding: 24px 20px;
+    min-height: 340px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .life-detail .life-detail-highlight,
   .life-detail .life-detail-feature,
-  .life-detail .life-detail-society-card { transition: none; }
+  .life-detail .life-detail-society-card {
+    transition: none;
+  }
 }
 
 /* Additional contrast safeguards for dark-mode metrics and navigation. */
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight strong,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight strong {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-highlight
+  strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
+  .life-detail-highlight
+  strong {
   color: #e8b975;
 }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-highlight:nth-child(even) strong,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-highlight:nth-child(even) strong {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-highlight:nth-child(even)
+  strong,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
+  .life-detail-highlight:nth-child(even)
+  strong {
   color: #9bc6fc;
 }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-    body.dark-mode, .dark, .dark-mode, .dark-theme) .life-detail .life-detail-return-btn,
-.life-detail:is(.dark, .dark-mode, [data-theme="dark"]) .life-detail-return-btn {
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-return-btn,
+.life-detail:is(.dark, .dark-mode, [data-theme="dark"])
+  .life-detail-return-btn {
   color: #e0c575;
 }
-
 
 /* Academic Excellence: past papers preview */
 .life-detail .life-detail-past-papers {
@@ -1370,7 +1530,9 @@
   background: linear-gradient(115deg, #fcf8f4 0%, #f5eee7 100%);
   overflow: hidden;
 }
-.life-detail .life-detail-past-papers-copy { max-width: 650px; }
+.life-detail .life-detail-past-papers-copy {
+  max-width: 650px;
+}
 .life-detail .life-detail-past-papers-eyebrow {
   display: block;
   color: #8c2929;
@@ -1404,37 +1566,84 @@
   border-radius: 16px;
   font-size: 0.88rem;
   font-weight: 700;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 .life-detail .life-detail-past-papers-link:hover {
   background: #571313;
   transform: translateY(-2px);
 }
-.life-detail .life-detail-past-papers-link svg { width: 18px; height: 18px; }
+.life-detail .life-detail-past-papers-link svg {
+  width: 18px;
+  height: 18px;
+}
 .life-detail .life-detail-past-papers-art {
   width: clamp(110px, 18vw, 185px);
   flex-shrink: 0;
   color: #8c2929;
   opacity: 0.8;
 }
-.life-detail .life-detail-past-papers-art svg { display: block; width: 100%; }
-@media (max-width: 600px) {
-  .life-detail .life-detail-past-papers { padding: 26px 22px; }
-  .life-detail .life-detail-past-papers-art { display: none; }
-  .life-detail .life-detail-past-papers-link { width: 100%; }
+.life-detail .life-detail-past-papers-art svg {
+  display: block;
+  width: 100%;
 }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-  body.dark-mode, .dark, .dark-mode, .dark-theme)
+@media (max-width: 600px) {
   .life-detail .life-detail-past-papers {
+    padding: 26px 22px;
+  }
+  .life-detail .life-detail-past-papers-art {
+    display: none;
+  }
+  .life-detail .life-detail-past-papers-link {
+    width: 100%;
+  }
+}
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-past-papers {
   background: linear-gradient(115deg, #2a2222, #201b1b);
   border-color: rgba(255, 255, 255, 0.12);
 }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-  body.dark-mode, .dark, .dark-mode, .dark-theme)
-  .life-detail .life-detail-past-papers h2 { color: #f8f3ed; }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
-  body.dark-mode, .dark, .dark-mode, .dark-theme)
-  .life-detail .life-detail-past-papers p { color: #d9cfca; }
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-past-papers
+  h2 {
+  color: #f8f3ed;
+}
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode,
+    .dark-theme
+  )
+  .life-detail
+  .life-detail-past-papers
+  p {
+  color: #d9cfca;
+}
 
 /* About Us: compact anthem player + school introduction */
 .life-detail .life-detail-anthem {
@@ -1483,7 +1692,9 @@
   background: var(--life-card-surface);
   min-width: 0;
 }
-.life-detail .life-detail-anthem-note { margin-bottom: 18px; }
+.life-detail .life-detail-anthem-note {
+  margin-bottom: 18px;
+}
 .life-detail .life-detail-anthem-disc {
   display: grid;
   place-items: center;
@@ -1494,21 +1705,45 @@
   background: #7b1c1c;
   margin-bottom: 20px;
 }
-.life-detail .life-detail-anthem-disc svg { width: 30px; height: 30px; }
-.life-detail .life-detail-anthem-controls { width: 100%; min-width: 0; }
+.life-detail .life-detail-anthem-disc svg {
+  width: 30px;
+  height: 30px;
+}
+.life-detail .life-detail-anthem-controls {
+  width: 100%;
+  min-width: 0;
+}
 .life-detail .life-detail-anthem-controls strong {
   display: block;
   color: var(--life-page-text);
   font-size: 0.96rem;
   margin-bottom: 12px;
 }
-.life-detail .life-detail-anthem-controls audio { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
-.life-detail .life-detail-anthem-placeholder { color: var(--life-page-muted); font-size: 0.82rem; line-height: 1.5; }
+.life-detail .life-detail-anthem-controls audio {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.life-detail .life-detail-anthem-placeholder {
+  color: var(--life-page-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
 
 /* Academics: simple study-pillar section before the existing Past Papers card */
-.life-detail .life-detail-learning { margin: 0 0 clamp(40px, 5vw, 60px); }
-.life-detail .life-detail-learning-heading { max-width: 700px; margin-bottom: 26px; }
-.life-detail .life-detail-learning-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 24px); }
+.life-detail .life-detail-learning {
+  margin: 0 0 clamp(40px, 5vw, 60px);
+}
+.life-detail .life-detail-learning-heading {
+  max-width: 700px;
+  margin-bottom: 26px;
+}
+.life-detail .life-detail-learning-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
 .life-detail .life-detail-learning-card {
   border: 1px solid var(--life-card-border);
   border-radius: 20px;
@@ -1525,15 +1760,541 @@
   letter-spacing: 0.14em;
   margin-bottom: 28px;
 }
-.life-detail .life-detail-learning-card h3 { color: var(--life-page-text); font-size: clamp(1.08rem, 1.5vw, 1.32rem); line-height: 1.3; margin: 0 0 12px; font-weight: 760; }
-.life-detail .life-detail-learning-card p { color: var(--life-page-muted); font-size: 0.9rem; line-height: 1.75; margin: 0; }
+.life-detail .life-detail-learning-card h3 {
+  color: var(--life-page-text);
+  font-size: clamp(1.08rem, 1.5vw, 1.32rem);
+  line-height: 1.3;
+  margin: 0 0 12px;
+  font-weight: 760;
+}
+.life-detail .life-detail-learning-card p {
+  color: var(--life-page-muted);
+  font-size: 0.9rem;
+  line-height: 1.75;
+  margin: 0;
+}
 @media (max-width: 850px) {
-  .life-detail .life-detail-anthem { grid-template-columns: 1fr; }
-  .life-detail .life-detail-learning-grid { grid-template-columns: 1fr; }
-  .life-detail .life-detail-learning-index { margin-bottom: 14px; }
+  .life-detail .life-detail-anthem {
+    grid-template-columns: 1fr;
+  }
+  .life-detail .life-detail-learning-grid {
+    grid-template-columns: 1fr;
+  }
+  .life-detail .life-detail-learning-index {
+    margin-bottom: 14px;
+  }
 }
 @media (max-width: 600px) {
-  .life-detail .life-detail-anthem { padding: 24px 19px; }
-  .life-detail .life-detail-anthem-player { padding: 24px 18px; }
+  .life-detail .life-detail-anthem {
+    padding: 24px 19px;
+  }
+  .life-detail .life-detail-anthem-player {
+    padding: 24px 18px;
+  }
 }
-:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, body.dark-mode, .dark, .dark-mode) .life-detail :is(.life-detail-anthem-label, .life-detail-anthem-note, .life-detail-learning-index) { color: #d7b85c; }
+:is(
+    html[data-theme="dark"],
+    body[data-theme="dark"],
+    html.dark,
+    body.dark,
+    body.dark-mode,
+    .dark,
+    .dark-mode
+  )
+  .life-detail
+  :is(
+    .life-detail-anthem-label,
+    .life-detail-anthem-note,
+    .life-detail-learning-index
+  ) {
+  color: #d7b85c;
+}
+
+/* =========================================================
+   ABOUT US ADDITIONS · lyrics popup, vision, mission, history
+   Existing page styles above are unchanged.
+   ========================================================= */
+
+.life-detail .life-detail-anthem-transport {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+}
+.life-detail .life-detail-anthem-play {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  border-radius: 999px;
+  border: 1px solid #8b1e1e;
+  color: #8b1e1e;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.life-detail .life-detail-anthem-play svg {
+  width: 18px;
+  height: 18px;
+}
+.life-detail .life-detail-anthem-play:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.life-detail .life-detail-anthem-transport input {
+  flex: 1;
+  min-width: 0;
+  accent-color: #8b1e1e;
+}
+.life-detail .life-detail-anthem-transport span {
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--life-page-muted);
+}
+.life-detail .life-detail-lyrics-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #7b1c1c;
+  border-radius: 999px;
+  padding: 9px 17px;
+  margin-top: 18px;
+  background: #7b1c1c;
+  color: white;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+.life-detail .life-detail-lyrics-trigger:hover {
+  background: #5f1616;
+  transform: translateY(-2px);
+}
+.life-detail .life-detail-lyrics-trigger svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Lyrics is portaled to body so it is not clipped by animated sections. */
+.life-lyrics-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 28px);
+  background: rgba(8, 10, 18, 0.78);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  animation: lifeLyricsFade 0.28s ease both;
+}
+.life-lyrics-modal {
+  width: min(640px, 100%);
+  max-height: min(85dvh, 800px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: 22px;
+  background: #fff;
+  color: #202020;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+  animation: lifeLyricsRise 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.life-lyrics-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 27px 30px 16px;
+}
+.life-lyrics-eyebrow {
+  color: #7b1c1c;
+  font:
+    700 0.67rem/1.5 "Geologica",
+    sans-serif;
+  letter-spacing: 0.12em;
+}
+.life-lyrics-header h2 {
+  font:
+    800 clamp(1.35rem, 3.5vw, 1.9rem)/1.25 "Google Sans Flex",
+    sans-serif;
+  margin: 5px 0 0;
+}
+.life-lyrics-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 9px;
+  border: none;
+  border-radius: 50%;
+  background: #f3f3f3;
+  color: #292929;
+  cursor: pointer;
+}
+.life-lyrics-close:hover {
+  background: #ece2e2;
+  color: #7b1c1c;
+}
+.life-lyrics-close svg {
+  width: 20px;
+  height: 20px;
+}
+.life-lyrics-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px 30px 17px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #eee;
+}
+.life-lyrics-tabs button {
+  border: 1px solid #e3e3e3;
+  background: #fafafa;
+  color: #555;
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 650;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.life-lyrics-tabs button.active {
+  background: #7b1c1c;
+  border-color: #7b1c1c;
+  color: white;
+}
+.life-lyrics-body {
+  min-height: 100px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 30px 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #c6a6a6 transparent;
+}
+.life-lyrics-text {
+  font:
+    400 1rem/2 "Geologica",
+    sans-serif;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.life-lyrics-body[lang="si"],
+.life-lyrics-body[lang="ta"] {
+  font-family: "Noto Sans Sinhala", sans-serif;
+}
+.life-lyrics-body[lang="si"] .life-lyrics-text {
+  font-family: "Noto Sans Sinhala", sans-serif;
+  font-size: 1.02rem;
+  line-height: 2.15;
+}
+.life-lyrics-body[lang="ta"] .life-lyrics-text {
+  font-family: system-ui, sans-serif;
+  line-height: 1.95;
+}
+.life-lyrics-footnote {
+  font:
+    0.73rem/1.5 "Geologica",
+    sans-serif;
+  color: #777;
+  margin: 0;
+  padding: 12px 30px 23px;
+}
+@keyframes lifeLyricsFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes lifeLyricsRise {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.life-detail .life-about-values,
+.life-detail .life-about-history {
+  margin: 0 0 clamp(60px, 7vw, 100px);
+}
+.life-detail .life-about-heading {
+  max-width: 750px;
+  margin-bottom: 28px;
+}
+.life-detail .life-about-eyebrow {
+  display: block;
+  color: #8c2929;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 11px;
+}
+.life-detail .life-about-heading h2 {
+  font-family: "Google Sans Flex", sans-serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.75rem);
+  line-height: 1.15;
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: var(--life-page-text);
+}
+.life-detail .life-about-heading p {
+  color: var(--life-page-muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin: 0;
+}
+.life-detail .life-about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.life-detail .life-about-value-card {
+  position: relative;
+  min-width: 0;
+  padding: clamp(24px, 3.4vw, 38px);
+  border-radius: 20px;
+  background: var(--life-card-surface);
+  border: 1px solid var(--life-card-border);
+  overflow: hidden;
+  background-color: #FAF8F4;
+}
+
+.life-detail .life-about-value-card.blue:before {
+  background: #1a3a6b;
+}
+.life-detail .life-about-value-number {
+  display: block;
+  font-size: 0.7rem;
+  color: #8c2929;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-bottom: 24px;
+}
+.life-detail .life-about-value-card.blue .life-about-value-number {
+  color: #2a5298;
+}
+.life-detail .life-about-value-card h3 {
+  font:
+    800 clamp(1.4rem, 2.3vw, 1.9rem)/1.2 "Google Sans Flex",
+    sans-serif;
+  color: var(--life-page-text);
+  margin: 0 0 14px;
+}
+.life-detail .life-about-value-en {
+  line-height: 1.85;
+  color: var(--life-page-muted);
+  font-size: 0.93rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.life-detail .life-about-language-divider {
+  height: 1px;
+  background: var(--life-card-border);
+  margin: 25px 0 20px;
+}
+.life-detail .life-about-value-card .life-about-sinhala {
+  font-family: "Noto Sans Sinhala", sans-serif !important;
+  overflow-wrap: anywhere;
+}
+.life-detail .life-about-value-card h4.life-about-sinhala {
+  color: var(--life-page-text);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+.life-detail .life-about-value-card p.life-about-value-si {
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 2.1;
+  color: var(--life-page-muted);
+  margin: 0;
+}
+.life-detail .life-about-history-intro {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: clamp(22px, 4vw, 48px);
+  align-items: center;
+  padding: clamp(24px, 4vw, 40px);
+  background: var(--life-soft-surface);
+  border: 1px solid var(--life-card-border);
+  border-radius: 20px;
+  margin-bottom: 35px;
+}
+.life-detail .life-about-history-year {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--life-card-border);
+  padding-right: 24px;
+  color: #7b1c1c;
+}
+.life-detail .life-about-history-year span {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+}
+.life-detail .life-about-history-year strong {
+  font-family: "Google Sans Flex", sans-serif;
+  font-size: clamp(2.8rem, 5vw, 4rem);
+  line-height: 1.2;
+}
+.life-detail .life-about-history-intro h3,
+.life-detail .life-about-history-today h3 {
+  font-family: "Google Sans Flex", sans-serif;
+  color: var(--life-page-text);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  margin: 0 0 12px;
+}
+.life-detail .life-about-history-intro p,
+.life-detail .life-about-history-today p {
+  color: var(--life-page-muted);
+  font-size: 0.92rem;
+  line-height: 1.9;
+  margin: 0;
+}
+.life-detail .life-about-history-timeline {
+  position: relative;
+  margin-left: 12px;
+  padding-left: 30px;
+  border-left: 2px solid var(--life-card-border);
+}
+.life-detail .life-about-history-milestone {
+  display: grid;
+  grid-template-columns: 85px 1fr;
+  gap: 20px;
+  position: relative;
+  margin-bottom: 29px;
+}
+.life-detail .life-about-history-milestone:before {
+  content: "";
+  position: absolute;
+  left: -39px;
+  top: 8px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #7b1c1c;
+  border-radius: 50%;
+  background: var(--life-card-surface);
+}
+.life-detail .life-about-history-date {
+  font-weight: 800;
+  color: #7b1c1c;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+.life-detail .life-about-history-milestone h3 {
+  font-family: "Google Sans Flex", sans-serif;
+  color: var(--life-page-text);
+  font-size: 1.07rem;
+  font-weight: 750;
+  margin: 0 0 7px;
+}
+.life-detail .life-about-history-milestone p {
+  font-size: 0.9rem;
+  color: var(--life-page-muted);
+  line-height: 1.75;
+  margin: 0;
+}
+.life-detail .life-about-history-today {
+  padding: 25px 30px;
+  border-radius: 17px;
+  border: 1px solid var(--life-card-border);
+  background: var(--life-card-surface);
+}
+@media (max-width: 720px) {
+  .life-detail .life-about-values-grid {
+    grid-template-columns: 1fr;
+  }
+  .life-detail .life-about-history-intro {
+    grid-template-columns: 1fr;
+  }
+  .life-detail .life-about-history-year {
+    align-items: flex-start;
+    border-right: 0;
+    border-bottom: 1px solid var(--life-card-border);
+    padding: 0 0 18px;
+  }
+  .life-detail .life-about-history-milestone {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .life-lyrics-header {
+    padding: 22px 20px 14px;
+  }
+  .life-lyrics-tabs {
+    padding: 4px 20px 14px;
+  }
+  .life-lyrics-body {
+    padding: 20px 20px 10px;
+  }
+  .life-lyrics-footnote {
+    padding: 12px 20px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .life-lyrics-overlay,
+  .life-lyrics-modal {
+    animation: none;
+  }
+  .life-detail .life-detail-lyrics-trigger {
+    transition: none;
+  }
+}
+/* Keep the lyrics panel scrollable within the viewport, independently of Lenis. */
+.life-lyrics-overlay {
+  overscroll-behavior: none;
+}
+.life-lyrics-modal {
+  box-sizing: border-box;
+  max-height: min(85vh, 800px);
+  max-height: min(85dvh, 800px);
+  min-height: 0;
+}
+.life-lyrics-header,
+.life-lyrics-tabs,
+.life-lyrics-footnote {
+  flex: 0 0 auto;
+}
+.life-lyrics-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+}
+@media (max-height: 500px) {
+  .life-lyrics-header {
+    padding: 12px 20px 8px;
+  }
+  .life-lyrics-tabs {
+    padding: 4px 20px 8px;
+  }
+  .life-lyrics-footnote {
+    padding: 8px 20px;
+  }
+  .life-lyrics-modal {
+    max-height: calc(100dvh - 24px);
+  }
+}

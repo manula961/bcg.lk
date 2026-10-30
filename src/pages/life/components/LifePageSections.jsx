@@ -1,8 +1,9 @@
 import React from 'react';
-import Timeline from './timeline/Timeline';
 import PastPapersPreview from './PastPapersPreview';
 import ContentDirectory from './ContentDirectory';
 import SchoolAnthemSection from './SchoolAnthemSection';
+import VisionMissionHistory from './VisionMissionHistory';
+import Timeline from './timeline/Timeline';
 import AcademicLearningSection from './AcademicLearningSection';
 
 /** Content selection for the four /life/:slug pages; shared layout stays in LifeDetailPage. */
@@ -12,6 +13,7 @@ export default function LifePageSections({ slug }) {
       return (
         <>
           <SchoolAnthemSection />
+          <VisionMissionHistory />
           <Timeline />
         </>
       );
