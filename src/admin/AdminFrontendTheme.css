@@ -91,6 +91,70 @@
   background: rgba(123,28,28,.24);
   border-color: #c9a84c;
 }
+/* High-visibility, permission-aware content actions. Scoped to admin rows,
+   without changing the school's public UI or the separate Sign Out button. */
+.admin-body .admin-row { flex-wrap: wrap; }
+.admin-body .admin-row-main { flex: 1 1 220px; }
+.admin-body .admin-row-actions {
+  flex-wrap: wrap;
+  max-width: 100%;
+  justify-content: flex-end;
+}
+.admin-body .admin-btn-delete,
+.admin-body .admin-btn-restore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border-radius: 9px;
+  border: 1px solid #f2a1a1;
+  background: #a3212b;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,.16);
+  transition: background .15s ease, border-color .15s ease;
+}
+.admin-body .admin-btn-delete svg,
+.admin-body .admin-btn-restore svg {
+  flex-shrink: 0;
+}
+.admin-body .admin-btn-delete:hover:not(:disabled) {
+  background: #c22d38;
+  border-color: #ffd0d0;
+}
+.admin-body .admin-btn-restore {
+  background: #244d3b;
+  border-color: #8fceb0;
+}
+.admin-body .admin-btn-restore:hover:not(:disabled) {
+  background: #316e50;
+  border-color: #d0f3df;
+}
+.admin-body .admin-btn-delete:focus-visible,
+.admin-body .admin-btn-restore:focus-visible {
+  outline: 3px solid #e8c97a;
+  outline-offset: 3px;
+}
+.admin-body .admin-btn-delete:disabled,
+.admin-body .admin-btn-restore:disabled {
+  opacity: 1;
+  color: #f1d6d8;
+  background: #53252a;
+  border-color: #9c6468;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+@media (max-width: 840px) {
+  .admin-body .admin-row-actions { justify-content: flex-start; }
+}
+
 .admin-body .admin-btn-ghost-danger { color: #f3a0a0; }
 .admin-body .admin-btn-ghost-danger:hover:not(:disabled) { color: #fff; background: rgba(123,28,28,.3); }
 .admin-body .admin-input, .admin-body .admin-search-input, .admin-body .admin-select,
