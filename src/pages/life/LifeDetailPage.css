@@ -2034,7 +2034,7 @@
   margin: 0 0 clamp(60px, 7vw, 100px);
 }
 .life-detail .life-about-heading {
-  max-width: 750px;
+  width: 100%;
   margin-bottom: 28px;
   justify-content: center;
   align-items: center;
