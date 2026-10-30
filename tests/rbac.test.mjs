@@ -63,7 +63,9 @@ test('RBAC controls both UI and backend APIs rather than only hiding buttons', (
   assert.match(dashboard, /RoleManager/);
   assert.match(editor, /canEditRecord\(role, item\)/);
   assert.match(editor, /hasPermission\(role, 'content\.edit'\) && <button/);
-  assert.match(editor, /canDelete &&/);
+  // Keep Delete visible on every content list, but disabled without the admin role.
+  assert.match(editor, /disabled=\{!canDelete \|\| !archivesReady \|\| actionId !== null\}/);
+  assert.match(editor, /if \(!canDelete \|\| !archivesReady \|\| actionId !== null\) return;/);
   assert.match(editor, /content\.reorder/);
   assert.match(drive, /hasPermission\(record\?\.fields\?\.role\?\.stringValue, 'media\.upload'\)/);
   assert.match(rules, /editorDraftUpdateOnly/);
