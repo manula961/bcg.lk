@@ -472,3 +472,215 @@ h3.news-card-title {
     transform: translateY(0);
   }
 }
+
+/* Full announcement popup — existing section and card styles unchanged */
+.news-card {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+}
+
+.news-full-popup {
+  width: min(640px, 100%);
+  max-height: min(90vh, 900px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.news-full-popup .news-modal-img {
+  display: block;
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  background: #0d0d0f;
+}
+
+.news-full-popup .news-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  float: right;
+  top: 12px;
+  right: 12px;
+  margin: 12px 12px -48px 0;
+}
+
+.news-full-popup .news-modal-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.news-full-popup .news-modal-close:hover {
+  background: #7b1c1c;
+}
+
+.news-full-popup .news-modal-close:focus-visible {
+  outline: 2px solid #c9a84c;
+  outline-offset: 3px;
+}
+
+.news-modal-tag {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(123, 28, 28, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: "Geologica", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.news-modal-excerpt {
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font: 400 0.9rem/1.65 "Geologica", sans-serif;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .news-modal-overlay { padding: 12px; }
+  .news-full-popup { max-height: 92dvh; }
+  .news-full-popup .news-modal-body { padding: 22px; }
+}
+
+
+/* Keep the popup scrollable on desktop and touch devices. */
+.news-modal-overlay {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.news-modal-content.news-full-popup {
+  box-sizing: border-box;
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 168, 76, 0.45) transparent;
+}
+
+.news-modal-content.news-full-popup::-webkit-scrollbar {
+  width: 6px;
+}
+
+.news-modal-content.news-full-popup::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.45);
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .news-modal-content.news-full-popup {
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+}
+
+/* Prevent scroll from chaining to the page; allow the dialog to be the scroller. */
+.news-modal-overlay {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.news-modal-content.news-full-popup {
+  min-height: 0;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+
+/* Smooth popup transitions only — no changes to the existing design. */
+@keyframes newsPopupOverlayIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(10px); }
+}
+@keyframes newsPopupOverlayOut {
+  from { opacity: 1; backdrop-filter: blur(10px); }
+  to { opacity: 0; backdrop-filter: blur(0); }
+}
+@keyframes newsPopupEnter {
+  from { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes newsPopupExit {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.975); }
+}
+.news-modal-overlay {
+  animation: newsPopupOverlayIn 360ms ease-out both;
+}
+.news-modal-content.news-full-popup {
+  animation: newsPopupEnter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+.news-modal-overlay.news-popup-closing {
+  animation: newsPopupOverlayOut 320ms ease-in both;
+  pointer-events: none;
+}
+.news-popup-closing .news-modal-content.news-full-popup {
+  animation: newsPopupExit 320ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-modal-overlay,
+  .news-modal-content.news-full-popup,
+  .news-modal-overlay.news-popup-closing,
+  .news-popup-closing .news-modal-content.news-full-popup {
+    animation: none;
+  }
+}
+
+/* Popup cover image: exact 16:9 crop, keeping its existing width and styling. */
+.news-full-popup .news-modal-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  max-height: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Allow the JavaScript wheel easer to control desktop scrolling,
+   while retaining momentum scrolling on touch screens. */
+.news-modal-content.news-full-popup {
+  scroll-behavior: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+
+/* Prevent unbroken backend text and URLs from spilling outside the dialog. */
+.news-modal-content.news-full-popup {
+  min-width: 0;
+  max-width: min(640px, calc(100vw - 40px));
+  overflow-x: hidden;
+}
+.news-full-popup .news-modal-body,
+.news-full-popup .news-modal-title,
+.news-full-popup .news-modal-text,
+.news-full-popup .news-modal-text * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.news-full-popup .news-modal-body img {
+  max-width: 100%;
+  height: auto;
+}
+@media (max-width: 640px) {
+  .news-modal-content.news-full-popup {
+    max-width: calc(100vw - 24px);
+  }
+}

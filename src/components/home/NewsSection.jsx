@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "./NewsSection.css";
 import { subscribePublishedNews } from "../../lib/newsService";
 
@@ -33,6 +34,26 @@ const NewsSection = () => {
   const [loadState, setLoadState] = useState('loading');
   const [retry, setRetry] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isPopupClosing, setIsPopupClosing] = useState(false);
+  const closeTimerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const popupRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  // Keep the dialog mounted while its exit animation finishes.
+  const closePopup = () => {
+    if (isPopupClosing || !selectedPost) return;
+    setIsPopupClosing(true);
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      setSelectedPost(null);
+      setIsPopupClosing(false);
+      closeTimerRef.current = null;
+    }, 320);
+  };
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), []);
 
   // Pointer drag state kept in refs to avoid re-rendering on every movement.
   const dragRef = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
@@ -67,6 +88,80 @@ const NewsSection = () => {
     return () => unsubscribe();
   }, [retry]);
 
+
+  useEffect(() => {
+    if (!selectedPost) return;
+
+    const popup = popupRef.current;
+    const overlay = overlayRef.current;
+    const oldBodyOverflow = document.body.style.overflow;
+    const oldHtmlOverflow = document.documentElement.style.overflow;
+    const previousFocus = document.activeElement;
+
+    // Lock both potential page scrollers while the dialog is open.
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") closePopup();
+    };
+
+    // Animate wheel scrolling toward a shared target rather than applying
+    // each wheel delta immediately (which causes visible jumping).
+    let frameId = null;
+    let targetScroll = popup?.scrollTop ?? 0;
+    let currentScroll = targetScroll;
+
+    const animateScroll = () => {
+      if (!popup) return;
+      const maxScroll = Math.max(0, popup.scrollHeight - popup.clientHeight);
+      targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+      currentScroll += (targetScroll - currentScroll) * 0.18;
+
+      if (Math.abs(targetScroll - currentScroll) < 0.5) {
+        currentScroll = targetScroll;
+        popup.scrollTop = currentScroll;
+        frameId = null;
+        return;
+      }
+
+      popup.scrollTop = currentScroll;
+      frameId = window.requestAnimationFrame(animateScroll);
+    };
+
+    const handlePopupWheel = (event) => {
+      if (event.ctrlKey) return; // Preserve browser zoom gestures.
+      event.preventDefault();
+      event.stopPropagation();
+      if (!popup) return;
+      const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? popup.clientHeight : 1;
+      const maxScroll = Math.max(0, popup.scrollHeight - popup.clientHeight);
+      // Keep rapid wheel events moving the target instead of restarting animations.
+      if (frameId === null) currentScroll = popup.scrollTop;
+      targetScroll = Math.max(0, Math.min(targetScroll + event.deltaY * multiplier, maxScroll));
+      if (frameId === null) frameId = window.requestAnimationFrame(animateScroll);
+    };
+
+    const preventOverlayWheel = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    popup?.addEventListener("wheel", handlePopupWheel, { passive: false });
+    overlay?.addEventListener("wheel", preventOverlayWheel, { passive: false });
+
+    return () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      document.body.style.overflow = oldBodyOverflow;
+      document.documentElement.style.overflow = oldHtmlOverflow;
+      window.removeEventListener("keydown", handleEscape);
+      popup?.removeEventListener("wheel", handlePopupWheel);
+      overlay?.removeEventListener("wheel", preventOverlayWheel);
+      previousFocus?.focus?.();
+    };
+  }, [selectedPost]);
 
   const filters = ["All", "Announcements", "News"];
   const filtered =
@@ -159,13 +254,16 @@ const NewsSection = () => {
     }
   };
 
-  const handleCardClick = (event) => {
+  const handleCardClick = (event, post) => {
+    event.preventDefault();
     if (dragRef.current.moved) {
-      event.preventDefault();
       event.stopPropagation();
       // Suppress only the click following a drag.
       dragRef.current.moved = false;
+      return;
     }
+    setIsPopupClosing(false);
+    setSelectedPost(post);
   };
 
   const dotsList = filtered.length > 1 ? filtered : [];
@@ -251,13 +349,12 @@ const NewsSection = () => {
             onDragStart={(e) => e.preventDefault()}
           >
             {filtered.map((post) => (
-              <a
+              <button
+                type="button"
                 key={post.id}
                 className="news-card"
-                href={`/updates/${encodeURIComponent(post.id)}`}
                 aria-label={`Read ${post.title}`}
-                style={{ color: 'inherit', textDecoration: 'none' }}
-                onClick={handleCardClick}
+                onClick={(event) => handleCardClick(event, post)}
               >
                 {post.image ? (
                   <div
@@ -297,7 +394,7 @@ const NewsSection = () => {
                     </svg>
                   </span>
                 </div>
-              </a>
+              </button>
             ))}
           </div>
 
@@ -313,6 +410,58 @@ const NewsSection = () => {
           </div>}
         </div>
       </div>
+      {selectedPost && createPortal(
+        <div
+          className={`news-modal-overlay ${isPopupClosing ? "news-popup-closing" : ""}`}
+          ref={overlayRef}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closePopup();
+          }}
+        >
+          <div
+            className="news-modal-content news-full-popup"
+            ref={popupRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="news-popup-title"
+            tabIndex={-1}
+          >
+            <button
+              ref={closeButtonRef}
+              type="button"
+              className="news-modal-close"
+              aria-label="Close announcement"
+              onClick={closePopup}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+            {selectedPost.image && (
+              <img
+                className="news-modal-img"
+                src={selectedPost.image}
+                alt={selectedPost.title}
+              />
+            )}
+            <div className="news-modal-body">
+              <div className="news-card-meta">
+                {selectedPost.category}{selectedPost.date ? ` • ${selectedPost.date}` : ""}
+              </div>
+              {selectedPost.tag && (
+                <div className="news-modal-tag">{selectedPost.tag}</div>
+              )}
+              <h3 id="news-popup-title" className="news-modal-title">
+                {selectedPost.title}
+              </h3>
+              <div className="news-modal-text">
+                {selectedPost.body || selectedPost.excerpt}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </section>
   );
 };
