@@ -191,7 +191,16 @@ export async function onRequest(context) {
   if (request.method === 'GET' && cmsDocumentRoute(path) && isMetadataCrawler(agent)) {
     // The metadata helper only responds on the approved canonical origin. Use
     // no client/production Firebase secrets on untrusted preview branches.
-    const enriched = await publishedCmsResponse(request);
+    const enriched = await publishedCmsResponse(request, {
+      // Do not fetch the live hostname from within its own Worker. Obtain the
+      // HTML shell through the Pages asset binding to avoid same-zone loops.
+      fetcher(input, options) {
+        const url = new URL(input);
+        if (url.origin === new URL(request.url).origin && url.pathname === '/index.html')
+          return context.env.ASSETS.fetch(new Request(new URL('/', request.url)));
+        return fetch(input, options);
+      },
+    });
     if (enriched) return secure(enriched,path);
   }
 
