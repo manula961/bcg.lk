@@ -549,6 +549,9 @@ h3.news-card-title {
   .news-full-popup .news-modal-body { padding: 22px; }
 }
 
+.news-scroll-arrows {
+  display: none;
+}
 
 /* Keep the popup scrollable on desktop and touch devices. */
 .news-modal-overlay {
