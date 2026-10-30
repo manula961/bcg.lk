@@ -12,7 +12,6 @@ const App = lazy(() => import('./App.jsx'));
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 const LifeDetailPage = lazy(() => import('./pages/life/LifeDetailPage.jsx'));
 const PublishedContentPage = lazy(() => import('./pages/content/PublishedContentPage.jsx'));
-const Updates = lazy(() => import('./pages/news/Updates.jsx'));
 const EventDetail = lazy(() => import('./pages/events/EventDetail.jsx'));
 const EventsPage = lazy(() => import('./pages/events/EventsPage.jsx'));
 const PastPapersPage = lazy(() => import('./pages/academics/PastPapersPage.jsx'));
