@@ -32,7 +32,8 @@ test('stable public CMS URLs keep legacy title links working', () => {
   const events = read('src/components/home/EventsSection.jsx');
   const updates = read('src/pages/news/Updates.jsx');
   const detail = read('src/pages/events/EventDetail.jsx');
-  assert.match(news, /encodeURIComponent\(post\.id\)/);
+  // The currently shipped News cards open an accessible popup; legacy /updates/:id links remain supported by Updates.jsx.
+  assert.match(news, /onClick=\{\(event\) => handleCardClick\(event, post\)\}/);
   assert.match(events, /encodeURIComponent\(eventItem\.id\)/);
   assert.match(updates, /encodeURIComponent\(item\.id\) === titleSlug/);
   assert.match(detail, /encodeURIComponent\(item\.id\) === titleSlug/);
@@ -72,11 +73,13 @@ test('admin form fields have explicit labels and content ordering checks revisio
   assert.match(repository, /assertCurrentRevision\(snapshot, expectedUpdatedAtById\[orderedIds\[index\]\]\)/);
 });
 
-test('news cards use semantic links and both scrolling layers respect reduced-motion', () => {
+test('news cards use semantic buttons and accessible dialog while respecting reduced-motion', () => {
   const news = read('src/components/home/NewsSection.jsx');
   const main = read('src/main.jsx');
   const home = read('src/App.jsx');
-  assert.match(news, /href=\{\`\/updates\/\$\{encodeURIComponent\(post\.id\)\}\`\}/);
+  assert.match(news, /<button[\s\S]*?aria-label=\{\`Read \$\{post\.title\}\`\}/);
+  assert.match(news, /role="dialog"/);
+  assert.match(news, /aria-modal="true"/);
   assert.doesNotMatch(news, /role="article"/);
   assert.match(main, /prefers-reduced-motion: reduce/);
   assert.match(home, /prefers-reduced-motion: reduce/);
