@@ -1,0 +1,114 @@
+.site-back-top {
+  --top-progress: 0;
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 850;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 50%;
+  background: rgba(12, 12, 14, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(201, 168, 76, 0.9);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(12px) scale(0.94);
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease,
+    transform 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
+}
+.site-back-top.is-visible {
+  opacity: 0.88;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.site-back-top__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke-width: 1.4;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.site-back-top__track {
+  stroke: rgba(201, 168, 76, 0.14);
+}
+.site-back-top__progress {
+  stroke: rgba(201, 168, 76, 0.75);
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc(100 - var(--top-progress) * 100);
+}
+.site-back-top__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+  pointer-events: none;
+}
+.site-back-top__content span {
+  font-family: "Geologica", sans-serif;
+  font-size: 7px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 1.1px;
+  padding-left: 1.1px;
+}
+@media (hover: hover) {
+  .site-back-top:hover {
+    opacity: 1;
+    background: rgba(123, 28, 28, 0.85);
+    border-color: rgba(201, 168, 76, 0.65);
+    color: #fff8e8;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.38);
+  }
+}
+.site-back-top:active {
+  transform: scale(0.95);
+}
+.site-back-top:focus-visible {
+  outline: 2px solid #c9a84c;
+  outline-offset: 4px;
+}
+@media (max-width: 640px) {
+  .site-back-top {
+    width: 44px;
+    height: 44px;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-back-top {
+    transition: none;
+  }
+  .site-back-top,
+  .site-back-top:hover,
+  .site-back-top:active {
+    transform: none;
+  }
+}
+
+body[data-page-overlay] .site-back-top {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { lockPageScroll } from "../../navigation/clientNavigation";
 import "./NewsSection.css";
 import { subscribePublishedNews } from "../../lib/newsService";
 
@@ -94,17 +95,25 @@ const NewsSection = () => {
 
     const popup = popupRef.current;
     const overlay = overlayRef.current;
-    const oldBodyOverflow = document.body.style.overflow;
-    const oldHtmlOverflow = document.documentElement.style.overflow;
+    const unlock = lockPageScroll("news");
     const previousFocus = document.activeElement;
 
     // Lock both potential page scrollers while the dialog is open.
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
+
     closeButtonRef.current?.focus();
 
     const handleEscape = (event) => {
       if (event.key === "Escape") closePopup();
+      if (event.key === "Tab" && popup) {
+        const items = [...popup.querySelectorAll('button:not([disabled]), a[href], [tabindex="0"]')];
+        const first = items[0], last = items.at(-1);
+        if (!first) return;
+        if (event.shiftKey && (document.activeElement === first || !popup.contains(document.activeElement))) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !popup.contains(document.activeElement))) {
+          event.preventDefault(); first.focus();
+        }
+      }
     };
 
     // Animate wheel scrolling toward a shared target rather than applying
@@ -138,28 +147,41 @@ const NewsSection = () => {
       const multiplier = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? popup.clientHeight : 1;
       const maxScroll = Math.max(0, popup.scrollHeight - popup.clientHeight);
       // Keep rapid wheel events moving the target instead of restarting animations.
-      if (frameId === null) currentScroll = popup.scrollTop;
+      if (frameId === null) targetScroll = currentScroll = popup.scrollTop;
       targetScroll = Math.max(0, Math.min(targetScroll + event.deltaY * multiplier, maxScroll));
-      if (frameId === null) frameId = window.requestAnimationFrame(animateScroll);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        popup.scrollTop = targetScroll;
+      } else if (frameId === null) frameId = window.requestAnimationFrame(animateScroll);
     };
 
     const preventOverlayWheel = (event) => {
+      if (event.ctrlKey) return;
       event.preventDefault();
       event.stopPropagation();
     };
 
+    const cancelWheel = () => {
+      if (frameId !== null) cancelAnimationFrame(frameId);
+      frameId = null;
+      targetScroll = currentScroll = popup?.scrollTop ?? 0;
+    };
+    popup?.addEventListener('pointerdown', cancelWheel);
+    popup?.addEventListener('touchstart', cancelWheel, { passive: true });
+    popup?.addEventListener('keydown', cancelWheel);
     window.addEventListener("keydown", handleEscape);
     popup?.addEventListener("wheel", handlePopupWheel, { passive: false });
     overlay?.addEventListener("wheel", preventOverlayWheel, { passive: false });
 
     return () => {
       if (frameId !== null) window.cancelAnimationFrame(frameId);
-      document.body.style.overflow = oldBodyOverflow;
-      document.documentElement.style.overflow = oldHtmlOverflow;
+      unlock();
+      popup?.removeEventListener('pointerdown', cancelWheel);
+      popup?.removeEventListener('touchstart', cancelWheel);
+      popup?.removeEventListener('keydown', cancelWheel);
       window.removeEventListener("keydown", handleEscape);
       popup?.removeEventListener("wheel", handlePopupWheel);
       overlay?.removeEventListener("wheel", preventOverlayWheel);
-      previousFocus?.focus?.();
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, [selectedPost]);
 
@@ -414,6 +436,7 @@ const NewsSection = () => {
         <div
           className={`news-modal-overlay ${isPopupClosing ? "news-popup-closing" : ""}`}
           ref={overlayRef}
+          data-lenis-prevent
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) closePopup();
           }}
@@ -454,6 +477,9 @@ const NewsSection = () => {
               <h3 id="news-popup-title" className="news-modal-title">
                 {selectedPost.title}
               </h3>
+              {selectedPost.excerpt && selectedPost.body && selectedPost.excerpt !== selectedPost.body && (
+                <p className="news-modal-text">{selectedPost.excerpt}</p>
+              )}
               <div className="news-modal-text">
                 {selectedPost.body || selectedPost.excerpt}
               </div>

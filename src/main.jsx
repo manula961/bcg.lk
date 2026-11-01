@@ -8,6 +8,7 @@ import ScrollReveal from './components/layout/ScrollReveal.jsx';
 
 // Load only the route being visited. Admin Firebase and editor code stays out
 // of the public homepage's initial JavaScript download.
+const Updates = lazy(() => import('./pages/news/NewsDetail.jsx'));
 const App = lazy(() => import('./App.jsx'));
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'));
 const LifeDetailPage = lazy(() => import('./pages/life/LifeDetailPage.jsx'));
@@ -16,9 +17,37 @@ const EventDetail = lazy(() => import('./pages/events/EventDetail.jsx'));
 const EventsPage = lazy(() => import('./pages/events/EventsPage.jsx'));
 const PastPapersPage = lazy(() => import('./pages/academics/PastPapersPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage.jsx'));
+import BackToTop from './components/BackToTop.jsx';
 import './index.css';
 
 function Root() {
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let instance = null;
+    let frame = 0;
+    const dispose = () => {
+      cancelAnimationFrame(frame);
+      setSmoothScroller(null);
+      instance?.destroy();
+      instance = null;
+    };
+    const configure = () => {
+      dispose();
+      if (/^\/admin\/?$/.test(window.location.pathname) || preference.matches) return;
+      instance = new Lenis({
+        duration: 1.2,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      setSmoothScroller(instance);
+      const tick = time => { instance.raf(time); frame = requestAnimationFrame(tick); };
+      frame = requestAnimationFrame(tick);
+    };
+    configure();
+    preference.addEventListener('change', configure);
+    return () => { preference.removeEventListener('change', configure); dispose(); };
+  }, []);
+
   const [route, setRoute] = useState(() => ({
     location: window.location.pathname + window.location.search + window.location.hash,
     type: 'initial',
@@ -75,29 +104,12 @@ function Root() {
     <Suspense fallback={<main aria-busy="true" aria-label="Loading page" className="min-h-screen bg-[#0a0a0a]" />}>
       {!isAdminPath && <RouteScroll key={route.revision} location={route.location} navigationType={route.type} savedScroll={route.savedScroll} />}
       {React.cloneElement(page, { key: pathname })}
+      <BackToTop key={`back-to-top:${pathname}`} />
       {!isAdminPath && <ScrollReveal routeKey={pathname} />}
     </Suspense>
   );
 }
 
-if (window.location.pathname !== '/admin' && window.location.pathname !== '/admin/' &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true,
-    smoothTouch: false,
-  });
-
-  setSmoothScroller(lenis);
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

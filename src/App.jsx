@@ -33,10 +33,14 @@ function App() {
   }, [loading]);
 
 
-  return (
-    <>
-      {loading && <LoadingAnimation onComplete={() => setLoading(false)} />}
-      {!loading && (
+return (
+  <>
+    {loading && (
+      <LoadingAnimation onComplete={() => setLoading(false)} />
+    )}
+
+    {!loading && (
+      <>
         <main className="bg-[#0a0a0a]">
           <MenuBar />
           <HeroSection />
@@ -46,9 +50,11 @@ function App() {
           <LifeAsNayaken />
           <Footer />
         </main>
-      )}
-    </>
-  );
+
+      </>
+    )}
+  </>
+);
 }
 
 export default App;

@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+import { lockPageScroll } from '../../navigation/clientNavigation';
 import React, { useEffect, useRef, useState } from 'react';
 import MenuBar from '../../components/layout/MenuBar';
 import Footer from '../../components/layout/Footer';
@@ -110,6 +112,8 @@ export default function EventsPage() {
     });
   };
 
+  useEffect(() => () => cancelAnimationFrame(rafId.current), []);
+
   const openEvent = (event, trigger) => {
     priorFocusRef.current = trigger;
     setActiveMobileEvent(event);
@@ -119,6 +123,7 @@ export default function EventsPage() {
 
   useEffect(() => {
     if (!activeMobileEvent) return undefined;
+    const unlock = lockPageScroll("event");
     closeRef.current?.focus();
     const onKeyDown = event => {
       if (event.key === 'Escape') {
@@ -141,8 +146,9 @@ export default function EventsPage() {
     };
     document.addEventListener('keydown', onKeyDown);
     return () => {
+      unlock();
       document.removeEventListener('keydown', onKeyDown);
-      priorFocusRef.current?.focus();
+      priorFocusRef.current?.focus({ preventScroll: true });
     };
   }, [activeMobileEvent]);
 
@@ -306,8 +312,8 @@ export default function EventsPage() {
       )}
 
       {/* Mobile Event Popup Modal with SVG Icons */}
-      {activeMobileEvent && (
-        <div className="mobile-event-modal-overlay" onMouseDown={event => {
+      {activeMobileEvent && createPortal(
+        <div data-lenis-prevent className="mobile-event-modal-overlay" onMouseDown={event => {
           if (event.target === event.currentTarget) closeEvent();
         }}>
           <div
@@ -352,7 +358,7 @@ export default function EventsPage() {
               VIEW EVENT
             </a>
           </div>
-        </div>
+        </div>, document.body
       )}
 
       <Footer />

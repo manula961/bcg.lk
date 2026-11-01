@@ -110,7 +110,9 @@
   padding: 16px 8px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    border-color 0.25s ease,
+    padding-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
 }
 
@@ -266,16 +268,19 @@
   opacity: 0;
   transform: translateY(22px);
   transition:
-    opacity 260ms ease,
-    transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 300ms ease,
-    padding-left 300ms ease;
-  transition-delay: 0ms;
+    opacity 260ms ease 0ms,
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1) 0ms,
+    border-color 250ms ease 0ms,
+    padding-left 250ms cubic-bezier(0.16, 1, 0.3, 1) 0ms;
 }
 .menu-overlay.is-open .menu-nav-item {
   opacity: 1;
   transform: translateY(0);
-  transition-delay: calc(100ms + var(--item-index, 0) * 65ms);
+  transition:
+    opacity 260ms ease calc(100ms + var(--item-index, 0) * 65ms),
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1) calc(100ms + var(--item-index, 0) * 65ms),
+    border-color 250ms ease 0ms,
+    padding-left 250ms cubic-bezier(0.16, 1, 0.3, 1) 0ms;
 }
 .menu-toggle-btn .hamburger-line {
   transition:
@@ -289,4 +294,12 @@
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
   }
+}
+
+/* Reserve room for the close control, including short landscape viewports. */
+.menu-container { padding-top: max(88px, calc(env(safe-area-inset-top) + 72px)); }
+.menu-text-wrap { min-width: 0; overflow-wrap: anywhere; }
+.menu-toggle-btn:focus-visible { outline: 2px solid #e8c97a; outline-offset: 4px; }
+body[data-page-overlay]:not([data-page-overlay="menu"]) .menu-toggle-btn {
+  visibility: hidden; pointer-events: none;
 }

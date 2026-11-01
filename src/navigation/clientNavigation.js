@@ -5,12 +5,131 @@ let smoothScroller = null;
 
 export function setSmoothScroller(instance) {
   smoothScroller = instance;
+  if (scrollLocks.size) smoothScroller?.stop();
 }
 
-export function scrollToPageTop() {
-  // Lenis has its own target scroll position; reset that as well as the browser.
-  smoothScroller?.scrollTo(0, { immediate: true, force: true });
-  window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
+function getTargetScrollTop(target) {
+  if (typeof target === 'number') return Math.max(0, target);
+  if (typeof target === 'string') {
+    if (target === '#top' || target === '#home' || target === 'top' || target === 'home') return 0;
+    const id = target.startsWith('#') ? target.slice(1) : target;
+    const el = document.getElementById(id) || document.querySelector(target);
+    return el ? Math.max(0, el.getBoundingClientRect().top + window.scrollY) : 0;
+  }
+  if (target && typeof target.getBoundingClientRect === 'function') {
+    return Math.max(0, target.getBoundingClientRect().top + window.scrollY);
+  }
+  return 0;
+}
+
+function resetNativeScrollTo(top) {
+  window.scrollTo({ left: 0, top, behavior: 'instant' });
+  document.documentElement.scrollTop = top;
+  document.body.scrollTop = top;
+}
+
+function forceResetSmoothScroller(top) {
+  if (!smoothScroller) return;
+  // Cancel any active Lenis momentum/wheel/lerp animation before snapping.
+  smoothScroller.stop();
+  smoothScroller.resize();
+  smoothScroller.scrollTo(top, { immediate: true, force: true });
+  resetNativeScrollTo(top);
+  if (!scrollLocks.size) {
+    smoothScroller.start();
+    smoothScroller.scrollTo(top, { immediate: true, force: true });
+  }
+}
+
+// All programmatic scrolling uses the same engine.
+export function scrollPageTo(target, { smooth = false, force = false } = {}) {
+  const top = getTargetScrollTop(target);
+  if (scrollLocks.size) {
+    if (!force) return;
+    if (savedScroll) {
+      savedScroll.x = 0;
+      savedScroll.y = top;
+      document.body.style.top = `-${top}px`;
+      document.body.style.left = '0px';
+    }
+    if (smoothScroller) {
+      smoothScroller.stop();
+      smoothScroller.resize();
+      smoothScroller.scrollTo(top, { immediate: true, force: true });
+    }
+    return;
+  }
+  const animate = smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!animate) {
+    resetNativeScrollTo(top);
+    forceResetSmoothScroller(top);
+    return;
+  }
+  if (smoothScroller) {
+    smoothScroller.start();
+    smoothScroller.resize();
+    smoothScroller.scrollTo(top, {
+      immediate: false,
+      force: true,
+      duration: 1.15,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+    return;
+  }
+  window.scrollTo({ left: 0, top, behavior: 'smooth' });
+}
+
+export function scrollToPageTop(options) {
+  scrollPageTo(0, options);
+}
+
+const scrollLocks = new Set();
+let savedScroll = null;
+
+/** Shared, nest-safe lock for menu and dialogs. Returns an idempotent release. */
+export function lockPageScroll(owner = 'dialog') {
+  const token = { owner };
+  if (!scrollLocks.size) {
+    const body = document.body;
+    savedScroll = {
+      x: window.scrollX, y: window.scrollY,
+      position: body.style.position, top: body.style.top,
+      left: body.style.left, width: body.style.width,
+      overflow: body.style.overflow, paddingRight: body.style.paddingRight,
+      htmlOverflow: document.documentElement.style.overflow,
+    };
+    smoothScroller?.stop();
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    if (gutter > 0) body.style.paddingRight =
+      `${parseFloat(getComputedStyle(body).paddingRight) + gutter}px`;
+    Object.assign(body.style, {
+      position: 'fixed', top: `-${savedScroll.y}px`,
+      left: `-${savedScroll.x}px`, width: '100%', overflow: 'hidden',
+    });
+    document.documentElement.style.overflow = 'hidden';
+  }
+  scrollLocks.add(token);
+  document.body.dataset.pageOverlay = owner;
+  return () => {
+    if (!scrollLocks.delete(token)) return;
+    if (scrollLocks.size) {
+      document.body.dataset.pageOverlay = [...scrollLocks].at(-1).owner;
+      return;
+    }
+    const saved = savedScroll;
+    savedScroll = null;
+    const { x, y, htmlOverflow, ...styles } = saved;
+    Object.assign(document.body.style, styles);
+    document.documentElement.style.overflow = htmlOverflow;
+    delete document.body.dataset.pageOverlay;
+    resetNativeScrollTo(y);
+    if (smoothScroller) {
+      smoothScroller.stop();
+      smoothScroller.resize();
+      smoothScroller.scrollTo(y, { immediate: true, force: true });
+      smoothScroller.start();
+    }
+  };
 }
 
 export function isHomePath(pathname) {
@@ -36,14 +155,19 @@ export function navigate(to, { replace = false } = {}) {
     return false;
   }
 
-  const from = window.location.pathname + window.location.search + window.location.hash;
+  const fromUrl = new URL(window.location.href);
+  const from = fromUrl.pathname + fromUrl.search + fromUrl.hash;
   const next = url.pathname + url.search + url.hash;
+  const sameDocumentPath =
+    fromUrl.pathname === url.pathname ||
+    (isHomePath(fromUrl.pathname) && isHomePath(url.pathname));
+
   if (from === next) {
     window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { type: 'same' } }));
     return true;
   }
 
-  if (isHomePath(url.pathname) && !isHomePath(window.location.pathname)) {
+  if (isHomePath(url.pathname) && !isHomePath(fromUrl.pathname)) {
     sessionStorage.setItem('skipLoading', 'true');
   }
 
@@ -54,9 +178,13 @@ export function navigate(to, { replace = false } = {}) {
   if (replace) window.history.replaceState(state, '', next);
   else window.history.pushState(state, '', next);
 
-  // Reset immediately to avoid displaying the new page at the old scroll offset.
-  if (url.pathname !== new URL(from, window.location.origin).pathname) scrollToPageTop();
-  window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { type: 'push' } }));
+  // Stop any in-flight Lenis momentum and reset immediately when changing between pages.
+  if (!sameDocumentPath) {
+    scrollToPageTop({ smooth: false, force: true });
+  }
+  window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, {
+    detail: { type: sameDocumentPath ? 'same' : 'push' },
+  }));
   return true;
 }
 
@@ -94,6 +222,8 @@ export function listenForNavigation(onNavigate) {
     if (!anchor || anchor.hasAttribute('download') ||
         (anchor.target && anchor.target !== '_self') ||
         anchor.relList?.contains('external')) return;
+    const rawHref = anchor.getAttribute('href') || '';
+    if (rawHref.startsWith('#')) return;
     const url = new URL(anchor.href, window.location.href);
     if (!['http:', 'https:'].includes(url.protocol) || url.origin !== window.location.origin ||
         !isPublicRoute(url.pathname) || isAdminPath(url.pathname)) return;
@@ -106,12 +236,18 @@ export function listenForNavigation(onNavigate) {
     onNavigate(event.detail?.type || 'push');
   };
   const handlePopState = () => {
-    if (isHomePath(window.location.pathname) && !isHomePath(previousPathname)) {
+    const currentPathname = window.location.pathname;
+    const sameDocumentPath =
+      currentPathname === previousPathname ||
+      (isHomePath(currentPathname) && isHomePath(previousPathname));
+    if (isHomePath(currentPathname) && !isHomePath(previousPathname)) {
       sessionStorage.setItem('skipLoading', 'true');
     }
-    if (window.location.pathname !== previousPathname) scrollToPageTop();
-    previousPathname = window.location.pathname;
-    onNavigate('pop');
+    if (!sameDocumentPath) {
+      scrollToPageTop({ smooth: false, force: true });
+    }
+    previousPathname = currentPathname;
+    onNavigate(sameDocumentPath ? 'same' : 'pop');
   };
 
   document.addEventListener('click', handleClick);

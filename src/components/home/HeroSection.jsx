@@ -48,20 +48,21 @@ const HeroSection = () => {
     });
 
     let ticking = false;
+    let frame = 0;
 
     const handleScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
+        frame = window.requestAnimationFrame(() => {
           if (heroRef.current) {
             const scrollY = window.scrollY;
             const heroHeight = window.innerHeight;
 
-            if (scrollY <= heroHeight) {
+            {
               const opacity = Math.max(
                 0,
                 1 - scrollY / (heroHeight * 0.7)
               );
-              const translateY = scrollY * 0.25;
+              const translateY = Math.min(scrollY, heroHeight) * 0.25;
 
               heroRef.current.style.opacity = opacity;
               heroRef.current.style.transform =
@@ -79,6 +80,7 @@ const HeroSection = () => {
     });
 
     return () => {
+      cancelAnimationFrame(frame);
       timers.forEach(clearTimeout);
       window.removeEventListener('scroll', handleScroll);
     };

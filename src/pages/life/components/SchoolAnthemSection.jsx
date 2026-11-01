@@ -1,3 +1,4 @@
+import { lockPageScroll } from "../../../navigation/clientNavigation";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -64,8 +65,7 @@ export default function SchoolAnthemSection() {
 
   useEffect(() => {
     if (!lyricsOpen) return undefined;
-    const oldOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const unlock = lockPageScroll("lyrics");
     modalRef.current?.focus();
     const onKeyDown = (event) => {
       if (event.key === "Escape") setLyricsOpen(false);
@@ -88,9 +88,9 @@ export default function SchoolAnthemSection() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = oldOverflow;
+      unlock();
       window.removeEventListener("keydown", onKeyDown);
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
     };
   }, [lyricsOpen]);
 
@@ -100,26 +100,6 @@ export default function SchoolAnthemSection() {
     const overlay = overlayRef.current;
     const scroller = lyricsBodyRef.current;
     if (!overlay || !scroller) return undefined;
-    const body = document.body;
-    const html = document.documentElement;
-    const saved = {
-      position: body.style.position,
-      top: body.style.top,
-      left: body.style.left,
-      width: body.style.width,
-      paddingRight: body.style.paddingRight,
-      overflow: html.style.overflow,
-    };
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const gutter = window.innerWidth - html.clientWidth;
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = `-${scrollX}px`;
-    body.style.width = "100%";
-    if (gutter > 0)
-      body.style.paddingRight = `${parseFloat(getComputedStyle(body).paddingRight) + gutter}px`;
-    html.style.overflow = "hidden";
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let previousTime = 0;
@@ -183,18 +163,7 @@ export default function SchoolAnthemSection() {
       scroller.removeEventListener("pointerdown", cancel);
       scroller.removeEventListener("touchstart", cancel);
       scroller.removeEventListener("keydown", cancel);
-      Object.assign(body.style, {
-        position: saved.position,
-        top: saved.top,
-        left: saved.left,
-        width: saved.width,
-        paddingRight: saved.paddingRight,
-      });
-      html.style.overflow = saved.overflow;
-      const behavior = html.style.scrollBehavior;
-      html.style.scrollBehavior = "auto";
-      window.scrollTo(scrollX, scrollY);
-      html.style.scrollBehavior = behavior;
+
     };
   }, [lyricsOpen]);
 

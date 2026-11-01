@@ -60,7 +60,6 @@ export default function EventDetail({ titleSlug }) {
     if (eventData?.title) {
       document.title = `${eventData.title} | Bandaranayake College Events`;
     }
-    window.scrollTo(0, 0);
   }, [eventData]);
 
   if (loading) {

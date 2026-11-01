@@ -25,7 +25,6 @@ export default function LifeDetailPage({ slug }) {
   useEffect(() => {
     if (!current) return;
     document.title = `${current.title} | Bandaranayake College, Gampaha`;
-    window.scrollTo(0, 0);
   }, [current]);
 
   useEffect(() => {
