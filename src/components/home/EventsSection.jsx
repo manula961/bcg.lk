@@ -82,11 +82,11 @@ const EventsSection = () => {
 
   const handleEventClick = (eventItem) => {
     const slug = encodeURIComponent(eventItem.id);
-    navigate(`/events/${slug}`);
+    navigate(`/events/${slug}`, { fromSection: 'events' });
   };
 
   const handleViewAllEvents = () => {
-    navigate('/events');
+    navigate('/events', { fromSection: 'events' });
   };
 
   return (

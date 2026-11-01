@@ -1,11 +1,78 @@
 /** Client-side navigation for public routes; native anchors and downloads still work. */
 export const NAVIGATION_EVENT = 'bcg:public-navigation';
 const PREVIOUS_ROUTE = '__bcgPreviousRoute';
+const HOME_RETURN_STATE = '__bcgHomeReturnState';
+const HOME_SECTIONS = ['home', 'news', 'events', 'explore', 'NayakenzPride'];
+
 let smoothScroller = null;
+let pendingSectionTarget = null;
+let pendingHomeReturn = null;
 
 export function setSmoothScroller(instance) {
   smoothScroller = instance;
   if (scrollLocks.size) smoothScroller?.stop();
+}
+
+export function getPendingScrollTarget() {
+  return {
+    section: pendingSectionTarget,
+    homeReturn: pendingHomeReturn,
+  };
+}
+
+export function clearPendingScrollTarget() {
+  pendingSectionTarget = null;
+  pendingHomeReturn = null;
+}
+
+export function getActiveHomeSection(clickedTarget = null) {
+  if (!isHomePath(window.location.pathname)) return 'home';
+  if (clickedTarget && typeof clickedTarget.closest === 'function') {
+    const parentSection = clickedTarget.closest('section[id]');
+    if (parentSection?.id && HOME_SECTIONS.includes(parentSection.id)) {
+      return parentSection.id;
+    }
+  }
+  const threshold = window.innerHeight * 0.55;
+  return HOME_SECTIONS.reduce((last, id) => {
+    const el = document.getElementById(id);
+    return el && el.getBoundingClientRect().top <= threshold ? id : last;
+  }, 'home');
+}
+
+function getCurrentScrollY() {
+  if (scrollLocks.size && savedScroll) return savedScroll.y;
+  return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+}
+
+function saveHomeReturnSnapshot(explicitSection = null, clickedTarget = null) {
+  if (!isHomePath(window.location.pathname)) return null;
+  const section = explicitSection || getActiveHomeSection(clickedTarget);
+  const snapshot = {
+    section,
+    scrollY: getCurrentScrollY(),
+  };
+  try {
+    sessionStorage.setItem(HOME_RETURN_STATE, JSON.stringify(snapshot));
+  } catch { /* ignore storage errors */ }
+  return snapshot;
+}
+
+function readHomeReturnSnapshot(historyState) {
+  if (historyState?.homeReturn) return historyState.homeReturn;
+  try {
+    const raw = sessionStorage.getItem(HOME_RETURN_STATE);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function inferHomeSectionFromPathname(pathname) {
+  if (/^\/events(?:\/|$)/.test(pathname)) return 'events';
+  if (/^\/updates(?:\/|$)/.test(pathname)) return 'news';
+  if (/^\/(?:life|about-us|past-papers)(?:\/|$)/.test(pathname)) return 'NayakenzPride';
+  return null;
 }
 
 function getTargetScrollTop(target) {
@@ -83,6 +150,30 @@ export function scrollToPageTop(options) {
   scrollPageTo(0, options);
 }
 
+/**
+ * Navigate to a homepage section without adding #section to the browser URL bar.
+ */
+export function navigateToSection(sectionId) {
+  const cleanSection = (sectionId || 'home').replace(/^#/, '');
+  if (isHomePath(window.location.pathname)) {
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        '',
+        window.location.pathname + window.location.search
+      );
+    }
+    if (cleanSection === 'home' || cleanSection === 'top') {
+      scrollToPageTop({ smooth: true, force: true });
+    } else {
+      const el = document.getElementById(cleanSection);
+      if (el) scrollPageTo(el, { smooth: true, force: true });
+    }
+    return;
+  }
+  navigate('/', { section: cleanSection });
+}
+
 const scrollLocks = new Set();
 let savedScroll = null;
 
@@ -148,7 +239,10 @@ export function isPublicRoute(pathname) {
 }
 
 /** Returns true when a same-origin public URL was handled without a reload. */
-export function navigate(to, { replace = false } = {}) {
+export function navigate(
+  to,
+  { replace = false, section = null, fromSection = null, clickedTarget = null, restoreHomeSection = false } = {}
+) {
   const url = new URL(to, window.location.href);
   if (url.origin !== window.location.origin || !isPublicRoute(url.pathname) || isAdminPath(url.pathname)) {
     window.location.assign(url.href);
@@ -156,25 +250,81 @@ export function navigate(to, { replace = false } = {}) {
   }
 
   const fromUrl = new URL(window.location.href);
-  const from = fromUrl.pathname + fromUrl.search + fromUrl.hash;
-  const next = url.pathname + url.search + url.hash;
+  const fromOnHome = isHomePath(fromUrl.pathname);
+  const toOnHome = isHomePath(url.pathname);
+
+  // Extract any hash on homepage URLs as an internal section target and strip it from the address bar.
+  const targetSection = section || (toOnHome && url.hash ? decodeURIComponent(url.hash.slice(1)) : null);
+  if (toOnHome && url.hash) {
+    url.hash = '';
+  }
+
+  // If already on the homepage and navigating to a homepage section, scroll smoothly in-place without changing URL hash.
+  if (fromOnHome && toOnHome) {
+    if (window.location.hash) {
+      window.history.replaceState(window.history.state, '', url.pathname + url.search);
+    }
+    if (!targetSection || targetSection === 'home' || targetSection === 'top') {
+      scrollToPageTop({ smooth: true, force: true });
+    } else {
+      const el = document.getElementById(targetSection);
+      if (el) scrollPageTo(el, { smooth: true, force: true });
+    }
+    return true;
+  }
+
+  // When leaving the homepage for an inner page, record the exact section the user clicked from.
+  let homeSnapshot = null;
+  if (fromOnHome && !toOnHome) {
+    const inferredSection = fromSection || inferHomeSectionFromPathname(url.pathname);
+    homeSnapshot = saveHomeReturnSnapshot(inferredSection, clickedTarget);
+    const currentState = window.history.state || {};
+    window.history.replaceState(
+      { ...currentState, homeReturn: homeSnapshot },
+      '',
+      fromUrl.pathname + fromUrl.search
+    );
+  }
+
+  const from = fromUrl.pathname + fromUrl.search;
+  const next = url.pathname + url.search + (toOnHome ? '' : url.hash);
   const sameDocumentPath =
     fromUrl.pathname === url.pathname ||
-    (isHomePath(fromUrl.pathname) && isHomePath(url.pathname));
+    (fromOnHome && toOnHome);
 
-  if (from === next) {
+  if (from === next && !targetSection && !restoreHomeSection) {
     window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { type: 'same' } }));
     return true;
   }
 
-  if (isHomePath(url.pathname) && !isHomePath(fromUrl.pathname)) {
+  if (toOnHome && !fromOnHome) {
     sessionStorage.setItem('skipLoading', 'true');
+  }
+
+  if (targetSection) {
+    pendingSectionTarget = targetSection;
+    pendingHomeReturn = null;
+  } else if (toOnHome && restoreHomeSection) {
+    const saved = readHomeReturnSnapshot(window.history.state);
+    const fallbackInferred = inferHomeSectionFromPathname(fromUrl.pathname);
+    pendingHomeReturn = saved || (fallbackInferred ? { section: fallbackInferred } : null);
+    pendingSectionTarget = null;
+  } else {
+    pendingSectionTarget = null;
+    pendingHomeReturn = null;
   }
 
   const previous = window.history.state || {};
   const state = replace
-    ? { ...previous, [PREVIOUS_ROUTE]: previous[PREVIOUS_ROUTE] || null }
-    : { [PREVIOUS_ROUTE]: from };
+    ? {
+        ...previous,
+        [PREVIOUS_ROUTE]: previous[PREVIOUS_ROUTE] || null,
+        homeReturn: previous.homeReturn || homeSnapshot || null,
+      }
+    : {
+        [PREVIOUS_ROUTE]: from,
+        homeReturn: homeSnapshot || previous.homeReturn || null,
+      };
   if (replace) window.history.replaceState(state, '', next);
   else window.history.pushState(state, '', next);
 
@@ -193,7 +343,21 @@ export function navigate(to, { replace = false } = {}) {
  * internal navigation. A direct link/new tab uses the supplied safe fallback.
  */
 export function navigateBack(fallback = '/') {
+  const currentPathname = window.location.pathname;
+  const fallbackUrl = new URL(fallback, window.location.href);
+  const fallbackSection =
+    (isHomePath(fallbackUrl.pathname) && fallbackUrl.hash
+      ? decodeURIComponent(fallbackUrl.hash.slice(1))
+      : null) || inferHomeSectionFromPathname(currentPathname);
+
   if (window.history.state?.[PREVIOUS_ROUTE]) {
+    const prevRouteUrl = new URL(window.history.state[PREVIOUS_ROUTE], window.location.origin);
+    if (isHomePath(prevRouteUrl.pathname)) {
+      const saved = readHomeReturnSnapshot(window.history.state);
+      pendingHomeReturn =
+        (saved?.section && saved.section !== 'home' ? saved : null) ||
+        (fallbackSection ? { section: fallbackSection, scrollY: saved?.scrollY || 0 } : saved);
+    }
     window.history.back();
     return;
   }
@@ -203,17 +367,42 @@ export function navigateBack(fallback = '/') {
     if (referrer && referrer.origin === window.location.origin &&
         isPublicRoute(referrer.pathname) &&
         referrer.href !== window.location.href) {
-      navigate(referrer.href, { replace: true });
+      const refOnHome = isHomePath(referrer.pathname);
+      const saved = readHomeReturnSnapshot(window.history.state);
+      navigate(referrer.pathname + referrer.search, {
+        replace: true,
+        restoreHomeSection: refOnHome,
+        section: refOnHome && (!saved || saved.section === 'home') ? fallbackSection : null,
+      });
       return;
     }
   } catch { /* Missing or invalid referrer: use the fallback. */ }
-  navigate(fallback, { replace: true });
+
+  const fallbackOnHome = isHomePath(fallbackUrl.pathname);
+  const savedHome = fallbackOnHome ? readHomeReturnSnapshot(window.history.state) : null;
+  navigate(fallbackOnHome ? '/' : fallback, {
+    replace: true,
+    restoreHomeSection: Boolean(savedHome && savedHome.section !== 'home'),
+    section: (!savedHome || savedHome.section === 'home') ? fallbackSection : null,
+  });
 }
 
 export function listenForNavigation(onNavigate) {
   let previousPathname = window.location.pathname;
   const previousRestoration = window.history.scrollRestoration;
   window.history.scrollRestoration = 'manual';
+
+  // Continuously keep the active homepage section updated in sessionStorage while browsing Home.
+  let scrollTrackFrame = 0;
+  const handleHomeScrollTrack = () => {
+    if (scrollTrackFrame || !isHomePath(window.location.pathname)) return;
+    scrollTrackFrame = window.requestAnimationFrame(() => {
+      scrollTrackFrame = 0;
+      if (isHomePath(window.location.pathname) && !scrollLocks.size) {
+        saveHomeReturnSnapshot();
+      }
+    });
+  };
 
   const handleClick = (event) => {
     if (isAdminPath(window.location.pathname) || event.defaultPrevented || event.button !== 0 ||
@@ -228,20 +417,30 @@ export function listenForNavigation(onNavigate) {
     if (!['http:', 'https:'].includes(url.protocol) || url.origin !== window.location.origin ||
         !isPublicRoute(url.pathname) || isAdminPath(url.pathname)) return;
     event.preventDefault();
-    navigate(url.href);
+    navigate(url.href, { clickedTarget: anchor });
   };
 
   const handleNavigation = (event) => {
     previousPathname = window.location.pathname;
     onNavigate(event.detail?.type || 'push');
   };
-  const handlePopState = () => {
+  const handlePopState = (event) => {
     const currentPathname = window.location.pathname;
     const sameDocumentPath =
       currentPathname === previousPathname ||
       (isHomePath(currentPathname) && isHomePath(previousPathname));
     if (isHomePath(currentPathname) && !isHomePath(previousPathname)) {
       sessionStorage.setItem('skipLoading', 'true');
+      const inferredFromPrevious = inferHomeSectionFromPathname(previousPathname);
+      if (!pendingHomeReturn && !pendingSectionTarget) {
+        const saved = readHomeReturnSnapshot(event.state);
+        pendingHomeReturn =
+          (saved?.section && saved.section !== 'home' ? saved : null) ||
+          (inferredFromPrevious ? { section: inferredFromPrevious, scrollY: saved?.scrollY || 0 } : saved);
+      }
+      if (window.location.hash) {
+        window.history.replaceState(event.state, '', window.location.pathname + window.location.search);
+      }
     }
     if (!sameDocumentPath) {
       scrollToPageTop({ smooth: false, force: true });
@@ -250,10 +449,13 @@ export function listenForNavigation(onNavigate) {
     onNavigate(sameDocumentPath ? 'same' : 'pop');
   };
 
+  window.addEventListener('scroll', handleHomeScrollTrack, { passive: true });
   document.addEventListener('click', handleClick);
   window.addEventListener(NAVIGATION_EVENT, handleNavigation);
   window.addEventListener('popstate', handlePopState);
   return () => {
+    if (scrollTrackFrame) window.cancelAnimationFrame(scrollTrackFrame);
+    window.removeEventListener('scroll', handleHomeScrollTrack);
     document.removeEventListener('click', handleClick);
     window.removeEventListener(NAVIGATION_EVENT, handleNavigation);
     window.removeEventListener('popstate', handlePopState);

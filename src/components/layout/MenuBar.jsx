@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './MenuBar.css';
 import { createPortal } from 'react-dom';
-import { navigate, isHomePath, scrollToPageTop, NAVIGATION_EVENT, lockPageScroll } from '../../navigation/clientNavigation';
+import {
+  isHomePath,
+  navigateToSection,
+  getActiveHomeSection,
+  NAVIGATION_EVENT,
+  lockPageScroll,
+} from '../../navigation/clientNavigation';
 
 const menuItems = [
   { label: 'Home', href: 'home', sub: 'Welcome to BCG' },
@@ -17,7 +23,7 @@ const MenuBar = () => {
   const toggleRef = useRef(null);
   const unlockRef = useRef(null);
   const menuRef = useRef(null);
-  const [activeSection, setActiveSection] = useState(() => window.location.hash.slice(1) || 'home');
+  const [activeSection, setActiveSection] = useState(() => getActiveHomeSection());
 
   useEffect(() => {
     let ticking = false;
@@ -27,12 +33,7 @@ const MenuBar = () => {
         frame = window.requestAnimationFrame(() => {
           setScrolled(window.scrollY > 80);
           if (isHomePath(window.location.pathname)) {
-            const visible = menuItems.reduce((last, item) => {
-              const section = document.getElementById(item.href);
-              return section && section.getBoundingClientRect().top <= window.innerHeight * 0.4
-                ? item.href : last;
-            }, 'home');
-            setActiveSection(visible);
+            setActiveSection(getActiveHomeSection());
           }
           ticking = false;
         });
@@ -100,22 +101,13 @@ const MenuBar = () => {
   }, [open]);
 
   const handleNav = (item) => {
-    const onHome = isHomePath(window.location.pathname);
     unlockRef.current?.();
     unlockRef.current = null;
     setOpen(false);
     setActiveSection(item.href);
-    if (item.href === 'home' && onHome) {
-      if (window.location.hash) {
-        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
-      }
-      requestAnimationFrame(() => {
-        scrollToPageTop({ smooth: true, force: true });
-      });
-      return;
-    }
-    // Same navigation on every page; existing menu button markup/styles stay.
-    navigate(item.href === 'home' ? '/' : `/#${item.href}`);
+    requestAnimationFrame(() => {
+      navigateToSection(item.href);
+    });
   };
 
   return createPortal(

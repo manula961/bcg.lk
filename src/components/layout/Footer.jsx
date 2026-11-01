@@ -1,11 +1,12 @@
 import React from "react";
+import { navigateToSection } from "../../navigation/clientNavigation";
 import "./Footer.css";
 
 const quickLinks = [
-  ["Home", "/"],
-  ["News", "/#news"],
-  ["Events", "/#events"],
-  ["Explore", "/#explore"],
+  ["Home", "/", "home"],
+  ["News", "/", "news"],
+  ["Events", "/", "events"],
+  ["Explore", "/", "explore"],
 ];
 const collegeLinks = [
   ["Academics", "/life/academic-excellence"],
@@ -14,8 +15,6 @@ const collegeLinks = [
   ["About Us", "/life/about-us"],
 ];
 
-// Add confirmed profile URLs below when available. Icons without URLs are decorative,
-// not dead links. Replace null with a verified URL to activate an icon.
 const socials = [
   {
     name: "Facebook",
@@ -36,8 +35,9 @@ const socials = [
     name: "YouTube",
     url: "https://www.youtube.com/@bandaranayakecollege",
     icon: "youtube",
-  }
+  },
 ];
+
 const paths = {
   facebook: (
     <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />
@@ -72,16 +72,39 @@ const paths = {
     <path d="M21.5 7.2a2.7 2.7 0 0 0-1.9-1.9C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.6.5a2.7 2.7 0 0 0-1.9 1.9C2 8.9 2 12 2 12s0 3.1.5 4.8a2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.6.5 7.6.5s5.9 0 7.6-.5a2.7 2.7 0 0 0 1.9-1.9c.5-1.7.5-4.8.5-4.8s0-3.1-.5-4.8ZM10 15.5v-7l6 3.5-6 3.5Z" />
   ),
 };
+
 const mapUrl =
   "https://www.google.com/maps/search/?api=1&query=Bandaranayake+College+Gampaha+Sri+Lanka";
+
+const handleSectionClick = (event, section) => {
+  if (
+    !section ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+  event.preventDefault();
+  navigateToSection(section);
+};
+
 function LinkColumn({ title, items }) {
   return (
     <nav className="footer-column" aria-label={title}>
       <h2 className="footer-col-title">{title}</h2>
       <ul className="footer-link-list">
-        {items.map(([label, href]) => (
-          <li key={href}>
-            <a className="footer-link" href={href}>
+        {items.map(([label, href, section]) => (
+          <li key={label}>
+            <a
+              className="footer-link"
+              href={href}
+              onClick={
+                section ? (e) => handleSectionClick(e, section) : undefined
+              }
+            >
               {label}
             </a>
           </li>
@@ -90,6 +113,7 @@ function LinkColumn({ title, items }) {
     </nav>
   );
 }
+
 function SocialIcon({ social }) {
   const content = (
     <svg
@@ -123,6 +147,7 @@ function SocialIcon({ social }) {
     </span>
   );
 }
+
 export default function Footer() {
   return (
     <footer className="footer-wrapper">
@@ -134,6 +159,7 @@ export default function Footer() {
               href="/"
               className="footer-brand-header"
               aria-label="Bandaranayake College homepage"
+              onClick={(e) => handleSectionClick(e, "home")}
             >
               <img
                 src="/email-assets/school-logo.png"
@@ -183,11 +209,39 @@ export default function Footer() {
               <span>Bandaranayake College, Gampaha, Sri Lanka</span>
             </a>
             <a className="footer-contact-link" href="tel:+94332222202">
-              <svg className="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.91.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.25a2 2 0 0 1 2.11-.45c.9.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92Z" /></svg>
+              <svg
+                className="footer-contact-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.91.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.25a2 2 0 0 1 2.11-.45c.9.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92Z" />
+              </svg>
               <span>+94 33 222 2202</span>
             </a>
-            <a className="footer-contact-link" href="mailto:info@bcg.lk">
-              <svg className="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 7L2 7" /></svg>
+            <a
+              className="footer-contact-link"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=info%40bcg.lk"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                className="footer-contact-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-10 7L2 7" />
+              </svg>
               <span>info@bcg.lk</span>
             </a>
           </div>
