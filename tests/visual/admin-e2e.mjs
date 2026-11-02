@@ -318,7 +318,9 @@ try {
     await ownerPage.getByRole('button', { name: /Users & Roles/ }).waitFor({ timeout: 15000 });
     await ownerPage.getByRole('button', { name: /Users & Roles/ }).click();
     try {
-      await ownerPage.getByRole('heading', { name: 'Role-Based Access Control' }).waitFor({ timeout: 10000 });
+      await ownerPage.getByRole('region', { name: 'Firebase Authentication users' })
+        .getByRole('heading', { name: /^Manage Users \(\d+\)$/ })
+        .waitFor({ timeout: 10000 });
     } catch (error) {
       await ownerPage.screenshot({ path: output + '/super-admin-role-failure.png', fullPage: true }).catch(() => {});
       console.error('Super Admin navigation diagnostic:', JSON.stringify({
@@ -329,7 +331,8 @@ try {
       throw error;
     }
 
-    const targetRow = ownerPage.locator('.admin-row').filter({ hasText: identity.localId }).first();
+    const targetRow = ownerPage.getByRole('region', { name: 'Firebase Authentication users' })
+      .locator('.admin-row').filter({ hasText: email }).first();
     await targetRow.getByLabel('Access role').selectOption('editor');
     await targetRow.getByRole('button', { name: 'Save Role' }).click();
     await ownerPage.getByText('Role saved.', { exact: true }).waitFor({ timeout: 15000 });
@@ -345,7 +348,8 @@ try {
       'Editors must not have a Publish checkbox');
     await page.getByRole('button', { name: 'Cancel', exact: true }).first().click();
 
-    const accountRow = ownerPage.locator('.admin-row').filter({ hasText: identity.localId });
+    const accountRow = ownerPage.getByRole('region', { name: 'Firebase Authentication users' })
+      .locator('.admin-row').filter({ hasText: email }).first();
     await accountRow.getByRole('button', { name: 'Revoke Role' }).click();
     await page.getByText('Your console access has been removed.').waitFor({ timeout: 15000 });
     assert.deepEqual(ownerErrors, [], 'Browser exceptions while using super-admin role controls');
