@@ -4,6 +4,7 @@
  */
 import { assertApprovedSmokeOrigin } from './public-smoke-origin.mjs';
 import { verifyReleaseManifest } from './release-manifest.mjs';
+import { assertServedSeoHtml, assertServedRobots, assertServedSitemap, summarizeCspRisk } from './live-seo-verification.mjs';
 const origin = assertApprovedSmokeOrigin(process.env.BCG_PUBLIC_ORIGIN, {
   approvedOrigin: process.env.BCG_APPROVED_PUBLIC_ORIGIN,
   required: process.env.BCG_REQUIRE_APPROVED_PUBLIC_ORIGIN === '1',
@@ -80,6 +81,35 @@ if (process.env.BCG_EXPECTED_DEPLOYED_SHA) {
     expectedOrigin: origin.origin,
   });
   console.log('PASS immutable hosted release commit', proof.commitSha, 'and approved canonical origin');
+  // Strict read-only SEO and CSP checks run only when the operator provides an
+  // independently approved production commit. Never use these to probe unknown hosts.
+  async function readPublicFile(path, contentType) {
+    const response = await fetch(new URL(path, origin), {
+      method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(12000),
+    });
+    const mime = response.headers.get('content-type') || '';
+    if (response.status !== 200 || !mime.toLowerCase().startsWith(contentType))
+      throw new Error(path + ' must serve HTTP 200 ' + contentType + '; received ' + response.status);
+    const body = await response.text();
+    if (body.length > 2_000_000) throw new Error(path + ' exceeds verification limit');
+    return {body, headers:response.headers};
+  }
+  for (const path of ['/', '/events', '/past-papers']) {
+    const page = await readPublicFile(path, 'text/html');
+    assertServedSeoHtml(page.body, {origin:origin.origin, path});
+    console.log('PASS approved canonical, description and OpenGraph metadata', path);
+    if (path === '/') {
+      const risks = summarizeCspRisk(page.headers.get('content-security-policy'));
+      for (const issue of risks) console.warn('CSP HARDENING OPEN:', issue);
+      if (risks.length && process.env.BCG_REQUIRE_TIGHT_CSP === '1')
+        throw new Error('Release CSP hardening gate failed; review actual third-party browser traffic first.');
+    }
+  }
+  const robots = await readPublicFile('/robots.txt', 'text/plain');
+  assertServedRobots(robots.body, origin.origin);
+  const sitemap = await readPublicFile('/sitemap.xml', 'application/xml');
+  const locations = assertServedSitemap(sitemap.body, origin.origin);
+  console.log('PASS approved public sitemap and robots metadata (' + locations + ' routes)');
 } else {
   console.log('NOT VERIFIED: deployed commit identity was not checked. Set BCG_EXPECTED_DEPLOYED_SHA.');
 }
