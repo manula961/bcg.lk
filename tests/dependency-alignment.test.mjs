@@ -25,3 +25,12 @@ test('Dependabot groups coupled React majors and pauses incompatible Firebase ma
  assert.match(configuration, /version-update:semver-major/);
  assert.doesNotMatch(configuration, /labels:\s*\n\s*- dependencies/);
 });
+
+test('production Firestore regex dependency is patched against GHSA-gg6h-894w-4m9c',()=>{
+ const entry=lock.packages['node_modules/re2js'];
+ assert.ok(entry && /^\\d+\\.\\d+\\.\\d+$/.test(entry.version));
+ const [major,minor,patch]=entry.version.split('.').map(Number);
+ assert.ok(major>2 || (major===2 && (minor>8 || (minor===8 && patch>=7))),
+   're2js 2.8.7 or later is required');
+ assert.match(entry.integrity || '',/^sha512-[A-Za-z0-9+/]+={0,2}$/);
+});
