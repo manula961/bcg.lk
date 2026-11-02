@@ -3,6 +3,7 @@
  * Run: BCG_PUBLIC_ORIGIN=https://<approved domain> node scripts/check-public-deployment.mjs
  */
 import { assertApprovedSmokeOrigin } from './public-smoke-origin.mjs';
+import { verifyReleaseManifest } from './release-manifest.mjs';
 const origin = assertApprovedSmokeOrigin(process.env.BCG_PUBLIC_ORIGIN, {
   approvedOrigin: process.env.BCG_APPROVED_PUBLIC_ORIGIN,
   required: process.env.BCG_REQUIRE_APPROVED_PUBLIC_ORIGIN === '1',
@@ -59,4 +60,27 @@ await check('/api/drive/status', [401]);
 await check('/api/admin/users', [401]);
 await check('/api/admin/workflow', [401]);
 await check('/api/cron/publish', [401]);
+// Only a manually approved exact SHA certifies deployment provenance.
+if (process.env.BCG_EXPECTED_DEPLOYED_SHA) {
+  const manifestResponse = await fetch(new URL('/release.json', origin), {
+    method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(12000),
+    headers: { Accept: 'application/json' },
+  });
+  if (manifestResponse.status !== 200 ||
+      !/^application\/json(?:\s*;|$)/i.test(manifestResponse.headers.get('content-type') || '')) {
+    throw new Error('Deployed release manifest unavailable or not JSON. Did the approved build deploy?');
+  }
+  const raw = await manifestResponse.text();
+  if (raw.length > 2048) throw new Error('Deployed release manifest is unexpectedly large.');
+  let manifest;
+  try { manifest = JSON.parse(raw); }
+  catch { throw new Error('Deployed release manifest is invalid JSON.'); }
+  const proof = verifyReleaseManifest(manifest, {
+    expectedSha: process.env.BCG_EXPECTED_DEPLOYED_SHA,
+    expectedOrigin: origin.origin,
+  });
+  console.log('PASS immutable hosted release commit', proof.commitSha, 'and approved canonical origin');
+} else {
+  console.log('NOT VERIFIED: deployed commit identity was not checked. Set BCG_EXPECTED_DEPLOYED_SHA.');
+}
 console.log('Read-only deployment checks completed; these do not verify authenticated OAuth.');
