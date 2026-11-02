@@ -656,16 +656,26 @@ export default function ContentManager({ kind, onDirtyChange, role }) {
                         >
                           {actionId === item.id ? '...' : item.published ? 'Review / Unpublish' : 'Submit / Review / Publish'}
                         </button>}
-                        {(canDelete || ['news', 'events', 'pages'].includes(kind)) && <button
+                        <button
                           type="button"
                           disabled={!canDelete || !archivesReady || actionId !== null}
                           title={!canDelete ? 'Only Administrators and Super Admins can delete content.' : !archivesReady ? 'Waiting for deleted-record verification.' : undefined}
-                          aria-label={`${knownArchived.has(item.id) ? 'Restore' : 'Delete'} ${item.title || 'item'}`}
+                          aria-label={`${knownArchived.has(item.id) ? 'Restore' : 'Delete'} ${item.title || 'item'}${!canDelete ? ' (administrator permission required)' : ''}`}
                           onClick={() => remove(item)}
-                          className="admin-btn-ghost-danger"
+                          className={knownArchived.has(item.id) ? 'admin-btn-restore' : 'admin-btn-delete'}
                         >
-                          {actionId === item.id ? 'Working…' : knownArchived.has(item.id) ? 'Restore' : 'Delete'}
-                        </button>}
+                          {knownArchived.has(item.id) ? (
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 12a9 9 0 1 0 3-6.7" />
+                              <path d="M3 4v5h5" />
+                            </svg>
+                          ) : (
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7" />
+                            </svg>
+                          )}
+                          <span>{actionId === item.id ? 'Working…' : knownArchived.has(item.id) ? 'Restore' : canDelete ? 'Delete' : 'Delete (Admin only)'}</span>
+                        </button>
                       </div>
                     </article>
                   );
