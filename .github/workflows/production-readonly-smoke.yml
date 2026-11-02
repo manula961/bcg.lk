@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '24'
+      - name: Refuse unprotected or unreviewed GitHub production main
+        run: node scripts/check-github-main-protection.mjs
+        env:
+          # Owner-created fine-grained token with Administration: read,
+          # Pull requests: read and Checks: read. Never print or expose it.
+          BCG_GITHUB_AUDIT_TOKEN: ${{ secrets.BCG_GITHUB_AUDIT_TOKEN }}
       - name: Safe GET-only production smoke checks
         run: node scripts/check-public-deployment.mjs
         env:
