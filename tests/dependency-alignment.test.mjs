@@ -28,7 +28,7 @@ test('Dependabot groups coupled React majors and pauses incompatible Firebase ma
 
 test('production Firestore regex dependency is patched against GHSA-gg6h-894w-4m9c',()=>{
  const entry=lock.packages['node_modules/re2js'];
- assert.ok(entry && /^\\d+\\.\\d+\\.\\d+$/.test(entry.version));
+ assert.ok(entry && /^\d+\.\d+\.\d+$/.test(entry.version));
  const [major,minor,patch]=entry.version.split('.').map(Number);
  assert.ok(major>2 || (major===2 && (minor>8 || (minor===8 && patch>=7))),
    're2js 2.8.7 or later is required');
