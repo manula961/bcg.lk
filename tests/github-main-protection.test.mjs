@@ -13,6 +13,7 @@ const policy={
   },
   enforce_admins:{enabled:true},
   allow_force_pushes:{enabled:false},allow_deletions:{enabled:false},
+  required_conversation_resolution:{enabled:true},
 };
 const pr={number:110,merged_at:'2026-11-02T00:00:00Z',merge_commit_sha:sha,
   base:{ref:'main'},head:{sha:head},user:{login:'author'}};
@@ -34,6 +35,8 @@ test('actual GitHub branch settings must enforce required reviews and checks',()
     {...policy,enforce_admins:{enabled:false}},
     {...policy,allow_force_pushes:{enabled:true}},
     {...policy,allow_deletions:{enabled:true}},
+    {...policy,required_conversation_resolution:{enabled:false}},
+    {...policy,required_pull_request_reviews:{...policy.required_pull_request_reviews,required_approving_review_count:undefined}},
   ]) assert.ok(checkMainProtection(branch,setting).length>0);
 });
 
@@ -83,4 +86,23 @@ test('manual release smoke runs governance verification and has no write permiss
   assert.match(workflow,/BCG_GITHUB_AUDIT_TOKEN:/);
   assert.match(workflow,/contents: read/);
   assert.doesNotMatch(workflow,/contents: write/);
+});
+
+test('a changes-requested review beyond page one invalidates an earlier approval', async()=>{
+  let secondPageRead = false;
+  const fetcher = async url => ({ok:true,json:async()=>{
+    if(url.endsWith('/branches/main')) return branch;
+    if(url.endsWith('/branches/main/protection')) return policy;
+    if(url.includes('/reviews')) {
+      if(url.endsWith('page=2')) {
+        secondPageRead = true;
+        return [{...review,id:101,state:'CHANGES_REQUESTED',submitted_at:'2026-11-02T01:00:00Z'}];
+      }
+      return [review,...Array.from({length:99},(_,i)=>({...review,id:i+2,state:'COMMENTED'}))];
+    }
+    if(url.includes('/check-runs')) return {total_count:check_runs.length,check_runs};
+    return [pr];
+  }});
+  await assert.rejects(()=>checkLiveGitHubRelease({token:'test',fetcher}),/lacks an independent/);
+  assert.equal(secondPageRead,true);
 });
