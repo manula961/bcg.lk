@@ -2,9 +2,9 @@
 
 ## Scope and compatibility
 
-This is an **additive**, opt-in workflow for the existing Firebase Firestore + Vercel CMS. It does not replace the existing published-content contract: public pages still filter documents by `published == true`. Existing admin UI files and Jaliya-authored files remain unchanged. The existing admin console continues to support its original direct Firestore create/edit/publish/delete operations.
+The editorial workflow runs through the existing Firebase Firestore CMS and server-backed API. Public pages still filter documents by `published == true`. The current repository's admin ContentManager integrates audited submit, approve, publish, unpublish, published-edit proposals and archive/restore actions. Browser SDK writes remain available for **draft creation and draft editing** only, with restricted published-record reordering by authorized publishers. This describes the **current source code**, not a verified live Firebase deployment.
 
-**Important limitation:** the new approval requirements apply to the **new workflow API only**. Legacy direct Firebase SDK writes are still authorized according to `firestore.rules` and can bypass editorial approval, revisions, and soft deletion. An enforcement migration and new admin UI controls require a separately approved UI/rules change, complete emulator coverage, and data migration. Do not describe approvals, trash, or history as universal until that integration is complete.
+**Important deployment limitation:** the repository's current `firestore.rules` allows browser SDK users to create **unpublished drafts** and edit drafts, but refuses browser-side publish/unpublish, editing published text/media, and direct deletion; server-side workflow operations own those transitions and audit them. Existing production Firestore rule releases **may still be older**, and browser-side draft edits do not themselves produce workflow server-history entries. Use the approved read-only Firebase audit to compare **deployed** Firestore and Storage rules before relying on these protections in production.
 
 ## New endpoints
 
@@ -33,7 +33,7 @@ To schedule publication, first submit, get independent approval, then send:
 {"action":"schedule","kind":"news","id":"existing-firestore-doc-id","runAt":"2026-11-01T06:00:00Z"}
 ```
 
-**Safe live edits:** Existing published content cannot be edited directly through the protected API. Submit `{"action":"proposeEdit","kind":"news","id":"EXISTING_ID","patch":{"title":"Proposed title"}}`. A **different** publisher/admin/super-admin calls `approve`; a publisher then calls `applyEdit`. The original public record remains unchanged until `applyEdit` succeeds against the reviewed source revision. Normal client Firestore writes still bypass this opt-in workflow until the admin UI migration is separately approved.
+**Safe live edits:** Existing published content cannot be edited directly through the protected API. Submit `{"action":"proposeEdit","kind":"news","id":"EXISTING_ID","patch":{"title":"Proposed title"}}`. A **different** publisher/admin/super-admin calls `approve`; a publisher then calls `applyEdit`. The original public record remains unchanged until `applyEdit` succeeds against the reviewed source revision. Direct client writes are restricted to unpublished draft edits by the current repository rules; verify the deployed Firestore rules before relying on this boundary.
 
 Schedules must be UTC and between 2 minutes and 90 days ahead. For rollback, supply the history item's immutable `revisionId`. Rollbacks restore a **draft**, not immediate publication. Archiving makes a record unpublished before placing its snapshot in `cmsTrash`. Restores leave the content unpublished. Do not manually delete archived records or overwrite them outside the workflow if you expect automatic restoration.
 
@@ -64,8 +64,8 @@ All workflow commit operations use optimistic concurrency and atomically attach 
 ## Remaining production blockers
 
 - GitHub's failing CI checks must be diagnosed and green; a Vercel `READY` build alone is insufficient.
-- Rule #1 explicitly protects existing admin UI; no admin-screen workflow buttons were added. Request a narrowly scoped approval + baseline screenshots before integrating these endpoints into the existing admin interface.
-- Server audit and history cover workflow API calls, **not** legacy direct Firestore writes.
+- The current repository's ContentManager includes editorial workflow buttons and retains the approved public/admin appearance. Changes to visual components still require separate owner approval and a full baseline screenshot comparison.
+- Server audit and history cover workflow API calls, **not** direct browser SDK draft creation/edits or authorized reorder operations. Treat this as a separate audit-coverage limitation.
 - `cmsMediaRefs` is an advisory index; it does not revoke public Google Drive shares or delete remote media automatically.
 - No email notification transport or managed Firestore backup was provisioned; those require infrastructure/secret configuration and service-owner approval. Explicit Drive file deletion now checks active CMS records for references and fails closed when the content scan fails; static or retired references still require manual review.
 - Protect `main` with mandatory tests and independent review. Run staging emulators, production readonly checks and a rollback rehearsal before declaring backend finalized.
