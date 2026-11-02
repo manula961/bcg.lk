@@ -6,6 +6,10 @@ on:
         description: Public HTTPS domain approved for read-only checks
         required: true
         type: string
+      expected_sha:
+        description: Full 40-character Git commit SHA independently approved for production
+        required: true
+        type: string
 permissions:
   contents: read
 jobs:
@@ -23,3 +27,4 @@ jobs:
           BCG_PUBLIC_ORIGIN: ${{ inputs.public_origin }}
           BCG_APPROVED_PUBLIC_ORIGIN: ${{ vars.BCG_APPROVED_PUBLIC_ORIGIN }}
           BCG_REQUIRE_APPROVED_PUBLIC_ORIGIN: '1'
+          BCG_EXPECTED_DEPLOYED_SHA: ${{ inputs.expected_sha }}
