@@ -18,6 +18,19 @@ The connected GitHub API reports private `manula961/bcg.lk` `main` unprotected a
 3. Require fresh independent approval after each PR push, resolved conversations, checks `build`, `verify`, `firebase-emulator`, `production-audit`, `browser-smoke`, `visual-compare`, and `independent-approval`. Block admin bypass, force pushes, deletions and direct pushes.
 4. Demonstrate a test PR **cannot** merge with missing approval or failed check. Preserve failed historical integrity runs; they cannot be retroactively made green.
 
+## New production prebuild gate (added after original closure plan)
+
+The normal `npm run build` prebuild now runs `scripts/preflight-production-build.mjs` **after the unit tests and before generating production bundles**. When the environment is Vercel Production or Cloudflare Pages production, this gate:
+
+- Requires an explicitly chosen, exact HTTPS `BCG_CANONICAL_ORIGIN` (no default production host).
+- Requires matching existing-project Firebase web key/project ID, all six browser SDK settings, server-side service-account JSON shape, and exact `USER_ADMIN_ORIGIN`. It validates partially configured Google Drive OAuth settings and the encryption-key format.
+- Uses the **real GitHub API** to require enforced protected `main`, strict checks, a fresh independent approval, and a single reviewed merged PR for the live head SHA. That SHA must match the cloud build's exact commit. A missing/unauthorized token or unsupported plan blocks the production build.
+- Leaves local, CI and Preview builds offline and without privileged production tokens.
+
+**Owner setup before the next reviewed production deployment:** Configure `BCG_GITHUB_AUDIT_TOKEN` in the *hosting provider's production-only server/build environment*, scoped to repository Administration: read, Pull requests: read, and Checks: read. This is required in addition to any separately configured GitHub Actions secret used by the manual smoke. Ensure the provider uses the repository's `npm run build` command; a custom build command that bypasses npm scripts also bypasses this added safeguard. Review environment-variable scope so untrusted Preview PRs cannot access the audit token or Firebase service account. **Do not paste credential values into chats or PR comments.**
+
+The prebuild gate does not replace the already present Vite SHA guard, independent reviewer, branch protection, read-only deployed Firebase check, or backup drill. Production must remain NO-GO until the actual GitHub settings and host environment are verified.
+
 ## P0: verify actual deployed domain and Firebase permissions — authorized owner only
 - Identify the approved canonical HTTPS domain and hosting account; **neither `bcg.lk` nor `bcglk.devoraid.com` is presumed to host the audited React commit**.
 - Confirm host deployment's Git commit SHA, `BCG_APPROVED_PRODUCTION_SHA`, `BCG_CANONICAL_ORIGIN`, and server-side Firebase project identity. Do not allow unreviewed PR commits to auto-promote.
