@@ -97,10 +97,12 @@ test('unprotected, unreviewed, stale or unavailable main blocks production',asyn
     {checkGitHub:audit}),/not the approved production revision/);
 });
 
-test('the normal npm build lifecycle runs the production gate before Vite',()=>{
+test('Vite itself enforces the production gate before JavaScript bundles',()=>{
   const packageJson=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
   const config=readFileSync(new URL('../vite.config.mjs',import.meta.url),'utf8');
-  assert.match(packageJson.scripts.prebuild,/node scripts\/preflight-production-build\.mjs/);
+  assert.equal(packageJson.scripts.prebuild,'npm test');
   assert.match(config,/assertProductionReleaseApproved\(\)/);
+  assert.match(config,/await preflightProductionBuild\(\)/);
+  assert.ok(config.indexOf('await preflightProductionBuild()') < config.indexOf('export default'));
   assert.match(readFileSync(new URL('../scripts/check-github-main-protection.mjs',import.meta.url),'utf8'),/checkLiveGitHubRelease/);
 });
