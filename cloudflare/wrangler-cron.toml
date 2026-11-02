@@ -1,0 +1,11 @@
+# Separate approved scheduling Worker; deploy only AFTER the Pages endpoint,
+# Firebase index and production secret have been verified in staging.
+name = "bcg-lk-cms-scheduler"
+main = "./cron-worker.mjs"
+compatibility_date = "2026-10-30"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[vars]
+CMS_CRON_ENDPOINT = "https://bcglk.devoraid.com/api/cron/publish"

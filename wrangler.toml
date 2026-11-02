@@ -1,0 +1,6 @@
+# BCG.LK Cloudflare Pages project configuration.
+# DO NOT add service-account JSON, OAuth secrets or encryption keys here.
+# Pages previews and production use separate dashboard secrets and Firebase projects.
+name = "bcg-lk-cloudflare"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-30"
