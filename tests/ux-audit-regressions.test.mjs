@@ -10,8 +10,8 @@ test('homepage resolves anchor scrolling only after the curtain is gone', () => 
   const entry = read('src/main.jsx');
   assert.match(home, /sessionStorage\.removeItem\('skipLoading'\)/);
   assert.match(scroll, /window\.location\.hash/);
-  assert.match(scroll, /document\.getElementById\(id\)/);
-  assert.match(scroll, /target\.scrollIntoView/);
+  assert.match(scroll, /document\.getElementById\(sectionId\)/);
+  assert.match(scroll, /scrollPageTo\(target, \{ smooth: !reducedMotion, force: true \}\)/);
   assert.match(entry, /<RouteScroll/);
 });
 
