@@ -20,7 +20,7 @@ The connected GitHub API reports private `manula961/bcg.lk` `main` unprotected a
 
 ## New production prebuild gate (added after original closure plan)
 
-The normal `npm run build` prebuild now runs `scripts/preflight-production-build.mjs` **after the unit tests and before generating production bundles**. When the environment is Vercel Production or Cloudflare Pages production, this gate:
+The Vite configuration now runs `scripts/preflight-production-build.mjs` **before generating any bundles**, whether Vite is invoked directly or through the normal `npm run build` flow. The original Jaliya-authored `package.json` remains unchanged. When the environment is Vercel Production or Cloudflare Pages production, this gate:
 
 - Requires an explicitly chosen, exact HTTPS `BCG_CANONICAL_ORIGIN` (no default production host).
 - Requires matching existing-project Firebase web key/project ID, all six browser SDK settings, server-side service-account JSON shape, and exact `USER_ADMIN_ORIGIN`. It validates partially configured Google Drive OAuth settings and the encryption-key format.
@@ -29,7 +29,7 @@ The normal `npm run build` prebuild now runs `scripts/preflight-production-build
 
 **Owner setup before the next reviewed production deployment:** Configure `BCG_GITHUB_AUDIT_TOKEN` in the *hosting provider's production-only server/build environment*, scoped to repository Administration: read, Pull requests: read, and Checks: read. This is required in addition to any separately configured GitHub Actions secret used by the manual smoke. Ensure the provider uses the repository's `npm run build` command; a custom build command that bypasses npm scripts also bypasses this added safeguard. Review environment-variable scope so untrusted Preview PRs cannot access the audit token or Firebase service account. **Do not paste credential values into chats or PR comments.**
 
-The prebuild gate does not replace the already present Vite SHA guard, independent reviewer, branch protection, read-only deployed Firebase check, or backup drill. Production must remain NO-GO until the actual GitHub settings and host environment are verified.
+The Vite-native preflight gate does not replace the already present Vite SHA guard, independent reviewer, branch protection, read-only deployed Firebase check, or backup drill. Production must remain NO-GO until the actual GitHub settings and host environment are verified.
 
 ## P0: verify actual deployed domain and Firebase permissions — authorized owner only
 - Identify the approved canonical HTTPS domain and hosting account; **neither `bcg.lk` nor `bcglk.devoraid.com` is presumed to host the audited React commit**.
