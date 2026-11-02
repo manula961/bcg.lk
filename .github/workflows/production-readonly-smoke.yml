@@ -21,3 +21,5 @@ jobs:
         run: node scripts/check-public-deployment.mjs
         env:
           BCG_PUBLIC_ORIGIN: ${{ inputs.public_origin }}
+          BCG_APPROVED_PUBLIC_ORIGIN: ${{ vars.BCG_APPROVED_PUBLIC_ORIGIN }}
+          BCG_REQUIRE_APPROVED_PUBLIC_ORIGIN: '1'
