@@ -39,7 +39,7 @@ test('bundle budget enforces existing entry and largest chunk limits', () => {
   const entry = check({ 'index-a.js': 300 * 1024 + 1 });
   assert.notEqual(entry.status, 0);
   assert.match(entry.stderr, /Entry JS bundle exceeds 300 KiB/);
-  const chunk = check({ 'index-a.js': 300 * 1024, 'vendor.js': 800 * 1024 + 1 });
+  const chunk = check({ 'index-a.js': 300 * 1024, 'vendor.js': 500 * 1024 + 1 });
   assert.notEqual(chunk.status, 0);
-  assert.match(chunk.stderr, /Largest JavaScript chunk exceeds 800 KiB: vendor.js/);
+  assert.match(chunk.stderr, /Largest JavaScript chunk exceeds 500 KiB: vendor.js/);
 });

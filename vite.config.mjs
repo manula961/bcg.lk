@@ -11,4 +11,18 @@ await preflightProductionBuild();
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        // Keep SDK services independently cacheable without touching UI source.
+        manualChunks(id) {
+          const path = id.replaceAll('\\', '/');
+          if (path.includes('/node_modules/@firebase/firestore/')) return 'firebase-firestore';
+          if (path.includes('/node_modules/@firebase/auth/')) return 'firebase-auth';
+          if (path.includes('/node_modules/@firebase/storage/')) return 'firebase-storage';
+          if (path.includes('/node_modules/@firebase/')) return 'firebase-core';
+        },
+      },
+    },
+  },
 });

@@ -47,3 +47,17 @@ Added regression coverage for multiline, tab-separated and compact HTML5 metadat
 - **P2 — performance/CSP:** route-shared chunk warning and broad network/media CSP remain. Measure actual approved-host traffic and performance before narrowing the allowlist or changing protected code.
 
 The code-remediable findings discovered in this pass were fixed and re-audited. Remaining findings cannot be closed honestly while preserving the stated file rules and without live operational evidence. No score was raised merely to meet the requested threshold.
+
+## Follow-up after PR #113 merged
+
+Baseline for follow-up: `dd219a07b7ef1ad00835f61982b30deedba454d6`.
+
+- GitHub verified the PR #113 candidate with successful `build`, `verify`, `firebase-emulator`, `browser-smoke` (including authenticated CMS), and `production-audit`. This supersedes the earlier lack of unrestricted public-browser evidence for that candidate. `independent-approval` failed; the PR was nevertheless merged. Its visual comparison failed during the old baseline's seven failing tests. These historical results are retained, not relabelled green.
+- Follow-up build configuration splits Firebase core, Auth, Firestore and Storage into separate cacheable chunks. The largest emitted JavaScript chunk falls from 725,439 to 480,111 bytes; the entry changes from 264,280 to 264,503 bytes. This resolves the oversized-chunk warning, not a claim of reduced total download size or measured faster loading.
+- Tightened the maximum chunk budget from 800 KiB to 500 KiB. Existing failure tests now enforce the stricter limit. No dependency or protected UI files changed.
+- Local validation: 266 tests pass, build passes, and all ten desktop/mobile visual comparisons against the fixed main show 0.000% differing pixels. Both sides used empty responses for Google Fonts due to the local network limitation; unrestricted candidate CI remains required.
+- Live GET-only checks of the documented `https://bcglk.devoraid.com` origin return HTTP 404 `DEPLOYMENT_NOT_FOUND` for `/release.json`, `/api/drive/status`, and `/robots.txt`. This is a concrete hosting failure, not proof of an operational deployment. The connected Vercel account/team has no project matching the repository URL, repository ID or `bcg` search. Do not repoint the domain or invent replacement production credentials.
+- Main remains unprotected. The installed GitHub connector exposes no branch-protection mutation; no authenticated GitHub CLI credentials are available in this workspace. Firebase plugin discovery finds an available but unconnected integration; Cloudflare discovery returns no plugin. Privileged production/backup evidence cannot be obtained with these connections.
+- Dependency remediation still requires an explicit exception to rule 2 for `package.json` and `package-lock.json`. The current request to fix findings does not explicitly withdraw the earlier instruction to honor both preservation rules. No exemptions or reviews have been fabricated.
+
+**Readiness remains 60/100 and NO-GO pending current candidate CI and external release/security/recovery closure.** The improved bundle structure does not compensate for an unavailable live deployment.
