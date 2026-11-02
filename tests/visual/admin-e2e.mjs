@@ -97,6 +97,48 @@ let context;
 let page;
 const output = 'artifacts/browser';
 mkdirSync(output, { recursive: true });
+/**
+ * Vite does not execute Vercel /api functions. Stub only the authenticated
+ * HTTP workflow boundary here; server RBAC, publication and archive semantics
+ * are tested separately against the actual CMS API and Firestore emulator.
+ */
+const archivedFixtureIds = new Set();
+async function localCmsWorkflowBoundary(route) {
+  const request = route.request();
+  const url = new URL(request.url());
+  const method = request.method();
+  const action = method === 'GET' ? url.searchParams.get('action') : request.postDataJSON()?.action;
+  const body = method === 'POST' ? request.postDataJSON() : {};
+  const kind = method === 'GET' ? url.searchParams.get('kind') : body.kind;
+  const id = method === 'GET' ? url.searchParams.get('id') : body.id;
+  const jsonResponse = (status, data) => route.fulfill({
+    status, contentType: 'application/json', body: JSON.stringify(data),
+  });
+  if (!request.headers().authorization?.startsWith('Bearer ')) {
+    return jsonResponse(401, {error:'Authentication required.'});
+  }
+  if (method === 'GET' && action === 'trashList') {
+    const ids = [...archivedFixtureIds].filter(value => value.startsWith(kind + '_'))
+      .map(value => value.slice(kind.length + 1));
+    return jsonResponse(200, {ids, nextCursor:null});
+  }
+  if (method === 'GET' && action === 'trash') {
+    return jsonResponse(200, {archived:archivedFixtureIds.has(kind + '_' + id)});
+  }
+  if (method === 'GET' && action === 'status') {
+    return jsonResponse(200, {status:'unsubmitted'});
+  }
+  if (method === 'POST' && action === 'archive' && kind === 'news' && id) {
+    archivedFixtureIds.add(kind + '_' + id);
+    return jsonResponse(200, {archived:true});
+  }
+  if (method === 'POST' && action === 'restore' && archivedFixtureIds.has(kind + '_' + id)) {
+    archivedFixtureIds.delete(kind + '_' + id);
+    return jsonResponse(200, {archived:false});
+  }
+  return jsonResponse(403, {error:'Unsupported browser fixture action; use the real server integration tests.'});
+}
+
 try {
   let ready = false;
   for (let i = 0; i < 45; i++) {
@@ -110,6 +152,7 @@ try {
   if (!ready) throw new Error('Preview not ready: ' + serverLog);
   browser = await chromium.launch({ headless: true });
   context = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  await context.route('**/api/admin/workflow**', localCmsWorkflowBoundary);
   page = await context.newPage();
   const failures = [];
   page.on('pageerror', error => failures.push(error.message));
@@ -155,26 +198,42 @@ try {
 
   await page.getByRole('button', { name: /New article/i }).click();
   await page.getByPlaceholder('Enter headline').fill(newsTitle);
-  await page.getByRole('textbox', { name: /Short summary/i }).fill('This item verifies publishing with nonproduction Firebase.');
+  await page.getByRole('textbox', { name: /Short summary/i }).fill('This draft must remain private until server approval.');
   await page.getByRole('button', { name: /Create article/i }).click();
-  await page.getByText('Saved successfully.').waitFor({ timeout: 15000 });
-  await page.getByRole('button', { name: 'Publish', exact: true }).click();
-  await page.getByText('Published live.').waitFor({ timeout: 15000 });
+  await page.getByText('Draft saved successfully.').waitFor({ timeout: 15000 });
   await page.screenshot({ path: output + '/admin-authenticated.png' });
+
+  // A trusted emulator fixture may publish content; the browser must not.
+  // Independently test published-homepage UI, modal Escape behavior and draft privacy.
+  const publishedTitle = uidPrefix + ' published fixture';
+  await json('http://127.0.0.1:8080/v1/projects/demo-bcg-e2e/databases/(default)/documents/news?documentId=verified-public-news', {
+    method: 'POST', headers: { 'Content-Type':'application/json', Authorization:'Bearer owner' },
+    body: JSON.stringify({fields:{
+      title:{stringValue:publishedTitle}, excerpt:{stringValue:'Approved public fixture'},
+      published:{booleanValue:true}, category:{stringValue:'News'},
+    }}),
+  });
   const publicHome = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await publicHome.addInitScript(() => sessionStorage.setItem('skipLoading', 'true'));
   await publicHome.goto(base + '/');
-  const newsLink = publicHome.getByRole('link', { name: 'Read ' + newsTitle });
-  await newsLink.waitFor({ timeout: 20000 });
-  assert.ok((await newsLink.getAttribute('href')).startsWith('/updates/'));
-  await newsLink.click();
-  await publicHome.getByRole('heading', { name: newsTitle }).waitFor({ timeout: 15000 });
+  const publicCard = publicHome.getByRole('button', { name: 'Read ' + publishedTitle });
+  await publicCard.waitFor({ timeout: 20000 });
+  assert.equal(await publicHome.getByRole('button', { name:'Read ' + newsTitle }).count(), 0,
+    'Unpublished draft must not appear on public homepage.');
+  await publicCard.click();
+  await publicHome.getByRole('dialog', { name: publishedTitle }).waitFor({ timeout: 15000 });
+  await publicHome.keyboard.press('Escape');
+  await publicHome.getByRole('dialog', { name: publishedTitle }).waitFor({ state:'hidden' });
   await publicHome.close();
-  console.log('PASS published news appear as accessible homepage links');
+  console.log('PASS trusted published fixture opens an accessible modal; unpublished draft stays private');
 
   // Two independent editor sessions must not silently overwrite one another.
-  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  const row = sourcePage => sourcePage.locator('.admin-row').filter({
+    has: sourcePage.getByRole('heading', { name: newsTitle, exact:true }),
+  });
+  await row(page).getByRole('button', { name:'Edit', exact:true }).click();
   const otherContext = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  await otherContext.route('**/api/admin/workflow**', localCmsWorkflowBoundary);
   const otherPage = await otherContext.newPage();
   otherPage.on('dialog', dialog => dialog.accept());
   await otherPage.goto(base + '/admin');
@@ -182,19 +241,25 @@ try {
   await otherPage.getByLabel('Password').fill(password);
   await otherPage.getByRole('button', { name: 'Sign In' }).click();
   await otherPage.getByRole('heading', { name: 'News', exact: true }).waitFor({ timeout: 20000 });
-  await otherPage.getByRole('button', { name: 'Edit', exact: true }).click();
+  await row(otherPage).getByRole('button', { name:'Edit', exact:true }).click();
   await otherPage.getByPlaceholder('Enter headline').fill(newsTitle + ' updated');
   await otherPage.getByRole('button', { name: 'Save Changes' }).click();
-  await otherPage.getByText('Saved successfully.').waitFor({ timeout: 15000 });
+  await otherPage.getByText('Draft saved successfully.').waitFor({ timeout: 15000 });
   await page.getByPlaceholder('Enter headline').fill(newsTitle + ' stale');
   await page.getByRole('button', { name: 'Save Changes' }).click();
   await page.getByText(/changed since you opened it/).waitFor({ timeout: 15000 });
+  await page.locator('.admin-editor-header').getByRole('button', { name:'Cancel', exact:true }).click();
 
-  await otherPage.getByRole('button', { name: 'Delete', exact: true }).click();
-  await otherPage.getByText('Deleted successfully.').waitFor({ timeout: 15000 });
+  const updatedRow = otherPage.locator('.admin-row').filter({
+    has: otherPage.getByRole('heading', { name: newsTitle + ' updated', exact:true }),
+  });
+  await updatedRow.locator('.admin-btn-delete').click();
+  await otherPage.getByText(/Item deleted from active lists/).waitFor({ timeout: 15000 });
+  await otherPage.getByRole('combobox', { name:/Filter News/ }).selectOption('deleted');
+  await updatedRow.locator('.admin-btn-restore').waitFor({ timeout: 15000 });
   await otherContext.close();
   assert.deepEqual(failures, [], 'Browser exceptions in authenticated CMS');
-  console.log('PASS authenticated administrator login, draft, publish, stale edit rejection, delete');
+  console.log('PASS admin draft editing, stale-write rejection and archive UI boundary');
 
   // Exercise real RBAC controls and live revocation in the disposable Firebase
   // Auth/Firestore emulators. This never touches production users or content.
@@ -209,6 +274,7 @@ try {
     body: JSON.stringify({ fields: { role: { stringValue: 'super_admin' } } }),
   });
   const ownerContext = await browser.newContext({ viewport: { width: 1200, height: 820 } });
+  await ownerContext.route('**/api/admin/workflow**', localCmsWorkflowBoundary);
   const ownerPage = await ownerContext.newPage();
   ownerPage.on('dialog', dialog => dialog.accept());
   const ownerErrors = [];

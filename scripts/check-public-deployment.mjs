@@ -2,12 +2,11 @@
  * Safe external deployment smoke tests: only HEAD and GET, no credentials or writes.
  * Run: BCG_PUBLIC_ORIGIN=https://<approved domain> node scripts/check-public-deployment.mjs
  */
-const originText = process.env.BCG_PUBLIC_ORIGIN;
-if (!originText) throw Error('BCG_PUBLIC_ORIGIN is required.');
-const origin = new URL(originText);
-if (origin.protocol !== 'https:' || origin.username || origin.password || origin.pathname !== '/') {
-  throw Error('Use the approved HTTPS site origin, without credentials or path.');
-}
+import { assertApprovedSmokeOrigin } from './public-smoke-origin.mjs';
+const origin = assertApprovedSmokeOrigin(process.env.BCG_PUBLIC_ORIGIN, {
+  approvedOrigin: process.env.BCG_APPROVED_PUBLIC_ORIGIN,
+  required: process.env.BCG_REQUIRE_APPROVED_PUBLIC_ORIGIN === '1',
+});
 async function check(path, allowed) {
   const response = await fetch(new URL(path, origin), {
     method: 'GET', redirect: 'manual', signal: AbortSignal.timeout(12000),

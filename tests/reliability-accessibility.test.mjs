@@ -34,7 +34,8 @@ test('menu protects keyboard focus and scrolls instantly when reduced motion req
   assert.match(menu, /focusables/);
   const scroll = read('src/navigation/RouteScroll.jsx');
   assert.match(scroll, /prefers-reduced-motion: reduce/);
-  assert.match(scroll, /scrollIntoView/);
+  // Navigation deliberately routes through the shared reduced-motion aware scroller.
+  assert.match(scroll, /scrollPageTo\(target, \{ smooth: !reducedMotion, force: true \}\)/);
 });
 
 test('campus tabs are keyboard navigable and do not auto-rotate in reduced-motion mode', () => {
