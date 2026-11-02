@@ -14,15 +14,34 @@ concurrency:
 
 jobs:
   process:
+    # The production scheduler is opt-in. Unconfigured credentials must not
+    # produce repeated failed runs or publish to an unapproved host.
+    # This is an intentional disabled state until the owner completes staging.
+    if: vars.BCG_SCHEDULER_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       CMS_CRON_SECRET: ${{ secrets.CMS_CRON_SECRET }}
+      BCG_APPROVED_PUBLIC_ORIGIN: ${{ vars.BCG_APPROVED_PUBLIC_ORIGIN }}
     steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      - name: Require explicitly configured approved production endpoint
+        shell: bash
+        run: |
+          node --input-type=module -e '
+            import {assertApprovedSmokeOrigin} from "./scripts/public-smoke-origin.mjs";
+            const value = process.env.BCG_APPROVED_PUBLIC_ORIGIN;
+            assertApprovedSmokeOrigin(value, {approvedOrigin:value, required:true});
+          '
       - name: Require an explicitly configured scheduler secret
         shell: bash
         run: |
-          if [ -z "${CMS_CRON_SECRET:-}" ]; then
+          if ! [[ "${CMS_CRON_SECRET:-}" =~ ^[A-Za-z0-9_-]{32,256}$ ]]; then
             echo "::error::Configure matching CMS_CRON_SECRET in Vercel production and GitHub Actions secrets."
             exit 1
           fi
@@ -33,7 +52,7 @@ jobs:
           response="$(curl --fail --silent --show-error --retry 2 --max-time 35 \
             --header "Authorization: Bearer ${CMS_CRON_SECRET}" \
             --header 'Accept: application/json' \
-            'https://bcglk.devoraid.com/api/cron/publish')"
+            "${BCG_APPROVED_PUBLIC_ORIGIN}/api/cron/publish")"
           RESPONSE="${response}" node -e '
             const data = JSON.parse(process.env.RESPONSE);
             for (const key of ["published","stale","skipped","scanned","failed","deferred"]) {
