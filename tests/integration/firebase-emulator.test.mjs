@@ -410,15 +410,27 @@ test('server-owned CMS timestamps cannot be forged with client-controlled dates'
   await assertFails(deleteDoc(record));
 });
 
-test('publication transitions require a trusted server timestamp', async () => {
+test('browser publication and unpublication are prohibited even with server timestamps', async () => {
   const record = doc(admin.firestore(), 'news/audit-publication-integrity');
   await assertSucceeds(setDoc(record, {
     title: 'Unpublished', excerpt: 'Draft', published: false,
   }));
+  // Timestamp sentinels do not make a browser SDK request a trusted publisher.
   await assertFails(updateDoc(record, { published: true }));
-  await assertSucceeds(updateDoc(record, { published: true, publishedAt: serverTimestamp() }));
+  await assertFails(updateDoc(record, { published: true, publishedAt: serverTimestamp() }));
+  // Simulate an authorized Admin SDK transaction without changing production.
+  await environment.withSecurityRulesDisabled(async context => {
+    await updateDoc(doc(context.firestore(), 'news/audit-publication-integrity'), {
+      published: true, publishedAt: serverTimestamp(),
+    });
+  });
   await assertFails(updateDoc(record, { published: false }));
-  await assertSucceeds(updateDoc(record, { published: false, publishedAt: null }));
+  await assertFails(updateDoc(record, { published: false, publishedAt: null }));
+  await environment.withSecurityRulesDisabled(async context => {
+    await updateDoc(doc(context.firestore(), 'news/audit-publication-integrity'), {
+      published: false, publishedAt: null,
+    });
+  });
   await assertFails(deleteDoc(record));
 });
 
