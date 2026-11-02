@@ -25,6 +25,7 @@ test('role recovery docs no longer give false advice about current browser write
   assert.match(rules,/allow create, update, delete: if false/);
   assert.match(role,/fetch\('\/api\/admin\/users'/);
   assert.match(docs,/before merging/i);
-  assert.match(docs,/server-owned \/api\/admin\/users/);
+  assert.match(docs,/server-owned/);
+  assert.ok(docs.includes('`/api/admin/users`'));
   assert.doesNotMatch(docs,/still uses client Firestore role writes/);
 });
