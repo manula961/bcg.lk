@@ -248,7 +248,7 @@ try {
   await page.getByPlaceholder('Enter headline').fill(newsTitle + ' stale');
   await page.getByRole('button', { name: 'Save Changes' }).click();
   await page.getByText(/changed since you opened it/).waitFor({ timeout: 15000 });
-  await page.getByRole('button', { name:'Cancel', exact:true }).click();
+  await page.locator('.admin-editor-header').getByRole('button', { name:'Cancel', exact:true }).click();
 
   const updatedRow = otherPage.locator('.admin-row').filter({
     has: otherPage.getByRole('heading', { name: newsTitle + ' updated', exact:true }),
