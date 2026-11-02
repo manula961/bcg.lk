@@ -25,6 +25,7 @@ const LYRICS = {
   en: `Update needed`,
   ta: `Update needed`,
 };
+
 const LANGUAGES = [
   { id: "si", label: "සිංහල", lang: "si" },
   { id: "en", label: "English", lang: "en" },
@@ -32,7 +33,7 @@ const LANGUAGES = [
 ];
 
 function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 }
 
@@ -48,6 +49,20 @@ export default function SchoolAnthemSection() {
   const [duration, setDuration] = useState(0);
   const [lyricsOpen, setLyricsOpen] = useState(false);
   const [language, setLanguage] = useState("si");
+
+  const syncDuration = (audio) => {
+    if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+      setDuration(audio.duration);
+      setAudioStatus("ready");
+    }
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      syncDuration(audio);
+    }
+  }, []);
 
   const togglePlayback = async () => {
     const audio = audioRef.current;
@@ -163,7 +178,6 @@ export default function SchoolAnthemSection() {
       scroller.removeEventListener("pointerdown", cancel);
       scroller.removeEventListener("touchstart", cancel);
       scroller.removeEventListener("keydown", cancel);
-
     };
   }, [lyricsOpen]);
 
@@ -230,15 +244,26 @@ export default function SchoolAnthemSection() {
               src={ANTHEM_SRC}
               preload="metadata"
               onLoadedMetadata={(event) => {
-                setDuration(event.currentTarget.duration);
-                setAudioStatus("ready");
+                syncDuration(event.currentTarget);
               }}
-              onTimeUpdate={(event) =>
-                setCurrentTime(event.currentTarget.currentTime)
-              }
+              onDurationChange={(event) => {
+                syncDuration(event.currentTarget);
+              }}
+              onCanPlay={(event) => {
+                syncDuration(event.currentTarget);
+              }}
+              onTimeUpdate={(event) => {
+                setCurrentTime(event.currentTarget.currentTime);
+                if (!duration || !Number.isFinite(duration)) {
+                  syncDuration(event.currentTarget);
+                }
+              }}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
+              onEnded={() => {
+                setIsPlaying(false);
+                setCurrentTime(0);
+              }}
               onError={() => setAudioStatus("missing")}
             />
             <div className="life-detail-anthem-transport">
@@ -271,13 +296,16 @@ export default function SchoolAnthemSection() {
               <input
                 type="range"
                 min="0"
-                max={duration || 1}
+                max={duration && Number.isFinite(duration) ? duration : 100}
                 step="0.1"
-                value={currentTime}
+                value={duration ? currentTime : 0}
                 aria-label="Anthem playback position"
                 onChange={(event) => {
-                  if (audioRef.current)
-                    audioRef.current.currentTime = Number(event.target.value);
+                  const newTime = Number(event.target.value);
+                  setCurrentTime(newTime);
+                  if (audioRef.current) {
+                    audioRef.current.currentTime = newTime;
+                  }
                 }}
               />
               <span>
