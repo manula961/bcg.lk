@@ -37,11 +37,11 @@ export function renderStaticSeoHtml(template, route) {
   const title = route.title.includes('Bandaranayake College') ? route.title : route.title + ' | ' + organization;
   const edits = [
     [/<title>[^<]*<\/title>/, '<title>' + escaped(title) + '</title>'],
-    [/<meta name="description" content="[^"]*"\s*\/>/, '<meta name="description" content="' + escaped(route.description) + '" />'],
-    [/<link rel="canonical" href="[^"]*"\s*\/>/, '<link rel="canonical" href="' + escaped(url) + '" />'],
-    [/<meta property="og:title" content="[^"]*"\s*\/>/, '<meta property="og:title" content="' + escaped(title) + '" />'],
-    [/<meta property="og:description" content="[^"]*"\s*\/>/, '<meta property="og:description" content="' + escaped(route.description) + '" />'],
-    [/<meta property="og:url" content="[^"]*"\s*\/>/, '<meta property="og:url" content="' + escaped(url) + '" />'],
+    [/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, '<meta name="description" content="' + escaped(route.description) + '" />'],
+    [/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="' + escaped(url) + '" />'],
+    [/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/, '<meta property="og:title" content="' + escaped(title) + '" />'],
+    [/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/, '<meta property="og:description" content="' + escaped(route.description) + '" />'],
+    [/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, '<meta property="og:url" content="' + escaped(url) + '" />'],
   ];
   let result = template;
   for (const [pattern, replacement] of edits) {

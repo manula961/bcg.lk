@@ -69,11 +69,11 @@ export function renderCmsMetadata(template, metadata, canonical) {
   const title = metadata.title + ' | Bandaranayake College';
   const substitutions = [
     [/<title>[^<]*<\/title>/, '<title>' + xmlEscape(title) + '</title>'],
-    [/<meta name="description" content="[^"]*"\s*\/>/, '<meta name="description" content="' + xmlEscape(metadata.description) + '" />'],
-    [/<link rel="canonical" href="[^"]*"\s*\/>/, '<link rel="canonical" href="' + xmlEscape(canonical) + '" />'],
-    [/<meta property="og:title" content="[^"]*"\s*\/>/, '<meta property="og:title" content="' + xmlEscape(title) + '" />'],
-    [/<meta property="og:description" content="[^"]*"\s*\/>/, '<meta property="og:description" content="' + xmlEscape(metadata.description) + '" />'],
-    [/<meta property="og:url" content="[^"]*"\s*\/>/, '<meta property="og:url" content="' + xmlEscape(canonical) + '" />'],
+    [/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/, '<meta name="description" content="' + xmlEscape(metadata.description) + '" />'],
+    [/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="' + xmlEscape(canonical) + '" />'],
+    [/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/, '<meta property="og:title" content="' + xmlEscape(title) + '" />'],
+    [/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/, '<meta property="og:description" content="' + xmlEscape(metadata.description) + '" />'],
+    [/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/, '<meta property="og:url" content="' + xmlEscape(canonical) + '" />'],
   ];
   let html = template;
   for (const [pattern, replacement] of substitutions) {

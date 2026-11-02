@@ -28,7 +28,8 @@ export function checkMainProtection(branch, settings) {
   for (const context of REQUIRED_PR_CHECKS)
     if (!contexts.has(context)) issues.push('Missing required status check: ' + context);
   const reviews = settings.required_pull_request_reviews;
-  if (!reviews || reviews.required_approving_review_count < 1)
+  if (!Number.isInteger(reviews?.required_approving_review_count) ||
+      reviews.required_approving_review_count < 1)
     issues.push('Main does not require an independent approval.');
   if (reviews?.dismiss_stale_reviews !== true)
     issues.push('Main does not dismiss approvals after code changes.');
@@ -40,6 +41,8 @@ export function checkMainProtection(branch, settings) {
     issues.push('Force pushes are not explicitly forbidden.');
   if (settings.allow_deletions?.enabled !== false)
     issues.push('Deleting main is not explicitly forbidden.');
+  if (settings.required_conversation_resolution?.enabled !== true)
+    issues.push('Resolving review conversations is not required.');
   return issues;
 }
 
@@ -67,12 +70,22 @@ export async function checkLiveGitHubRelease({token, fetcher=fetch} = {}) {
   const sha=branch.commit?.sha;
   if (!/^[a-f0-9]{40}$/i.test(sha || ''))
     throw new Error('GitHub latest main commit cannot be verified.');
-  const pulls=await api('/commits/'+encodeURIComponent(sha)+'/pulls?per_page=100');
+  async function allPages(path) {
+    const items = [];
+    for (let page = 1; page <= 20; page++) {
+      const batch = await api(path+'?per_page=100&page='+page);
+      if (!Array.isArray(batch)) throw new Error('Invalid GitHub pagination response; fail closed.');
+      items.push(...batch);
+      if (batch.length < 100) return items;
+    }
+    throw new Error('GitHub pagination exceeds audit limit; fail closed.');
+  }
+  const pulls=await allPages('/commits/'+encodeURIComponent(sha)+'/pulls');
   const associated=pulls.filter(p=>p.merged_at && p.merge_commit_sha===sha && p.base?.ref==='main');
   if (associated.length!==1)
     throw new Error('Latest main has no unique approved merged PR provenance.');
   const pr=associated[0];
-  const reviews=await api('/pulls/'+pr.number+'/reviews?per_page=100');
+  const reviews=await allPages('/pulls/'+pr.number+'/reviews');
   const checks=await api('/commits/'+encodeURIComponent(pr.head.sha)+'/check-runs?per_page=100');
   if (!Array.isArray(checks.check_runs) || checks.total_count > checks.check_runs.length)
     throw new Error('GitHub check-runs pagination is incomplete; fail closed.');
