@@ -7,6 +7,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lifePages } from '../src/pages/life/lifePageData.js';
+import { buildReleaseManifest } from './release-manifest.mjs';
 
 // Preserve the current canonical default until the school confirms its preferred
 // production domain. Deployments may override it with an approved HTTPS origin.
@@ -103,6 +104,10 @@ export function generateSeoFiles(directory = 'dist') {
   }
   writeFileSync(join(output, 'sitemap.xml'), staticSitemap(), 'utf8');
   writeFileSync(join(output, 'robots.txt'), generatedRobotsTxt(), 'utf8');
+  // Metadata-only proof: permit read-only release checks to compare the live
+  // deployed commit and canonical origin with independent owner approval.
+  writeFileSync(join(output, 'release.json'),
+    JSON.stringify(buildReleaseManifest(process.env, ORIGIN)) + '\n', 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
