@@ -88,6 +88,6 @@ test('news cards use semantic buttons and accessible dialog while respecting red
 test('initial entry and shared chunk budgets are both enforced', () => {
   const source = read('scripts/check-bundle-budget.mjs');
   assert.match(source, /300 \* 1024/);
-  assert.match(source, /800 \* 1024/);
+  assert.match(source, /500 \* 1024/);
   assert.match(source, /Largest route-shared JavaScript chunk/);
 });
