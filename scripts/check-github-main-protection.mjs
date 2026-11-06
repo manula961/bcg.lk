@@ -123,7 +123,7 @@ export async function checkLiveGitHubRelease({token, fetcher=fetch} = {}) {
     // A read-only GitHub App may be unable to read the legacy protection API
     // when enforcement comes from a repository ruleset. Never treat a denied
     // policy read as success: inspect the effective active rulesets instead.
-    if (!/GitHub release-control read failed \\(HTTP (403|404)\\)/.test(error.message))
+    if (!/GitHub release-control read failed \(HTTP (403|404)\)/.test(error.message))
       throw error;
     const summaries = await api('/rulesets?per_page=100&includes_parents=true');
     if (!Array.isArray(summaries) || summaries.length >= 100)
