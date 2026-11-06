@@ -46,6 +46,57 @@ export function checkMainProtection(branch, settings) {
   return issues;
 }
 
+/**
+ * GitHub repository rulesets can protect main even when the legacy branch
+ * protection endpoint is unavailable. Accept one complete, enforceable ruleset
+ * only; a ruleset that targets another branch or has no checks is not proof.
+ */
+export function checkMainRulesetProtection(branch, ruleset) {
+  const issues = [];
+  if (branch?.name !== 'main' || branch?.protected !== true)
+    issues.push('GitHub main is not protected.');
+  if (ruleset?.target !== 'branch' || ruleset?.enforcement !== 'active' ||
+      ruleset?.source_type !== 'Repository' || ruleset?.source !== REPO)
+    issues.push('Ruleset is not an active repository branch policy.');
+  const names = ruleset?.conditions?.ref_name;
+  const includes = Array.isArray(names?.include) ? names.include : [];
+  const excludes = Array.isArray(names?.exclude) ? names.exclude : [];
+  if (!includes.some(value => ['refs/heads/main', '~DEFAULT_BRANCH'].includes(value)) ||
+      excludes.length !== 0)
+    issues.push('Ruleset does not unambiguously protect main.');
+  if (!Array.isArray(ruleset?.bypass_actors) || ruleset.bypass_actors.length !== 0 ||
+      ruleset?.current_user_can_bypass !== 'never')
+    issues.push('Ruleset bypass permissions are not demonstrably disabled.');
+
+  const rules = Array.isArray(ruleset?.rules) ? ruleset.rules : [];
+  const select = type => rules.find(rule => rule.type === type);
+  if (!select('non_fast_forward')) issues.push('Ruleset permits force pushes.');
+  if (!select('deletion')) issues.push('Ruleset does not prohibit deleting main.');
+
+  const review = select('pull_request')?.parameters;
+  if (!Number.isInteger(review?.required_approving_review_count) ||
+      review.required_approving_review_count < 1)
+    issues.push('Ruleset does not require a human approval.');
+  if (review?.dismiss_stale_reviews_on_push !== true)
+    issues.push('Ruleset does not dismiss stale reviews.');
+  if (review?.require_last_push_approval !== true)
+    issues.push('Ruleset does not require approval after the final push.');
+  if (review?.required_review_thread_resolution !== true)
+    issues.push('Ruleset does not require resolved conversations.');
+
+  const status = select('required_status_checks')?.parameters;
+  if (status?.strict_required_status_checks_policy !== true)
+    issues.push('Ruleset status checks are not strict/up-to-date.');
+  const contexts = new Set(
+    Array.isArray(status?.required_status_checks)
+      ? status.required_status_checks.map(entry => entry.context)
+      : []
+  );
+  for (const check of REQUIRED_PR_CHECKS)
+    if (!contexts.has(check)) issues.push('Ruleset missing required check: ' + check);
+  return issues;
+}
+
 export async function checkLiveGitHubRelease({token, fetcher=fetch} = {}) {
   if (!token || typeof token !== 'string')
     throw new Error('BCG_GITHUB_AUDIT_TOKEN is missing: cannot certify protected main.');
@@ -64,9 +115,31 @@ export async function checkLiveGitHubRelease({token, fetcher=fetch} = {}) {
   const branch = await api('/branches/main');
   if (branch.protected !== true)
     throw new Error('Production release blocked: main is unprotected.');
-  const settings = await api('/branches/main/protection');
-  const issues = checkMainProtection(branch,settings);
-  if (issues.length) throw new Error('Production release blocked: '+issues.join(' '));
+  let issues;
+  try {
+    const settings = await api('/branches/main/protection');
+    issues = checkMainProtection(branch, settings);
+  } catch (error) {
+    // A read-only GitHub App may be unable to read the legacy protection API
+    // when enforcement comes from a repository ruleset. Never treat a denied
+    // policy read as success: inspect the effective active rulesets instead.
+    if (!/GitHub release-control read failed \(HTTP (403|404)\)/.test(error.message))
+      throw error;
+    const summaries = await api('/rulesets?per_page=100&includes_parents=true');
+    if (!Array.isArray(summaries) || summaries.length >= 100)
+      throw new Error('GitHub ruleset list is incomplete; fail closed.');
+    const findings = [];
+    for (const summary of summaries) {
+      if (summary?.target !== 'branch' || summary.enforcement !== 'active' ||
+          !Number.isSafeInteger(summary.id)) continue;
+      const full = await api('/rulesets/' + summary.id);
+      const candidate = checkMainRulesetProtection(branch, full);
+      if (candidate.length === 0) { issues = []; break; }
+      findings.push(...candidate);
+    }
+    if (!issues) issues = findings.length ? findings : ['No complete active main ruleset was found.'];
+  }
+  if (issues.length) throw new Error('Production release blocked: ' + issues.join(' '));
   const sha=branch.commit?.sha;
   if (!/^[a-f0-9]{40}$/i.test(sha || ''))
     throw new Error('GitHub latest main commit cannot be verified.');
