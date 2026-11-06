@@ -1,0 +1,71 @@
+name: BCG.LK PR Visual Comparison
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  visual-compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout current approved base
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: baseline
+          persist-credentials: false
+      - name: Checkout proposed exact PR head
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      - name: Build baseline from clean dependencies
+        working-directory: baseline
+        run: |
+          npm ci
+          npm run build
+      - name: Build candidate from clean dependencies
+        working-directory: candidate
+        run: |
+          npm ci
+          npm run build
+      - name: Install ephemeral visual test dependencies
+        working-directory: candidate
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1 pixelmatch@6.0.0 pngjs@7.0.0
+          npx playwright install --with-deps chromium
+      - name: Compare base and candidate pages at fixed viewports
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd baseline && ./node_modules/.bin/vite preview --host 127.0.0.1 --port 4173 --strictPort) > "${RUNNER_TEMP}/bcg-baseline.log" 2>&1 &
+          baseline_pid=$!
+          (cd candidate && ./node_modules/.bin/vite preview --host 127.0.0.1 --port 4174 --strictPort) > "${RUNNER_TEMP}/bcg-candidate.log" 2>&1 &
+          candidate_pid=$!
+          trap 'kill "$baseline_pid" "$candidate_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://127.0.0.1:4173/ &&
+               curl -fsS -o /dev/null http://127.0.0.1:4174/; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS -o /dev/null http://127.0.0.1:4173/
+          curl -fsS -o /dev/null http://127.0.0.1:4174/
+          cd candidate
+          VISUAL_BASELINE_URL=http://127.0.0.1:4173 \
+          VISUAL_CANDIDATE_URL=http://127.0.0.1:4174 \
+          VISUAL_MAX_DIFFERENCE=0.005 \
+          node tests/visual/compare.mjs
+      - name: Preserve comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pr-visual-comparison
+          path: candidate/artifacts/visual/
+          if-no-files-found: warn
