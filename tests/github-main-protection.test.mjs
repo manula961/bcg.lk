@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {checkMainProtection,checkLiveGitHubRelease} from '../scripts/check-github-main-protection.mjs';
+import {checkMainProtection,checkMainRulesetProtection,checkLiveGitHubRelease} from '../scripts/check-github-main-protection.mjs';
 import {REQUIRED_PR_CHECKS} from '../scripts/merge-integrity.mjs';
 
 const sha='a'.repeat(40), head='b'.repeat(40);
@@ -105,4 +105,76 @@ test('a changes-requested review beyond page one invalidates an earlier approval
   }});
   await assert.rejects(()=>checkLiveGitHubRelease({token:'test',fetcher}),/lacks an independent/);
   assert.equal(secondPageRead,true);
+});
+
+
+const protectedRuleset = {
+  id:26350113, name:'01', target:'branch', enforcement:'active',
+  source_type:'Repository', source:'manula961/bcg.lk',
+  conditions:{ref_name:{include:['~DEFAULT_BRANCH'],exclude:[]}},
+  bypass_actors:[], current_user_can_bypass:'never',
+  rules:[
+    {type:'non_fast_forward'},
+    {type:'deletion'},
+    {type:'pull_request',parameters:{
+      required_approving_review_count:1,
+      dismiss_stale_reviews_on_push:true,
+      require_last_push_approval:true,
+      required_review_thread_resolution:true,
+    }},
+    {type:'required_status_checks',parameters:{
+      strict_required_status_checks_policy:true,
+      required_status_checks:REQUIRED_PR_CHECKS.map(context=>({context})),
+    }},
+  ],
+};
+
+test('complete active ruleset protects the default branch with no bypass and all checks',()=>{
+  assert.deepEqual(checkMainRulesetProtection(branch, protectedRuleset),[]);
+  const partials=[
+    {...protectedRuleset,conditions:{ref_name:{include:['refs/heads/01'],exclude:[]}}},
+    {...protectedRuleset,conditions:{ref_name:{include:['~DEFAULT_BRANCH'],exclude:['refs/heads/main']}}},
+    {...protectedRuleset,enforcement:'disabled'},
+    {...protectedRuleset,bypass_actors:[{actor_id:1}]},
+    {...protectedRuleset,current_user_can_bypass:'always'},
+    {...protectedRuleset,rules:protectedRuleset.rules.filter(x=>x.type!=='deletion')},
+    {...protectedRuleset,rules:protectedRuleset.rules.filter(x=>x.type!=='non_fast_forward')},
+    {...protectedRuleset,rules:protectedRuleset.rules.map(x=>x.type==='required_status_checks'
+      ? {...x,parameters:{...x.parameters,required_status_checks:[]}} : x)},
+    {...protectedRuleset,rules:protectedRuleset.rules.map(x=>x.type==='pull_request'
+      ? {...x,parameters:{...x.parameters,require_last_push_approval:false}} : x)},
+  ];
+  for(const candidate of partials)
+    assert.ok(checkMainRulesetProtection(branch,candidate).length>0);
+});
+
+test('ruleset-only repository protection can be independently audited if legacy API is denied',async()=>{
+  const fetcher=async (url,opts)=>{
+    assert.equal(opts.method,'GET');
+    if(url.endsWith('/branches/main')) return {ok:true,json:async()=>branch};
+    if(url.endsWith('/branches/main/protection')) return {ok:false,status:403};
+    if(url.includes('/rulesets?')) return {ok:true,json:async()=>[{
+      id:26350113,target:'branch',enforcement:'active',
+    }]};
+    if(url.endsWith('/rulesets/26350113'))
+      return {ok:true,json:async()=>protectedRuleset};
+    if(url.includes('/pulls/110/reviews')) return {ok:true,json:async()=>[review]};
+    if(url.includes('/check-runs')) return {ok:true,json:async()=>({
+      total_count:check_runs.length,check_runs,
+    })};
+    return {ok:true,json:async()=>[pr]};
+  };
+  assert.deepEqual(await checkLiveGitHubRelease({token:'test-readonly',fetcher}),{
+    protected:true,latestMainSha:sha,pr:110,checks:REQUIRED_PR_CHECKS.length,
+  });
+  const missingChecks={...protectedRuleset,rules:protectedRuleset.rules.map(x=>x.type==='required_status_checks'
+    ? {...x,parameters:{...x.parameters,required_status_checks:[]}}:x)};
+  const denied=async (url,opts)=>{
+    if(url.endsWith('/rulesets/26350113'))return {ok:true,json:async()=>missingChecks};
+    return fetcher(url,opts);
+  };
+  await assert.rejects(
+    ()=>checkLiveGitHubRelease({token:'test-readonly',fetcher:denied}),
+    /missing required check/,
+  );
 });
