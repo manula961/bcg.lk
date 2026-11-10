@@ -70,7 +70,7 @@ test('SEO build emits public non-secret provenance without changing home HTML',(
   const template=read('index.html');
   try{
     writeFileSync(join(root,'index.html'),template);
-    generateSeoFiles(root);
+    generateSeoFiles(root, {});
     const file=JSON.parse(readFileSync(join(root,'release.json'),'utf8'));
     assert.equal(file.schemaVersion,1);
     assert.equal(file.production,false);
