@@ -18,7 +18,7 @@ try {
     const page = await browser.newPage({viewport:{width,height}, reducedMotion:'reduce'});
     const label = name+'-'+view;
     try {
-      const res = await page.goto(new URL(route,origin),{waitUntil:'domcontentloaded',timeout:30000});
+      const res = await page.goto(new URL(route,origin).toString(),{waitUntil:'domcontentloaded',timeout:30000});
       assert.equal(res?.status(),200,label+' must load');
       await page.waitForFunction(() => (document.querySelector('#root')?.innerText||'').trim().length>10,
         null,{timeout:20000});
