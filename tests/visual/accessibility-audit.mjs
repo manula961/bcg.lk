@@ -6,6 +6,9 @@ import assert from 'node:assert/strict';
 const base = process.env.BCG_ACCESSIBILITY_BASE || 'http://127.0.0.1:4173';
 const origin = new URL(base);
 if (!['http:', 'https:'].includes(origin.protocol)) throw Error('Only HTTP(S) page tests are allowed.');
+// Retain main's local-only audit boundary; never crawl an arbitrary live service.
+if (!['127.0.0.1', 'localhost'].includes(origin.hostname))
+  throw Error('Only local disposable preview targets are allowed by this CI audit');
 const locations = [
   ['home','/'],['events','/events'],['past-papers','/past-papers'],['admin','/admin']
 ];
@@ -22,6 +25,42 @@ try {
       assert.equal(res?.status(),200,label+' must load');
       await page.waitForFunction(() => (document.querySelector('#root')?.innerText||'').trim().length>10,
         null,{timeout:20000});
+      // Preserve the lightweight baseline checks introduced on main.
+      const found = await page.evaluate(() => {
+        const visible = el => {
+          const style = getComputedStyle(el);
+          const rect = el.getBoundingClientRect();
+          return style.visibility !== 'hidden' && style.display !== 'none' &&
+            Number(style.opacity) !== 0 && rect.width > 0 && rect.height > 0;
+        };
+        const accessibleLabel = el => Boolean(
+          el.getAttribute('aria-label')?.trim() ||
+          el.getAttribute('aria-labelledby')?.trim() ||
+          el.innerText?.trim() ||
+          el.getAttribute('title')?.trim() ||
+          (el instanceof HTMLInputElement && el.value?.trim())
+        );
+        const issues = [];
+        if (document.documentElement.lang !== 'en') issues.push('missing English language');
+        if (document.querySelectorAll('main').length < 1) issues.push('missing main landmark');
+        if (!document.title || document.title.trim().length < 5) issues.push('missing page title');
+        for (const el of document.querySelectorAll('button, [role="button"]')) {
+          if (visible(el) && !accessibleLabel(el)) issues.push('unnamed interactive button');
+        }
+        for (const img of document.querySelectorAll('img')) {
+          if (visible(img) && !img.hasAttribute('alt')) issues.push('image missing alt attribute');
+        }
+        for (const iframe of document.querySelectorAll('iframe')) {
+          if (visible(iframe) && !iframe.getAttribute('title')) issues.push('iframe missing title');
+        }
+        for (const a of document.querySelectorAll('a[href]')) {
+          if (visible(a) && !accessibleLabel(a) && !a.querySelector('img[alt]'))
+            issues.push('unnamed interactive link');
+        }
+        return [...new Set(issues)];
+      });
+      assert.deepEqual(found, [], label + ' basic semantics: ' + found.join(', '));
+      // The strict axe-core gate below remains mandatory and reports all violations.
       await page.addScriptTag({content:axe.source});
       const results = await page.evaluate(async () => window.axe.run(document, {
         runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']},

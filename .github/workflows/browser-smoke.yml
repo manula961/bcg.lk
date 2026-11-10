@@ -39,6 +39,8 @@ jobs:
           exit 1
       - name: Check browser routes, mobile viewport and reduced motion
         run: node tests/visual/smoke.mjs
+      - name: Audit browser accessibility semantics on mobile and desktop
+        run: node tests/visual/accessibility-audit.mjs
       - name: Exercise authenticated CMS against disposable Firebase emulators
         run: npx --yes firebase-tools@13.35.1 emulators:exec --only auth,firestore,storage --project demo-bcg-e2e "node tests/visual/admin-e2e.mjs"
       - name: Upload browser screenshots
