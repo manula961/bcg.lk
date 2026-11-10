@@ -19,6 +19,7 @@ const PastPapersPage = lazy(() => import('./pages/academics/PastPapersPage.jsx')
 const NotFoundPage = lazy(() => import('./pages/errors/NotFoundPage.jsx'));
 import BackToTop from './components/BackToTop.jsx';
 import './index.css';
+import { trackPageView } from './analytics/ga4.js';
 
 function Root() {
   useEffect(() => {
@@ -66,6 +67,11 @@ function Root() {
       }));
     });
   }, []);
+
+  useEffect(() => {
+    // Track initial loads and client-side route changes (excluding admin pages).
+    if (!/^\/admin(?:\/|$)/.test(window.location.pathname)) trackPageView();
+  }, [route.location]);
 
   const pathname = new URL(route.location, window.location.origin).pathname;
   let page;
