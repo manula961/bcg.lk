@@ -40,7 +40,7 @@ test('build postprocessor emits valid static route pages and does not overwrite 
   const root = mkdtempSync(join(tmpdir(), 'bcg-seo-'));
   try {
     writeFileSync(join(root, 'index.html'), template, 'utf8');
-    generateSeoFiles(root);
+    generateSeoFiles(root, {});
     const builtHome = readFileSync(join(root, 'index.html'), 'utf8');
     assert.equal(builtHome, injectCloudflareBeacon(template));
     assert.doesNotMatch(builtHome, /bcg-post-views|api\/analytics\/collect/);
