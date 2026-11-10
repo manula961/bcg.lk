@@ -95,7 +95,7 @@ const ExploreSection = () => {
             {/* Tabs List */}
             <div className="explore-tabs-list" role="tablist" aria-label="Campus Locations">
               {places.map((place, i) => (
-                <div key={place.id} className="explore-tab-wrapper">
+                <div key={place.id} className="explore-tab-wrapper" role="presentation">
                   <button
                     type="button"
                     role="tab"
