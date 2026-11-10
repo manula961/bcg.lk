@@ -30,8 +30,18 @@ jobs:
           done
           cat /tmp/bcg-accessibility.log
           exit 1
-      - name: Check WCAG A/AA, keyboard focus, mobile and desktop
-        run: node tests/visual/accessibility-audit.mjs
+      - name: Check browser GTM under the exact Vercel CSP and WCAG accessibility
+        shell: bash
+        run: |
+          set +e
+          node tests/visual/analytics-csp-audit.mjs
+          csp_status=$?
+          node tests/visual/accessibility-audit.mjs
+          accessibility_status=$?
+          if [ "$csp_status" -ne 0 ] || [ "$accessibility_status" -ne 0 ]; then
+            echo "CSP and/or accessibility acceptance remains open; inspect both logs."
+            exit 1
+          fi
       - name: Retain violations and review evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
