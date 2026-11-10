@@ -6,7 +6,10 @@ let lastPage = null;
 
 export function trackPageView() {
   if (!/^G-[A-Z0-9]+$/.test(measurementId || '')) return;
-  const page = window.location.pathname + window.location.search;
+  // Never send query strings: they can contain emails, passwords, OAuth codes or tokens.
+  // Page-view metrics are deliberately path-only and exclude the admin console.
+  const page = window.location.pathname;
+  if (/^\/admin(?:\/|$)/.test(page)) return;
   if (page === lastPage) return;
   lastPage = page;
 
@@ -25,7 +28,7 @@ export function trackPageView() {
 
   window.gtag('event', 'page_view', {
     page_location: window.location.origin + page,
-    page_path: window.location.pathname,
+    page_path: page,
     page_title: document.title,
   });
 }
