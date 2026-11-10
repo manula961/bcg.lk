@@ -84,7 +84,7 @@ export function injectCloudflareBeacon(html, token = process.env.CLOUDFLARE_WEB_
   return html.replace(marker, script + marker);
 }
 
-export function generateSeoFiles(directory = 'dist') {
+export function generateSeoFiles(directory = 'dist', releaseEnv = process.env) {
   const output = resolve(directory);
   const template = readFileSync(join(output, 'index.html'), 'utf8');
   // Only update homepage metadata when an explicitly approved origin differs.
@@ -107,7 +107,7 @@ export function generateSeoFiles(directory = 'dist') {
   // Metadata-only proof: permit read-only release checks to compare the live
   // deployed commit and canonical origin with independent owner approval.
   writeFileSync(join(output, 'release.json'),
-    JSON.stringify(buildReleaseManifest(process.env, ORIGIN)) + '\n', 'utf8');
+    JSON.stringify(buildReleaseManifest(releaseEnv, ORIGIN)) + '\n', 'utf8');
   console.log('Generated ' + seoRoutes.length + ' SEO route HTML files and sitemap.xml');
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
