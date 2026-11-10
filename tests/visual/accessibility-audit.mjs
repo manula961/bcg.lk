@@ -29,6 +29,16 @@ try {
       const violations = results.violations.map(v=>({
         id:v.id,impact:v.impact,description:v.description,
         selectors:v.nodes.slice(0,8).map(n=>n.target.join(' ')),
+        // Include precise rule diagnostics for an owner-authorized UI repair.
+        // No authenticated staging/production content is visited by this job.
+        details:v.nodes.slice(0,8).map(n=>({
+          selector:n.target.join(' '),
+          html:n.html?.slice(0,400),
+          failureSummary:n.failureSummary?.slice(0,1100),
+          checks:[...n.any,...n.all,...n.none].map(c=>({
+            id:c.id,message:c.message?.slice(0,600),data:c.data,
+          })),
+        })),
       }));
       writeFileSync('artifacts/accessibility/'+label+'.json', JSON.stringify({
         label, testedAt:new Date().toISOString(), violations,
