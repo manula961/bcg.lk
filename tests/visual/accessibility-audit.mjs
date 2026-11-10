@@ -23,7 +23,7 @@ try {
   for (const item of cases) {
     const page = await browser.newPage({viewport:{width:item.width,height:item.height},reducedMotion:'reduce'});
     try {
-      const response = await page.goto(new URL(item.path, origin), {waitUntil:'domcontentloaded',timeout:30000});
+      const response = await page.goto(new URL(item.path, origin).toString(), {waitUntil:'domcontentloaded',timeout:30000});
       assert.equal(response?.status(), 200, item.path + ' HTTP status');
       await page.waitForFunction(() => (document.querySelector('#root')?.innerText || '').trim().length > 10,
         null, {timeout:20000});
