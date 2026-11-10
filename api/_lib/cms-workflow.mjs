@@ -206,14 +206,17 @@ function safeError(error) {
 }
 
 export async function verifyEditor(req, method) {
+  // Anonymous requests must be denied as 401 even if a preview/staging
+  // environment intentionally has no privileged Firebase configuration.
+  // Check the bearer format before the POST origin configuration.
+  const token = /^Bearer ([A-Za-z0-9._-]{20,5000})$/.exec(req.headers?.authorization || '')?.[1];
+  if (!token) throw failure(401,'Sign in to the admin console.');
   if (method === 'POST') {
     const allowed = process.env.USER_ADMIN_ORIGIN;
     if (!allowed || !/^https:\/\/[^/]+$/.test(allowed))
       throw failure(503,'Set USER_ADMIN_ORIGIN to the HTTPS console origin.');
     if (req.headers.origin !== allowed) throw failure(403,'Origin not permitted.');
   }
-  const token = /^Bearer ([A-Za-z0-9._-]{20,5000})$/.exec(req.headers.authorization || '')?.[1];
-  if (!token) throw failure(401,'Sign in to the admin console.');
   const {apiKey} = config();
   const auth = await request('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+
     encodeURIComponent(apiKey), {
