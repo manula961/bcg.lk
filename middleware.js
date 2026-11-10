@@ -27,7 +27,9 @@ export function isKnownRoute(path) {
   if (normalized.startsWith('/api/') || normalized.startsWith('/assets/') ||
       normalized.startsWith('/email-assets/')) return true;
   // Recognize only shipped root assets; nonexistent dotted paths must be HTTP 404.
-  if (['/robots.txt', '/sitemap.xml', '/sinhala-text.svg'].includes(normalized)) return true;
+  // SEO postbuild writes release.json; let Vercel serve the real JSON file for
+  // exact-SHA provenance checks without widening unknown-path fallbacks.
+  if (['/robots.txt', '/sitemap.xml', '/release.json', '/sinhala-text.svg'].includes(normalized)) return true;
   return false;
 }
 
