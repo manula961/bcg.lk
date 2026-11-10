@@ -43,8 +43,12 @@ try {
     });
     async function capture(base, label) {
       const url = new URL(item.path, base).toString();
-      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+      // The homepage contains long-lived/third-party requests, so networkidle
+      // can hang even though the React app is ready. Use bounded app/asset
+      // readiness instead; screenshots and pixel thresholds remain mandatory.
+      const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       if (!response || !response.ok()) throw new Error(label + ' not accessible: ' + url + ' HTTP ' + response?.status());
+      await page.locator('#root').waitFor({ state: 'visible', timeout: 15000 });
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(1500);
       const png = await page.screenshot({ animations: 'disabled', caret: 'hide', fullPage: false });
