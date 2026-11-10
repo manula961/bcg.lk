@@ -18,7 +18,7 @@ test('real staging auth audit requires explicit approved project and refuses pro
     BCG_STAGING_APPROVED_PROJECT_ID:'bcg-staging-example',
     BCG_STAGING_READONLY_CONFIRMATION:'RUN_READONLY_STAGING_AUTH',
   };
-  let result=run({...env,BCG_STAGING_PROJECT_ID:'bcg-production-example'});
+  let result=run({...env,BCG_STAGING_PROJECT_ID:'bcg-production-example',BCG_STAGING_APPROVED_PROJECT_ID:'bcg-production-example'});
   assert.notEqual(result.status,0);
   assert.match(result.stderr,/separate projects/);
   result=run({...env,BCG_STAGING_APPROVED_PROJECT_ID:'different-staging'});
