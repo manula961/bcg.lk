@@ -1,0 +1,41 @@
+name: BCG.LK Firebase Staging Authentication Audit
+on:
+  workflow_dispatch:
+    inputs:
+      staging_project_id:
+        description: Exact preapproved STAGING Firebase project ID (not production)
+        required: true
+        type: string
+      confirmation:
+        description: Type RUN_READONLY_STAGING_AUTH to authorize identity login and Firestore GET
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  staging-auth:
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      - name: Test real Firebase staging login and access restrictions (read-only)
+        env:
+          BCG_STAGING_APPROVED_PROJECT_ID: ${{ inputs.staging_project_id }}
+          BCG_STAGING_READONLY_CONFIRMATION: ${{ inputs.confirmation }}
+          BCG_STAGING_PROJECT_ID: ${{ secrets.BCG_STAGING_PROJECT_ID }}
+          BCG_PRODUCTION_PROJECT_ID: ${{ secrets.BCG_PRODUCTION_PROJECT_ID }}
+          BCG_STAGING_WEB_API_KEY: ${{ secrets.BCG_STAGING_WEB_API_KEY }}
+          BCG_STAGING_EDITOR_EMAIL: ${{ secrets.BCG_STAGING_EDITOR_EMAIL }}
+          BCG_STAGING_EDITOR_PASSWORD: ${{ secrets.BCG_STAGING_EDITOR_PASSWORD }}
+          BCG_STAGING_PUBLISHER_EMAIL: ${{ secrets.BCG_STAGING_PUBLISHER_EMAIL }}
+          BCG_STAGING_PUBLISHER_PASSWORD: ${{ secrets.BCG_STAGING_PUBLISHER_PASSWORD }}
+          BCG_STAGING_ADMIN_EMAIL: ${{ secrets.BCG_STAGING_ADMIN_EMAIL }}
+          BCG_STAGING_ADMIN_PASSWORD: ${{ secrets.BCG_STAGING_ADMIN_PASSWORD }}
+          BCG_STAGING_SUPER_ADMIN_EMAIL: ${{ secrets.BCG_STAGING_SUPER_ADMIN_EMAIL }}
+          BCG_STAGING_SUPER_ADMIN_PASSWORD: ${{ secrets.BCG_STAGING_SUPER_ADMIN_PASSWORD }}
+        run: node scripts/check-firebase-staging-auth.mjs
